@@ -1,7 +1,7 @@
-"""Version of ansys-mapdl-core module."""
+"""Version of ansys-mapdl-reader module."""
 
 # major, minor, patch
-version_info = 0, 44, 21
+version_info = 0, 50, 0
 
 # Nice string for the version
 __version__ = '.'.join(map(str, version_info))

@@ -4,15 +4,25 @@ This is the legacy reader for binary and ASCII files generated from MAPDL.
 
 This Python module allows you to:
  - Extract data directly from binary ANSYS v14.5+ files and to display
-   or animate them.
- - Rapidly read in binary result ``(.rst)``, binary mass and stiffness
-   ``(.full)``, and ASCII block archive ``(.cdb)`` files.
+   or animate them.  Specifically, the following formats:
+
+    - ``*.rst``: Result file from structural analysis
+    - ``*.rth``: Result file from a thermal analysis
+    - ``*.emat``: Stores data related to element matrices
+    - ``*.full``: Stores the full stiffness-mass matrix
+    - Reading nodes and elements from MAPDL ASCII block archive
+      ``*.cdb`` and ``*.dat`` files
 
 
 This module will be maintained provided that it provides unique
 support for reading files from MAPDL and may be subject to
 depreciation when ANSYS provides better support for the multitude of
 file formats.
+
+You are encouraged to checkout the new Data Processing
+Framework modules at `DPF-Core <https://github.com/pyansys/DPF-Core>`_
+and `DPF-Post <https://github.com/pyansys/DPF-Post>`_ as they provide
+a modern interface to ANSYS result files.
 
 
 Installation

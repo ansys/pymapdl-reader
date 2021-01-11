@@ -1,11 +1,9 @@
-"""
-Provides a basic interface to computing the minimum scaled Jacobian
+"""Provides a basic interface to computing the minimum scaled Jacobian
 cell quality from VTK unstructured grids.
-
 """
 import numpy as np
-
 import pyvista as pv
+
 from ansys.mapdl.reader._cellqual import cell_quality_float, cell_quality
 from ansys.mapdl.reader.misc import vtk_cell_info
 

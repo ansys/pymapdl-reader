@@ -5,7 +5,7 @@ import os
 import urllib.request
 import zipfile
 
-import ansys.mapdl.core as pymapdl
+import ansys.mapdl.reader as pymapdl_reader
 
 
 def get_ext(filename):
@@ -16,14 +16,14 @@ def get_ext(filename):
 
 def delete_downloads():
     """Delete all downloaded examples to free space or update the files"""
-    shutil.rmtree(pymapdl.EXAMPLES_PATH)
-    os.makedirs(pymapdl.EXAMPLES_PATH)
+    shutil.rmtree(pymapdl_reader.EXAMPLES_PATH)
+    os.makedirs(pymapdl_reader.EXAMPLES_PATH)
     return True
 
 
 def _decompress(filename):
     zip_ref = zipfile.ZipFile(filename, 'r')
-    zip_ref.extractall(pymapdl.EXAMPLES_PATH)
+    zip_ref.extractall(pymapdl_reader.EXAMPLES_PATH)
     return zip_ref.close()
 
 
@@ -33,7 +33,7 @@ def _get_file_url(filename):
 
 def _retrieve_file(url, filename):
     # First check if file has already been downloaded
-    local_path = os.path.join(pymapdl.EXAMPLES_PATH, os.path.basename(filename))
+    local_path = os.path.join(pymapdl_reader.EXAMPLES_PATH, os.path.basename(filename))
     local_path_no_zip = local_path.replace('.zip', '')
     if os.path.isfile(local_path_no_zip) or os.path.isdir(local_path_no_zip):
         return local_path_no_zip, None
@@ -62,9 +62,9 @@ def _download_file(filename):
 def _download_and_read(filename):
     saved_file, _ = _download_file(filename)
     if saved_file[-3:] == 'cdb':
-        return pymapdl.Archive(saved_file)
+        return pymapdl_reader.Archive(saved_file)
     else:
-        return pymapdl.read_binary(saved_file)
+        return pymapdl_reader.read_binary(saved_file)
 
 
 ###############################################################################

@@ -114,7 +114,7 @@ def read_binary(filename, **kwargs):
 
     Examples
     --------
-    >>> import pyansys
+    >>> import ansys.mapdl.reader as pymapdl_reader
     >>> result = pyansys.read_binary('file.rst')
     >>> result = pyansys.read_binary('file.rst')
     >>> full_file = pyansys.read_binary('file.full')
@@ -122,7 +122,7 @@ def read_binary(filename, **kwargs):
 
     Notes
     -----
-    The following file types are unsupported
+    The following file types are unsupported:
     - Jobname.DSUB file, storing displacements related to substructure
       matrices
     - Jobname.SUB file, storing data related to substructure matrices
@@ -170,17 +170,13 @@ def read_binary(filename, **kwargs):
 
         return result
 
-    # elif file_format == 16:
-    #     from pyansys.db import Database
-    #     return Database(filename, debug=kwargs.pop('debug', False))
-
     # No file matches
     file_type = ANSYS_BINARY_FILE_TYPES.get(file_format, str(file_format))
     raise RuntimeError('ANSYS binary "%s" not supported' % file_type)
 
 
 def read_table(f, dtype='i', nread=None, skip=False, get_nread=True, cython=False):
-    """ read fortran style table """
+    """Read fortran style table"""
     if cython:
         arr, bufsz = c_read_record(f.name, f.tell()//4, True)
         f.seek(bufsz*4, 1)
