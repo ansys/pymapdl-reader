@@ -1,91 +1,35 @@
-pyansys =======
-.. image:: https://img.shields.io/pypi/v/pyansys.svg
-    :target: https://pypi.org/project/pyansys/
-
-.. image:: https://dev.azure.com/femorph/pyansys/_apis/build/status/akaszynski.pyansys?branchName=master
-    :target: https://dev.azure.com/femorph/pyansys/_build/latest?definitionId=8&branchName=master
-
-.. image:: https://zenodo.org/badge/70696039.svg
-   :target: https://zenodo.org/badge/latestdoi/70696039
-
-.. image:: https://img.shields.io/discord/412182089279209474.svg?label=Discord&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2
-   :target: https://discord.gg/QDaTdx3
+PyMAPDL Legacy Binary and Archive Reader
+========================================
+This is the legacy reader for binary and ASCII files generated from MAPDL.
 
 This Python module allows you to:
- - Interactively control an instance of ANSYS v14.5 + using Python on
-   Linux, >=17.0 on Windows.
  - Extract data directly from binary ANSYS v14.5+ files and to display
    or animate them.
  - Rapidly read in binary result ``(.rst)``, binary mass and stiffness
    ``(.full)``, and ASCII block archive ``(.cdb)`` files.
 
-See the `Documentation <https://akaszynski.github.io/pyansys/>`_ page for more details, and the `Examples gallery <https://akaszynski.github.io/pyansys/examples/index.html>`_ for some examples.
 
-Be sure to visit the discord channel at `pyansys Discord Channel <https://discord.gg/QDaTdx3>`_
+This module will be maintained provided that it provides unique
+support for reading files from MAPDL and may be subject to
+depreciation when ANSYS provides better support for the multitude of
+file formats.
 
 
 Installation
 ------------
 Installation through pip::
 
-    pip install pyansys
+    pip install ansys-mapdl-reader
 
-You can also visit `GitHub <https://github.com/akaszynski/pyansys>`_
-to download the source.
-
-
-Quick Examples
---------------
-Many of the following examples are built in and can be run from the
-build-in examples module.  For a quick demo, run:
-
-.. code:: python
-
-    from pyansys import examples
-    examples.run_all()
-
-
-Controlling ANSYS
-~~~~~~~~~~~~~~~~~
-Create an instance of ANSYS and interactively send commands to it.
-This is a direct interface and does not rely on writing a temporary
-script file.  You can also generate plots using either MAPDL's
-internal plotting with ``matplotlib``, or interactive plots using VTK:
-
-.. code:: python
-
-    import os
-    import pyansys
-
-    path = os.getcwd()
-    mapdl = pyansys.launch_mapdl(run_location=path, interactive_plotting=True)
-
-    # create a square area using keypoints
-    mapdl.prep7()
-    mapdl.k(1, 0, 0, 0)
-    mapdl.k(2, 1, 0, 0)
-    mapdl.k(3, 1, 1, 0)
-    mapdl.k(4, 0, 1, 0)    
-    mapdl.l(1, 2)
-    mapdl.l(2, 3)
-    mapdl.l(3, 4)
-    mapdl.l(4, 1)
-    mapdl.al(1, 2, 3, 4)
-    mapdl.aplot()
-    mapdl.save()
-
-
-Here is an example plot from one of the more complex examples:
-
-
-.. figure:: https://github.com/akaszynski/pyansys/raw/master/docs/mapdl/images/vplot_vtk_small.png
-
+You can also visit `pymapdl-reader <https://github.com/pyansys/pymapdl-reader>`_
+to download the source or releases from GitHub.
 
 
 Loading and Plotting an ANSYS Archive File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ANSYS archive files containing solid elements (both legacy and current), can be loaded using Archive and then converted to a vtk object.
-
+ANSYS archive files containing solid elements (both legacy and
+modern), can be loaded using Archive and then converted to a vtk
+object.
 
 .. code:: python
 
@@ -292,57 +236,3 @@ natural frequencies and mode shapes.
     1283.200 Hz
     5781.975 Hz
     6919.399 Hz
-
-
-Additional Tools
-----------------
-There are additional tools created by @natter1 at `pyansysTools <https://github.com/natter1/pyansysTools.git>`_ which include the following features:
-
- - Inline class: Implementing the ANSYS inline functions
- - Macros class: Macros for repeating tasks
- - The ``geo2d`` class: Easily create 2d geometries
-
-You can also install `pyansystools` with
-
-```
-pip install pyansystools
-```
-
-
-Citing this Module
--------------------
-If you use ``pyansys`` for research and would like to cite the module
-and source, you can visit `pyansys Zenodo <https://zenodo.org/badge/latestdoi/70696039>`_
-and generate the correct citation.  For example, the BibTex citation
-is:
-
-.. code::
-
-    @software{alexander_kaszynski_2020_4009467,
-      author       = {Alexander Kaszynski},
-      title        = {{pyansys: Python Interface to MAPDL and Associated 
-                       Binary and ASCII Files}},
-      month        = aug,
-      year         = 2020,
-      publisher    = {Zenodo},
-      version      = {0.43.2},
-      doi          = {10.5281/zenodo.4009467},
-      url          = {https://doi.org/10.5281/zenodo.4009467}
-    }
-
-Please visit the link above for the most recent citation as the
-citation here may not be current.
-
-
-License and Acknowledgments
----------------------------
-``pyansys`` is licensed under the MIT license.
-
-This module, ``pyansys`` makes no commercial claim over ANSYS
-whatsoever.  This tool extends the functionality of ``ANSYS`` by
-adding a Python interface in both file interface as well as
-interactive scripting without changing the core behavior or license of
-the original software.  The use of the interactive APDL control of
-``pyansys`` requires a legally licensed local copy of ANSYS.
-
-To get a copy of ANSYS, please visit `ANSYS <https://www.ansys.com/>`_
