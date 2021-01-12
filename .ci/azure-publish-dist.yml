@@ -11,6 +11,6 @@ steps:
 - script: |
     python -m pip install -r requirements_build.txt
     python -m pip install twine
-    python -m twine upload dist/* --skip-existing -p $(TWINE_PASSWORD) -u $(TWINE_USERNAME)
+    python -m twine upload dist/* --skip-existing -p $(PYPI_TOKEN) -u __token__
   displayName: 'Upload Artifacts'
   condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
