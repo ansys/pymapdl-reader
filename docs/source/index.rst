@@ -21,7 +21,8 @@ The ``ansys-mapdl-reader`` module supports the following formats:
 Please see the :ref:`ref_example_gallery` for several demos using
 ``ansys-mapdl-reader``.
 
-.. warning::
+.. note::
+
    This module will likely change or be depreciated in the future.
 
    You are encouraged to use the new Data Processing Framework (DPF)

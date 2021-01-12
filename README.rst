@@ -21,7 +21,7 @@ The ``ansys-mapdl-reader`` module supports the following formats:
 Please see the `PyMAPDL-Reader Documentation
 <https://readerdocs.pyansys.com>`_ for the full documentation.
 
-.. warning::
+.. note::
 
    This module will likely change or be depreciated in the future.
 

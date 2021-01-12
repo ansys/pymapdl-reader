@@ -21,6 +21,7 @@ steps:
 
 - script: |
     python -m pip install -r requirements_docs.txt
+    sudo apt-get install pandoc
   displayName: Install Documentation Build Dependencies
 
 - script: |
