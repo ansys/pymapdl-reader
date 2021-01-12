@@ -35,16 +35,15 @@ steps:
 
 - script: |
     cd ..
-    git clone --single-branch --branch gh-pages https://$(github_pat)@github.com/pyansys/pymapdl-reader.git gh_pages
+    git clone --no-checkout https://$(github_pat)@github.com/pyansys/pymapdl-reader.git gh_pages
     cd gh_pages
-    git gc --prune=now
-    git remote prune origin
-    git config user.email $(gh_email)
+    git checkout --orphan gh_pages
     git config user.name $(gh_user)
-    rm -rf *
+    git config user.email $(gh_email)
     cp -r $BUILD_SOURCESDIRECTORY/docs/build/html/* .
     touch .nojekyll
     git add .
     git commit -am "Pipelines-Bot: Updated site via $(Build.SourceVersion)"
-    git push
+    git push -u origin gh_pages -f
   displayName: Push to gh-pages
+  # condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/master'))
