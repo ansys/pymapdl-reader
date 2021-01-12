@@ -1,6 +1,9 @@
+# cython: language_level=2
+# cython: infer_types=True
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: cdivision=True
+# cython: nonecheck=False
 
 """ Cython implementation of a CDB reader """
 from libc.stdio cimport fopen, FILE, fclose, sscanf, fscanf, fread, fseek

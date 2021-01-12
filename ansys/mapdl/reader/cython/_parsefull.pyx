@@ -1,3 +1,10 @@
+# cython: language_level=3
+# cython: infer_types=True
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: cdivision=True
+# cython: nonecheck=False
+
 import numpy as np
 # cimport numpy as np
 

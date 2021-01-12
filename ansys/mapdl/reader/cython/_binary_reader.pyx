@@ -1709,8 +1709,8 @@ def break_apart_surface(double [:, ::1] points, int64_t [::1] faces, int n_faces
     cdef int i = 0
     cdef int c = 0
     cdef int cj = 0
-    cdef int j, face_sz, c_add
     cdef int face = 0
+    cdef int j, face_sz, c_add, f_idx
     while i < face_arr_sz:
         face += 1
         face_sz = faces[i]
