@@ -189,7 +189,7 @@ def test_repr():
     assert 'Title' in str(pontoon)
 
 
-@pytest.mark.skipif(is16 is None, reason="Requires example files")
+@pytest.mark.skipif(vm33 is None, reason="Requires example files")
 def test_available_results():
     for etype in vm33.available_results:
         if etype in ['NSL', 'VSL', 'ASL', 'RF']:  # skip nodal records

@@ -18,10 +18,11 @@ The ``ansys-mapdl-reader`` module supports the following formats:
   - ``*.cdb`` or ``*.dat`` - MAPDL ASCII block archive and
     Mechanical Workbench input files
 
-Please see the :ref:`ref_example_gallery` for several demos using
-``ansys-mapdl-reader``.
+Please see the `PyMAPDL-Reader Documentation
+<https://readerdocs.pyansys.com>`_ for the full documentation.
 
 .. warning::
+
    This module will likely change or be depreciated in the future.
 
    You are encouraged to use the new Data Processing Framework (DPF)
