@@ -27,7 +27,7 @@ of the values later on.
 
 .. code:: python
 
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     from ansys.mapdl.reader import examples
     
     # Create result reader object and read in full file

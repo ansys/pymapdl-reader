@@ -9,7 +9,7 @@ legacy and modern) can be loaded using Archive and then converted to a
 
 .. code:: python
 
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     from ansys.mapdl.reader import examples
 
     # Read a sample archive file
@@ -28,7 +28,7 @@ archive file by enabling the ``read_parameters`` parameter.
 
 .. code:: python
 
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     archive = pymapdl_reader.Archive('mesh.cdb', read_parameters=True)
 
     # parameters are stored as a dictionary
@@ -49,7 +49,7 @@ built-in archive file demonstrates this capability.
 
     import pyvista as pv
     from pyvista import examples
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
 
     # load in a vtk unstructured grid
     grid = pv.UnstructuredGrid(examples.hexbeamfile)
@@ -95,7 +95,7 @@ can be loaded using Archive and then converted to a VTK object.
 
 .. code:: python
 
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     from ansys.mapdl.reader import examples
 
     # Sample *.cdb

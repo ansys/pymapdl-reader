@@ -5,7 +5,7 @@ import os
 import urllib.request
 import zipfile
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 
 
 def get_ext(filename):

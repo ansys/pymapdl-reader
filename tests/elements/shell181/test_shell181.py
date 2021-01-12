@@ -80,7 +80,7 @@ import os
 
 import pytest
 import numpy as np
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 
 ANSYS_ELEM = [[0.17662E-07, 79.410, -11.979, -0.11843E-02, 4.8423, -0.72216E-04],
               [0.20287E-07, 91.212, 27.364, -0.13603E-02, 4.8423, -0.72216E-04],

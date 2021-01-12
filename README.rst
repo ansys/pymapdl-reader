@@ -50,7 +50,7 @@ object.
 
 .. code:: python
 
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     from ansys.mapdl.reader import examples
     
     # Sample *.cdb
@@ -95,7 +95,7 @@ from ANSYS.
 .. code:: python
 
     # Load the reader from pyansys
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     from ansys.mapdl.reader import examples
     
     # Sample result file
@@ -215,7 +215,7 @@ the above example.
 .. code:: python
 
     # Load the reader from pyansys
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     from scipy import sparse
     
     # load the full file

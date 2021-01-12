@@ -5,7 +5,7 @@ import pytest
 from pyvista.plotting import system_supports_plotting
 from pyvista.plotting.renderer import CameraPosition
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.cyclic_reader import CyclicResult
 

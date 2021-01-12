@@ -114,7 +114,7 @@ def read_binary(filename, **kwargs):
 
     Examples
     --------
-    >>> import ansys.mapdl.reader as pymapdl_reader
+    >>> from ansys.mapdl import reader as pymapdl_reader
     >>> result = pyansys.read_binary('file.rst')
     >>> result = pyansys.read_binary('file.rst')
     >>> full_file = pyansys.read_binary('file.full')

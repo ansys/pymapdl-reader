@@ -43,7 +43,7 @@ can initialize with:
 
 .. code:: python
 
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     result = pymapdl_reader.read_binary('file.rst')
     
 Upon initialization the ``Result`` object contains several
@@ -139,7 +139,7 @@ of a result, which returns a ``ansys.mapdl.reader.mesh.Mesh`` class.
 
 .. code:: python
 
-    >>> import ansys.mapdl.reader as pymapdl_reader
+    >>> from ansys.mapdl import reader as pymapdl_reader
     >>> from ansys.mapdl.reader import examples
     >>> rst = pymapdl_reader.read_binary(examples.rstfile)
     >>> print(rst.mesh)
@@ -291,7 +291,7 @@ for the first result from a modal analysis.
 
 .. code:: python
     
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     result = pymapdl_reader.read_binary('file.rst')
     estress, elem, enode = result.element_stress(0)
 
@@ -348,7 +348,7 @@ used with only ``numpy`` installed.
 .. code:: python
 
     # Load the reader from pyansys
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     from ansys.mapdl.reader import examples
     
     # Sample result file
@@ -391,7 +391,7 @@ volume of each element:
 .. code:: python
 
     import numpy as np
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
 
     rst = pymapdl_reader.read_binary('./file.rst')
     enum, edata = rst.element_solution_data(0, datatype='ENG')
@@ -410,7 +410,7 @@ Solutions from a modal analysis can be animated using
 .. code:: python
 
     from ansys.mapdl.reader import examples
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
 
     result = pymapdl_reader.read_binary(examples.rstfile)
     result.animate_nodal_solution(3)
@@ -500,7 +500,7 @@ a cyclic analysis:
 
 .. code:: python
 
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
 
     # load the result file    
     result = pymapdl_reader.read_binary('rotor.rst')
@@ -619,7 +619,7 @@ from the analysis:
 
 .. code:: python
 
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     from ansys.mapdl.reader import examples
 
     # load example beam result file

@@ -9,7 +9,7 @@ Display custom scalars using an existing mesh.
 import pyvista
 import numpy as np
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 
 # Download an example shaft modal analysis result file

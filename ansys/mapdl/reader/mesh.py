@@ -199,7 +199,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.key_option
@@ -213,7 +213,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.material_type
@@ -236,7 +236,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.element_components
@@ -258,7 +258,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.node_components
@@ -286,7 +286,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.elem_real_constant
@@ -312,7 +312,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.etype
@@ -350,7 +350,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.section
@@ -367,7 +367,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.element_coord_system
@@ -400,7 +400,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.elem
@@ -422,7 +422,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.enum
@@ -438,7 +438,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.nnum
@@ -455,7 +455,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.ekey
@@ -472,7 +472,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.rlblock
@@ -489,7 +489,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.rnum
@@ -503,7 +503,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.nodes
@@ -525,7 +525,7 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.nodes

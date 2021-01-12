@@ -17,7 +17,7 @@ Load the element matrix file:
 
 .. code:: python
 
-    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl import reader as pymapdl_reader
     emat_file = pymapdl_reader.read_binary('file.emat')
 
 Read a single element from the result file:

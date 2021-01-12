@@ -3,7 +3,7 @@ import os
 import pytest
 import numpy as np
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 
 test_path = os.path.dirname(os.path.abspath(__file__))

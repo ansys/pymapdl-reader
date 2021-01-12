@@ -158,7 +158,7 @@ class CyclicResult(Result):
         --------
         Visualize the 1st nodal diameter mode.
 
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> result = examples.download_academic_rotor()
         >>> result.nodal_solution((2, 1))

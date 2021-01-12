@@ -3,7 +3,7 @@ import os
 import pytest
 import numpy as np
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader.emat import EmatFile
 
 

@@ -16,7 +16,7 @@ def quality(grid):
 
     Examples
     --------
-    >>> import ansys.mapdl.reader as pymapdl_reader
+    >>> from ansys.mapdl import reader as pymapdl_reader
     >>> import pyvista as pv
     >>> x = np.arange(-10, 10, 5)
     >>> y = np.arange(-10, 10, 5)

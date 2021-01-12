@@ -26,7 +26,7 @@ currently provides through result.element_stress(0) command which is in the glob
 coordinate system.
 
 """
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 import numpy as np
 import os
 

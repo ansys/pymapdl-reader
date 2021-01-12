@@ -9,7 +9,7 @@ from vtk import (VTK_TETRA, VTK_QUADRATIC_TETRA, VTK_PYRAMID,
 from pyvista import examples as pyvista_examples
 import pyvista as pv
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 
 

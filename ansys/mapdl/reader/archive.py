@@ -70,7 +70,7 @@ class Archive(Mesh):
 
     Examples
     --------
-    >>> import ansys.mapdl.reader as pymapdl_reader
+    >>> from ansys.mapdl import reader as pymapdl_reader
     >>> from ansys.mapdl.reader import examples
     >>> hex_beam = pymapdl_reader.Archive(examples.hexarchivefile)
     >>> print(hex_beam)
@@ -150,7 +150,7 @@ class Archive(Mesh):
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile,
                                              read_parameters=True)
@@ -182,7 +182,7 @@ class Archive(Mesh):
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.grid
@@ -209,7 +209,7 @@ class Archive(Mesh):
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.quality

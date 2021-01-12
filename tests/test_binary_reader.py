@@ -7,7 +7,7 @@ from pyvista.plotting.renderer import CameraPosition
 import numpy as np
 import pyvista as pv
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader._rst_keys import element_index_table_info
 from ansys.mapdl.reader import examples
 

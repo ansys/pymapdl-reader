@@ -38,7 +38,7 @@ import numpy as np
 import pytest
 from pyvista.plotting import system_supports_plotting
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.examples.downloads import _download_and_read
 

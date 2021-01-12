@@ -5,7 +5,7 @@ import os
 import pyvista
 import numpy as np
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 
 # -- pyvista configuration ---------------------------------------------------
 # Manage errors

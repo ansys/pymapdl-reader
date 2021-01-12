@@ -6,7 +6,7 @@ import sys
 import numpy as np
 import pyvista as pv
 
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 
 # get location of this folder and the example files

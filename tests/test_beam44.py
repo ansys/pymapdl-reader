@@ -1,5 +1,5 @@
 import os
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 
 TEST_PATH = os.path.dirname(os.path.abspath(__file__))
 TESTFILES_PATH = os.path.join(TEST_PATH, 'testfiles')
