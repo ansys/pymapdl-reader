@@ -48,3 +48,4 @@ steps:
     git commit -am "Pipelines-Bot: Updated site via $(Build.SourceVersion)"
     git push
   displayName: Push to gh-pages
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/master'))
