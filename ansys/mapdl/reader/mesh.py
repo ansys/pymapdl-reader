@@ -1,18 +1,18 @@
-"""Module for common class between Archive, and Result mesh"""
+"""Module for common class between Archive, and result mesh"""
 import pyvista as pv
 import vtk
 import numpy as np
 
-from ansys.mapdl.core import _relaxmidside, _reader
-from ansys.mapdl.core.misc import unique_rows
-from ansys.mapdl.core.elements import ETYPE_MAP
+from ansys.mapdl.reader import _relaxmidside, _reader
+from ansys.mapdl.reader.misc import unique_rows
+from ansys.mapdl.reader.elements import ETYPE_MAP
 
 
 VTK9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
 INVALID_ALLOWABLE_TYPES = TypeError('`allowable_types` must be an array '
                                     'of ANSYS element types from 1 and 300')
 
-# map MESH200 elements to a pymapdl/VTK element type (see elements.py)
+# map MESH200 elements to a pymapdl_reader/VTK element type (see elements.py)
 MESH200_MAP = {0: 2,  # line
                1: 2,  # line
                2: 2,  # line
@@ -28,13 +28,14 @@ MESH200_MAP = {0: 2,  # line
 
 
 class Mesh():
+    """Common class between Archive, and result mesh"""
 
     def __init__(self, nnum=None, nodes=None, elem=None,
                  elem_off=None, ekey=None, node_comps={},
                  elem_comps={}, rdat=[], rnum=[], keyopt={}):
         self._etype = None  # internal element type reference
         self._grid = None  # VTK grid
-        self._surf_cache = None # cached external surface
+        self._surf_cache = None  # cached external surface
         self._enum = None  # cached element numbering
         self._etype_cache = None  # cached ansys element type numbering
         self._rcon = None  # cached ansys element real constant
@@ -198,8 +199,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.key_option
         {1: [[1, 11]]}
         """
@@ -211,8 +213,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.material_type
         array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -233,8 +236,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.element_components
         {'ECOMP1 ': array([17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29,
                            30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40],
@@ -254,8 +258,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.node_components
         {'NCOMP2  ': array([  1,   2,   3,   4,   5,   6,   7,   8,
                              14, 15, 16, 17, 18, 19, 20, 21, 43, 44,
@@ -281,8 +286,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.elem_real_constant
         array([ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -306,8 +312,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.etype
         array([ 45,  45,  45,  45,  45,  45,  45,  45,  45,  45,  45,
                 45,  45,  45,  45,  45,  45,  45,  45,  92,  92,  92,
@@ -343,8 +350,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.section
         array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -359,8 +367,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.element_coord_system
         array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -391,8 +400,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.elem
         [array([  1,   4,  19,  15,  63,  91, 286, 240,   3,  18,  17,
                  16,  81, 276, 267, 258,  62,  90, 285, 239],
@@ -412,8 +422,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.enum
         array([    1,     2,     3, ...,  9998,  9999, 10000])
         """
@@ -427,8 +438,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.nnum
         array([    1,     2,     3, ..., 19998, 19999, 20000])
         """
@@ -443,8 +455,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.ekey
         array([[  1,  45],
                [  2,  95],
@@ -459,8 +472,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.rlblock
         [[0.   , 0.   , 0.   , 0.   , 0.   , 0.   , 0.02 ],
          [0.   , 0.   , 0.   , 0.   , 0.   , 0.   , 0.01 ],
@@ -475,8 +489,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.rnum
         array([60, 61, 62, 63])
         """
@@ -488,8 +503,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.nodes
         [[0.   0.   0.  ]
          [1.   0.   0.  ]
@@ -509,8 +525,9 @@ class Mesh():
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.nodes
         [[0.   0.   0.  ]
          [0.   0.   0.  ]
@@ -553,9 +570,9 @@ class Mesh():
 
         allowable_types : list, optional
             Allowable element types.  Defaults to all valid element
-            types in ``ansys.mapdl.core.elements.valid_types``
+            types in ``ansys.mapdl.reader.elements.valid_types``
 
-            See ``help(ansys.mapdl.core.elements)`` for available element types.
+            See ``help(ansys.mapdl.reader.elements)`` for available element types.
 
         null_unallowed : bool, optional
             Elements types not matching element types will be stored

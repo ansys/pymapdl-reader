@@ -41,7 +41,7 @@ def _retrieve_file(url, filename):
     # grab the correct url retriever
     urlretrieve = urllib.request.urlretrieve
 
-    # Perfrom download
+    # Perform download
     saved_file, resp = urlretrieve(url)
     shutil.move(saved_file, local_path)
     if get_ext(local_path) in ['.zip']:

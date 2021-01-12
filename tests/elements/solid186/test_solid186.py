@@ -4,19 +4,19 @@ import pytest
 import numpy as np
 
 import ansys.mapdl.reader as pymapdl_reader
-from ansys.mapdl.core import examples
+from ansys.mapdl.reader import examples
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 
 
 @pytest.fixture(scope='module')
 def result():
-    return pymapdl.read_binary(examples.rstfile)
+    return pymapdl_reader.read_binary(examples.rstfile)
 
 
 @pytest.fixture(scope='module')
 def archive():
-    return pymapdl.Archive(examples.hexarchivefile)
+    return pymapdl_reader.Archive(examples.hexarchivefile)
 
 
 def test_geometry_elements(result, archive):

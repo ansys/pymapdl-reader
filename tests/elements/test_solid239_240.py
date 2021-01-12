@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from ansys.mapdl.core import examples
+from ansys.mapdl.reader import examples
 
 try:
     result = examples.downloads._download_solid239_240()

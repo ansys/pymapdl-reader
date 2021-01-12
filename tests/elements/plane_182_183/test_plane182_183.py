@@ -16,7 +16,7 @@ testfiles_path = os.path.dirname(os.path.abspath(__file__))
 @pytest.fixture(scope='module')
 def result():
     filename = os.path.join(testfiles_path, 'pymapdl_182_183_42_82.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 def test_load(result):

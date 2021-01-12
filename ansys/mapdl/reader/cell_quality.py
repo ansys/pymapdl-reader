@@ -49,6 +49,6 @@ def quality(grid):
 
     # set qual of null cells to 1
     qual[grid.celltypes == 0] = 1
-    if flip:  # for strucutred grids
+    if flip:  # for structured grids
         return -qual
     return qual

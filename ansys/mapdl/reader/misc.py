@@ -1,9 +1,6 @@
 """Module for miscellaneous functions and methods"""
 import tempfile
-import inspect
-import platform
 import os
-from threading import Thread
 import random
 import string
 
@@ -14,24 +11,6 @@ import numpy as np
 import vtk
 
 VTK9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
-
-
-# path of this module
-MODULE_PATH = os.path.dirname(inspect.getfile(inspect.currentframe()))
-
-
-def get_ansys_bin(rver):
-    """Identify the ansys executable based on the release version (e.g. "201")"""
-    if os.name == 'nt':
-        ans_root = 'c:/Program Files/ANSYS Inc/'
-        mapdlbin = os.path.join(ans_root, 'v%s' % rver, 'ansys', 'bin', 'winx64',
-                                'ANSYS%s.exe' % rver)
-    else:
-        ans_root = '/usr/ansys_inc'
-        mapdlbin = os.path.join(ans_root, 'v%s' % rver, 'ansys', 'bin',
-                                'ansys%s' % rver)
-
-    return mapdlbin
 
 
 def vtk_cell_info(grid):
@@ -79,15 +58,6 @@ def vtk_cell_info(grid):
     return cells, offset
 
 
-def kill_process(proc_pid):
-    """Kill a process with extreme prejudice"""
-    import psutil  # imported here to avoid import errors when unused in windows
-    process = psutil.Process(proc_pid)
-    for proc in process.children(recursive=True):
-        proc.kill()
-    process.kill()
-
-
 class Report(scooby.Report):
     """A class for custom scooby.Report."""
 
@@ -118,7 +88,7 @@ class Report(scooby.Report):
         """
         # Mandatory packages.
         core = ['pyansys', 'pyvista', 'vtk', 'numpy', 'scipy',
-                'appdirs', 'psutil', 'pexpect', 'ansys.mapdl.core']
+                'appdirs', 'ansys.mapdl.core']
 
         # Optional packages.
         optional = ['matplotlib', 'ansys.mapdl.corba']
@@ -139,7 +109,7 @@ class Report(scooby.Report):
                                extra_meta=extra_meta)
 
     def __repr__(self):
-        add_text = '-'*79 + '\nPyMAPDL Software and Environment Report'
+        add_text = '-'*79 + '\nPyMAPDL-Reader Software and Environment Report'
         return add_text + super().__repr__()
 
 
@@ -168,80 +138,6 @@ def _configure_pyvista():
     return
 
 
-def _check_has_ansys():
-    """Safely wraps check_valid_ansys
-
-    Returns
-    -------
-    has_ansys : bool
-        True when this local installation has ANSYS installed in a
-        standard location.
-    """
-    from ansys.mapdl.core.launcher import check_valid_ansys
-    try:
-        return check_valid_ansys()
-    except:
-        return False
-
-
-def supress_logging(func):
-    """Decorator to supress logging for a MAPDL instance"""
-    def wrapper(*args, **kwargs):
-        mapdl = args[0]
-        prior_log_level = mapdl._log.level
-        if prior_log_level != 'CRITICAL':
-            mapdl._set_log_level('CRITICAL')
-
-        out = func(*args, **kwargs)
-
-        if prior_log_level != 'CRITICAL':
-            mapdl._set_log_level(prior_log_level)
-
-        return out
-
-    return wrapper
-
-
-def run_as_prep7(func):
-    """Run a MAPDL method at PREP7 and always revert to the prior processor"""
-    def wrapper(*args, **kwargs):
-        mapdl = args[0]
-        if hasattr(mapdl, '_mapdl'):
-            mapdl = mapdl._mapdl
-        prior_processor = mapdl.parameters.routine
-        if prior_processor != 'PREP7':
-            mapdl.prep7()
-
-        out = func(*args, **kwargs)
-
-        if prior_processor == 'Begin level':
-            mapdl.finish()
-        elif prior_processor != 'PREP7':
-            mapdl.run('/%s' % prior_processor)
-
-        return out
-    return wrapper
-
-
-def threaded(fn):
-    """ calls a function using a thread """
-    def wrapper(*args, **kwargs):
-        thread = Thread(target=fn, args=args, kwargs=kwargs)
-        thread.start()
-        return thread
-    return wrapper
-
-
-def threaded_daemon(fn):
-    """Calls a function using a daemon thread."""
-    def wrapper(*args, **kwargs):
-        thread = Thread(target=fn, args=args, kwargs=kwargs)
-        thread.daemon = True
-        thread.start()
-        return thread
-    return wrapper
-
-
 def break_apart_surface(surf, force_linear=True):
     """Break apart the faces of a vtk PolyData such that the points
     for each face are unique and each point is used only by one face.
@@ -267,7 +163,7 @@ def break_apart_surface(surf, force_linear=True):
     if faces.dtype != np.int64:
         faces = faces.astype(np.int64)
 
-    from ansys.mapdl.core import _binary_reader
+    from ansys.mapdl.reader import _binary_reader
     b_points, b_faces, idx = _binary_reader.break_apart_surface(surf.points,
                                                                 faces,
                                                                 surf.n_faces,
@@ -292,38 +188,6 @@ def unique_rows(a):
     _, idx, idx2 = np.unique(b, True, True)
 
     return a[idx], idx, idx2
-
-
-def creation_time(path_to_file):
-    """The file creation time.
-
-    Try to get the date that a file was created, falling back to when it was
-    last modified if that isn't possible.
-    See http://stackoverflow.com/a/39501288/1709587 for explanation.
-    """
-    if platform.system() == 'Windows':
-        return os.path.getctime(path_to_file)
-    else:
-        stat = os.stat(path_to_file)
-        try:
-            return stat.st_birthtime
-        except AttributeError:
-            # We're probably on Linux. No easy way to get creation dates here,
-            # so we'll settle for when its content was last modified.
-            return stat.st_mtime
-
-
-def last_created(filenames):
-    """Return the last created file given a list of filenames
-
-    If all filenames have the same creation time, then return the last filename.
-    """
-    ctimes = [creation_time(filename) for filename in filenames]
-    idx = np.argmax(ctimes)
-    if len(set(ctimes)):
-        return filenames[-1]
-
-    return filenames[idx]
 
 
 def create_temp_dir(tmpdir=None):

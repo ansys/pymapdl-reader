@@ -7,7 +7,7 @@ BEAM44_RST = os.path.join(TESTFILES_PATH, 'beam44.rst')
 
 
 def test_beam44():
-    result = pymapdl.read_binary(BEAM44_RST)
+    result = pymapdl_reader.read_binary(BEAM44_RST)
     assert result.grid.n_cells
     assert result.grid.n_points
     nnum, disp = result.nodal_solution(0)

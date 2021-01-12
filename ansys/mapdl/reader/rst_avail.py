@@ -2,7 +2,7 @@
 
 Based on resucm.inc included in the standard ANSYS unified install
 
-Current as of v193 (which is the current result file as of v20.2
+Current as of v193 (which is the current result file as of v20.2)
 
 **********  AvailData bits  **********
  bit   data item
@@ -45,7 +45,7 @@ nodal data
 """
 
 
-DISCRIPTION = {
+DESCRIPTION = {
     'EMS': 'miscellaneous summable items(normally includes face pressures)',
     'ENF': 'nodal forces',
     'ENS': 'nodal stresses',
@@ -122,7 +122,7 @@ class AvailableResults():
             if value:
                 self._valid_results.append(key)
 
-        self.description = DISCRIPTION
+        self.description = DESCRIPTION
         if is_thermal:
             self.description['NSL'] = 'Nodal temperatures'
 

@@ -1,6 +1,7 @@
 """Various header keys for the result file
 
-/usr/ansys_inc/v150/ansys/customize/include/fdresu.inc
+File from the FORTRAN include file within the unified install at:
+.../ansys/customize/include/fdresu.inc
 
 """
 

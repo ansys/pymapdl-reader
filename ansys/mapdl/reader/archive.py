@@ -151,7 +151,7 @@ class Archive(Mesh):
         Examples
         --------
         >>> import ansys.mapdl.reader as pymapdl_reader
-        >>> from ansys.mapdl.core import examples
+        >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile,
                                              read_parameters=True)
         >>> archive.parameters

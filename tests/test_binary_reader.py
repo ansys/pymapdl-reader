@@ -8,9 +8,17 @@ import numpy as np
 import pyvista as pv
 
 import ansys.mapdl.reader as pymapdl_reader
-from ansys.mapdl.core._rst_keys import element_index_table_info
-from ansys.mapdl.core.misc import get_ansys_bin
-from ansys.mapdl.core import _HAS_ANSYS, examples
+from ansys.mapdl.reader._rst_keys import element_index_table_info
+from ansys.mapdl.reader import examples
+
+try:
+    from ansys.mapdl.core import _HAS_ANSYS
+    from ansys.mapdl.core.mapdl_grpc import MapdlGrpc
+    # from ansys.mapdl.core.mapdl_corba import MapdlCorba
+    MapdlCorba = None
+    from ansys.mapdl.core.mapdl_console import MapdlConsole
+except:
+    _HAS_ANSYS = False
 
 HAS_FFMPEG = True
 try:
@@ -30,19 +38,19 @@ RSETS = list(zip(range(1, 9), [1]*8))
 
 @pytest.fixture(scope='module')
 def result():
-    return pymapdl.read_binary(examples.rstfile)
+    return pymapdl_reader.read_binary(examples.rstfile)
 
 
 @pytest.fixture(scope='module')
 def static_canteliver_bc():
     filename = os.path.join(testfiles_path, 'rst', 'beam_static_bc.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.fixture(scope='module')
 def thermal_rst():
     filename = os.path.join(testfiles_path, 'file.rth')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
@@ -51,7 +59,7 @@ def cyclic_modal(mapdl):
     mapdl.clear()
     mapdl.prep7()
     mapdl.shpp('off')
-    mapdl.cdread('db', pymapdl.examples.sector_archive_file)
+    mapdl.cdread('db', pymapdl_reader.examples.sector_archive_file)
     mapdl.prep7()
     mapdl.cyclic()
 
@@ -116,7 +124,7 @@ def transient_thermal(mapdl):
     mapdl.autots('ON')         # use automatic time stepping
     mapdl.deltim(10, 5, 100)    # substep size (seconds)
 
-    # Create a table of convection times and coefficients and trasfer it to MAPDL
+    # Create a table of convection times and coefficients and transfer it to MAPDL
     my_conv = np.array([[0, 0.001],      # start time
                         [120, 0.001],    # end of first "flat" zone
                         [130, 0.005],    # ramps up in 10 seconds
@@ -161,11 +169,11 @@ def test_prnsol_u(mapdl, cyclic_modal, rset):
     mapdl.set(*rset)
     # verify cyclic displacements
     table = mapdl.prnsol('u').splitlines()
-    if isinstance(mapdl, pymapdl.mapdl_grpc.MapdlGrpc):
+    if isinstance(mapdl, MapdlGrpc):
         array = np.genfromtxt(table[7:])
-    elif isinstance(mapdl, pymapdl.mapdl_corba.MapdlCorba):
+    elif isinstance(mapdl, MapdlCorba):
         array = np.genfromtxt(table[8:])
-    elif isinstance(mapdl, pymapdl.mapdl_console.MapdlConsole):
+    elif isinstance(mapdl, MapdlConsole):
         array = np.genfromtxt(table[9:])
     else:
         raise RuntimeError('Invalid instance')
@@ -217,9 +225,9 @@ def test_prnsol_s(mapdl, cyclic_modal, rset):
 
     # verify cyclic displacements
     table = mapdl.prnsol('s').splitlines()
-    if isinstance(mapdl, pymapdl.mapdl_grpc.MapdlGrpc):
+    if isinstance(mapdl, MapdlGrpc):
         array = np.genfromtxt(table[7:])
-    elif isinstance(mapdl, pymapdl.mapdl_corba.MapdlCorba):
+    elif isinstance(mapdl, MapdlCorba):
         array = np.genfromtxt(table[8:])
     else:
         array = np.genfromtxt(table[10:])
@@ -245,9 +253,9 @@ def test_prnsol_prin(mapdl, cyclic_modal, rset):
 
     # verify principal stress
     table = mapdl.prnsol('prin').splitlines()
-    if isinstance(mapdl, pymapdl.mapdl_grpc.MapdlGrpc):
+    if isinstance(mapdl, MapdlGrpc):
         array = np.genfromtxt(table[7:])
-    elif isinstance(mapdl, pymapdl.mapdl_corba.MapdlCorba):
+    elif isinstance(mapdl, MapdlCorba):
         array = np.genfromtxt(table[8:])
     else:
         array = np.genfromtxt(table[10:])
@@ -271,7 +279,7 @@ def test_loadresult(result):
     assert result.nsets
     assert result.mesh.nnum.size
 
-    # check geometry is genreated
+    # check geometry is generated
     grid = result.grid
     assert grid.points.size
     assert grid.cells.size
@@ -380,7 +388,7 @@ def test_plot_component():
     """
 
     filename = os.path.join(testfiles_path, 'comp_hex_beam.rst')
-    result = pymapdl.read_binary(filename)
+    result = pymapdl_reader.read_binary(filename)
 
     components = ['MY_COMPONENT', 'MY_OTHER_COMPONENT']
     result.plot_nodal_solution(0, node_components=components,
@@ -393,7 +401,7 @@ def test_plot_component():
 def test_file_close(tmpdir):
     tmpfile = str(tmpdir.mkdir("tmpdir").join('tmp.rst'))
     shutil.copy(examples.rstfile, tmpfile)
-    rst = pymapdl.read_binary(tmpfile)
+    rst = pymapdl_reader.read_binary(tmpfile)
     nnum, stress = rst.nodal_stress(0)
     os.remove(tmpfile)  # tests file has been correctly closed
 
@@ -410,12 +418,12 @@ def test_animate_nodal_solution(tmpdir, result):
 
 def test_loadbeam():
     linkresult_path = os.path.join(testfiles_path, 'link1.rst')
-    linkresult = pymapdl.read_binary(linkresult_path)
+    linkresult = pymapdl_reader.read_binary(linkresult_path)
     assert np.any(linkresult.grid.cells)
 
 
 def test_reaction_forces():
-    rst = pymapdl.read_binary(os.path.join(testfiles_path, 'vm1.rst'))
+    rst = pymapdl_reader.read_binary(os.path.join(testfiles_path, 'vm1.rst'))
     nnum, forces = rst.nodal_static_forces(0)
     assert np.allclose(nnum, [1, 2, 3, 4])
     assert np.allclose(forces[:, 1], [-600, 250, 500, -900])
@@ -447,12 +455,12 @@ def test_plot_temperature(thermal_rst):
 
 def test_file_not_found():
     with pytest.raises(FileNotFoundError):
-        pymapdl.read_binary('not_a_file.rst')
+        pymapdl_reader.read_binary('not_a_file.rst')
 
 
 def test_file_not_supported():
     with pytest.raises(RuntimeError):
-        pymapdl.read_binary(os.path.join(testfiles_path, 'file.esav'))
+        pymapdl_reader.read_binary(os.path.join(testfiles_path, 'file.esav'))
 
 
 @skip_no_ansys

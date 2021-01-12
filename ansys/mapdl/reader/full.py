@@ -1,6 +1,6 @@
 """
-Used fortran header file for item definitions
-/usr/ansys_inc/v150/ansys/customize/include/fdfull.inc
+Used fortran header file for item definitions.  See:
+.../ansys/customize/include/fdfull.inc
 
 """
 import os
@@ -8,10 +8,10 @@ import warnings
 
 import numpy as np
 
-from ansys.mapdl.core import _binary_reader
-from ansys.mapdl.core.common import (read_table, AnsysBinary,
-                                     parse_header, two_ints_to_long,
-                                     read_standard_header)
+from ansys.mapdl.reader import _binary_reader
+from ansys.mapdl.reader.common import (read_table, AnsysBinary,
+                                       parse_header, two_ints_to_long,
+                                       read_standard_header)
 
 
 FRONTAL_FULL_HEADER_KEYS = [
@@ -53,10 +53,10 @@ class FullFile(AnsysBinary):
 
     Examples
     --------
-    >>> import ansys.mapdl.core as pymapdl
-    >>> full = pymapdl.read_binary('file.rst')
+    >>> import ansys.mapdl.reader as pymapdl_reader
+    >>> full = pymapdl_reader.read_binary('file.rst')
     >>> print(full)
-    PyANSYS - MAPDL Full File
+    PyMAPDL-Reader : MAPDL Full File
     Title                    : Demo
     Version                  : 20.1
     Platform                 : WINDOWS x64
@@ -107,8 +107,8 @@ class FullFile(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> full = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> full = pymapdl_reader.read_binary('file.rst')
         >>> print(full.k)
         <345x345 sparse matrix of type '<class 'numpy.float64'>'
                 with 7002 stored elements in Compressed Sparse Column format>
@@ -255,7 +255,7 @@ class FullFile(AnsysBinary):
             ndof = read_table(f, cython=True)
             const = read_table(f, cython=True)
 
-        # degree of freedom reference and number of degress of freedom per node
+        # degree of freedom reference and number of degrees of freedom per node
         dof_ref = [ndof, neqv]
         self.ndof = ndof
 
@@ -395,7 +395,7 @@ class FullFile(AnsysBinary):
         self._dof_ref, self._k, self._m = self.load_km(sort=True)
 
     def __str__(self):
-        rst_info = ['PyANSYS - MAPDL Full File']
+        rst_info = ['PyMAPDL-Reader : MAPDL Full File']
 
         def add_info(key, value):
             rst_info.append('{:<25s}: {:s}'.format(key, str(value)))

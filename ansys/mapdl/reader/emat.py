@@ -1,7 +1,8 @@
-"""PyMAPDL Element matricies file reader
+"""PyMAPDL-reader Element matricies file reader.
 
 
-This header is straight out of fdemat.inc and can be found within the standard ANSYS install.
+This header is straight out of fdemat.inc and can be found within the
+standard ANSYS install.
 
 Version of this header is 16.2.3
 
@@ -312,7 +313,7 @@ c   kygrf        global restoring force matrix calculate key
 """
 import numpy as np
 
-from ansys.mapdl.core.common import read_table, parse_header
+from ansys.mapdl.reader.common import read_table, parse_header
 
 EMAT_HEADER_KEYS = ['fun02', 'nume', 'numdof', 'lenu', 'lenbac',
                     'maxn', 'nlgeEMA', 'sstEMAT', 'nodref', 'lumpm',
@@ -338,8 +339,8 @@ class EmatFile(object):
 
     Examples
     --------
-    >>> import ansys.mapdl.core as pymapdl
-    >>> emat_file = pymapdl.read_binary('file.emat')
+    >>> import ansys.mapdl.reader as pymapdl_reader
+    >>> emat_file = pymapdl_reader.read_binary('file.emat')
     """
 
     def __init__(self, filename):
@@ -368,35 +369,35 @@ class EmatFile(object):
 
         Notes
         -----
-        stkey - stiffness matrix key 
+        stkey - stiffness matrix key
             0 - matrix not present
             1 - matrix present
 
-        mkey - mass matrix key 
+        mkey - mass matrix key
             0 - matirx not present
             1 - matrix present
 
-        dkey - damping matrix key 
+        dkey - damping matrix key
             0 - matrix not present
             1 - matrix present
 
-        sskey - stress stiffening matrix key 
+        sskey - stress stiffening matrix key
             0 - matrix not present
             1 - matrix present
 
-        akey - applied load vector key 
+        akey - applied load vector key
             0 - vector not used
             1 - vector used
 
-        nrkey - newton-raphson(restoring) load 
+        nrkey - newton-raphson(restoring) load
             0 - vector not used
             1 - vector used
 
         ikey - imaginary load vector key (for complex analyses)
             0 - vector not used
-            1 - vector used 
+            1 - vector used
 
-        nmrow - numbers/columns in matrices. 
+        nmrow - numbers/columns in matrices.
             If the number is negative, the matrices will be written in
             lower triangular form.
 

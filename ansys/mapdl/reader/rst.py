@@ -1,7 +1,7 @@
 """Read ANSYS binary result files (*.rst)
 
 Used:
-/usr/ansys_inc/v150/ansys/customize/include/fdresu.inc
+.../ansys/customize/include/fdresu.inc
 """
 from collections.abc import Iterable
 import time
@@ -14,35 +14,32 @@ import numpy as np
 import pyvista as pv
 from tqdm import tqdm
 
-from ansys.mapdl.core import _binary_reader, _reader
-from ansys.mapdl.core.mesh import Mesh
-from ansys.mapdl.core._binary_reader import (cells_with_any_nodes,
-                                             cells_with_all_nodes,
-                                             populate_surface_element_result)
-from ansys.mapdl.core._rst_keys import (geometry_header_keys,
-                                        element_index_table_info,
-                                        solution_data_header_keys,
-                                        solution_header_keys_dp,
-                                        result_header_keys,
-                                        boundary_condition_index_table,
-                                        DOF_REF)
-from ansys.mapdl.core._mp_keys import mp_keys
-from ansys.mapdl.core.common import (read_table, parse_header,
-                                     AnsysBinary, read_standard_header,
-                                     rotate_to_global, PRINCIPAL_STRESS_TYPES,
-                                     STRESS_TYPES, STRAIN_TYPES,
-                                     THERMAL_STRAIN_TYPES)
-from ansys.mapdl.core.misc import vtk_cell_info, break_apart_surface
-from ansys.mapdl.core.rst_avail import AvailableResults
+from ansys.mapdl.reader import _binary_reader, _reader
+from ansys.mapdl.reader.mesh import Mesh
+from ansys.mapdl.reader._binary_reader import (cells_with_any_nodes,
+                                               cells_with_all_nodes,
+                                               populate_surface_element_result)
+from ansys.mapdl.reader._rst_keys import (geometry_header_keys,
+                                          element_index_table_info,
+                                          solution_data_header_keys,
+                                          solution_header_keys_dp,
+                                          result_header_keys,
+                                          boundary_condition_index_table,
+                                          DOF_REF)
+from ansys.mapdl.reader._mp_keys import mp_keys
+from ansys.mapdl.reader.common import (read_table, parse_header,
+                                       AnsysBinary, read_standard_header,
+                                       rotate_to_global, PRINCIPAL_STRESS_TYPES,
+                                       STRESS_TYPES, STRAIN_TYPES,
+                                       THERMAL_STRAIN_TYPES)
+from ansys.mapdl.reader.misc import vtk_cell_info, break_apart_surface
+from ansys.mapdl.reader.rst_avail import AvailableResults
 
 VTK9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
 
-# # Create logger
-# LOG = logging.getLogger(__name__)
-# LOG.setLevel('DEBUG')
 
 EMAIL_ME = """Please raise an issue at:
-https://github.com/pyansys/pymapdl/issues
+https://github.com/pyansys/pymapdl-reader/issues
 Or email the developer at alexander.kaszynski@ansys.com
 """
 np.seterr(divide='ignore', invalid='ignore')
@@ -83,8 +80,8 @@ class Result(AnsysBinary):
 
     Examples
     --------
-    >>> import ansys.mapdl.core as pymapdl
-    >>> rst = pymapdl.read_binary('file.rst')
+    >>> import ansys.mapdl.reader as pymapdl_reader
+    >>> rst = pymapdl_reader.read_binary('file.rst')
     """
 
     def __init__(self, filename, read_mesh=True, **kwargs):
@@ -117,7 +114,7 @@ class Result(AnsysBinary):
         self._available_results = AvailableResults(self._resultheader['AvailData'],
                                                    self._is_thermal)
 
-        # store mesh for later retrival
+        # store mesh for later retrieval
         self._mesh = None
         if read_mesh:
             self._store_mesh()
@@ -476,8 +473,8 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> rst.plot()
 
         Plot just the element component 'ROTOR_SHAFT'
@@ -552,8 +549,9 @@ class Result(AnsysBinary):
         Plot the nodal solution result 0 of verification manual
         example
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> result = pymapdl.download_verification_result(33)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> result = examples.download_verification_result(33)
         >>> result.plot_nodal_solution(0)
 
         Plot with a white background and showing edges
@@ -637,9 +635,9 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> from ansys.mapdl.core import examples
-        >>> rst = pymapdl.read_binary(examples.rstfile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> rst = pymapdl_reader.read_binary(examples.rstfile)
         >>> rst.node_components.keys()
         dict_keys(['ECOMP1', 'ECOMP2', 'ELEM_COMP'])
         >>> rst.node_components['NODE_COMP']
@@ -654,9 +652,9 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> from ansys.mapdl.core import examples
-        >>> rst = pymapdl.read_binary(examples.rstfile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> rst = pymapdl_reader.read_binary(examples.rstfile)
         >>> rst.element_components
         {'ECOMP1': array([17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29,
                 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], dtype=int32),
@@ -1072,8 +1070,8 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, data = rst.nodal_solution(0)
 
         Notes
@@ -1109,8 +1107,8 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, data = rst.nodal_velocity(0)
 
         Notes
@@ -1146,8 +1144,8 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, data = rst.nodal_acceleration(0)
 
         Notes
@@ -1697,7 +1695,7 @@ class Result(AnsysBinary):
 
     def element_stress(self, rnum, principal=False, in_element_coord_sys=False,
                        **kwargs):
-        """Retrives the element component stresses.
+        """Retrieves the element component stresses.
 
         Equivalent ANSYS command: PRESOL, S
 
@@ -1817,7 +1815,7 @@ class Result(AnsysBinary):
         return elemnum, element_stress, enode
 
     def element_solution_data(self, rnum, datatype, sort=True, **kwargs):
-        """Retrives element solution data.  Similar to ETABLE.
+        """Retrieves element solution data.  Similar to ETABLE.
 
         Parameters
         ----------
@@ -1826,7 +1824,7 @@ class Result(AnsysBinary):
             list containing (step, substep) of the requested result.
 
         datatype : str
-            Element data type to retreive.
+            Element data type to retrieve.
 
             - EMS: misc. data
             - ENF: nodal forces
@@ -1881,7 +1879,7 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        Retreive "LS" solution results from an PIPE59 element for result set 1
+        Retrieve "LS" solution results from an PIPE59 element for result set 1
 
         >>> enum, edata, enode = result.element_solution_data(0, datatype='ENS')
         >>> enum[0]  # first element number
@@ -1988,8 +1986,8 @@ class Result(AnsysBinary):
         --------
         Load the principal nodal stress for the first solution.
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, stress = rst.principal_nodal_stress(0)
 
         Notes
@@ -2001,7 +1999,7 @@ class Result(AnsysBinary):
         S1, S2, S3 principal stresses, SINT stress intensity, and SEQV
         equivalent stress.
 
-        Internal averaging algorthim averages the component values
+        Internal averaging algorithm averages the component values
         from the elements at a common node and then calculates the
         principal using the averaged value.
 
@@ -2943,8 +2941,8 @@ class Result(AnsysBinary):
         Get the nodal reaction forces for the first result and print
         the reaction forces of a single node.
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> rforces, nnum, dof = rst.nodal_reaction_forces(0)
         >>> dof_ref = rst.result_dof(0)
         >>> rforces[:3], nnum[:3], dof[:3], dof_ref
@@ -3007,7 +3005,7 @@ class Result(AnsysBinary):
             Result number.
 
         result_type : str
-            Element data type to retreive.
+            Element data type to retrieve.
 
             - EMS: misc. data
             - ENF: nodal forces
@@ -3149,8 +3147,8 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, stress = rst.nodal_stress(0)
 
         Notes
@@ -3191,8 +3189,8 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, stress = rst.cylindrical_nodal_stress(0)
 
         Notes
@@ -3241,8 +3239,8 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, stress = rst.nodal_temperature(0)
         """
         if self._is_thermal:
@@ -3299,8 +3297,8 @@ class Result(AnsysBinary):
         --------
         Plot nodal stress in the radial direction
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> result = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> result = pymapdl_reader.read_binary('file.rst')
         >>> result.plot_cylindrical_nodal_stress(0, 'R')
         """
         available_comps = ['R', 'THETA', 'Z', 'RTHETA', 'THETAZ', 'RZ']
@@ -3360,8 +3358,8 @@ class Result(AnsysBinary):
         --------
         Plot temperature of a result
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> result = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> result = pymapdl_reader.read_binary('file.rst')
         >>> result.plot_nodal_temperature(0)
 
         Plot while showing edges and disabling lighting
@@ -3413,8 +3411,8 @@ class Result(AnsysBinary):
         --------
         Load the nodal thermal strain for the first solution
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, thermal_strain = rst.nodal_thermal_strain(0)
         """
         return self._nodal_result(rnum, 'ETH')
@@ -3474,8 +3472,9 @@ class Result(AnsysBinary):
         --------
         Plot thermal strain for result 0 of verification manual example 33
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> result = pymapdl.download_verification_result(33)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> result = examples.download_verification_result(33)
         >>> result.plot_nodal_thermal_strain(0)
         """
         return self._plot_nodal_result(rnum, 'ETH', comp, THERMAL_STRAIN_TYPES,
@@ -3516,8 +3515,8 @@ class Result(AnsysBinary):
         --------
         Load the nodal elastic strain for the first result.
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, elastic_strain = rst.nodal_elastic_strain(0)
 
         Notes
@@ -3578,8 +3577,9 @@ class Result(AnsysBinary):
         --------
         Plot nodal elastic strain for a static pontoon model
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> result = pymapdl.download_pontoon()
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> result = examples.download_pontoon()
         >>> result.plot_nodal_elastic_strain(0)
         """
         stitle = ' '.join([comp.upper(), stitle])
@@ -3620,8 +3620,8 @@ class Result(AnsysBinary):
         --------
         Load the nodal plastic strain for the first solution.
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> rst = pymapdl.read_binary('file.rst')
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, plastic_strain = rst.nodal_plastic_strain(0)
         """
         return self._nodal_result(rnum, 'EPL')
@@ -3678,10 +3678,10 @@ class Result(AnsysBinary):
         --------
         Plot plastic strain for a static pontoon model
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> result = pymapdl.download_pontoon()
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> result = examples.download_pontoon()
         >>> result.plot_nodal_plastic_strain(0)
-
         """
         stitle = ' '.join([comp.upper(), stitle])
         return self._plot_nodal_result(rnum, 'EPL',
@@ -3829,9 +3829,9 @@ class Result(AnsysBinary):
         Load the nodal static forces for the first result using the
         example hexahedral result file.
 
-        >>> import ansys.mapdl.core as pymapdl
-        >>> from ansys.mapdl.core import examples
-        >>> rst = pymapdl.read_binary(examples.rstfile)
+        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> rst = pymapdl_reader.read_binary(examples.rstfile)
         >>> nnum, forces = rst.nodal_static_forces(0)
 
         Notes

@@ -96,7 +96,7 @@ additional node numbers if there are more than eight.
     if nelem == 0:
         raise RuntimeError('Unable to read element block')
 
-    # Get interger block size
+    # Get integer block size
     myfgets(line, raw, &n, fsize)
     # (19i9)
     cdef int isz = int(line[line.find(b'i') + 1:line.find(b')')])
@@ -380,12 +380,12 @@ def read(filename, read_parameters=False, debug=False):
                 ncomp = int(split_line[3].split(b'!')[0].strip())
                 component = np.empty(ncomp, ctypes.c_int)
 
-                # Get interger size
+                # Get integer size
                 myfgets(line, raw, &n, fsize)
                 isz = int(line[line.find(b'i') + 1:line.find(b')')])
                 tempstr[isz] = '\0'
 
-                # Number of intergers per line
+                # Number of integers per line
                 nblock = int(line[line.find(b'(') + 1:line.find(b'i')])
 
                 # Extract nodes
@@ -510,7 +510,7 @@ def node_block_format(string):
         elif 'e' in field:
             f_size = int(field.split('e')[1].split('.')[0])
 
-            # get number of possible intergers in the float scientific notation
+            # get number of possible integers in the float scientific notation
             if 'e' in field.split('.')[1]:
                 nexp = int(field.split('.')[1].split('e')[1])
 

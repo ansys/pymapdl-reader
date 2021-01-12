@@ -43,7 +43,7 @@ class CyclicResult(Result):
 
         Examples
         --------
-        >>> from pyansys import examples
+        >>> from ansys.mapdl.reader import examples
         >>> rst = examples.download_academic_rotor()
         >>> rst.plot_sectors()
 
@@ -73,14 +73,13 @@ class CyclicResult(Result):
 
         Examples
         --------
-        >>> from pyansys import examples
+        >>> from ansys.mapdl.reader import examples
         >>> rst = examples.download_academic_rotor()
         >>> rst.plot()
 
         Save a screenshot of the rotor
 
         >>> rst.plot(screenshot='rotor.png')
-
         """
         kwargs.setdefault('color', 'w')
         kwargs.setdefault('show_edges', True)
@@ -1020,12 +1019,12 @@ class CyclicResult(Result):
             Node numbers of the result.
 
         pstress : numpy.ndarray
-            Principal stresses, stress intensity, and equivalant stress.
+            Principal stresses, stress intensity, and equivalent stress.
             [sigma1, sigma2, sigma3, sint, seqv]
 
         Notes
         -----
-        ANSYS equivalant of:
+        ANSYS equivalent of:
         PRNSOL, S, PRIN
 
         which returns:
@@ -1521,7 +1520,7 @@ class CyclicResult(Result):
         else:
             scalars = (complex_disp*complex_disp).sum(1)**0.5
 
-        # intialize plotter
+        # initialize plotter
         text_color = kwargs.pop('text_color', None)
         cpos = kwargs.pop('cpos', None)
         off_screen = kwargs.pop('off_screen', None)
