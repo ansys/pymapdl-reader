@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import warnings
-import sphinx_rtd_theme
-
 import os
+
 import pyvista
 import numpy as np
 
@@ -24,7 +23,7 @@ if not os.path.exists(pyvista.FIGURE_PATH):
 pyvista.BUILDING_GALLERY = True
 
 
-# supress annoying matplotlib bug
+# suppress annoying matplotlib bug
 warnings.filterwarnings(
     "ignore",
     category=UserWarning,
@@ -103,7 +102,7 @@ sphinx_gallery_conf = {
     'pypandoc': True,  # convert rst to md for ipynb
     # path to your examples scripts
     "examples_dirs": [
-        "../examples/",
+        "../../examples/",
     ],
     # path where to save gallery generated examples
     "gallery_dirs": ["examples"],
@@ -137,19 +136,19 @@ sphinx_gallery_conf = {
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
-# html_theme_options = {}
+html_theme = 'pydata_sphinx_theme'
+html_logo = '_static/pyansys-logo-black-cropped.png'
+html_theme_options = {
+    "github_url": "https://github.com/pyansys/pymapdl-reader",
+    # "show_toc_level": 1,
+    # "show_prev_next": False
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['']
+html_static_path = ['_static']
+html_css_files = ['css/ansys.css']
 
 # -- Options for HTMLHelp output ------------------------------------------
 

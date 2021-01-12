@@ -28,7 +28,7 @@ class Archive(Mesh):
 
     Reads a blocked CDB file and optionally parses it to a vtk grid.
     This can be used to read in files written from MAPDL using the
-    ``CDWRITE`` command or input files (``*.dat) files written from
+    ``CDWRITE`` command or input files (``'.dat'``) files written from
     ANSYS Workbench.
 
     Write the archive file using ``CDWRITE, DB, archive.cdb``

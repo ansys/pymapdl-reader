@@ -1,55 +1,42 @@
-PyMAPDL Legacy Binary and Archive Reader
-========================================
+======================================================
+PyMAPDL Reader - Legacy Binary and Archive File Reader
+======================================================
 This is the legacy module for reading in binary and ASCII files
 generated from MAPDL.
 
-This Python module allows you to:
- - Extract data directly from binary ANSYS v14.5+ files and to display
-   or animate them.  Specifically, the following formats:
+This Python module allows you to extract data directly from binary
+ANSYS v14.5+ files and to display or animate them rapidly using a
+straightforward API coupled with C libraries based on header files
+provided by ANSYS.
 
-    - ``*.rst``: Result file from structural analysis
-    - ``*.rth``: Result file from a thermal analysis
-    - ``*.emat``: Stores data related to element matrices
-    - ``*.full``: Stores the full stiffness-mass matrix
-    - Reading nodes and elements from MAPDL ASCII block archive
-      ``*.cdb`` and ``*.dat`` files
+The ``ansys-mapdl-reader`` module supports the following formats:
 
-This module will be maintained provided that it provides unique
-support for reading files from MAPDL and may be subject to
-depreciation when ANSYS provides better support for a variety of file
-formats.
-
-In addition to this module, you are encouraged to checkout the new
-Data Processing Framework (DPF) modules at `DPF-Core
-<https://github.com/pyansys/DPF-Core>`_ and `DPF-Post
-<https://github.com/pyansys/DPF-Post>`_ as they provide a modern
-interface to ANSYS result files using a client/server interface using
-the same software used within ANSYS Workbench, but via a Python
-client.
+  - ``*.rst`` - Structural analysis result file
+  - ``*.rth`` - Thermal analysis result file 
+  - ``*.emat`` - Element matrice data file
+  - ``*.full`` - Full stiffness-mass matrix file
+  - ``*.cdb`` or ``*.dat`` - MAPDL ASCII block archive and
+    Mechanical Workbench input files
 
 Please see the :ref:`ref_example_gallery` for several demos using
 ``ansys-mapdl-reader``.
 
-Installation
-------------
-Installation through pip::
+.. warning::
+   This module will likely change or be depreciated in the future.
 
-    pip install ansys-mapdl-reader
-
-You can also visit `pymapdl-reader <https://github.com/pyansys/pymapdl-reader>`_
-to download the source or releases from GitHub.
-
-If you have any installation (or other) issues, please open an issue
-at `pymapdl-reader Issues <https://github.com/pyansys/pymapdl-reader/issues>`_.
+   You are encouraged to use the new Data Processing Framework (DPF)
+   modules at `DPF-Core <https://github.com/pyansys/DPF-Core>`_ and
+   `DPF-Post <https://github.com/pyansys/DPF-Post>`_ as they provide a
+   modern interface to ANSYS result files using a client/server
+   interface using the same software used within ANSYS Workbench, but
+   via a Python client.
 
 
-Quick Examples
---------------
-
-Direct Access to Binary Files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Brief Demo: Direct Access to Binary Files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Here's a quick example code block to show how easy it is to load and
-plots results directly from an ANSYS result file using ``pymapdl-reader``:
+plots results directly from an ANSYS result file using
+``ansys-mapdl-reader``:
 
 .. code:: python
 
@@ -67,7 +54,7 @@ plots results directly from an ANSYS result file using ``pymapdl-reader``:
     Element stress for the first result
 
     >>> estress, elem, enode = result.element_stress(0)
-    >>> estress[0]  # element stress for element 0
+    >>> estress[0]
     array([[ 1.0236604e+04, -9.2875127e+03, -4.0922625e+04, -2.3697146e+03,
             -1.9239732e+04,  3.0364934e+03]
            [ 5.9612605e+04,  2.6905924e+01, -3.6161423e+03,  6.6281304e+03,
@@ -77,46 +64,33 @@ plots results directly from an ANSYS result file using ``pymapdl-reader``:
 	   [ 4.9787645e+04,  8.7987168e+03, -2.1928742e+04, -7.3025332e+03,
              1.1294199e+04,  4.3000205e+03]])
 
-    >>> elem[0]  # corresponding ansys element number for element 0
+    Get the corresponding ansys element number for the first element.
+
+    >>> elem[0]
         32423
 
-    >>> enode[0]  # corresponding nodes belonging to for element 0
+    Get the nodes belonging to for the first element.
+
+    >>> enode[0]
         array([ 9012,  7614,  9009, 10920], dtype=int32)
 
-    >>> result.plot_nodal_solution(0)
+    Plot the nodal displacement of the first result.
+
+    >>> result.plot_nodal_displacement(0)
 
 .. figure:: ./images/rotor.jpg
     :width: 500pt
 
---------
-
-Contents
-========
 
 .. toctree::
    :maxdepth: 1
-   :caption: ANSYS File Support
-
-   archive
-   loading_results
-   examples
-   loading_km
-   loading_emat
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Example Gallery
-
-   examples/index
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Miscellaneous
    :hidden:
 
-   quality
+   getting_started
+   user_guide/index
+   examples/index
+   contributing
 
---------
 
 License and Acknowledgments
 ---------------------------

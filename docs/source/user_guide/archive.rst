@@ -88,6 +88,45 @@ Resulting ANSYS quality report:
     ------------------------------------------------------------------------------
 
 
+Converting a MAPDL Archive File to VTK for Paraview
+---------------------------------------------------
+MAPDL archive files containing solid elements (both legacy and modern)
+can be loaded using Archive and then converted to a VTK object.
+
+.. code:: python
+
+    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl.reader import examples
+
+    # Sample *.cdb
+    filename = examples.hexarchivefile
+
+    # Read ansys archive file
+    archive = pymapdl_reader.Archive(filename)
+
+    # Print overview of data read from cdb
+    print(archive)
+
+    # Create a vtk unstructured grid from the raw data and plot it
+    grid = archive.parse_vtk(force_linear=True)
+    grid.plot(color='w', show_edges=True)
+
+    # save this as a vtk xml file 
+    grid.save('hex.vtu')
+
+.. image:: ../images/hexbeam.png
+
+
+You can then load this vtk file using ``pyvista`` or another program that uses VTK.
+    
+.. code:: python
+
+    # Load this from vtk
+    import pyvista as pv
+    grid = pv.read('hex.vtk')
+    grid.plot()
+
+
 Supported Elements
 ~~~~~~~~~~~~~~~~~~
 At the moment, only solid elements are supported by the

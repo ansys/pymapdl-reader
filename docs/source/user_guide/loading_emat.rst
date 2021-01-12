@@ -1,6 +1,7 @@
 Working with a ANSYS Element Matrix File (.emat)
 ================================================
-The ANSYS element matrix file is a FORTRAN formatted binary file containing the following for each element.
+The ANSYS element matrix file is a FORTRAN formatted binary file
+containing the following for each element:
 
  - Stiffness matrix
  - Mass matrix
@@ -16,8 +17,8 @@ Load the element matrix file:
 
 .. code:: python
 
-    import pyansys
-    emat_file = pyansys.read_binary('file.emat')
+    import ansys.mapdl.reader as pymapdl_reader
+    emat_file = pymapdl_reader.read_binary('file.emat')
 
 Read a single element from the result file:
 
@@ -25,7 +26,9 @@ Read a single element from the result file:
 
     dof_ref, element_data = emat_file.read_element(0)
 
-The dictionary ``element_data`` contains the entries used to construct stiffness, mass, and damping matrices.  If recorded, the dictionary will also applied force vectors.
+The dictionary ``element_data`` contains the entries used to construct
+stiffness, mass, and damping matrices.  If recorded, the dictionary
+will also applied force vectors.
 
 
 Applied Force
@@ -100,5 +103,5 @@ below:
 
 EmatFile Object Methods
 -----------------------
-.. autoclass:: pyansys.emat.EmatFile
+.. autoclass:: ansys.mapdl.reader.emat.EmatFile
     :members:

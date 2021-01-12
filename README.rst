@@ -1,28 +1,35 @@
-PyMAPDL Legacy Binary and Archive Reader
-========================================
-This is the legacy reader for binary and ASCII files generated from MAPDL.
+======================================================
+PyMAPDL Reader - Legacy Binary and Archive File Reader
+======================================================
+This is the legacy module for reading in binary and ASCII files
+generated from MAPDL.
 
-This Python module allows you to:
- - Extract data directly from binary ANSYS v14.5+ files and to display
-   or animate them.  Specifically, the following formats:
+This Python module allows you to extract data directly from binary
+ANSYS v14.5+ files and to display or animate them rapidly using a
+straightforward API coupled with C libraries based on header files
+provided by ANSYS.
 
-    - ``*.rst``: Result file from structural analysis
-    - ``*.rth``: Result file from a thermal analysis
-    - ``*.emat``: Stores data related to element matrices
-    - ``*.full``: Stores the full stiffness-mass matrix
-    - Reading nodes and elements from MAPDL ASCII block archive
-      ``*.cdb`` and ``*.dat`` files
+The ``ansys-mapdl-reader`` module supports the following formats:
 
+  - ``*.rst`` - Structural analysis result file
+  - ``*.rth`` - Thermal analysis result file 
+  - ``*.emat`` - Element matrice data file
+  - ``*.full`` - Full stiffness-mass matrix file
+  - ``*.cdb`` or ``*.dat`` - MAPDL ASCII block archive and
+    Mechanical Workbench input files
 
-This module will be maintained provided that it provides unique
-support for reading files from MAPDL and may be subject to
-depreciation when ANSYS provides better support for the multitude of
-file formats.
+Please see the :ref:`ref_example_gallery` for several demos using
+``ansys-mapdl-reader``.
 
-You are encouraged to checkout the new Data Processing
-Framework modules at `DPF-Core <https://github.com/pyansys/DPF-Core>`_
-and `DPF-Post <https://github.com/pyansys/DPF-Post>`_ as they provide
-a modern interface to ANSYS result files.
+.. warning::
+   This module will likely change or be depreciated in the future.
+
+   You are encouraged to use the new Data Processing Framework (DPF)
+   modules at `DPF-Core <https://github.com/pyansys/DPF-Core>`_ and
+   `DPF-Post <https://github.com/pyansys/DPF-Post>`_ as they provide a
+   modern interface to ANSYS result files using a client/server
+   interface using the same software used within ANSYS Workbench, but
+   via a Python client.
 
 
 Installation
@@ -43,8 +50,8 @@ object.
 
 .. code:: python
 
-    import pyansys
-    from pyansys import examples
+    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl.reader import examples
     
     # Sample *.cdb
     filename = examples.hexarchivefile
@@ -67,7 +74,7 @@ object.
     grid.save('hex.vtk')
 
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/images/hexbeam_small.png
+.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/source/images/hexbeam_small.png
    :alt: Hexahedral beam
 
 You can then load this vtk file using ``pyvista`` or another program that uses VTK.
@@ -88,8 +95,8 @@ from ANSYS.
 .. code:: python
 
     # Load the reader from pyansys
-    import pyansys
-    from pyansys import examples
+    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl.reader import examples
     
     # Sample result file
     rstfile = examples.rstfile
@@ -106,12 +113,12 @@ from ANSYS.
     [ 7366.49503969  7366.49503969 11504.89523664 17285.70459456
       17285.70459457 20137.19299035]
     
-    # Get the 1st bending mode shape.  Results are ordered based on the sorted 
-    # node numbering.  Note that results are zero indexed
-    nnum, disp = result.nodal_solution(0)
-    
+Get the 1st bending mode shape.  Results are ordered based on the
+sorted node numbering.  Note that results are zero indexed
+
 .. code:: python
 
+    >>> nnum, disp = result.nodal_solution(0)
     >>> print(disp)
     [[ 2.89623914e+01 -2.82480489e+01 -3.09226692e-01]
      [ 2.89489249e+01 -2.82342416e+01  2.47536161e+01]
@@ -134,7 +141,7 @@ plotted using ``VTK``.
     # Plot the displacement of Mode 0 in the x direction
     result.plot_nodal_solution(0, 'x', label='Displacement')
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/images/hexbeam_disp_small.png
+.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/source/images/hexbeam_disp_small.png
 
 
 Results can be plotted non-interactively and screenshots saved by
@@ -170,7 +177,7 @@ displayed.
     # Display node averaged stress in x direction for result 6
     result.plot_nodal_stress(5, 'Sx')
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/images/beam_stress_small.png
+.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/source/images/beam_stress_small.png
 
 
 Nodal stress can also be generated non-interactively with:
@@ -189,14 +196,15 @@ Mode shapes from a modal analysis can be animated using ``animate_nodal_solution
 
     result.animate_nodal_solution(0)
 
-If you wish to save the animation to a file, specify the movie_filename and animate it with:
+If you wish to save the animation to a file, specify the
+movie_filename and animate it with:
 
 .. code:: python
 
     result.animate_nodal_solution(0, movie_filename='/tmp/movie.mp4', cpos=cpos)
 
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/images/beam_mode_shape_small.gif
+.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/source/images/beam_mode_shape_small.gif
 
 
 Reading a Full File
@@ -207,7 +215,7 @@ the above example.
 .. code:: python
 
     # Load the reader from pyansys
-    import pyansys
+    import ansys.mapdl.reader as pymapdl_reader
     from scipy import sparse
     
     # load the full file
@@ -246,3 +254,7 @@ natural frequencies and mode shapes.
     1283.200 Hz
     5781.975 Hz
     6919.399 Hz
+
+License and Acknowledgments
+---------------------------
+The ``ansys-mapdl-reader`` module is licensed under the MIT license.

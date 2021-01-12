@@ -1,7 +1,7 @@
-Working with a ANSYS Full File (full)
+Working with a MAPDL Full File (full)
 =====================================
-The ANSYS full file is a FORTRAN formatted binary file containing the
-mass and stiffness from an ANSYS analysis.  Using pyansys it can be
+The MAPDL full file is a FORTRAN formatted binary file containing the
+mass and stiffness from an Ansys analysis.  Using pyansys it can be
 loaded into memory as either a sparse or full matrix.
 
 
@@ -27,17 +27,15 @@ of the values later on.
 
 .. code:: python
 
-    # Load pyansys
-    import pyansys
-    from pyansys import examples
+    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl.reader import examples
     
     # Create result reader object and read in full file
-    full = pyansys.read_binary(examples.fullfile)
+    full = pymapdl_reader.read_binary(examples.fullfile)
     dof_ref, k, m = full.load_km(sort=True)
 
-
 ANSYS only stores the upper triangular matrix in the full file.  To
-make the full matrix:
+create the full matrix:
 
 .. code:: python
 
@@ -78,7 +76,10 @@ frequencies and mode shapes of a system.
 
 Plotting a Mode Shape
 ---------------------
-You can also plot the mode shape of this finite element model.  Since the constrained degrees of freedom have been removed from the solution, you have to account for these when displaying the displacement.
+You can also plot the mode shape of this finite element model.  Since
+the constrained degrees of freedom have been removed from the
+solution, you have to account for these when displaying the
+displacement.
 
 .. code:: python
     
@@ -93,35 +94,36 @@ You can also plot the mode shape of this finite element model.  Since the constr
     n /= n.max() # normalize
     
     # load an archive file and create a vtk unstructured grid
-    archive = pyansys.Archive(pyansys.examples.hexarchivefile)
+    archive = pymapdl_reader.Archive(examples.hexarchivefile)
     grid = archive.parse_vtk()
     
     # plot the normalized displacement
     # grid.plot(scalars=n)
     
     # Fancy plot the displacement
-    plobj = pv.Plotter()
+    pl = pv.Plotter()
     
     # add the nominal mesh
-    plobj.add_mesh(grid, style='wireframe')
+    pl.add_mesh(grid, style='wireframe')
 	  
     # copy the mesh and displace it
     new_grid = grid.copy()
     new_grid.points += disp/80
-    plobj.add_mesh(new_grid, scalars=n, stitle='Normalized\nDisplacement',
-                  flipscalars=True)
+    pl.add_mesh(new_grid, scalars=n, stitle='Normalized\nDisplacement',
+                flipscalars=True)
     
-    plobj.add_text('Cantliver Beam 4th Mode Shape at {:.4f}'.format(f[3]),
-                   fontsize=30)
-    plobj.plot()
+    pl.add_text('Cantliver Beam 4th Mode Shape at {:.4f}'.format(f[3]),
+                fontsize=30)
+    pl.plot()
     
-.. image:: ./images/solved_km.png
+.. image:: ../images/solved_km.png
 
 
-This example is built into ``pyansys`` and can be run from  ``examples.solve_km()``.
+This example is built into ``pyansys-mapdl`` and can be run from
+``examples.solve_km()``.
 
 
 FullFile Object Methods
 -----------------------
-.. autoclass:: pyansys.full.FullFile
+.. autoclass:: ansys.mapdl.reader.full.FullFile
     :members:

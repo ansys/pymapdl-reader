@@ -1,14 +1,14 @@
-Working with a ANSYS Result Files
-=================================
-The `pyansys` module supports the following result types from MAPDL:
+Reading MAPDL Result Files
+==========================
+The `ansys-mapdl-reader` module supports the following result types from MAPDL:
 
-- ".rfl"
-- ".rmg"
-- ".rst"
-- ".rth"
+- ``".rfl"``
+- ``".rmg"``
+- ``".rst"``
+- ``".rth"``
 
-The ANSYS result file is a FORTRAN formatted binary file containing
-the results written from an ANSYS analysis.  The results, at a
+The MAPDL result file is a FORTRAN formatted binary file containing
+the results written from a MAPDL analysis.  The results, at a
 minimum, contain the geometry of the model analyzed along with the
 nodal and element results.  Depending on the analysis, these results
 could be anything from modal displacements to nodal temperatures.
@@ -25,44 +25,52 @@ This includes (and is not limited to):
     - Nodal thermal strain
     - Various element results (see ``element_solution_data``)
 
-We're working on adding additional plotting and retrieval functions to the code If you would like us to add an additional result type to be loaded, please open an issue in `GitHub <https://github.com/akaszynski/pyansys>`_  and include result file for the result type you wish to load.
+This module will likely change or depreciated in the future, and you
+are encouraged to checkout the new Data Processing Framework (DPF)
+modules at `DPF-Core <https://github.com/pyansys/DPF-Core>`_ and
+`DPF-Post <https://github.com/pyansys/DPF-Post>`_ as they provide a
+modern interface to ANSYS result files using a client/server interface
+using the same software used within ANSYS Workbench, but via a Python
+client.
 
 
 Loading the Result File
 -----------------------
-As the ANSYS result files are binary files, the entire file does not
+As the MAPDL result files are binary files, the entire file does not
 need to be loaded into memory in order to retrieve results.  This
 module accesses the results through a python object `result` which you
 can initialize with:
 
 .. code:: python
 
-    import pyansys
-    result = pyansys.read_binary('file.rst')
+    import ansys.mapdl.reader as pymapdl_reader
+    result = pymapdl_reader.read_binary('file.rst')
     
 Upon initialization the ``Result`` object contains several
 properties to include the time values from the analysis, node
 numbering, element numbering, etc.
 
-The `pyansys` module can determine the correct result type by reading
-the header of the file, which means that if it is an ANSYS binary
-file, `pyansys` can probably read it (at least to some degree.  For
-example, a thermal result file can be read with
+The ``ansys-mapdl-reader`` module can determine the correct result
+type by reading the header of the file, which means that if it is an
+MAPDL binary file, ``ansys-mapdl-reader`` can probably read it (at
+least to some degree.  For example, a thermal result file can be read
+with
 
 .. code:: python
 
-    rth = pyansys.read_binary('file.rth')
+    rth = pymapdl_reader.read_binary('file.rth')
 
 
 Result Properties
 -----------------
-The properties of the ``Result`` can be quickly shown by printing the result file with:
+The properties of the ``Result`` can be quickly shown by printing the
+result file with:
 
 .. code:: python
 
-    >>> result = pyansys.read_binary('file.rst')
+    >>> result = pymapdl_reader.read_binary('file.rst')
     >>> print(result)
-    PyANSYS MAPDL Result file object
+    PyMAPDL Result file object
     Units       : User Defined
     Version     : 20.1
     Cyclic      : False
@@ -127,13 +135,13 @@ The sorted node and element numbering of a result can be obtained with:
 Mesh
 ----
 The mesh of the result can be found by querying the ``mesh`` property
-of a result, which returns a ``pyansys.mesh.Mesh`` class.
+of a result, which returns a ``ansys.mapdl.reader.mesh.Mesh`` class.
 
 .. code:: python
 
-    >>> import pyansys
-    >>> from pyansys import examples
-    >>> rst = pyansys.read_binary(examples.rstfile)
+    >>> import ansys.mapdl.reader as pymapdl_reader
+    >>> from ansys.mapdl.reader import examples
+    >>> rst = pymapdl_reader.read_binary(examples.rstfile)
     >>> print(rst.mesh)
 
 .. code::
@@ -148,13 +156,13 @@ of a result, which returns a ``pyansys.mesh.Mesh`` class.
 
 Which contains the following attributes:
 
-.. autoclass:: pyansys.mesh.Mesh
+.. autoclass:: ansys.mapdl.reader.mesh.Mesh
     :members:
 
 
 Coordinate Systems
 ~~~~~~~~~~~~~~~~~~
-Non-default coordinate systems are always saved to an ANSYS result
+Non-default coordinate systems are always saved to a MAPDL result
 file.  The coordinate system is zero indexed and individual coordinate
 systems can be accessed with:
 
@@ -255,7 +263,7 @@ nodes by the number of degrees of freedom.
     result.plot_nodal_solution(0, label='Normalized')
 
 Stress can be obtained as well using the below code.  The nodal stress
-is computed in the same manner as ANSYS by averaging the stress
+is computed in the same manner as MAPDL by averaging the stress
 evaluated at that node for all attached elements.
 
 .. code:: python
@@ -283,12 +291,12 @@ for the first result from a modal analysis.
 
 .. code:: python
     
-    import pyansys
-    result = pyansys.read_binary('file.rst')
+    import ansys.mapdl.reader as pymapdl_reader
+    result = pymapdl_reader.read_binary('file.rst')
     estress, elem, enode = result.element_stress(0)
 
     
-These stresses can be verified using ANSYS using:
+These stresses can be verified using MAPDL using:
 
 .. code:: python
 
@@ -307,6 +315,8 @@ These stresses can be verified using ANSYS using:
 
     >>> enode[0]
         array([ 9012,  7614,  9009, 10920], dtype=int32)
+
+Which are identical to the results from MAPDL:
 
 .. code::
 
@@ -329,6 +339,49 @@ These stresses can be verified using ANSYS using:
    10920   49788.      8798.7     -21929.     -7302.5      11294.      4300.0    
 
 
+Loading a Results from a Modal Analysis Result File
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This example reads in binary results from a modal analysis of a beam
+from ANSYS.  This section of code does not rely on ``VTK`` and can be
+used with only ``numpy`` installed.
+
+.. code:: python
+
+    # Load the reader from pyansys
+    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl.reader import examples
+    
+    # Sample result file
+    rstfile = examples.rstfile
+    
+    # Create result object by loading the result file
+    result = pymapdl_reader.read_binary(rstfile)
+    
+    # Beam natural frequencies
+    freqs = result.time_values
+
+.. code:: python
+
+    >>> print(freqs)
+    [ 7366.49503969  7366.49503969 11504.89523664 17285.70459456
+      17285.70459457 20137.19299035]
+    
+Get the 1st bending mode shape.  Results are ordered based on the
+sorted node numbering.  Note that results are zero indexed.
+
+.. code:: python
+
+    >>> nnum, disp = result.nodal_solution(0)
+    >>> print(disp)
+    [[ 2.89623914e+01 -2.82480489e+01 -3.09226692e-01]
+     [ 2.89489249e+01 -2.82342416e+01  2.47536161e+01]
+     [ 2.89177130e+01 -2.82745126e+01  6.05151053e+00]
+     [ 2.88715048e+01 -2.82764960e+01  1.22913304e+01]
+     [ 2.89221536e+01 -2.82479511e+01  1.84965333e+01]
+     [ 2.89623914e+01 -2.82480489e+01  3.09226692e-01]
+     ...
+
+
 Accessing Element Solution Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Individual element results for the entire solution can be accessed
@@ -338,9 +391,9 @@ volume of each element:
 .. code:: python
 
     import numpy as np
-    import pyansys
+    import ansys.mapdl.reader as pymapdl_reader
 
-    rst = pyansys.read_binary('./file.rst')
+    rst = pymapdl_reader.read_binary('./file.rst')
     enum, edata = rst.element_solution_data(0, datatype='ENG')
 
     # output as a list, but can be viewed as an array since
@@ -356,23 +409,101 @@ Solutions from a modal analysis can be animated using
 
 .. code:: python
 
-    from pyansys import examples
-    import pyansys
+    from ansys.mapdl.reader import examples
+    import ansys.mapdl.reader as pymapdl_reader
 
-    result = pyansys.read_binary(examples.rstfile)
+    result = pymapdl_reader.read_binary(examples.rstfile)
     result.animate_nodal_solution(3)
+
+
+Plotting Nodal Results
+~~~~~~~~~~~~~~~~~~~~~~
+As the geometry of the model is contained within the result file, you
+can plot the result without having to load any additional geometry.
+Below, displacement for the first mode of the modal analysis beam is
+plotted using ``VTK``.
+
+Here, we plot the displacement of Mode 0 in the x direction:
+
+.. code:: python
+    
+    result.plot_nodal_solution(0, 'x', label='Displacement')
+
+.. image:: ../images/hexbeam_disp.png
+
+
+Results can be plotted non-interactively and screenshots saved by
+setting up the camera and saving the result.  This can help with the
+visualization and post-processing of a batch result.
+
+First, get the camera position from an interactive plot:
+
+.. code:: python
+
+    >>> cpos = result.plot_nodal_solution(0)
+    >>> print(cpos)
+    [(5.2722879880979345, 4.308737919176047, 10.467694436036483),
+     (0.5, 0.5, 2.5),
+     (-0.2565529433509593, 0.9227952809887077, -0.28745339908049733)]
+
+Then generate the plot:
+
+.. code:: python
+
+    result.plot_nodal_solution(0, 'x', label='Displacement', cpos=cpos,
+                               screenshot='hexbeam_disp.png',
+                               window_size=[800, 600], interactive=False)
+
+Stress can be plotted as well using the below code.  The nodal stress
+is computed in the same manner that ANSYS uses by to determine the
+stress at each node by averaging the stress evaluated at that node for
+all attached elements.  For now, only component stresses can be
+displayed.
+
+.. code:: python
+    
+    # Display node averaged stress in x direction for result 6
+    result.plot_nodal_stress(5, 'Sx')
+
+.. image:: ../images/beam_stress.png
+
+Nodal stress can also be generated non-interactively with:
+
+.. code:: python
+
+    result.plot_nodal_stress(5, 'Sx', cpos=cpos, screenshot=beam_stress.png,
+                             window_size=[800, 600], interactive=False)
+
+Animating a Modal Solution
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mode shapes from a modal analysis can be animated using
+``animate_nodal_solution``:
+
+.. code:: python
+
+    result.animate_nodal_solution(0)
+
+If you wish to save the animation to a file, specify the
+movie_filename and animate it with:
+
+.. code:: python
+
+    result.animate_nodal_solution(0, movie_filename='movie.mp4', cpos=cpos)
+
+.. image:: ../images/beam_mode_shape.gif
 
 
 Results from a Cyclic Analysis
 ------------------------------
-``pyansys`` can load and display the results of a cyclic analysis:
+The ``ansys-mapdl-reader`` module can load and display the results of
+a cyclic analysis:
 
 .. code:: python
 
-    import pyansys
+    import ansys.mapdl.reader as pymapdl_reader
 
     # load the result file    
-    result = pyansys.read_binary('rotor.rst')
+    result = pymapdl_reader.read_binary('rotor.rst')
     
 You can reference the load step table and harmonic index tables by
 printing the result header dictionary keys ``'ls_table'`` and
@@ -416,8 +547,8 @@ Alternatively, the result number can be obtained by using:
 
 Using this indexing method, repeated modes are indexed by the same
 mode index.  To access the other repeated mode, use a negative
-harmonic index.  Should a result not exist, pyansys will return which
-modes are available:
+harmonic index.  Should a result not exist, ``ansys-mapdl-reader``
+will return which modes are available:
 
 .. code:: python
 
@@ -430,8 +561,8 @@ modes are available:
 Results from a cyclic analysis require additional post processing to
 be interperted correctly.  Mode shapes are stored within the result
 file as unprocessed parts of the real and imaginary parts of a modal
-solution.  ``pyansys`` combines these values into a single complex
-array and then returns the real result of that array.
+solution.  ``ansys-mapdl-reader`` combines these values into a single
+complex array and then returns the real result of that array.
 
 .. code:: python
 
@@ -471,7 +602,7 @@ The results of a single sector can be displayed as well using the
     rnum = result.harmonic_index_to_cumulative(0, 2)
     result.plot_nodal_solution(rnum, label='Displacement', expand=False)
     
-.. image:: ./images/rotor.jpg
+.. image:: ../images/rotor.jpg
 
 The phase of the result can be changed by modifying the ``phase``
 option.  See ``help(result.plot_nodal_solution)`` for details on its
@@ -481,17 +612,18 @@ implementation.
 Exporting to ParaView
 ---------------------
 ParaView is a visualization application that can be used for rapid
-generation of plots and graphs using VTK through a GUI.  ``pyansys``
-can translate the ANSYS result files to ParaView compatible files
-containing the geometry and nodal results from the analysis:
+generation of plots and graphs using VTK through a GUI.
+``ansys-mapdl-reader`` can translate the MAPDL result files to
+ParaView compatible files containing the geometry and nodal results
+from the analysis:
 
 .. code:: python
 
-    import pyansys
-    from pyansys import examples
+    import ansys.mapdl.reader as pymapdl_reader
+    from ansys.mapdl.reader import examples
 
     # load example beam result file
-    result = pyansys.read_binary(examples.rstfile)
+    result = pymapdl_reader.read_binary(examples.rstfile)
     
     # save as a binary vtk xml file
     result.save_as_vtk('beam.vtu')
@@ -504,13 +636,13 @@ for each result in the result file.  The nodal result values will
 depend on the analysis type, while nodal stress will always be the
 node average stress in the Sx, Sy Sz, Sxy, Syz, and Sxz directions.
 
-.. image:: ./images/paraview.jpg
+.. image:: ../images/paraview.jpg
 
 
 Result Object Methods
 ---------------------
-.. autoclass:: pyansys.rst.Result
+.. autoclass:: ansys.mapdl.reader.rst.Result
     :members:
 
-.. autoclass:: pyansys.cyclic_reader.CyclicResult
+.. autoclass:: ansys.mapdl.reader.cyclic_reader.CyclicResult
     :members:

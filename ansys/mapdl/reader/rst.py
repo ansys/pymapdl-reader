@@ -2004,7 +2004,7 @@ class Result(AnsysBinary):
         principal using the averaged value.
 
         See the MAPDL ``AVPRIN`` command for more details.
-        ``pyansys`` uses the default ``AVPRIN, 0`` option.
+        ``ansys-mapdl-reader`` uses the default ``AVPRIN, 0`` option.
 
         """
         # get component stress
@@ -2773,9 +2773,9 @@ class Result(AnsysBinary):
 
     def __repr__(self):
         if self._is_distributed:
-            rst_info = ['PyANSYS MAPDL Distributed Result']
+            rst_info = ['PyMAPDL Reader Distributed Result']
         else:
-            rst_info = ['PyANSYS MAPDL Result']
+            rst_info = ['PyMAPDL Result']
         keys = ['title', 'subtitle', 'units']
         for key in keys:
             value = self._resultheader[key]
