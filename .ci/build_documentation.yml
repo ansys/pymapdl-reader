@@ -17,7 +17,7 @@ steps:
 - script: |
     python -m pip install -r requirements_build.txt
     python setup.py install
-  displayName: Install pyansys
+  displayName: Install package
 
 - script: |
     python -m pip install -r requirements_docs.txt
@@ -34,19 +34,17 @@ steps:
 
 - script: |
     cd ..
-    git clone --single-branch --branch gh-pages https://$(github_pat)@github.com/akaszynski/pyansys.git
+    git clone --single-branch --branch gh-pages https://$(github_pat)@github.com/pyansys/pymapdl-reader.git gh_pages
     git gc --prune=now
     git remote prune origin
-    cd pyansys
+    cd gh_pages
     git config user.email $(gh_email)
     git config user.name $(gh_user)
     rm -rf *
-    cp -r $BUILD_SOURCESDIRECTORY/docs/_build/html/* .
+    cp -r $BUILD_SOURCESDIRECTORY/docs/build/html/* .
     touch .nojekyll
     git add .
     git commit -am "Pipelines-Bot: Updated site via $(Build.SourceVersion)"
-    # cd $BUILD_SOURCESDIRECTORY
     git push
   displayName: Push to gh-pages
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/master'))
-

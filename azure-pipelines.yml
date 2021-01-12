@@ -43,9 +43,9 @@ jobs:
       displayName: Build wheels using manylinux2010
     - script: |
         .ci/setup_headless_display.sh
-    - template: install_pyansys.yml
-    - template: unit_testing.yml
-    - template: azure-publish-dist.yml
+    - template: .ci/install_pyansys.yml
+    - template: .ci/unit_testing.yml
+    - template: .ci/azure-publish-dist.yml
 
 
 - job: Windows
@@ -67,10 +67,10 @@ jobs:
     - powershell: |
         powershell .ci/install_opengl.ps1
       displayName: 'Install OpenGL'
-    - template: build_wheel.yml
-    - template: install_pyansys.yml
-    - template: unit_testing.yml
-    - template: azure-publish-dist.yml
+    - template: .ci/build_wheel.yml
+    - template: .ci/install_pyansys.yml
+    - template: .ci/unit_testing.yml
+    - template: .ci/azure-publish-dist.yml
 
 
 - job: macOS
@@ -87,10 +87,10 @@ jobs:
   steps:
     - script: .ci/macos-install-python.sh '$(python.version)'
       displayName: Install Python
-    - template: build_wheel.yml
-    - template: install_pyansys.yml
-    - template: unit_testing_allow_error.yml
-    - template: azure-publish-dist.yml
+    - template: .ci/build_wheel.yml
+    - template: .ci/install_pyansys.yml
+    - template: .ci/unit_testing_allow_error.yml
+    - template: .ci/azure-publish-dist.yml
 
 
 - job: build_docs
@@ -103,4 +103,4 @@ jobs:
   pool:
     vmImage: 'ubuntu-18.04'
   steps:
-    - template: build_documentation.yml
+    - template: .ci/build_documentation.yml
