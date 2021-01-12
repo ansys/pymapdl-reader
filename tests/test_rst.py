@@ -38,9 +38,9 @@ import numpy as np
 import pytest
 from pyvista.plotting import system_supports_plotting
 
-import ansys.mapdl.reader as pymapdl_reader
-from ansys.mapdl.core import examples
-from ansys.mapdl.core.examples.downloads import _download_and_read
+from ansys.mapdl import reader as pymapdl_reader
+from ansys.mapdl.reader import examples
+from ansys.mapdl.reader.examples.downloads import _download_and_read
 
 try:
     vm33 = examples.download_verification_result(33)
@@ -70,7 +70,7 @@ testfiles_path = os.path.join(test_path, 'testfiles')
 is16_filename = os.path.join(testfiles_path, 'is16.rst')
 is16_known_result = os.path.join(testfiles_path, 'is16.npz')
 if os.path.isfile(is16_filename):
-    is16 = pymapdl.read_binary(is16_filename)
+    is16 = pymapdl_reader.read_binary(is16_filename)
 else:
     is16 = None
 
@@ -80,19 +80,19 @@ temperature_known_result = os.path.join(testfiles_path, 'temp_v13.npz')
 @pytest.fixture(scope='module')
 def hex_pipe_corner():
     filename = os.path.join(testfiles_path, 'rst', 'cyc_stress.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.fixture(scope='module')
 def hex_rst():
     filename = os.path.join(testfiles_path, 'hex_201.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.fixture(scope='module')
 def volume_rst():
     rst_file = os.path.join(testfiles_path, 'vol_test.rst')
-    return pymapdl.read_binary(rst_file)
+    return pymapdl_reader.read_binary(rst_file)
 
 
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
@@ -189,7 +189,7 @@ def test_repr():
     assert 'Title' in str(pontoon)
 
 
-@pytest.mark.skipif(is16 is None, reason="Requires example files")
+@pytest.mark.skipif(vm33 is None, reason="Requires example files")
 def test_available_results():
     for etype in vm33.available_results:
         if etype in ['NSL', 'VSL', 'ASL', 'RF']:  # skip nodal records
@@ -224,7 +224,7 @@ def test_is16():
 @pytest.mark.skipif(not os.path.isfile(temperature_rst),
                     reason="Requires example files")
 def test_read_temperature():
-    temp_rst = pymapdl.read_binary(temperature_rst)
+    temp_rst = pymapdl_reader.read_binary(temperature_rst)
     nnum, temp = temp_rst.nodal_temperature(0)
 
     npz_rst = np.load(temperature_known_result)
@@ -236,7 +236,7 @@ def test_read_temperature():
 @pytest.mark.skipif(not os.path.isfile(temperature_rst),
                     reason="Requires example files")
 def test_plot_nodal_temperature():
-    temp_rst = pymapdl.read_binary(temperature_rst)
+    temp_rst = pymapdl_reader.read_binary(temperature_rst)
     temp_rst.plot_nodal_temperature(0, off_screen=True)
 
 
@@ -256,7 +256,7 @@ def test_rst_beam4_shell63():
     filename = os.path.join(testfiles_path, 'shell63_beam4.rst')
 
     # check geometry can load
-    rst = pymapdl.read_binary(filename)
+    rst = pymapdl_reader.read_binary(filename)
     assert isinstance(rst.grid.points, np.ndarray)
     assert isinstance(rst.grid.cells, np.ndarray)
     assert (rst.grid.cells >= 0).all()

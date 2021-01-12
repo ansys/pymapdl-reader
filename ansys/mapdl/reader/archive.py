@@ -28,7 +28,7 @@ class Archive(Mesh):
 
     Reads a blocked CDB file and optionally parses it to a vtk grid.
     This can be used to read in files written from MAPDL using the
-    ``CDWRITE`` command or input files (``*.dat) files written from
+    ``CDWRITE`` command or input files (``'.dat'``) files written from
     ANSYS Workbench.
 
     Write the archive file using ``CDWRITE, DB, archive.cdb``
@@ -70,7 +70,7 @@ class Archive(Mesh):
 
     Examples
     --------
-    >>> import ansys.mapdl.reader as pymapdl_reader
+    >>> from ansys.mapdl import reader as pymapdl_reader
     >>> from ansys.mapdl.reader import examples
     >>> hex_beam = pymapdl_reader.Archive(examples.hexarchivefile)
     >>> print(hex_beam)
@@ -150,8 +150,8 @@ class Archive(Mesh):
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
-        >>> from ansys.mapdl.core import examples
+        >>> from ansys.mapdl import reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile,
                                              read_parameters=True)
         >>> archive.parameters
@@ -182,7 +182,7 @@ class Archive(Mesh):
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.grid
@@ -209,7 +209,7 @@ class Archive(Mesh):
 
         Examples
         --------
-        >>> import ansys.mapdl.reader as pymapdl_reader
+        >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
         >>> archive = pymapdl_reader.Archive(examples.hexarchivefile)
         >>> archive.quality

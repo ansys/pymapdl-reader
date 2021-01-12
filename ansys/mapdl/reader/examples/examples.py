@@ -1,22 +1,17 @@
-"""pyansys examples
-
-"""
+"""PyMAPDL-Reader example files"""
 import os
 import inspect
 import sys
 
 import numpy as np
-
-import ansys.mapdl.core as pymapdl
 import pyvista as pv
 
+from ansys.mapdl import reader as pymapdl_reader
+from ansys.mapdl.reader import examples
 
 # get location of this folder and the example files
 dir_path = os.path.dirname(os.path.realpath(__file__))
 rstfile = os.path.join(dir_path, 'file.rst')
-hex_database_v194 = os.path.join(dir_path, 'hex_db_194.db')
-hex_database_v150 = os.path.join(dir_path, 'hex_db_150.db')
-hex_database = os.path.join(dir_path, 'hex_db_194.db')
 hexarchivefile = os.path.join(dir_path, 'HexBeam.cdb')
 tetarchivefile = os.path.join(dir_path, 'TetBeam.cdb')
 fullfile = os.path.join(dir_path, 'file.full')
@@ -42,9 +37,9 @@ def run_all(run_ansys=False):
 
 
 def show_hex_archive(off_screen=None):
-    """Displays a hex beam mesh"""
+    """Display a hex beam mesh"""
     # Load an archive file
-    archive = pymapdl.Archive(hexarchivefile)
+    archive = pymapdl_reader.Archive(hexarchivefile)
     archive.plot(off_screen=off_screen, color='w', show_edges=True)
     assert archive.grid.n_points
     assert archive.grid.n_cells
@@ -56,7 +51,7 @@ def load_result():
     """
 
     # Load result file
-    result = pymapdl.read_binary(rstfile)
+    result = pymapdl_reader.read_binary(rstfile)
     assert result.nsets == 6
     assert len(result.mesh.nnum) == 321
     print('Loaded result file with {:d} result sets'.format(result.nsets))
@@ -79,7 +74,7 @@ def show_displacement(off_screen=None):
     """ Load and plot 1st bend of a hexahedral beam """
 
     # get location of this file
-    fobj = pymapdl.read_binary(rstfile)
+    fobj = pymapdl_reader.read_binary(rstfile)
 
     print('Displaying ANSYS Mode 1')
     fobj.plot_nodal_solution(0, label='Displacement', off_screen=off_screen,
@@ -90,7 +85,7 @@ def show_stress(off_screen=None):
     """ Load and plot 1st bend of a hexahedral beam """
 
     # get location of this file
-    result = pymapdl.read_binary(rstfile)
+    result = pymapdl_reader.read_binary(rstfile)
 
     print('Displaying node averaged stress in x direction for Mode 6')
     result.plot_nodal_stress(5, 'x', off_screen=off_screen, n_colors=9)
@@ -100,7 +95,7 @@ def load_km():
     """ Loads m and k matrices from a full file """
 
     # Create file reader object
-    fobj = pymapdl.read_binary(fullfile)
+    fobj = pymapdl_reader.read_binary(fullfile)
     dofref, k, m = fobj.load_km()
 
     # print results
@@ -153,7 +148,7 @@ def solve_km():
         return
 
     # load the mass and stiffness matrices
-    full = pymapdl.read_binary(pymapdl.examples.fullfile)
+    full = pymapdl_reader.read_binary(examples.fullfile)
     dofref, k, m = full.load_km(sort=True)
 
     # make symmetric
@@ -178,7 +173,7 @@ def solve_km():
     n /= n.max()  # normalize
 
     # load an archive file and create a vtk unstructured grid
-    archive = pymapdl.Archive(pymapdl.examples.hexarchivefile)
+    archive = pymapdl_reader.Archive(examples.hexarchivefile)
     grid = archive.grid
 
     # Fancy plot the displacement
@@ -196,7 +191,7 @@ def solve_km():
 
 
 def show_cell_qual(meshtype='tet', off_screen=None):
-    """Displays minimum scaled jacobian of a sample mesh
+    """Displays minimum scaled jacobian of a sample mesh.
 
     For an ANSYS analysis to run properly, the minimum scaled Jacobian
     of each cell must be greater than 0.
@@ -210,9 +205,9 @@ def show_cell_qual(meshtype='tet', off_screen=None):
 
     # load archive file and parse for subsequent FEM queries
     if meshtype == 'hex':
-        archive = pymapdl.Archive(hexarchivefile)
+        archive = pymapdl_reader.Archive(hexarchivefile)
     else:
-        archive = pymapdl.Archive(tetarchivefile)
+        archive = pymapdl_reader.Archive(tetarchivefile)
 
     # get cell quality
     qual = archive.quality

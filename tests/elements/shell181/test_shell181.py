@@ -80,7 +80,7 @@ import os
 
 import pytest
 import numpy as np
-import ansys.mapdl.reader as pymapdl_reader
+from ansys.mapdl import reader as pymapdl_reader
 
 ANSYS_ELEM = [[0.17662E-07, 79.410, -11.979, -0.11843E-02, 4.8423, -0.72216E-04],
               [0.20287E-07, 91.212, 27.364, -0.13603E-02, 4.8423, -0.72216E-04],
@@ -96,7 +96,7 @@ ANSYS_NODE = [[0.20287E-07, 91.212, 27.364, -0.13603E-02, 4.8423, -0.72216E-04],
 @pytest.fixture(scope='module')
 def result():
     test_path = os.path.dirname(os.path.abspath(__file__))
-    return pymapdl.read_binary(os.path.join(test_path, 'shell181.rst'))
+    return pymapdl_reader.read_binary(os.path.join(test_path, 'shell181.rst'))
 
 
 def test_load(result):
@@ -108,7 +108,7 @@ def test_element_stress(result):
     _, element_stress, _ = result.element_stress(0)
     element0 = element_stress[0]
 
-    # ansys prints both postiive and negative component values
+    # ansys prints both positive and negative component values
     if np.sign(element0[0][0]) != np.sign(ANSYS_ELEM[0][0]):
         element0 *= -1
 

@@ -8,13 +8,13 @@ import pyvista as pv
 import numpy as np
 from vtk import vtkAppendFilter
 
-from ansys.mapdl.core.misc import is_float, vtk_cell_info
-from ansys.mapdl.core.mesh import Mesh
-from ansys.mapdl.core.rst import Result, ELEMENT_INDEX_TABLE_KEYS
-from ansys.mapdl.core.errors import NoDistributedFiles
-from ansys.mapdl.core._binary_reader import (read_nodal_values_dist,
-                                             populate_surface_element_result)
-from ansys.mapdl.core._rst_keys import element_index_table_info
+from ansys.mapdl.reader.misc import is_float, vtk_cell_info
+from ansys.mapdl.reader.mesh import Mesh
+from ansys.mapdl.reader.rst import Result, ELEMENT_INDEX_TABLE_KEYS
+from ansys.mapdl.reader.errors import NoDistributedFiles
+from ansys.mapdl.reader._binary_reader import (read_nodal_values_dist,
+                                               populate_surface_element_result)
+from ansys.mapdl.reader._rst_keys import element_index_table_info
 
 
 def find_dis_files(main_file):
@@ -348,7 +348,7 @@ class DistributedResult(Result):
             Result number.
 
         result_type : str
-            Element data type to retreive.
+            Element data type to retrieve.
 
             - EMS: misc. data
             - ENF: nodal forces

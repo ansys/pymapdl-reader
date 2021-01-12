@@ -5,9 +5,9 @@ import pytest
 from pyvista.plotting import system_supports_plotting
 from pyvista.plotting.renderer import CameraPosition
 
-import ansys.mapdl.reader as pymapdl_reader
-from ansys.mapdl.core import examples
-from ansys.mapdl.core.cyclic_reader import CyclicResult
+from ansys.mapdl import reader as pymapdl_reader
+from ansys.mapdl.reader import examples
+from ansys.mapdl.reader.cyclic_reader import CyclicResult
 
 
 HAS_FFMPEG = True
@@ -45,21 +45,21 @@ def academic_rotor():
 @pytest.fixture(scope='module')
 def result_x():
     filename = os.path.join(testfiles_path, 'cyc12.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.fixture(scope='module')
 def cyclic_v182_z():
     # static result z axis
     filename = os.path.join(cyclic_testfiles_path, 'cyclic_v182.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.fixture(scope='module')
 def cyclic_v182_z_with_comp():
     # cyclic modal with component
     filename = os.path.join(cyclic_testfiles_path, 'cyclic_v182_w_comp.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.mark.parametrize("rtype", ['S', 'EPEL', 'S,PRIN'])
@@ -83,11 +83,11 @@ def test_nodal_cyclic_modal(academic_rotor, load_step, sub_step, rtype):
 
     # ANSYS doesn't include results for all nodes (i.e. sector nodes)
     mask = np.in1d(nnum, nnum_ans)
-    stress = stress[:, mask, :6]  # pymapdl strain includes eqv
+    stress = stress[:, mask, :6]  # pymapdl_reader strain includes eqv
     nnum = nnum[mask]
     assert np.allclose(nnum, nnum_ans)
 
-    # ANSYS will not average across geometric discontinuities, pymapdl
+    # ANSYS will not average across geometric discontinuities, pymapdl_reader
     # always does.  These 10 nodes are along the blade/sector interface
     dmask = np.ones(stress[0].shape[0], np.bool)
     dmask[[99, 111, 115, 116, 117, 135, 142, 146, 147, 148]] = False
@@ -172,7 +172,7 @@ def test_element_stress_v182_non_cyclic():
 
     """
     ansys_result_file = os.path.join(cyclic_testfiles_path, 'cyclic_v182.rst')
-    result = pymapdl.read_binary(ansys_result_file)
+    result = pymapdl_reader.read_binary(ansys_result_file)
 
     elemnum, element_stress, enode = result.element_stress(0, False, False)
     assert np.allclose(np.sort(elemnum), elemnum), 'elemnum must be sorted'
@@ -195,7 +195,7 @@ def test_nodal_stress_v182_non_cyclic():
     ansys_stress = array[:, 1:]
     """
     ansys_result_file = os.path.join(cyclic_testfiles_path, 'cyclic_v182.rst')
-    result = pymapdl.rst.Result(ansys_result_file, ignore_cyclic=True)
+    result = pymapdl_reader.rst.Result(ansys_result_file, ignore_cyclic=True)
     nnum, stress = result.nodal_stress(0)
 
     from_ansys = np.load(os.path.join(cyclic_testfiles_path, 'v182_prnsol_s.npz'))

@@ -6,9 +6,9 @@ from collections import Counter
 import numpy as np
 import pyvista as pv
 
-from ansys.mapdl.core._binary_reader import c_read_record
-from ansys.mapdl.core import _binary_reader
-from ansys.mapdl.core.errors import NoDistributedFiles
+from ansys.mapdl.reader._binary_reader import c_read_record
+from ansys.mapdl.reader import _binary_reader
+from ansys.mapdl.reader.errors import NoDistributedFiles
 
 STRESS_TYPES = ['X', 'Y', 'Z', 'XY', 'YZ', 'XZ']
 PRINCIPAL_STRESS_TYPES = ['S1', 'S2', 'S3', 'SINT', 'SEQV']
@@ -114,7 +114,7 @@ def read_binary(filename, **kwargs):
 
     Examples
     --------
-    >>> import pyansys
+    >>> from ansys.mapdl import reader as pymapdl_reader
     >>> result = pyansys.read_binary('file.rst')
     >>> result = pyansys.read_binary('file.rst')
     >>> full_file = pyansys.read_binary('file.full')
@@ -122,7 +122,7 @@ def read_binary(filename, **kwargs):
 
     Notes
     -----
-    The following file types are unsupported
+    The following file types are unsupported:
     - Jobname.DSUB file, storing displacements related to substructure
       matrices
     - Jobname.SUB file, storing data related to substructure matrices
@@ -141,14 +141,14 @@ def read_binary(filename, **kwargs):
     file_format = read_standard_header(filename)['file format']
 
     if file_format == 2:
-        from ansys.mapdl.core.emat import EmatFile
+        from ansys.mapdl.reader.emat import EmatFile
         return EmatFile(filename, **kwargs)
     elif file_format == 4:
-        from ansys.mapdl.core.full import FullFile
+        from ansys.mapdl.reader.full import FullFile
         return FullFile(filename, **kwargs)
     elif file_format == 12:
-        from ansys.mapdl.core.rst import Result
-        from ansys.mapdl.core.dis_result import DistributedResult
+        from ansys.mapdl.reader.rst import Result
+        from ansys.mapdl.reader.dis_result import DistributedResult
         read_mesh = kwargs.pop('read_mesh', True)
         result = Result(filename, read_mesh=False, **kwargs)
 
@@ -162,7 +162,7 @@ def read_binary(filename, **kwargs):
         # check if it's a cyclic result file
         ignore_cyclic = kwargs.pop('ignore_cyclic', False)
         if result._is_cyclic and not ignore_cyclic:
-            from ansys.mapdl.core.cyclic_reader import CyclicResult
+            from ansys.mapdl.reader.cyclic_reader import CyclicResult
             return CyclicResult(filename)
 
         if read_mesh:
@@ -170,17 +170,13 @@ def read_binary(filename, **kwargs):
 
         return result
 
-    # elif file_format == 16:
-    #     from pyansys.db import Database
-    #     return Database(filename, debug=kwargs.pop('debug', False))
-
     # No file matches
     file_type = ANSYS_BINARY_FILE_TYPES.get(file_format, str(file_format))
     raise RuntimeError('ANSYS binary "%s" not supported' % file_type)
 
 
 def read_table(f, dtype='i', nread=None, skip=False, get_nread=True, cython=False):
-    """ read fortran style table """
+    """Read fortran style table"""
     if cython:
         arr, bufsz = c_read_record(f.name, f.tell()//4, True)
         f.seek(bufsz*4, 1)
@@ -248,7 +244,8 @@ def parse_header(table, keys):
     """ parses a header from a table """
     header = {}
     max_entry = len(table) - 1
-    # some keys occure multiple times and refer to arrays of some sort
+
+    # some keys occur multiple times and refer to arrays of some sort
     counter = Counter(keys)
     del counter['0']
 

@@ -1,24 +1,51 @@
 steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.7'
+  displayName: Select Python Version
+
+- script: .ci/setup_headless_display.sh
+  displayName: Install Headless Display
 
 - script: |
-    mkdir -p doc_archive
+    python -m pip install pyvista
+    export DISPLAY=:99.0
+    export PYVISTA_OFF_SCREEN=True
+    python .ci/pyvista_test.py
+  displayName: 'Test plotting'
 
 - script: |
-    sudo apt install pandoc -qy
-    pip install -r requirements_docs.txt
+    python -m pip install -r requirements_build.txt
+    python setup.py install
+  displayName: Install package
+
+- script: |
+    python -m pip install -r requirements_docs.txt
+    sudo apt-get install pandoc
+  displayName: Install Documentation Build Dependencies
+
+- script: |
+    mkdir -p dist
+    rm -rf dist/*
+    export DISPLAY=:99.0
+    export PYVISTA_OFF_SCREEN=True
+    export AZURE=True
     make -C docs html
-  condition: always()  # always build docs, regardless of prior steps testing
-  displayName:  'Build Documentation'
+  displayName: Build html Documentation
 
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: docs/build/html
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: doc_archive/ansys-mapdl_docs.zip
-  displayName: Compress html documentation
-
-- task: PublishPipelineArtifact@0
-  inputs:
-    artifactName: 'documentation'
-    targetPath: 'doc_archive'
+- script: |
+    cd ..
+    git clone --single-branch --branch gh-pages https://$(github_pat)@github.com/pyansys/pymapdl-reader.git gh_pages
+    cd gh_pages
+    git gc --prune=now
+    git remote prune origin
+    git config user.email $(gh_email)
+    git config user.name $(gh_user)
+    rm -rf *
+    cp -r $BUILD_SOURCESDIRECTORY/docs/build/html/* .
+    touch .nojekyll
+    git add .
+    git commit -am "Pipelines-Bot: Updated site via $(Build.SourceVersion)"
+    git push
+  displayName: Push to gh-pages
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/master'))

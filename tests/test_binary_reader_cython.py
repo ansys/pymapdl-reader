@@ -1,7 +1,8 @@
 import pyvista as pv
 import vtk
-from pyansys import _binary_reader
 import numpy as np
+
+from ansys.mapdl.reader import _binary_reader
 
 # test stress tensors from
 # Sx Sy Sz Sxy Syz Sxz

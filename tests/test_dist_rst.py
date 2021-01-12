@@ -6,26 +6,23 @@ import numpy as np
 import pytest
 from pyvista.plotting.renderer import CameraPosition
 
-import ansys.mapdl.reader as pymapdl_reader
-from ansys.mapdl.core.dis_result import DistributedResult
-from ansys.mapdl.core._rst_keys import element_index_table_info
-from ansys.mapdl.core.misc import get_ansys_bin
+from ansys.mapdl import reader as pymapdl_reader
+from ansys.mapdl.reader.dis_result import DistributedResult
+from ansys.mapdl.reader._rst_keys import element_index_table_info
+
+try:
+    from ansys.mapdl.core.mapdl_grpc import MapdlGrpc
+    # from ansys.mapdl.core.mapdl_corba import MapdlCorba
+    MapdlCorba = None
+    from ansys.mapdl.core.mapdl_console import MapdlConsole
+    from ansys.mapdl.core import _HAS_ANSYS as HAS_ANSYS
+except:
+    HAS_ANSYS = False
+
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, 'testfiles')
 
-
-# check for a valid MAPDL install with CORBA
-valid_rver = ['182', '190', '191', '192', '193', '194', '195', '201']
-EXEC_FILE = None
-for rver in valid_rver:
-    if os.path.isfile(get_ansys_bin(rver)):
-        EXEC_FILE = get_ansys_bin(rver)
-
-if 'PYANSYS_IGNORE_ANSYS' in os.environ:
-    HAS_ANSYS = False
-else:
-    HAS_ANSYS = EXEC_FILE is not None
 
 skip_no_ansys = pytest.mark.skipif(not HAS_ANSYS, reason="Requires ANSYS installed")
 
@@ -34,19 +31,19 @@ skip_no_ansys = pytest.mark.skipif(not HAS_ANSYS, reason="Requires ANSYS install
 def beam_blade():
     filename = os.path.join(testfiles_path, 'dist_rst', 'blade_stations',
                             'beam3_0.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.fixture(scope='module')
 def static_dis():
     filename = os.path.join(testfiles_path, 'dist_rst', 'static', 'file0.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.fixture(scope='module')
 def static_rst():
     filename = os.path.join(testfiles_path, 'dist_rst', 'static', 'file.rst')
-    return pymapdl.read_binary(filename)
+    return pymapdl_reader.read_binary(filename)
 
 
 @pytest.fixture(scope='module')
@@ -91,13 +88,13 @@ def test_not_all_found(thermal_solution, mapdl, tmpdir):
     tmp_file = os.path.join(mapdl.directory, 'tmp0.rth')
     shutil.copy(filename, tmp_file)
     with pytest.raises(FileNotFoundError):
-        dist_rst = pymapdl.read_binary(tmp_file)
+        dist_rst = pymapdl_reader.read_binary(tmp_file)
 
 
 @skip_no_ansys
 def test_temperature(thermal_solution, mapdl, tmpdir):
     ans_temp = mapdl.post_processing.nodal_temperature
-    dist_rst = pymapdl.read_binary(os.path.join(mapdl.directory, 'file0.rth'))
+    dist_rst = pymapdl_reader.read_binary(os.path.join(mapdl.directory, 'file0.rth'))
 
     # normal result should match
     rst = mapdl.result  # normally not distributed
@@ -112,7 +109,7 @@ def test_temperature(thermal_solution, mapdl, tmpdir):
 
 @skip_no_ansys
 def test_plot_temperature(thermal_solution, mapdl):
-    dist_rst = pymapdl.read_binary(os.path.join(mapdl.directory, 'file0.rth'))
+    dist_rst = pymapdl_reader.read_binary(os.path.join(mapdl.directory, 'file0.rth'))
     cpos = dist_rst.plot_nodal_temperature(0)
     assert isinstance(cpos, CameraPosition)
 

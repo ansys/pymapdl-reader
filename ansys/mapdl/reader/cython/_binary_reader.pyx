@@ -111,7 +111,7 @@ cdef class ArrayWrapper:
     cdef set_data(self, int size, void* data_ptr, int my_dtype=0):
         """Set the data of the array.
 
-        This cannot be done in the constructor as it must recieve C-level
+        This cannot be done in the constructor as it must receive C-level
         arguments.
 
         Parameters
@@ -230,7 +230,7 @@ cdef np.ndarray wrap_array(void* c_ptr, int size, int type_flag, int prec_flag):
     # Assign our object to the 'base' of the ndarray object
     ndarray.base = <PyObject*> array_wrapper
 
-    # Increment the reference count, as the above assignement was done in
+    # Increment the reference count, as the above assignment was done in
     # C, and Python does not know that there is this additional reference
     Py_INCREF(array_wrapper)
 
@@ -389,7 +389,7 @@ def populate_surface_element_result(filename,
 
     faces : [::1] int64_t
         VTK style face array containing the number of points per face
-        folled by the face connectivity.
+        followed by the face connectivity.
 
     n_faces : int
         Number of faces in the surface.
@@ -494,7 +494,7 @@ cdef inline int read_element_result(ifstream *binfile, int64_t ele_table,
     cdef double [512] euler_angles  # 8*3*20 --> 512
     cdef short* spointers = <short*>pointers
 
-    # store elemenet element result pointers
+    # store element result pointers
     read_record_stream(binfile, ele_table, <void*>&pointers,
                        &prec_flag, &type_flag, &size)
     # expect size to be 25 here as of v19.1
@@ -1107,7 +1107,7 @@ def sort_nodal_eqlv(int neqn, int [::1] neqv, int [::1] ndof):
         Degrees of freedom for each node.
 
     neqv : int [::1]
-        Nodal equivalance array.
+        Nodal equivalence array.
 
     Returns
     -------
@@ -1140,7 +1140,7 @@ def sort_nodal_eqlv(int neqn, int [::1] neqv, int [::1] ndof):
             dref[c] = j
             c += 1
 
-    # sort nodal equivalance array
+    # sort nodal equivalence array
     cdef int [::1] sidx = np.argsort(neqv).astype(np.int32)
     cdef int [::1] ndof_sort = np.empty(nnodes, np.int32)
     for i in range(nnodes):
@@ -1359,12 +1359,12 @@ def compute_principal_stress(double [:, ::1] stress):
     Returns
     -------
     pstress : numpy.ndarray
-        Principal stresses, stress intensity, and equivalant stress.
+        Principal stresses, stress intensity, and equivalent stress.
         [sigma1, sigma2, sigma3, sint, seqv]
 
     Notes
     -----
-    ANSYS equivalant of:
+    ANSYS equivalent of:
     PRNSOL, S, PRIN
 
     Which returns:
@@ -1709,8 +1709,8 @@ def break_apart_surface(double [:, ::1] points, int64_t [::1] faces, int n_faces
     cdef int i = 0
     cdef int c = 0
     cdef int cj = 0
-    cdef int j, face_sz, c_add
     cdef int face = 0
+    cdef int j, face_sz, c_add, f_idx
     while i < face_arr_sz:
         face += 1
         face_sz = faces[i]

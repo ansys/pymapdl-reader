@@ -977,9 +977,10 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
                        4*zeta0*zeta3,       # midside node 7
                        4*zeta1*zeta3,       # midside node 8
                        4*zeta2*zeta3]       # midside node 9
-    
-    # Take the differental of each shape function evaluated at the intergration
-    # point with respect to the natural shape coordinate system
+
+    # Take the differential of each shape function evaluated at the
+    # integration point with respect to the natural shape coordinate
+    # system
     variables = [zeta0, zeta1, zeta2, zeta3]
     nfun = len(shape_functions)
     nvar = len(variables)
@@ -2935,8 +2936,9 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     
     shape_functions = np.array(np.matrix(shp)*np.matrix(np.linalg.inv(u))).ravel()
     
-    # Take the differental of each shape function evaluated at the intergration
-    # point with respect to the natural shape coordinate system
+    # Take the differential of each shape function evaluated at the
+    # integration point with respect to the natural shape coordinate
+    # system.
     nprime = np.empty((3, 20), np.object)
     variables = [zi, eta, zeta]
     for i in range(20):
