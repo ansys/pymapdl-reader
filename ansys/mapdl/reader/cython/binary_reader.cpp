@@ -57,6 +57,13 @@ int read_header(ifstream* binFile, int* bsparse_flag, int* wsparse_flag,
   *prec_flag = (raw[7] >> 6) & 1;
   *type_flag = (raw[7] >> 7) & 1;
 
+  // cout << "bufsize" << bufsize << "\n";
+  // cout << "bsparse_flag" << *bsparse_flag << "\n";
+  // cout << "wsparse_flag" << *wsparse_flag << "\n";
+  // cout << "zlib_flag" << *zlib_flag << "\n";
+  // cout << "prec_flag" << *prec_flag << "\n";
+  // cout << "type_flag" << *type_flag << "\n";
+
   delete[] raw;
   return bufsize;
 }
@@ -423,7 +430,6 @@ void* read_record(const char* filename, int64_t ptr, int* prec_flag, int* type_f
     }
     
   }
-  
 
   return raw;
 }

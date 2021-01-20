@@ -184,6 +184,7 @@ def read_table(f, dtype='i', nread=None, skip=False, get_nread=True, cython=Fals
 
     if get_nread:
         n = np.fromfile(f, 'i', 1)
+        print(n)
         if not n:
             raise Exception('end of file')
 

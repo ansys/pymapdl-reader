@@ -10,4 +10,4 @@ a useful tool for all users.  As such, we welcome and encourage any
 questions or submissions to this repository.
 
 For the full contributing documentation, please visit [PyMAPDL-Reader
-Contributing Guid](https:://readerdocs.pyansys.com/contributing.html)
+Contributing Guide](https://readerdocs.pyansys.com/contributing.html)

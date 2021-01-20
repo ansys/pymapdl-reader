@@ -33,6 +33,7 @@ mapdl.modal_analysis(nmode=1)
 
 """
 import os
+from shutil import copy
 
 import numpy as np
 import pytest
@@ -93,6 +94,26 @@ def hex_rst():
 def volume_rst():
     rst_file = os.path.join(testfiles_path, 'vol_test.rst')
     return pymapdl_reader.read_binary(rst_file)
+
+
+def test_overwrite(tmpdir):
+    tmp_path = str(tmpdir.mkdir("tmpdir"))
+    rst = pymapdl_reader.read_binary(copy(examples.rstfile, tmp_path))
+
+    # get the data
+    solution_type = 'EEL'
+    enum, esol_old, _ = rst.element_solution_data(0, solution_type)
+
+    index = 10
+    element_id = enum[index]
+    old_record = esol_old[index]
+    ovr_record = np.random.random(old_record.size)
+
+    rst.overwrite_element_solution_record(ovr_record, 0, solution_type, element_id)
+
+    # verify data has been written
+    new_record = rst.element_solution_data(0, solution_type)[1][index]
+    assert np.allclose(ovr_record, new_record)
 
 
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
