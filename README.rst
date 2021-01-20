@@ -1,6 +1,13 @@
 ======================================================
 PyMAPDL Reader - Legacy Binary and Archive File Reader
 ======================================================
+.. image:: https://badge.fury.io/py/ansys-mapdl-reader.svg
+    :target: https://badge.fury.io/py/ansys-mapdl-reader
+
+.. image:: https://dev.azure.com/pyansys/pyansys/_apis/build/status/pyansys.pymapdl-reader?branchName=master
+    :target: https://dev.azure.com/pyansys/pyansys/_build/latest?definitionId=4&branchName=master
+
+
 This is the legacy module for reading in binary and ASCII files
 generated from MAPDL.
 
@@ -13,7 +20,7 @@ The ``ansys-mapdl-reader`` module supports the following formats:
 
   - ``*.rst`` - Structural analysis result file
   - ``*.rth`` - Thermal analysis result file 
-  - ``*.emat`` - Element matrice data file
+  - ``*.emat`` - Element matrix data file
   - ``*.full`` - Full stiffness-mass matrix file
   - ``*.cdb`` or ``*.dat`` - MAPDL ASCII block archive and
     Mechanical Workbench input files
