@@ -94,6 +94,10 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 
+# Copy button customization ---------------------------------------------------
+# exclude traditional Python prompts from the copied code
+copybutton_prompt_text = ">>> "
+
 
 # -- Sphinx Gallery Options
 from sphinx_gallery.sorting import FileNameSortKey

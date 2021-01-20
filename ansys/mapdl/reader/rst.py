@@ -38,6 +38,12 @@ from ansys.mapdl.reader.rst_avail import AvailableResults
 VTK9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
 
 
+def access_bit(data, num):
+    base = int(num // 8)
+    shift = int(num % 8)
+    return (data[base] & (1<<shift)) >> shift
+
+
 EMAIL_ME = """Please raise an issue at:
 https://github.com/pyansys/pymapdl-reader/issues
 Or email the developer at alexander.kaszynski@ansys.com
@@ -1813,6 +1819,159 @@ class Result(AnsysBinary):
         # Get element numbers
         elemnum = self._eeqv[self._sidx_elem]
         return elemnum, element_stress, enode
+
+    def overwrite_element_solution_record(self, data, rnum,
+                                          solution_type, element_id):
+        """Overwrite element solution record.
+
+        This method replaces solution data for of an element at a
+        result index for a given solution type.  The number of items
+        in ``data`` must match the number of items in the record.
+
+        If you are not sure how many records are in a given record,
+        use ``element_solution_data`` to retrieve all the records for
+        a given ``solution_type`` and check the number of items in the
+        record.
+
+        Note: The record being replaced cannot be a compressed record.
+        If the result file uses compression (default sparse
+        compression as of 2019R1), you can disable this within MAPDL
+        with:
+        ``/FCOMP, RST, 0``
+
+        Parameters
+        ----------
+        data : list or np.ndarray
+            Data that will replace the record
+
+        rnum : int
+            Zero based result number.
+
+        solution_type : str
+            Element data type to retrieve.
+
+            - EMS: misc. data
+            - ENF: nodal forces
+            - ENS: nodal stresses
+            - ENG: volume and energies
+            - EGR: nodal gradients
+            - EEL: elastic strains
+            - EPL: plastic strains
+            - ECR: creep strains
+            - ETH: thermal strains
+            - EUL: euler angles
+            - EFX: nodal fluxes
+            - ELF: local forces
+            - EMN: misc. non-sum values
+            - ECD: element current densities
+            - ENL: nodal nonlinear data
+            - EHC: calculated heat generations
+            - EPT: element temperatures
+            - ESF: element surface stresses
+            - EDI: diffusion strains
+            - ETB: ETABLE items
+            - ECT: contact data
+            - EXY: integration point locations
+            - EBA: back stresses
+            - ESV: state variables
+            - MNL: material nonlinear record
+
+        element_id : int
+            Ansys element number (e.g. ``1``)
+
+        Examples
+        --------
+        Overwrite the elastic strain record for element 1 for the
+        first result with random data.
+
+        >>> from ansys.mapdl import reader as pymapdl_reader
+        >>> rst = pymapdl_reader.read_binary('file.rst')
+        >>> data = np.random.random(56)
+        >>> rst.overwrite_element_solution_data(data, 0, 'EEL', 1)
+        """
+        if not isinstance(data, np.ndarray):
+            data = np.asarray(data)
+
+        table_ptr = solution_type.upper()
+        if table_ptr not in ELEMENT_INDEX_TABLE_KEYS:
+            err_str = 'Data type %s is invalid\n' % str(solution_type)
+            err_str += '\nAvailable types:\n'
+            for key in ELEMENT_INDEX_TABLE_KEYS:
+                err_str += '\t%s: %s\n' % (key, element_index_table_info[key])
+            raise ValueError(err_str)
+
+        if table_ptr in self.available_results._parsed_bits:
+            if table_ptr not in self.available_results:
+                raise ValueError('Result %s is not available in this result file'
+                                 % table_ptr)
+
+        # location of data pointer within each element result table
+        table_index = ELEMENT_INDEX_TABLE_KEYS.index(table_ptr)
+
+        rnum = self.parse_step_substep(rnum)
+        ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
+
+        # index of the element in the element table
+        elem = self.mesh.enum
+
+        try:
+            idx = next((idx for idx, val in np.ndenumerate(elem) if val == element_id))
+        except StopIteration:
+            raise ValueError(f'Element ID {element_id} not in this result file.') from None
+
+        elem_ptr = ele_ind_table[idx]
+        if elem_ptr == 0:
+            raise ValueError('This element does not have any data associated with the '
+                             f' solution_type {solution_type}')
+
+        ptr = self.read_record(elem_ptr + ptr_off)[table_index]
+        if ptr <= 0:
+            raise ValueError('This element does not have any data associated with the '
+                             f' solution_type {solution_type}')
+
+        with open(self.filename, 'r+b') as f:
+            # record size
+            f.seek((ptr_off + elem_ptr + ptr)*4)
+            sz = int.from_bytes(f.read(4), 'little')
+
+            # verify data being written is the same size
+            if sz != data.size:
+                raise ValueError(f'Size of the data being overwritten is {sz}, while '
+                                 f'size of the data input is {data.size}.')
+
+            # verify no compression (8th byte from start of record)
+            f.seek(3, 1)
+            info_byte = f.read(1)
+            compression = access_bit(info_byte, 3) or \
+                access_bit(info_byte, 4) or \
+                access_bit(info_byte, 5)
+            # Note: file is now at the start of the data
+
+            if compression:
+                raise RuntimeError('Unable to overwrite this compressed record.  '
+                                   'Please disable result file compression and try '
+                                   'again.')
+
+            # make input data match data type of the record
+            prec_flag = access_bit(info_byte, 6)
+            type_flag = access_bit(info_byte, 7)
+
+            if type_flag:
+                if prec_flag:
+                    record_dtype = np.int16
+                else:
+                    record_dtype = np.int32
+            else:
+                if prec_flag:
+                    record_dtype = np.float32
+                else:
+                    record_dtype = np.float64
+
+            if data.dtype != record_dtype:
+                data = data.astype(record_dtype)
+
+            # write the record
+            f.write(data.tobytes())
 
     def element_solution_data(self, rnum, datatype, sort=True, **kwargs):
         """Retrieves element solution data.  Similar to ETABLE.
