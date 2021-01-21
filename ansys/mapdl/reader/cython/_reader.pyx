@@ -571,3 +571,7 @@ def read_from_nwrite(filename, int nnodes):
 def write_array(filename, const double [::1] arr):
     cdef int nvalues = arr.size
     write_array_ascii(filename, &arr[0], nvalues)
+
+
+def write_nblock(filename, const int node_id, const double pos, angles):
+    pass
