@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <math.h>
 
+
 //=============================================================================
 // Fast string to integer convert to ANSYS formatted integers 
 //=============================================================================
@@ -470,39 +471,3 @@ int write_array_ascii(const char* filename, const double *arr,
 
   return 0;
 }
-
-// Simply write an array to disk as ASCII
-int write_nblock(const char* filename, const int n_nodes, const int max_node_id,
-                 const int *node_id, const double *nodes, const double *angles,
-                 int has_angles){
-  FILE * fstream = fopen(filename, "w");
-  int i;
-
-  // Header Tell ANSYS to start reading the node block with 6 fields,
-  // associated with a solid, the maximum node number and the number
-  // of lines in the node block
-  fprintf(fstream, "/PREP7\n");
-  fprintf(fstream, "NBLOCK,6,SOLID,%10d,%10d\n", max_node_id, n_nodes);
-  fprintf(fstream, "(3i8,6e20.13)\n");
-
-  if (has_angles) {
-    for (i=0; i<n_nodes; i++) {
-      fprintf(fstream,
-              "%8d       0       0%20.12E%20.12E%20.12E%20.12E%20.12E%20.12E\n",
-              node_id[i], nodes[i + 0], nodes[i + 1], nodes[i + 2],
-              angles[i + 0], angles[i + 1], angles[i + 2]);
-    }
-  }
-  else {
-    for (i=0; i<n_nodes; i++) {
-      fprintf(fstream,
-              "%8d       0       0%20.12E%20.12E%20.12E\n",
-              node_id[i], nodes[i + 0], nodes[i + 1], nodes[i + 2]);
-    }
-  }
-
-  fclose(fstream);
-
-  return 0;
-}
-

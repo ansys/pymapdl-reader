@@ -57,6 +57,8 @@ cdef extern from 'binary_reader.h' nogil:
     void read_nodes(const char*, int64_t, int, int*, double*)
     void* read_record(const char*, int64_t, int*, int*, int*, int*)
     void read_record_stream(ifstream*, int64_t, void*, int*, int*, int*)
+    int write_nblock(FILE*, const int, const int, const int*, const double*,
+                     const double*, int)
 
 
 # VTK numbering for vtk cells
@@ -1741,3 +1743,37 @@ def break_apart_surface(double [:, ::1] points, int64_t [::1] faces, int n_faces
 
     return np.array(new_points[:c]), np.array(new_faces[:cj]), np.array(orig_idx[:c])
 
+
+def py_write_nblock(filename, const int [::1] node_id, int max_node_id,
+                    const double [:, ::1] pos, const double [:, ::1] angles,
+                    mode='w'):
+    """Write a node block to a file.
+
+    Parameters
+    ----------
+    fid : _io.TextIOWrapper
+        Opened Python file object.
+
+    node_id : np.ndarray
+        Array of node ids.
+
+    pos : np.ndarray
+        Double array of node coordinates
+
+    angles : np.ndarray, optional
+        
+
+    """
+
+    # attach the stream to the python file
+    # encode is used here because I'm too lazy to change language_level --> 3
+    cdef FILE* cfile = fopen(filename.encode(), mode.encode())
+
+    cdef int n_nodes = pos.shape[0]
+    cdef double [::1] dummy_arr
+
+    cdef int has_angles = 0
+    if angles.size == pos.size:
+        has_angles = 1
+    write_nblock(cfile, n_nodes, max_node_id, &node_id[0], &pos[0, 0],
+                 &angles[0, 0], has_angles);

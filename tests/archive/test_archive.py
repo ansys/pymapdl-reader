@@ -307,3 +307,28 @@ def test_read_hypermesh():
     filename = os.path.join(testfiles_path, 'hypermesh.cdb')
     archive = pymapdl_reader.Archive(filename, verbose=True)
     assert np.allclose(archive.nodes[:6], expected)
+
+
+@pytest.mark.parametrize('angles', [True, False])
+def test_cython_write_nblock(hex_archive, tmpdir, angles):
+    from ansys.mapdl.reader import _reader
+    nblock_filename = str(tmpdir.mkdir("tmpdir").join('nblock.inp'))
+
+    if angles:
+        _reader.py_write_nblock(nblock_filename,
+                                hex_archive.nnum,
+                                hex_archive.nnum[-1],
+                                hex_archive.nodes,
+                                hex_archive.node_angles)
+    else:
+        _reader.py_write_nblock(nblock_filename,
+                                hex_archive.nnum,
+                                hex_archive.nnum[-1],
+                                hex_archive.nodes,
+                                np.empty((0, 0)))
+
+    tmp_archive = pymapdl_reader.Archive(nblock_filename)
+    assert np.allclose(hex_archive.nnum, tmp_archive.nnum)
+    assert np.allclose(hex_archive.nodes, tmp_archive.nodes)
+    if angles:
+        assert np.allclose(hex_archive.node_angles, tmp_archive.node_angles)

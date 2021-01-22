@@ -4,10 +4,11 @@
 # cython: wraparound=False
 # cython: cdivision=True
 # cython: nonecheck=False
+# cython: embedsignature=True
 
 """ Cython implementation of a CDB reader """
-from libc.stdio cimport fopen, FILE, fclose, sscanf, fscanf, fread, fseek
-from libc.stdio cimport fgets, printf, SEEK_CUR, SEEK_END, ftell, SEEK_SET
+from libc.stdio cimport (fopen, FILE, fclose, sscanf, fscanf, fread, fseek,
+                         fgets, printf, SEEK_CUR, SEEK_END, ftell, SEEK_SET)
 from libc.stdlib cimport atoi, atof
 from libc.stdlib cimport malloc, free
 from libc.string cimport strncpy, strcmp
@@ -24,7 +25,8 @@ cdef extern from "reader.h":
     int read_nblock_from_nwrite(char*, int*, double*, int)
     int read_nblock(char*, int*, double*, int, int*, int, int*)
     int read_eblock(char*, int*, int*, int, int, int*)
-    int write_array_ascii(const char*, const double*, int nvalues);
+    int write_array_ascii(const char*, const double*, int);
+
 
 cdef extern from 'vtk_support.h':
     int ans_to_vtk(const int, const int*, const int*, const int*, const int,
@@ -571,7 +573,3 @@ def read_from_nwrite(filename, int nnodes):
 def write_array(filename, const double [::1] arr):
     cdef int nvalues = arr.size
     write_array_ascii(filename, &arr[0], nvalues)
-
-
-def write_nblock(filename, const int node_id, const double pos, angles):
-    pass
