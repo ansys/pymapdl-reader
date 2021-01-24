@@ -529,39 +529,3 @@ void read_nodes(const char* filename, int64_t ptrLOC, int nrec, int *nnum,
   delete[] raw;
 
 }
-
-
-// Simply write an array to disk as ASCII
-int write_nblock(FILE * file, const int n_nodes, const int max_node_id,
-                 const int *node_id, const double *nodes, const double *angles,
-                 int has_angles){
-  // Header
-  // Tell ANSYS to start reading the node block with 6 fields,
-  // associated with a solid, the maximum node number and the number
-  // of lines in the node block
-  fprintf(file, "/PREP7\n");
-  fprintf(file, "NBLOCK,6,SOLID,%10d,%10d\n", max_node_id, n_nodes);
-  fprintf(file, "(3i8,6e20.13)\n");
-
-  int i;
-  if (has_angles) {
-    for (i=0; i<n_nodes; i++) {
-      fprintf(file,
-              "%8d       0       0%20.12E%20.12E%20.12E%20.12E%20.12E%20.12E\n",
-              node_id[i], nodes[i*3 + 0], nodes[i*3 + 1], nodes[i*3 + 2],
-              angles[i*3 + 0], angles[i*3 + 1], angles[i*3 + 2]);
-    }
-  }
-  else {
-    for (i=0; i<n_nodes; i++) {
-      fprintf(file,
-              "%8d       0       0%20.12E%20.12E%20.12E\n",
-              node_id[i], nodes[i*3 + 0], nodes[i*3 + 1], nodes[i*3 + 2]);
-    }
-  }
-
-  fclose(file);
-
-  return 0;
-}
-

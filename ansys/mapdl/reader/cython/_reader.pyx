@@ -208,12 +208,14 @@ def read(filename, read_parameters=False, debug=False):
                         print('EBLOCK already read, skipping...')
                     continue
                 if debug:
-                    print('reading EBLOCK')
+                    print('reading EBLOCK...')
 
                 # only read entries with SOLID
                 if b'SOLID' in line or b'solid' in line:
                     elem_sz, elem, elem_off = py_read_eblock(raw, n, line, fsize)
                     eblock_read = True
+                    if debug:
+                        print('finished')
 
         elif b'K' == line[0] or b'k' == line[0]:
             if b'KEYOP' in line or b'keyop' in line:
