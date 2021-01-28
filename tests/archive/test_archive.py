@@ -11,7 +11,7 @@ import pyvista as pv
 import vtk
 
 from ansys.mapdl import reader as pymapdl_reader
-from ansys.mapdl.reader import examples, _archive
+from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.misc import vtk_cell_info
 
 LINEAR_CELL_TYPES = [VTK_TETRA,
@@ -314,17 +314,17 @@ def test_cython_write_nblock(hex_archive, tmpdir, angles):
     nblock_filename = str(tmpdir.mkdir("tmpdir").join('nblock.inp'))
 
     if angles:
-        _archive.py_write_nblock(nblock_filename,
-                                 hex_archive.nnum,
-                                 hex_archive.nnum[-1],
-                                 hex_archive.nodes,
-                                 hex_archive.node_angles)
+        pymapdl_reader._archive.py_write_nblock(nblock_filename,
+                                                hex_archive.nnum,
+                                                hex_archive.nnum[-1],
+                                                hex_archive.nodes,
+                                                hex_archive.node_angles)
     else:
-        _archive.py_write_nblock(nblock_filename,
-                                 hex_archive.nnum,
-                                 hex_archive.nnum[-1],
-                                 hex_archive.nodes,
-                                 np.empty((0, 0)))
+        pymapdl_reader._archive.py_write_nblock(nblock_filename,
+                                                hex_archive.nnum,
+                                                hex_archive.nnum[-1],
+                                                hex_archive.nodes,
+                                                np.empty((0, 0)))
 
     tmp_archive = pymapdl_reader.Archive(nblock_filename)
     assert np.allclose(hex_archive.nnum, tmp_archive.nnum)
@@ -347,17 +347,15 @@ def test_cython_write_eblock(hex_archive):
     nodenum = hex_archive.nnum
 
     cells, offset = vtk_cell_info(hex_archive.grid, shift_offset=False)
-    _archive.py_write_eblock(filename,
-                             hex_archive.enum,
-                             etype,
-                             hex_archive.material_type,
-                             np.ones(hex_archive.n_elem, np.int32),
-                             elem_nnodes,
-                             cells,
-                             offset,
-                             hex_archive.grid.celltypes,
-                             typenum,
-                             nodenum,
-                             vtk9)
-
-    
+    pymapdl_reader._archive.py_write_eblock(filename,
+                                            hex_archive.enum,
+                                            etype,
+                                            hex_archive.material_type,
+                                            np.ones(hex_archive.n_elem, np.int32),
+                                            elem_nnodes,
+                                            cells,
+                                            offset,
+                                            hex_archive.grid.celltypes,
+                                            typenum,
+                                            nodenum,
+                                            vtk9)

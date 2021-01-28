@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <inttypes.h>
 
 // necessary for ubuntu build on azure
 #ifdef __linux__
