@@ -483,6 +483,8 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     with open(str(filename), mode) as f:
         f.write(header)
 
+    if not isinstance(filename, str):
+        filename = str(filename)
     write_nblock(filename, nodenum, grid.points, mode='a')
 
     # write remainder of eblock
