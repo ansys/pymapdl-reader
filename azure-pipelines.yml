@@ -43,7 +43,7 @@ jobs:
       displayName: Build wheels using manylinux2010
     - script: |
         .ci/setup_headless_display.sh
-    - template: .ci/install_pyansys.yml
+    - template: .ci/install_package.yml
     - template: .ci/unit_testing.yml
     - template: .ci/azure-publish-dist.yml
 
@@ -68,7 +68,7 @@ jobs:
         powershell .ci/install_opengl.ps1
       displayName: 'Install OpenGL'
     - template: .ci/build_wheel.yml
-    - template: .ci/install_pyansys.yml
+    - template: .ci/install_package.yml
     - template: .ci/unit_testing.yml
     - template: .ci/azure-publish-dist.yml
 
@@ -88,7 +88,7 @@ jobs:
     - script: .ci/macos-install-python.sh '$(python.version)'
       displayName: Install Python
     - template: .ci/build_wheel.yml
-    - template: .ci/install_pyansys.yml
+    - template: .ci/install_package.yml
     - template: .ci/unit_testing_allow_error.yml
     - template: .ci/azure-publish-dist.yml
 

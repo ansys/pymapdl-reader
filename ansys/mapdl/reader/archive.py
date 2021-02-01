@@ -12,7 +12,7 @@ from vtk import (VTK_TETRA, VTK_QUADRATIC_TETRA, VTK_PYRAMID,
 import vtk
 import pyvista as pv
 
-from ansys.mapdl.reader import _reader
+from ansys.mapdl.reader import _reader, _archive
 from ansys.mapdl.reader.misc import vtk_cell_info, chunks
 from ansys.mapdl.reader.mesh import Mesh
 from ansys.mapdl.reader.cell_quality import quality
@@ -346,7 +346,7 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     else:
         log.info('No ANSYS node numbers set in input.  ' +
                  'Adding default range')
-        nodenum = np.arange(1, grid.number_of_points + 1)
+        nodenum = np.arange(1, grid.number_of_points + 1, dtype=np.int32)
 
     if np.any(nodenum == -1):
         if not allow_missing:
@@ -358,7 +358,7 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
         end_num = start_num + nadd
         log.info('FEM missing some node numbers.  Adding node numbering ' +
                  'from %d to %d' % (start_num, end_num))
-        nodenum[nodenum == -1] = np.arange(start_num, end_num)
+        nodenum[nodenum == -1] = np.arange(start_num, end_num, dtype=np.int32)
 
     # element block
     ncells = grid.number_of_cells
@@ -369,29 +369,29 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
             raise Exception('Missing node numbers.  Exiting due "allow_missing=False"')
         log.info('No ANSYS element numbers set in input.  ' +
                  'Adding default range starting from %d' % enum_start)
-        enum = np.arange(1, ncells + 1)
+        enum = np.arange(1, ncells + 1, dtype=np.int32)
 
     if np.any(enum == -1):
         if not allow_missing:
             raise Exception('-1 encountered in "ansys_elem_num".\n'
-                            + 'Exiting due "allow_missing=False"')
+                            'Exiting due "allow_missing=False"')
 
         start_num = enum.max() + 1
         if enum_start > start_num:
-           start_num = enum_start
+            start_num = enum_start
         nadd = np.sum(enum == -1)
         end_num = start_num + nadd
         log.info('FEM missing some cell numbers.  Adding numbering ' +
                  'from %d to %d' % (start_num, end_num))
-        enum[enum == -1] = np.arange(start_num, end_num)
+        enum[enum == -1] = np.arange(start_num, end_num, dtype=np.int32)
 
     # material type
     if 'ansys_material_type' in grid.cell_arrays:
         mtype = grid.cell_arrays['ansys_material_type']
     else:
         log.info('No ANSYS element numbers set in input.  ' +
-                 'Adding default range starting from %d' % mtype_start)
-        mtype = np.arange(1, ncells + 1)
+                 'Adding default range starting from %d', mtype_start)
+        mtype = np.arange(1, ncells + 1, dtype=np.int32)
 
     if np.any(mtype == -1):
         log.info('FEM missing some material type numbers.  Adding...')
@@ -402,8 +402,8 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
         rcon = grid.cell_arrays['ansys_real_constant']
     else:
         log.info('No ANSYS element numbers set in input.  ' +
-                 'Adding default range starting from %d' % real_constant_start)
-        rcon = np.arange(1, ncells + 1)
+                 'Adding default range starting from %d', real_constant_start)
+        rcon = np.arange(1, ncells + 1, dtype=np.int32)
 
     if np.any(rcon == -1):
         log.info('FEM missing some material type numbers.  Adding...')
@@ -479,187 +479,32 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     elem_nnodes[typenum == 186] = 20
     elem_nnodes[typenum == 187] = 10
 
+    # write the EBLOCK
     with open(str(filename), mode) as f:
         f.write(header)
 
-        # write node block
-        if write_nblock:
-            write_nblock(f, nodenum, grid.points)
+    if not isinstance(filename, str):
+        filename = str(filename)
+    write_nblock(filename, nodenum, grid.points, mode='a')
 
-        # eblock header
-        h = ''
-        h += 'EBLOCK,19,SOLID,{:10d},{:10d}\n'.format(enum[-1], ncells)
-        h += '(19i8)\n'
-        f.write(h)
-
-        celltypes = grid.celltypes
-        cells, offset = vtk_cell_info(grid)
-        if VTK9:
-            offset += 1
-
-        for i in range(ncells):
-            if VTK9:
-                nodes = nodenum[cells[offset[i]:offset[i + 1]]]
-            else:
-                c = offset[i]
-                nnode = cells[c]
-                c += 1
-                nodes = nodenum[cells[c:c + nnode]]
-
-            cellinfo = (mtype[i],          # Field 1: material reference number
-                        etype[i],          # Field 2: element type number
-                        rcon[i],           # Field 3: real constant reference number
-                        1,                 # Field 4: section number
-                        0,                 # Field 5: element coordinate system
-                        0,                 # Field 6: Birth/death flag
-                        0,                 # Field 7:
-                        0,                 # Field 8:
-                        elem_nnodes[i],    # Field 9: Number of nodes
-                        0,                 # Field 10: Not Used
-                        enum[i])           # Field 11: Element number
-            line = '%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d' % cellinfo
-
-            if celltypes[i] == VTK_QUADRATIC_TETRA:
-                if typenum[i] == 187:
-                    line += '%8d%8d%8d%8d%8d%8d%8d%8d\n%8d%8d\n' % tuple(nodes)
-                else:  # must be 186
-                    writenodes = (nodes[0],  # 0,  I
-                                  nodes[1],  # 1,  J
-                                  nodes[2],  # 2,  K
-                                  nodes[2],  # 3,  L (duplicate of K)
-                                  nodes[3],  # 4,  M
-                                  nodes[3],  # 5,  N (duplicate of M)
-                                  nodes[3],  # 6,  O (duplicate of M)
-                                  nodes[3],  # 7,  P (duplicate of M)
-                                  nodes[4],  # 8,  Q
-                                  nodes[5],  # 9,  R
-                                  nodes[3],  # 10, S (duplicate of K)
-                                  nodes[6],  # 11, T
-                                  nodes[3],  # 12, U (duplicate of M)
-                                  nodes[3],  # 13, V (duplicate of M)
-                                  nodes[3],  # 14, W (duplicate of M)
-                                  nodes[3],  # 15, X (duplicate of M)
-                                  nodes[7],  # 16, Y
-                                  nodes[8],  # 17, Z
-                                  nodes[9],  # 18, A
-                                  nodes[9])  # 19, B (duplicate of A)
-
-                    line += '%8d%8d%8d%8d%8d%8d%8d%8d\n' % writenodes[:8]
-                    line += '%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d\n' % writenodes[8:]
+    # write remainder of eblock
+    cells, offset = vtk_cell_info(grid, shift_offset=False)
+    _archive.py_write_eblock(filename,
+                             enum,
+                             etype,
+                             mtype,
+                             rcon,
+                             elem_nnodes,
+                             cells,
+                             offset,
+                             grid.celltypes,
+                             typenum,
+                             nodenum,
+                             VTK9,
+                             mode='a')
 
 
-            elif celltypes[i] == VTK_TETRA:
-                writenodes = (nodes[0],  # 0,  I
-                              nodes[1],  # 1,  J
-                              nodes[2],  # 2,  K
-                              nodes[2],  # 3,  L (duplicate of K)
-                              nodes[3],  # 4,  M
-                              nodes[3],  # 5,  N (duplicate of M)
-                              nodes[3],  # 6,  O (duplicate of M)
-                              nodes[3])  # 7,  P (duplicate of M)
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d\n' % writenodes
-
-            elif celltypes[i] == VTK_WEDGE:
-                writenodes = (nodes[2],  # 0,  I
-                              nodes[1],  # 1,  J
-                              nodes[0],  # 2,  K
-                              nodes[0],  # 3,  L (duplicate of K)
-                              nodes[5],  # 4,  M
-                              nodes[4],  # 5,  N
-                              nodes[3],  # 6,  O
-                              nodes[3])  # 7,  P (duplicate of O)
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d\n' % writenodes
-
-            elif celltypes[i] == VTK_QUADRATIC_WEDGE:
-                writenodes = (nodes[2],  # 0,  I
-                              nodes[1],  # 1,  J
-                              nodes[0],  # 2,  K
-                              nodes[0],  # 3,  L (duplicate of K)
-                              nodes[5],  # 4,  M
-                              nodes[4],  # 5,  N
-                              nodes[3],  # 6,  O
-                              nodes[3],  # 7,  P (duplicate of O)
-                              nodes[7],  # 8,  Q
-                              nodes[6],  # 9,  R
-                              nodes[0],  # 10, S   (duplicate of K)
-                              nodes[8],  # 11, T
-                              nodes[10], # 12, U
-                              nodes[9],  # 13, V
-                              nodes[3],  # 14, W (duplicate of O)
-                              nodes[11], # 15, X
-                              nodes[14], # 16, Y
-                              nodes[13], # 17, Z
-                              nodes[12], # 18, A
-                              nodes[12]) # 19, B (duplicate of A)
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d\n' % writenodes[:8]
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d\n' % writenodes[8:]
-
-            elif celltypes[i] == VTK_QUADRATIC_PYRAMID:
-                writenodes = (nodes[0],  # 0,  I
-                              nodes[1],  # 1,  J
-                              nodes[2],  # 2,  K
-                              nodes[3],  # 3,  L
-                              nodes[4],  # 4,  M
-                              nodes[4],  # 5,  N (duplicate of M)
-                              nodes[4],  # 6,  O (duplicate of M)
-                              nodes[4],  # 7,  P (duplicate of M)
-                              nodes[5],  # 8,  Q
-                              nodes[6],  # 9,  R
-                              nodes[7],  # 10, S
-                              nodes[8],  # 11, T
-                              nodes[4],  # 12, U (duplicate of M)
-                              nodes[4],  # 13, V (duplicate of M)
-                              nodes[4],  # 14, W (duplicate of M)
-                              nodes[4],  # 15, X (duplicate of M)
-                              nodes[9],  # 16, Y
-                              nodes[10], # 17, Z
-                              nodes[11], # 18, A
-                              nodes[12]) # 19, B (duplicate of A)
-
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d\n' % writenodes[:8]
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d\n' % writenodes[8:]
-
-            elif celltypes[i] == VTK_PYRAMID:
-                writenodes = (nodes[0],  # 0,  I
-                              nodes[1],  # 1,  J
-                              nodes[2],  # 2,  K
-                              nodes[3],  # 3,  L
-                              nodes[4],  # 4,  M
-                              nodes[4],  # 5,  N (duplicate of M)
-                              nodes[4],  # 6,  O (duplicate of M)
-                              nodes[4])  # 7,  P (duplicate of M)
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d\n' % writenodes[:8]
-
-            elif celltypes[i] == VTK_HEXAHEDRON:
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d\n' % tuple(nodes[:8])
-
-            elif celltypes[i] == VTK_QUADRATIC_HEXAHEDRON:
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d\n' % tuple(nodes[:8])
-                line += '%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d\n' % tuple(nodes[8:])
-
-            elif celltypes[i] == VTK_TRIANGLE:
-                writenodes = (nodes[0],  # 0,  I
-                              nodes[1],  # 1,  J
-                              nodes[2],  # 2,  K
-                              nodes[2])  # 3,  L (duplicate of K)
-                line += '%8d%8d%8d%8d\n' % writenodes
-
-            elif celltypes[i] == VTK_QUAD:
-                writenodes = (nodes[0],  # 0,  I
-                              nodes[1],  # 1,  J
-                              nodes[2],  # 2,  K
-                              nodes[3])  # 3,  L
-                line += '%8d%8d%8d%8d\n' % writenodes
-
-            # else:
-            #     raise RuntimeError('Invalid write cell type %d' % celltypes[i])
-
-            f.write(line)
-
-        f.write('      -1\n')
-
-
-def write_nblock(filename, node_id, pos, angles=None):
+def write_nblock(filename, node_id, pos, angles=None, mode='w'):
     """Writes nodes and node angles to file.
 
     Parameters
@@ -675,55 +520,39 @@ def write_nblock(filename, node_id, pos, angles=None):
 
     angles : np.ndarray, optional
         Writes the node angles for each node when included.
+
+    mode : str, optional
+        Write mode.  Default ``'w'``.
     """
     assert pos.ndim == 2 and pos.shape[1] == 3, 'Invalid position array'
     if angles is not None:
         assert angles.ndim == 2 and angles.shape[1] == 3, 'Invalid angle array'
 
-    # Header Tell ANSYS to start reading the node block with 6 fields,
-    # associated with a solid, the maximum node number and the number
-    # of lines in the node block
-    h = '/PREP7 \n'
-    h += 'NBLOCK,6,SOLID,%10d,%10d\n' % (np.max(node_id), pos.shape[0])
-    h += '(3i8,6e20.13)'
+    if node_id.dtype != np.int32:
+        node_id = node_id.astype(np.int32)
 
-    # NBLOCK footer
-    f = 'N,R5.3,LOC,       -1, \n'
+    # node array must be sorted
+    # note, this is sort check is most suited for pre-sorted arrays
+    # see https://stackoverflow.com/questions/3755136/
+    if not np.all(node_id[:-1] <= node_id[1:]):
+        sidx = np.argsort(node_id)
+        node_id = node_id[sidx]
+        pos = pos[sidx]
 
-    # Sort input data
-    ind = np.argsort(node_id)
-    node_id = node_id[ind]
-    pos = pos[ind]
-
-    if angles is None:
-        np.savetxt(
-            filename,
-            np.hstack((node_id.reshape(-1, 1), pos)),
-            '%8d       0       0' +
-            '%20.12E' *
-            3,
-            header=h,
-            footer=f,
-            comments='',
-            newline='\n')
+    if angles is not None:
+        _archive.py_write_nblock(filename,
+                                 node_id,
+                                 node_id[-1],
+                                 pos,
+                                 angles,
+                                 mode)
     else:
-        # Array of node positions and angles
-        arr = np.empty((node_id.size, 7))
-        arr[:, 0] = node_id
-        arr[:, 1:4] = pos
-        arr[:, 4:] = angles
-
-        # stack node IDs and positions
-        np.savetxt(
-            filename,
-            arr,
-            '%8d       0       0' +
-            '%20.12E' *
-            6,
-            header=h,
-            footer=f,
-            comments='',
-            newline='\n')
+        _archive.py_write_nblock(filename,
+                                 node_id,
+                                 node_id[-1],
+                                 pos,
+                                 np.empty((0, 0)),
+                                 mode)
 
 
 def write_cmblock(filename, items, comp_name, comp_type, digit_width=10):

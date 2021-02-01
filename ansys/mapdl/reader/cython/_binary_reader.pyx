@@ -1740,4 +1740,3 @@ def break_apart_surface(double [:, ::1] points, int64_t [::1] faces, int n_faces
         i += c_add  # extra increment because we're not recording all faces
 
     return np.array(new_points[:c]), np.array(new_faces[:cj]), np.array(orig_idx[:c])
-

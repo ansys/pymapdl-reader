@@ -13,8 +13,16 @@ import vtk
 VTK9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
 
 
-def vtk_cell_info(grid):
+def vtk_cell_info(grid, force_int64=True, shift_offset=True):
     """Returns version consistent connectivity and cell offset arrays.
+
+    Parameters
+    ----------
+    force_int64 : bool, optional
+        Force output arrays to be uint64
+
+    shift_offset : bool, optional
+        Shift the offset by -1 when VTK9
 
     Notes
     -----
@@ -39,21 +47,19 @@ def vtk_cell_info(grid):
 
     """
     if VTK9:
-        # for pyvista < 0.25.0
-        if not hasattr(grid, 'cell_connectivity'):
-            carr = grid.GetCells()
-            cells = vtk.util.numpy_support.vtk_to_numpy(carr.GetConnectivityArray())
+        cells = grid.cell_connectivity
+        if shift_offset:
+            offset = grid.offset - 1
         else:
-            cells = grid.cell_connectivity
-        offset = grid.offset - 1
+            offset = grid.offset
     else:
         cells, offset = grid.cells, grid.offset
 
-    if cells.dtype != np.int64:
-        cells = cells.astype(np.int64)
-
-    if offset.dtype != np.int64:
-        offset = offset.astype(np.int64)
+    if force_int64:
+        if cells.dtype != np.int64:
+            cells = cells.astype(np.int64)
+        if offset.dtype != np.int64:
+            offset = offset.astype(np.int64)
 
     return cells, offset
 

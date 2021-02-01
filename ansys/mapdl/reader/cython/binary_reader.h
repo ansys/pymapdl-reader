@@ -1,3 +1,4 @@
+#include <stdio.h>
 /* #include <fstream> */
 
 void read_nodes(const char*, int64_t, int, int *, double *);

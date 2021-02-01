@@ -8,10 +8,10 @@ from vtk import (VTK_TETRA, VTK_QUADRATIC_TETRA, VTK_PYRAMID,
                  VTK_QUADRATIC_HEXAHEDRON)
 from pyvista import examples as pyvista_examples
 import pyvista as pv
+import vtk
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
-
 
 LINEAR_CELL_TYPES = [VTK_TETRA,
                      VTK_PYRAMID,
@@ -104,9 +104,9 @@ def test_missing_midside():
 
 
 def test_writehex(tmpdir, hex_archive):
-    temp_archive = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
-    pymapdl_reader.save_as_archive(temp_archive, hex_archive.grid)
-    archive_new = pymapdl_reader.Archive(temp_archive)
+    filename = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
+    pymapdl_reader.save_as_archive(filename, hex_archive.grid)
+    archive_new = pymapdl_reader.Archive(filename)
     assert np.allclose(hex_archive.grid.points, archive_new.grid.points)
     assert np.allclose(hex_archive.grid.cells, archive_new.grid.cells)
 
@@ -139,10 +139,9 @@ def test_writehex_missing_elem_num(tmpdir, hex_archive):
 def test_writehex_missing_node_num(tmpdir, hex_archive):
     hex_archive.grid.point_arrays['ansys_node_num'][:-1] = -1
 
-    temp_archive = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
-    pymapdl_reader.save_as_archive(temp_archive, hex_archive.grid)
-    archive_new = pymapdl_reader.Archive(temp_archive)
-
+    filename = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
+    pymapdl_reader.save_as_archive(filename, hex_archive.grid)
+    archive_new = pymapdl_reader.Archive(filename)
     assert np.allclose(hex_archive.grid.points.shape, archive_new.grid.points.shape)
     assert np.allclose(hex_archive.grid.cells.size, archive_new.grid.cells.size)
 
@@ -266,11 +265,11 @@ def test_write_lin_archive(tmpdir, celltype, all_solid_cells_archive_linear):
 
 def test_write_component(tmpdir):
     items = np.array([1, 20, 50, 51, 52, 53])
-    temp_archive = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
+    filename = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
 
     comp_name = 'TEST'
-    pymapdl_reader.write_cmblock(temp_archive, items, comp_name, 'node')
-    archive = pymapdl_reader.Archive(temp_archive)
+    pymapdl_reader.write_cmblock(filename, items, comp_name, 'node')
+    archive = pymapdl_reader.Archive(filename)
     assert np.allclose(archive.node_components[comp_name], items)
 
 
@@ -307,3 +306,58 @@ def test_read_hypermesh():
     filename = os.path.join(testfiles_path, 'hypermesh.cdb')
     archive = pymapdl_reader.Archive(filename, verbose=True)
     assert np.allclose(archive.nodes[:6], expected)
+
+
+@pytest.mark.parametrize('angles', [True, False])
+def test_cython_write_nblock(hex_archive, tmpdir, angles):
+    from ansys.mapdl.reader import _archive
+    nblock_filename = str(tmpdir.mkdir("tmpdir").join('nblock.inp'))
+
+    if angles:
+        _archive.py_write_nblock(nblock_filename,
+                                 hex_archive.nnum,
+                                 hex_archive.nnum[-1],
+                                 hex_archive.nodes,
+                                 hex_archive.node_angles)
+    else:
+        _archive.py_write_nblock(nblock_filename,
+                                 hex_archive.nnum,
+                                 hex_archive.nnum[-1],
+                                 hex_archive.nodes,
+                                 np.empty((0, 0)))
+
+    tmp_archive = pymapdl_reader.Archive(nblock_filename)
+    assert np.allclose(hex_archive.nnum, tmp_archive.nnum)
+    assert np.allclose(hex_archive.nodes, tmp_archive.nodes)
+    if angles:
+        assert np.allclose(hex_archive.node_angles, tmp_archive.node_angles)
+
+
+def test_cython_write_eblock(hex_archive):
+    from ansys.mapdl.reader import _archive
+    vtk9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
+    filename = '/tmp/eblock.inp'
+
+    etype = np.ones(hex_archive.n_elem, np.int32)
+    typenum = hex_archive.etype
+    elem_nnodes = np.empty(etype.size, np.int32)
+    elem_nnodes[typenum == 181] = 4
+    elem_nnodes[typenum == 185] = 8
+    elem_nnodes[typenum == 186] = 20
+    elem_nnodes[typenum == 187] = 10
+    nodenum = hex_archive.nnum
+
+    cells, offset = pymapdl_reader.misc.vtk_cell_info(hex_archive.grid,
+                                                      shift_offset=False)
+    _archive.py_write_eblock(filename,
+                             hex_archive.enum,
+                             etype,
+                             hex_archive.material_type,
+                             np.ones(hex_archive.n_elem, np.int32),
+                             elem_nnodes,
+                             cells,
+                             offset,
+                             hex_archive.grid.celltypes,
+                             typenum,
+                             nodenum,
+                             vtk9)

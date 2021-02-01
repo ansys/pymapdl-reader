@@ -4,10 +4,11 @@
 # cython: wraparound=False
 # cython: cdivision=True
 # cython: nonecheck=False
+# cython: embedsignature=True
 
 """ Cython implementation of a CDB reader """
-from libc.stdio cimport fopen, FILE, fclose, sscanf, fscanf, fread, fseek
-from libc.stdio cimport fgets, printf, SEEK_CUR, SEEK_END, ftell, SEEK_SET
+from libc.stdio cimport (fopen, FILE, fclose, sscanf, fscanf, fread, fseek,
+                         fgets, printf, SEEK_CUR, SEEK_END, ftell, SEEK_SET)
 from libc.stdlib cimport atoi, atof
 from libc.stdlib cimport malloc, free
 from libc.string cimport strncpy, strcmp
@@ -24,7 +25,8 @@ cdef extern from "reader.h":
     int read_nblock_from_nwrite(char*, int*, double*, int)
     int read_nblock(char*, int*, double*, int, int*, int, int*)
     int read_eblock(char*, int*, int*, int, int, int*)
-    int write_array_ascii(const char*, const double*, int nvalues);
+    int write_array_ascii(const char*, const double*, int);
+
 
 cdef extern from 'vtk_support.h':
     int ans_to_vtk(const int, const int*, const int*, const int*, const int,
@@ -206,12 +208,14 @@ def read(filename, read_parameters=False, debug=False):
                         print('EBLOCK already read, skipping...')
                     continue
                 if debug:
-                    print('reading EBLOCK')
+                    print('reading EBLOCK...')
 
                 # only read entries with SOLID
                 if b'SOLID' in line or b'solid' in line:
                     elem_sz, elem, elem_off = py_read_eblock(raw, n, line, fsize)
                     eblock_read = True
+                    if debug:
+                        print('finished')
 
         elif b'K' == line[0] or b'k' == line[0]:
             if b'KEYOP' in line or b'keyop' in line:

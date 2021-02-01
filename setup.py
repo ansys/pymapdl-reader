@@ -114,6 +114,12 @@ setup(
     # Build cython modules
     cmdclass={'build_ext': build_ext},
     ext_modules=[
+                 Extension('ansys.mapdl.reader._archive',
+                           ['ansys/mapdl/reader/cython/_archive.pyx',
+                            'ansys/mapdl/reader/cython/archive.c'],
+                           extra_compile_args=cmp_arg,
+                           language='c',),
+
                  Extension('ansys.mapdl.reader._reader',
                            ['ansys/mapdl/reader/cython/_reader.pyx',
                             'ansys/mapdl/reader/cython/reader.c',

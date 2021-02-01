@@ -11,6 +11,7 @@ from ansys.mapdl.reader.cell_quality import quality
 from ansys.mapdl.reader.common import read_binary
 from ansys.mapdl.reader.misc import Report, _configure_pyvista
 from ansys.mapdl.reader import examples
+from . import _archive
 
 # Setup data directory
 try:
