@@ -31,6 +31,7 @@ jobs:
           pip install -r requirements_build.txt --disable-pip-version-check
           python setup.py bdist_wheel
           pip install dist/ansys*.whl --disable-pip-version-check
+          cd tests/
           python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
   
       - name: Build Documentation
