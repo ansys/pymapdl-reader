@@ -10,5 +10,5 @@ class VersionError(ValueError):
 class NoDistributedFiles(FileNotFoundError):
     """Unable to find any distributed result files """
 
-    def __init__(self, msg='Unable to find any distributed result files'):
+    def __init__(self, msg='Unable to find any distributed result files.'):
         FileNotFoundError.__init__(self, msg)
