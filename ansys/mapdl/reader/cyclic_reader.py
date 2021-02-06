@@ -3,7 +3,6 @@ from functools import wraps
 
 from vtk import vtkMatrix4x4, vtkTransform, vtkAppendFilter
 import numpy as np
-from pyvista.core.common import axis_rotation
 import pyvista as pv
 
 from ansys.mapdl.reader.common import (STRESS_TYPES, STRAIN_TYPES,
@@ -11,6 +10,7 @@ from ansys.mapdl.reader.common import (STRESS_TYPES, STRAIN_TYPES,
                                        THERMAL_STRAIN_TYPES)
 from ansys.mapdl.reader.rst import Result, check_comp
 from ansys.mapdl.reader import _binary_reader
+from ansys.mapdl.reader.common import axis_rotation
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -212,7 +212,7 @@ class CyclicResult(Result):
                 rot_matrix.Multiply4x4(i_matrix, rot_matrix, temp_matrix)
                 rot_matrix.Multiply4x4(temp_matrix, matrix, rot_matrix)
 
-            trans = pv.trans_from_matrix(rot_matrix)
+            trans = pv.array_from_vtkmatrix(rot_matrix)
             if tensor:
                 if stress:
                     _binary_reader.tensor_arbitrary(full_result[i], trans)
@@ -250,7 +250,7 @@ class CyclicResult(Result):
                                                  angle, deg=False,
                                                  axis='z'))
 
-        result_expanded = np.asarray(result_expanded)
+        result_expanded = np.asarray(result_expanded, dtype=np.complex128)
 
         # ANSYS scales the result
         if hindex == 0 or hindex == self.n_sector/2:
@@ -338,7 +338,7 @@ class CyclicResult(Result):
                 rot_matrix.Multiply4x4(i_matrix, rot_matrix, temp_matrix)
                 rot_matrix.Multiply4x4(temp_matrix, matrix, rot_matrix)
 
-            trans = pv.trans_from_matrix(rot_matrix)
+            trans = pv.array_from_vtkmatrix(rot_matrix)
             if stress:
                 _binary_reader.tensor_arbitrary(full_result[i], trans)
             else:

@@ -329,7 +329,7 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     if isinstance(grid, pv.PolyData):
         grid = grid.cast_to_unstructured_grid()
 
-    if not isinstance(grid, vtk.vtkUnstrucutredGrid):
+    if not isinstance(grid, vtk.vtkUnstructuredGrid):
         raise TypeError('``grid`` argument must be an UnstructuredGrid')
 
     allowable = []
