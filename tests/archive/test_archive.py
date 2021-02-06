@@ -11,7 +11,7 @@ import pyvista as pv
 import vtk
 
 from ansys.mapdl import reader as pymapdl_reader
-from ansys.mapdl.reader import examples
+from ansys.mapdl.reader import examples, _archive
 
 LINEAR_CELL_TYPES = [VTK_TETRA,
                      VTK_PYRAMID,
@@ -21,6 +21,33 @@ LINEAR_CELL_TYPES = [VTK_TETRA,
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, 'test_data')
 DAT_FILE = os.path.join(testfiles_path, 'Panel_Transient.dat')
+
+
+def proto_cmblock(array):
+    """prototype cmblock code"""
+    items = np.zeros_like(array)
+    items[0] = array[0]
+
+    c = 1
+    in_list = False
+    for i in range(array.size - 1):
+        # check if part of a range
+        if array[i + 1] - array[i] == 1:
+            in_list = True
+        elif array[i + 1] - array[i] > 1:
+            if in_list:
+                items[c] = -array[i]; c += 1
+                items[c] = array[i + 1]; c += 1
+            else:
+                items[c] = array[i + 1]; c += 1
+            in_list = False
+
+    # check if we've ended on a list
+    # catch if last item is part of a list
+    if items[c - 1] != abs(array[-1]):
+        items[c] = -array[i + 1]; c += 1
+
+    return items[:c]
 
 
 @pytest.fixture(scope='module')
@@ -37,6 +64,19 @@ def all_solid_cells_archive():
 def all_solid_cells_archive_linear():
     return pymapdl_reader.Archive(os.path.join(testfiles_path, 'all_solid_cells.cdb'),
                                   force_linear=True)
+
+
+@pytest.mark.parametrize('array',
+                         (np.arange(1, 10, dtype=np.int32),
+                          np.array([1, 5, 10, 20, 40, 80], dtype=np.int32),
+                          np.array([1, 2, 3, 10, 20, 40, 51, 52, 53], dtype=np.int32),
+                          np.array([1, 2, 3, 10, 20, 40], dtype=np.int32),
+                          np.array([10, 20, 40, 50, 51, 52], dtype=np.int32))
+)
+def test_cython_cmblock(array):
+    """Simply verify it's identical to the prototype python code"""
+    assert np.allclose(proto_cmblock(array),
+                       _archive.cmblock_items_from_array(array))
 
 
 def test_load_dat():
@@ -109,6 +149,14 @@ def test_writehex(tmpdir, hex_archive):
     archive_new = pymapdl_reader.Archive(filename)
     assert np.allclose(hex_archive.grid.points, archive_new.grid.points)
     assert np.allclose(hex_archive.grid.cells, archive_new.grid.cells)
+
+    for node_component in hex_archive.node_components:
+        assert np.allclose(hex_archive.node_components[node_component],
+                           archive_new.node_components[node_component])
+
+    for element_component in hex_archive.element_components:
+        assert np.allclose(hex_archive.element_components[element_component],
+                           archive_new.element_components[element_component])
 
 
 @pytest.mark.xfail(os.name == 'nt', reason='TODO: Fails to write nodes on CI')
@@ -310,7 +358,6 @@ def test_read_hypermesh():
 
 @pytest.mark.parametrize('angles', [True, False])
 def test_cython_write_nblock(hex_archive, tmpdir, angles):
-    from ansys.mapdl.reader import _archive
     nblock_filename = str(tmpdir.mkdir("tmpdir").join('nblock.inp'))
 
     if angles:
@@ -334,7 +381,6 @@ def test_cython_write_nblock(hex_archive, tmpdir, angles):
 
 
 def test_cython_write_eblock(hex_archive):
-    from ansys.mapdl.reader import _archive
     vtk9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
     filename = '/tmp/eblock.inp'
 

@@ -1,6 +1,6 @@
 """Module to read ANSYS ASCII block formatted CDB files"""
+import io
 import os
-import sys
 import logging
 from functools import wraps
 
@@ -238,7 +238,7 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
                     enum_start=1, nnum_start=1,
                     include_etype_header=True, reset_etype=False,
                     allow_missing=True, include_surface_elements=True,
-                    include_solid_elements=True):
+                    include_solid_elements=True, include_components=True):
     """Writes FEM as an ANSYS APDL archive file.  This function
     supports the following element types:
 
@@ -315,6 +315,10 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
         Includes solid elements when writing the archive file and
         saves them as SOLID185, SOLID186, or SOLID187.
 
+    include_components : bool, optional
+        Writes note components to file.  Node components must be
+        stored within the unstructured grid as uint8 or bool arrays.
+
     Examples
     --------
     Write a VTK of pyvista UnstructuredGrid to archive.cdb
@@ -359,8 +363,7 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     if 'ansys_node_num' in grid.point_arrays:
         nodenum = grid.point_arrays['ansys_node_num']
     else:
-        log.info('No ANSYS node numbers set in input.  ' +
-                 'Adding default range')
+        log.info('No ANSYS node numbers set in input. Adding default range')
         nodenum = np.arange(1, grid.number_of_points + 1, dtype=np.int32)
 
     if np.any(nodenum == -1):
@@ -371,8 +374,8 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
             start_num = nnum_start
         nadd = np.sum(nodenum == -1)
         end_num = start_num + nadd
-        log.info('FEM missing some node numbers.  Adding node numbering ' +
-                 'from %d to %d' % (start_num, end_num))
+        log.info('FEM missing some node numbers.  Adding node numbering '
+                 'from %d to %d', start_num, end_num)
         nodenum[nodenum == -1] = np.arange(start_num, end_num, dtype=np.int32)
 
     # element block
@@ -518,6 +521,23 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
                              VTK9,
                              mode='a')
 
+    if include_components:
+        with open(filename, 'a') as fid:
+
+            # write node components
+            for node_key in grid.point_arrays:
+                arr = grid.point_arrays[node_key]
+                if arr.dtype in [np.uint8, np.bool]:
+                    items = nodenum[arr.view(np.bool)]
+                    write_cmblock(fid, items, node_key, 'NODE')
+
+            # write element components
+            for node_key in grid.cell_arrays:
+                arr = grid.cell_arrays[node_key]
+                if arr.dtype in [np.uint8, np.bool]:
+                    items = enum[arr.view(np.bool)]
+                    write_cmblock(fid, items, node_key, 'ELEMENT')
+
 
 def write_nblock(filename, node_id, pos, angles=None, mode='w'):
     """Writes nodes and node angles to file.
@@ -570,13 +590,14 @@ def write_nblock(filename, node_id, pos, angles=None, mode='w'):
                                  mode)
 
 
-def write_cmblock(filename, items, comp_name, comp_type, digit_width=10):
-    """Writes a component block, CMBLOCK, to a file.
+def write_cmblock(filename, items, comp_name, comp_type,
+                  digit_width=10, mode='w'):
+    """Writes a component block (CMBLOCK) to a file.
 
     Parameters
     ----------
     filename : str or file handle
-        File to write CMBLOCK component to
+        File to write CMBLOCK component to.
 
     items : list or np.ndarray
         Element or node numbers to write.
@@ -589,51 +610,45 @@ def write_cmblock(filename, items, comp_name, comp_type, digit_width=10):
 
     digit_width : int, optional
         Default 10
+
+    mode : str, optional
+        Write mode.  Default ``'w'``.
     """
+    comp_name = comp_name.upper()
+    comp_type = comp_type.upper()
     if comp_type.upper() not in ['ELEMENT', 'NODE']:
         raise ValueError("`comp_type` must be either 'ELEMENT' or 'NODE'")
 
-    items = np.unique(items)
-
-    toprint = []
-    toprint.append(items[0])
-    for i, value in enumerate(np.diff(items)):
-        if value == 1:
-            continue
-        else:
-            if items[i - 1] + 1 == items[i]:
-                toprint.append(-items[i])
-                toprint.append(items[i + 1])
-            else:
-                toprint.append(items[i + 1])
-
-    # catch if last item is part of a list
-    if toprint[-1] != abs(items[-1]):
-        toprint.append(-items[i + 1])
-
-    nitems = len(toprint)
-    lines = []
-    lines.append('CMBLOCK,%s,%s,%8d  ! from pymapdl_reader' % (comp_name.upper(),
-                                                               comp_type.upper(),
-                                                               nitems))
-    lines.append('(8i%d)' % digit_width)
-    digit_formatter = '%' + '%d' % digit_width + 'd'
-
-    for chunk in chunks(toprint, 8):
-        lines.append(''.join([digit_formatter] * len(chunk)) % tuple(chunk))
-
-    lines.append('')
-
-    # write file
-    if sys.version_info[0] == 3:
-        string_types = str
+    opened_file = False
+    if isinstance(filename, io.TextIOBase):
+        fid = filename
     else:
-        string_types = basestring
+        fid = open(filename, mode)
+        opened_file = True
 
-    text = '\n'.join(lines)
+    if not isinstance(items, np.ndarray):
+        items = np.array(items, dtype=np.int32)
+    elif items.dtype != np.int32:
+        items = items.astype(np.int32)
 
-    # either write to file or file object
-    if isinstance(filename, string_types):
-        open(filename, 'w').write(text)
-    else:
-        filename.write(text)
+    # All this python writing could be a bottleneck for non-contiguous CMBLOCKs.
+    # consider cythonizing this in the future
+    cmblock_items = _archive.cmblock_items_from_array(items)
+    nitems = len(cmblock_items)
+    print(f'CMBLOCK,{comp_name},{comp_type},{nitems:8d}', file=fid)
+    print(f'(8i{digit_width})', file=fid)
+    digit_formatter = f'%{digit_width}d'
+
+    # use np savetxt here as it's faster than looping through and
+    # writing each line.
+    # nearest multiple of 8
+    up_to = len(cmblock_items) % 8
+    np.savetxt(fid, cmblock_items[:-up_to].reshape(-1, 8), digit_formatter*8)
+
+    # write the final line
+    chunk = cmblock_items[-up_to:]
+    print(''.join([digit_formatter] * len(chunk)) % tuple(chunk), file=fid)
+    print('', file=fid)
+
+    if opened_file:
+        fid.close()
