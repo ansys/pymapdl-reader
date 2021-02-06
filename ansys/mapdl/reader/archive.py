@@ -250,6 +250,8 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
         - ``vtk.VTK_QUADRATIC_WEDGE``
         - ``vtk.VTK_HEXAHEDRON``
         - ``vtk.VTK_QUADRATIC_HEXAHEDRON``
+        - ``vtk.VTK_TRIANGLE``
+        - ``vtk.VTK_QUAD``
 
     Will automatically renumber nodes and elements if the FEM does not
     contain ANSYS node or element numbers.  Node numbers are stored as
@@ -280,7 +282,7 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
         the unstructured grid.
 
     mode : str, optional
-        File mode.  See help(open)
+        File mode.  See ``help(open)``
 
     nblock : bool, optional
         Write node block when writing archive file.
@@ -313,11 +315,22 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
         Includes solid elements when writing the archive file and
         saves them as SOLID185, SOLID186, or SOLID187.
 
+    Examples
+    --------
+    Write a VTK of pyvista UnstructuredGrid to archive.cdb
+
+    >>> from ansys.mapdl import reader as pymapdl_reader
+    >>> from pyvista import examples
+    >>> grid = examples.load_hexbeam()
+    >>> pymapdl_reader.save_as_archive('archive.cdb', grid)
+
     """
-    header = '/PREP7\n'
 
     if isinstance(grid, pv.PolyData):
         grid = grid.cast_to_unstructured_grid()
+
+    if not isinstance(grid, vtk.vtkUnstrucutredGrid):
+        raise TypeError('``grid`` argument must be an UnstructuredGrid')
 
     allowable = []
     if include_solid_elements:
@@ -339,6 +352,8 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     # extract allowable cell types
     mask = np.in1d(grid.celltypes, allowable)
     grid = grid.extract_cells(mask)
+
+    header = '/PREP7\n'
 
     # node numbers
     if 'ansys_node_num' in grid.point_arrays:
