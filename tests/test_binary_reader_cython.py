@@ -27,7 +27,7 @@ def test_tensor_rotation_x():
     transform.Update()
     rot_matrix = transform.GetMatrix()
     # rot_matrix.Invert()  # <-- this should not be necessary
-    trans = pv.trans_from_matrix(rot_matrix)
+    trans = pv.array_from_vtkmatrix(rot_matrix)
 
     s_test = stress.copy().reshape(1, -1)
     _binary_reader.tensor_arbitrary(s_test, trans)
@@ -40,7 +40,7 @@ def test_tensor_rotation_y():
     transform.Update()
     rot_matrix = transform.GetMatrix()
     # rot_matrix.Invert()  # <-- this should not be necessary
-    trans = pv.trans_from_matrix(rot_matrix)
+    trans = pv.array_from_vtkmatrix(rot_matrix)
 
     s_test = stress.copy().reshape(1, -1)
     _binary_reader.tensor_arbitrary(s_test, trans)
@@ -53,7 +53,7 @@ def test_tensor_rotation_z():
     transform.Update()
     rot_matrix = transform.GetMatrix()
     # rot_matrix.Invert()  # <-- this should not be necessary
-    trans = pv.trans_from_matrix(rot_matrix)
+    trans = pv.array_from_vtkmatrix(rot_matrix)
 
     s_test = stress.copy().reshape(1, -1)
     _binary_reader.tensor_arbitrary(s_test, trans)

@@ -2265,7 +2265,7 @@ class Result(AnsysBinary):
         if as_vtk_matrix:
             return matrix
 
-        return pv.trans_from_matrix(matrix)
+        return pv.array_from_vtkmatrix(matrix)
 
     def _plot_point_scalars(self, scalars, rnum=None, grid=None,
                             show_displacement=False, displacement_factor=1,
@@ -4067,7 +4067,7 @@ def transform(points, trans):
 
     """
     if isinstance(trans, vtk.vtkMatrix4x4):
-        trans = pv.trans_from_matrix(trans)
+        trans = pv.array_from_vtkmatrix(trans)
 
     _binary_reader.affline_transform(points, trans)
 

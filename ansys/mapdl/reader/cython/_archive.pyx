@@ -7,6 +7,10 @@
 # cython: embedsignature=True
 
 from libc.stdio cimport fopen, fclose, FILE
+from libc.math cimport abs
+
+import numpy as np
+cimport numpy as np
 
 ctypedef unsigned char uint8_t
 from libc.stdint cimport int64_t
@@ -82,3 +86,49 @@ def py_write_eblock(filename,
                  &nodenum[0],
                  int(vtk9))
     fclose(cfile)
+
+
+def cmblock_items_from_array(int [::1] array):
+    """Given a list of items, convert to a ANSYS formatted CMBLOCK.  For example
+    1, 2, 3, 4, 8
+
+    will be converted to
+
+    1, -4, 8
+
+    Where the -4 indicates all the items between 1 and -4.
+    """
+
+    # first, verify items in array are sorted
+    cdef int i
+    cdef is_sorted = 1
+    for i in range(array.size - 1):
+        if array[i] > array[i + 1]:
+            is_sorted = 0
+            break
+
+    if not is_sorted:
+        array = np.unique(array)
+
+    cdef int [::1] items = np.empty_like(array)
+    items[0] = array[0]
+
+    cdef int c = 1
+    cdef int in_list = 0
+    for i in range(array.size - 1):
+        # check if part of a range
+        if array[i + 1] - array[i] == 1:
+            in_list = 1
+        elif array[i + 1] - array[i] > 1:
+            if in_list:
+                items[c] = -array[i]; c += 1
+                items[c] = array[i + 1]; c += 1
+            else:
+                items[c] = array[i + 1]; c += 1
+            in_list = 0
+
+    # catch if last item is part of a list
+    if items[c - 1] != abs(array[array.size - 1]):
+        items[c] = -array[array.size - 1]; c += 1
+
+    return np.array(items[:c])
