@@ -78,7 +78,7 @@ int write_eblock(FILE *file,
     if (vtk9){
       c = offset[i];
     } else {
-      c = offset[i + 1];
+      c = offset[i] + 1;
     }
 
     // Write cell info
