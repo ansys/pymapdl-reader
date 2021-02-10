@@ -4,7 +4,7 @@ name: Style Check
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  build:
+  check_style:
     runs-on: ubuntu-20.04
 
     steps:

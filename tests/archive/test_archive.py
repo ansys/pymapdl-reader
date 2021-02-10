@@ -11,7 +11,7 @@ import pyvista as pv
 import vtk
 
 from ansys.mapdl import reader as pymapdl_reader
-from ansys.mapdl.reader import examples, _archive
+from ansys.mapdl.reader import examples, _archive, archive
 
 LINEAR_CELL_TYPES = [VTK_TETRA,
                      VTK_PYRAMID,
@@ -50,7 +50,7 @@ def proto_cmblock(array):
     return items[:c]
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def hex_archive():
     return pymapdl_reader.Archive(examples.hexarchivefile)
 
@@ -375,6 +375,25 @@ def test_cython_write_nblock(hex_archive, tmpdir, angles):
     assert np.allclose(hex_archive.nnum, tmp_archive.nnum)
     assert np.allclose(hex_archive.nodes, tmp_archive.nodes)
     if angles:
+        assert np.allclose(hex_archive.node_angles, tmp_archive.node_angles)
+
+
+@pytest.mark.parametrize('has_angles', [True, False])
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+def test_write_nblock(hex_archive, tmpdir, dtype, has_angles):
+    nblock_filename = str(tmpdir.mkdir("tmpdir").join('nblock.inp'))
+
+    nodes = hex_archive.nodes.astype(dtype)
+    if has_angles:
+        angles = hex_archive.node_angles
+    else:
+        angles = None
+    archive.write_nblock(nblock_filename, hex_archive.nnum, nodes, angles, mode='w')
+
+    tmp_archive = pymapdl_reader.Archive(nblock_filename)
+    assert np.allclose(hex_archive.nnum, tmp_archive.nnum)
+    assert np.allclose(hex_archive.nodes, tmp_archive.nodes)
+    if has_angles:
         assert np.allclose(hex_archive.node_angles, tmp_archive.node_angles)
 
 
