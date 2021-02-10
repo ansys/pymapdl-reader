@@ -575,19 +575,38 @@ def write_nblock(filename, node_id, pos, angles=None, mode='w'):
         pos = pos[sidx]
 
     if angles is not None:
-        _archive.py_write_nblock(filename,
-                                 node_id,
-                                 node_id[-1],
-                                 pos,
-                                 angles,
-                                 mode)
+        if pos.dtype == np.float32:
+            if angles.dtype != pos.dtype:
+                angles = angles.astype(pos.dtype)
+            _archive.py_write_nblock_float(filename,
+                                           node_id,
+                                           node_id[-1],
+                                           pos,
+                                           angles,
+                                           mode)
+        else:
+            _archive.py_write_nblock(filename,
+                                     node_id,
+                                     node_id[-1],
+                                     pos,
+                                     angles,
+                                     mode)
+
     else:
-        _archive.py_write_nblock(filename,
-                                 node_id,
-                                 node_id[-1],
-                                 pos,
-                                 np.empty((0, 0)),
-                                 mode)
+        if pos.dtype == np.float32:
+            _archive.py_write_nblock_float(filename,
+                                           node_id,
+                                           node_id[-1],
+                                           pos,
+                                           np.empty((0, 0), dtype=np.float32),
+                                           mode)
+        else:
+            _archive.py_write_nblock(filename,
+                                     node_id,
+                                     node_id[-1],
+                                     pos,
+                                     np.empty((0, 0), dtype=np.float64),
+                                     mode)
 
 
 def write_cmblock(filename, items, comp_name, comp_type,

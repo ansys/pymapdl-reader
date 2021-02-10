@@ -19,6 +19,8 @@ from libc.stdint cimport int64_t
 cdef extern from 'archive.h' nogil:
     int write_nblock(FILE*, const int, const int, const int*, const double*,
                      const double*, int)
+    int write_nblock_float(FILE*, const int, const int, const int*, const float*,
+                           const float*, int)
     int write_eblock(FILE*, const int, const int*, const int*, const int*,
                      const int*, const int*, const uint8_t*, const int64_t*,
                      const int64_t*, const int*, const int*, const int);
@@ -48,13 +50,43 @@ def py_write_nblock(filename, const int [::1] node_id, int max_node_id,
     cdef FILE* cfile = fopen(filename.encode(), mode.encode())
 
     cdef int n_nodes = pos.shape[0]
-    cdef double [::1] dummy_arr
 
     cdef int has_angles = 0
     if angles.size == pos.size:
         has_angles = 1
     write_nblock(cfile, n_nodes, max_node_id, &node_id[0], &pos[0, 0],
                  &angles[0, 0], has_angles);
+    fclose(cfile)
+
+
+def py_write_nblock_float(filename, const int [::1] node_id, int max_node_id,
+                          const float [:, ::1] pos, const float [:, ::1] angles,
+                          mode='w'):
+    """Write a float32 node block to a file.
+
+    Parameters
+    ----------
+    fid : _io.TextIOWrapper
+        Opened Python file object.
+
+    node_id : np.ndarray
+        Array of node ids.
+
+    pos : np.float32 np.ndarray
+        Double array of node coordinates
+
+    angles : np.ndarray, optional
+    
+    """
+    # attach the stream to the python file
+    cdef FILE* cfile = fopen(filename.encode(), mode.encode())
+
+    cdef int n_nodes = pos.shape[0]
+    cdef int has_angles = 0
+    if angles.size == pos.size:
+        has_angles = 1
+    write_nblock_float(cfile, n_nodes, max_node_id, &node_id[0], &pos[0, 0],
+                       &angles[0, 0], has_angles);
     fclose(cfile)
 
 
