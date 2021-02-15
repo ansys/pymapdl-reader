@@ -49,6 +49,8 @@ cdef extern from "<iostream>" namespace "std::ios_base" nogil:
           pass
      cdef open_mode binary
 
+cdef extern from "stdio.h":
+    FILE *fdopen(int, const char *)
 
 cdef extern from "numpy/npy_math.h" nogil:
     bint npy_isnan(double x)
@@ -57,6 +59,7 @@ cdef extern from 'binary_reader.h' nogil:
     void read_nodes(const char*, int64_t, int, int*, double*)
     void* read_record(const char*, int64_t, int*, int*, int*, int*)
     void read_record_stream(ifstream*, int64_t, void*, int*, int*, int*)
+    void* read_record_fid(ifstream*, int64_t, int*, int*, int*, int*)
 
 
 # VTK numbering for vtk cells
@@ -205,6 +208,72 @@ def c_read_record(filename, int64_t ptr, int return_bufsize=0):
         return ndarray
 
 
+cdef class AnsysFile:
+    """Open an Ansys file as an ifstream"""
+
+    cdef ifstream* _file
+
+    def __init__(self, filename):
+        cdef bytes py_bytes = filename.encode()
+        cdef char* c_filename = py_bytes
+        self._file = new ifstream(c_filename, binary)
+
+    def read_record(self, int64_t ptr, int return_bufsize=0):
+        """Read a record from the opened file"""
+        cdef int prec_flag, type_flag, size, my_dtype, bufsize
+        cdef void* c_ptr
+        cdef np.ndarray ndarray
+
+        c_ptr = read_record_fid(self._file, ptr, &prec_flag, &type_flag, &size, &bufsize)
+        ndarray = wrap_array(c_ptr, size, type_flag, prec_flag)
+
+        if return_bufsize:
+            return ndarray, bufsize
+        else:
+            return ndarray
+
+    def close(self):
+        """Close the file"""
+        del self._file
+
+    def read_element_data(self, int64_t [::1] ele_ind_table, int table_index, int ptr_off):
+        cdef int64_t ind
+        cdef int ptr
+        cdef int prec_flag, type_flag, size, bufsize
+        cdef void* c_ptr
+        cdef np.ndarray record 
+
+        # we have no idea the maximum amount of contigious memory we
+        # need to store the results, so we need to append to a python list
+
+        # read element data
+        cdef list element_data = []
+        for ind in ele_ind_table:
+            if ind == 0:
+                element_data.append(None)
+            else:
+                # read element table index pointer to data
+                c_ptr = read_record_fid(self._file, ind + ptr_off, &prec_flag,
+                                        &type_flag, &size, &bufsize)
+                if prec_flag:
+                    ptr = <int>(<short*>c_ptr)[table_index]
+                else:
+                    ptr = (<int*>c_ptr)[table_index]
+
+                if ptr > 0:
+                    record = self.read_record(ptr_off + ind + ptr)
+                    element_data.append(record)
+
+                    # ideally we wouldn't convert to a numpy array just yet
+                    # cptr = read_record_fid(self._file, ptr_off + ind + ptr,
+                    #                        &prec_flag,
+                    #                        &type_flag, &size, &bufsize)
+                else:
+                    element_data.append(None)
+
+        return element_data
+
+
 cdef np.ndarray wrap_array(void* c_ptr, int size, int type_flag, int prec_flag):
     """wrap a c array as a numpy array"""
     cdef int my_dtype
@@ -235,6 +304,27 @@ cdef np.ndarray wrap_array(void* c_ptr, int size, int type_flag, int prec_flag):
     Py_INCREF(array_wrapper)
 
     return ndarray
+
+
+cdef ArrayWrapper wrap_array_no_nd(void* c_ptr, int size, int type_flag, int prec_flag):
+    """wrap a c array as a numpy array"""
+    cdef int my_dtype
+
+    if type_flag:
+        if prec_flag:
+            my_dtype = 0  # np.NPY_INT16
+        else:
+            my_dtype = 1  # np.NPY_INT32
+    else:
+        if prec_flag:
+            my_dtype = 2  # np.NPY_FLOAT32
+        else:
+            my_dtype = 3  # np.NPY_FLOAT64
+
+    # wrap c_array 
+    array_wrapper = ArrayWrapper()
+    array_wrapper.set_data(size, c_ptr, my_dtype)
+    return array_wrapper()
 
 
 def load_elements(filename, int64_t loc, int nelem, int64_t [::1] e_disp_table):

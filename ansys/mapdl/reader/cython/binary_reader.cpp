@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <exception>
+#include <bitset>
 
 // necessary for ubuntu build on azure
 #ifdef __linux__
@@ -57,6 +58,7 @@ int read_header(ifstream* binFile, int* bsparse_flag, int* wsparse_flag,
   *prec_flag = (raw[7] >> 6) & 1;
   *type_flag = (raw[7] >> 7) & 1;
 
+  // std::cout << "c = " << std::bitset<8>(raw[7]) << std::endl;
   // cout << "bufsize" << bufsize << "\n";
   // cout << "bsparse_flag" << *bsparse_flag << "\n";
   // cout << "wsparse_flag" << *wsparse_flag << "\n";
@@ -67,6 +69,39 @@ int read_header(ifstream* binFile, int* bsparse_flag, int* wsparse_flag,
   delete[] raw;
   return bufsize;
 }
+
+// Read in record and determine size
+// bsparse_flag true when record uses binary compression
+// type_flag true when using integers
+// prec_flag true when using single precision (short for int)
+int read_header_fid(FILE* fp, int* bsparse_flag, int* wsparse_flag,
+		int* zlib_flag, int* prec_flag, int* type_flag){
+
+  char *raw = new char[9];
+
+  // read the first 8 bytes, includes total buffer size and flags
+  fgets(raw, 9, fp);
+  int bufsize = *(int*)&raw[0];
+
+  // bsparse flag
+  // std::cout << "c = " << std::bitset<8>(raw[7]) << std::endl;
+  *bsparse_flag = (raw[7] >> 3) & 1;
+  *wsparse_flag = (raw[7] >> 4) & 1;
+  *zlib_flag = (raw[7] >> 5) & 1;
+  *prec_flag = (raw[7] >> 6) & 1;
+  *type_flag = (raw[7] >> 7) & 1;
+
+  // cout << "bufsize" << bufsize << "\n";
+  // cout << "bsparse_flag" << *bsparse_flag << "\n";
+  // cout << "wsparse_flag" << *wsparse_flag << "\n";
+  // cout << "zlib_flag" << *zlib_flag << "\n";
+  // cout << "prec_flag" << *prec_flag << "\n";
+  // cout << "type_flag" << *type_flag << "\n";
+
+  delete[] raw;
+  return bufsize;
+}
+
 
 
 template <class T>
@@ -434,6 +469,8 @@ void* read_record(const char* filename, int64_t ptr, int* prec_flag, int* type_f
   return raw;
 }
 
+
+
 // populate arr with a record
 // This function differs from read_record as it must be supplied with ``arr``, which must be sized properly to support the data coming from the file.
 void read_record_stream(ifstream* file, int64_t loc, void* arr, int* prec_flag,
@@ -497,6 +534,60 @@ void read_record_stream(ifstream* file, int64_t loc, void* arr, int* prec_flag,
   delete[] raw;
   
 }
+
+
+// read a record given a file stream
+void* read_record_fid(ifstream* file, int64_t loc, int* prec_flag, int* type_flag,
+                      int* size, int* out_bufsize){
+
+  int bsparse_flag, wsparse_flag, zlib_flag;
+
+  // seek to data location if supplied with a pointer
+  file->seekg(loc*4);
+  int bufsize = read_header(file, &bsparse_flag, &wsparse_flag,
+			    &zlib_flag, prec_flag, type_flag);
+  *size = bufsize;
+
+  // always read record
+  char *raw = new char[4*bufsize];
+  file->read(raw, 4*bufsize);
+  
+  *out_bufsize = bufsize + 3;  // include header and footer
+
+  if (bsparse_flag){
+    if (*type_flag){
+      if (*prec_flag){
+	raw = ReadShortBsparseRecord((int*)raw, size);
+      } else{
+	raw = ReadBsparseRecord((int*)raw, size);
+      }
+    } else{  // a float/double
+      if (*prec_flag){
+	raw = ReadBsparseRecord((float*)raw, size);
+      } else{
+	raw = ReadBsparseRecord((double*)raw, size);
+      }
+    }
+  } else if (wsparse_flag) {
+    if (*type_flag){
+      if (*prec_flag){
+	raw = ReadWindowedSparseBuffer((short*)raw, size);
+      } else{
+	raw = ReadWindowedSparseBuffer((int*)raw, size);
+      }
+    } else{  // a float/double
+      if (*prec_flag){
+	raw = ReadWindowedSparseBuffer((float*)raw, size);
+      } else{
+	raw = ReadWindowedSparseBuffer((double*)raw, size);
+      }
+    }
+    
+  }
+
+  return raw;
+}
+
 
 
 void read_nodes(const char* filename, int64_t ptrLOC, int nrec, int *nnum,

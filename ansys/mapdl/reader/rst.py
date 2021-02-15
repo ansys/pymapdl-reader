@@ -18,6 +18,7 @@ from ansys.mapdl.reader import _binary_reader, _reader
 from ansys.mapdl.reader.mesh import Mesh
 from ansys.mapdl.reader._binary_reader import (cells_with_any_nodes,
                                                cells_with_all_nodes,
+                                               AnsysFile,
                                                populate_surface_element_result)
 from ansys.mapdl.reader._rst_keys import (geometry_header_keys,
                                           element_index_table_info,
@@ -41,7 +42,7 @@ VTK9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
 def access_bit(data, num):
     base = int(num // 8)
     shift = int(num % 8)
-    return (data[base] & (1<<shift)) >> shift
+    return (data[base] & (1 <<shift)) >> shift
 
 
 EMAIL_ME = """Please raise an issue at:
@@ -95,6 +96,7 @@ class Result(AnsysBinary):
         initializes result object.
         """
         self.filename = filename
+        self._cfile = AnsysFile(filename)
         self._resultheader = self._read_result_header()
         self._animating = False
 
@@ -124,7 +126,6 @@ class Result(AnsysBinary):
         self._mesh = None
         if read_mesh:
             self._store_mesh()
-
 
     @property
     def mesh(self):
@@ -2090,18 +2091,21 @@ class Result(AnsysBinary):
         ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
 
         # read element data
-        element_data = []
-        for ind in ele_ind_table:
-            if ind == 0:
-                element_data.append(None)
-            else:
-                # read element table index pointer to data
-                ptr = self.read_record(ind + ptr_off)[table_index]
-                if ptr > 0:
-                    record = self.read_record(ptr_off + ind + ptr)
-                    element_data.append(record)
-                else:
+        if self._cfile is not None:
+            element_data = self._cfile.read_element_data(ele_ind_table, table_index, ptr_off)
+        else:
+            element_data = []
+            for ind in ele_ind_table:
+                if ind == 0:
                     element_data.append(None)
+                else:
+                    # read element table index pointer to data
+                    ptr = self.read_record(ind + ptr_off)[table_index]
+                    if ptr > 0:
+                        record = self.read_record(ptr_off + ind + ptr)
+                        element_data.append(record)
+                    else:
+                        element_data.append(None)
 
         # just return the distributed result if requested
         if kwargs.get('is_dist_rst', False):
