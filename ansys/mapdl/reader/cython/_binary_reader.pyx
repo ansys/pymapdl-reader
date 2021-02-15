@@ -243,7 +243,7 @@ cdef class AnsysFile:
         cdef void* c_ptr
         cdef np.ndarray record 
 
-        # we have no idea the maximum amount of contigious memory we
+        # we have no idea the maximum amount of contiguous memory we
         # need to store the results, so we need to append to a python list
 
         # read element data
