@@ -299,9 +299,6 @@ cdef class AnsysFile:
         cdef void* c_ptr
         cdef np.ndarray record 
 
-        # we have no idea the maximum amount of contiguous memory we
-        # need to store the results, so we need to append to a python list
-
         # read element table index pointer to data
         c_ptr = read_record_fid(self._file, index, &prec_flag,
                                 &type_flag, &size, &bufsize)
@@ -310,9 +307,9 @@ cdef class AnsysFile:
         else:
             ptr = (<int*>c_ptr)[table_index]
 
-        # if ptr <= 0:
-        #     raise ValueError('This element does not have any data associated with the '
-        #                      f' solution_type {solution_type}')
+        if ptr <= 0:
+            raise ValueError('This element does not have any data associated with the '
+                             f' solution_type {solution_type}')
 
         cdef int res = overwriteRecord(self._file, index + ptr, &data[0])
         if res:
@@ -326,9 +323,6 @@ cdef class AnsysFile:
         cdef void* c_ptr
         cdef np.ndarray record 
 
-        # we have no idea the maximum amount of contiguous memory we
-        # need to store the results, so we need to append to a python list
-
         # read element table index pointer to data
         c_ptr = read_record_fid(self._file, index, &prec_flag,
                                 &type_flag, &size, &bufsize)
@@ -337,9 +331,10 @@ cdef class AnsysFile:
         else:
             ptr = (<int*>c_ptr)[table_index]
 
-        # if ptr <= 0:
-        #     raise ValueError('This element does not have any data associated with the '
-        #                      f' solution_type {solution_type}')
+        if ptr <= 0:
+            raise ValueError('This element does not have any data associated with the '
+                             f' solution_type {solution_type}')
+
         print("reading at ", index + ptr)
         cdef int res = overwriteRecordFloat(self._file, index + ptr, &data[0])
         if res:

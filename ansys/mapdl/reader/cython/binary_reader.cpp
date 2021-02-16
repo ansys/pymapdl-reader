@@ -656,6 +656,9 @@ int overwriteRecord(fstream* fs, int ptr, double* data){
   fs->seekg(ptr*4 + 8);
 
   if (type_flag){ // either float or double
+    // TBW
+    // if (prec_flag){  // float
+  } else { // int16 or int32
     if (prec_flag){  // float
       size = bufsize / 4;
       float* float_array[size];
@@ -665,9 +668,6 @@ int overwriteRecord(fstream* fs, int ptr, double* data){
       size = bufsize / 8;
       fs->write(reinterpret_cast<const char *>(&data), bufsize*sizeof(double));
     }
-  } else { // int16 or int32
-    // TBW
-    // if (prec_flag){  // float
   }
 
   return 0;

@@ -1931,10 +1931,12 @@ class Result(AnsysBinary):
                              f' solution_type {solution_type}')
 
         # new c stuff here
-        if data.dtype == np.float32:
+        # if data.dtype == np.float32:
+        if False:
             self._cfile.overwrite_element_data_float(elem_ptr + ptr_off, table_index,
                                                      data)
-        elif data.dtype == np.double:
+        # elif data.dtype == np.double:
+        elif False:
             self._cfile.overwrite_element_data_double(elem_ptr + ptr_off, table_index,
                                                       data)
         else:
