@@ -6,7 +6,7 @@
 # cython: nonecheck=False
 # cython: embedsignature=True
 
-from libc.stdio cimport fopen, fclose, FILE
+from libc.stdio cimport fopen, fwrite, fclose, FILE, fdopen
 from libc.math cimport abs
 
 import numpy as np
@@ -24,6 +24,11 @@ cdef extern from 'archive.h' nogil:
     int write_eblock(FILE*, const int, const int*, const int*, const int*,
                      const int*, const int*, const uint8_t*, const int64_t*,
                      const int64_t*, const int*, const int*, const int);
+
+
+cdef extern from "stdio.h":
+    FILE *fdopen(int, const char *)
+
 
 
 def py_write_nblock(filename, const int [::1] node_id, int max_node_id,

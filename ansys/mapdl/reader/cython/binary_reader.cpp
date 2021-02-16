@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
 #include <fstream>
 #include <exception>
+#include <bitset>
 
 // necessary for ubuntu build on azure
 #ifdef __linux__
@@ -57,6 +59,7 @@ int read_header(ifstream* binFile, int* bsparse_flag, int* wsparse_flag,
   *prec_flag = (raw[7] >> 6) & 1;
   *type_flag = (raw[7] >> 7) & 1;
 
+  // std::cout << "c = " << std::bitset<8>(raw[7]) << std::endl;
   // cout << "bufsize" << bufsize << "\n";
   // cout << "bsparse_flag" << *bsparse_flag << "\n";
   // cout << "wsparse_flag" << *wsparse_flag << "\n";
@@ -67,6 +70,39 @@ int read_header(ifstream* binFile, int* bsparse_flag, int* wsparse_flag,
   delete[] raw;
   return bufsize;
 }
+
+// Read in record and determine size
+// bsparse_flag true when record uses binary compression
+// type_flag true when using integers
+// prec_flag true when using single precision (short for int)
+int read_header(fstream* binFile, int* bsparse_flag, int* wsparse_flag,
+		int* zlib_flag, int* prec_flag, int* type_flag){
+
+  char *raw = new char[8];
+
+  // read the first 8 bytes, includes total buffer size and flags
+  binFile->read(raw, 8);
+  int bufsize = *(int*)&raw[0];
+
+  // bsparse flag
+  *bsparse_flag = (raw[7] >> 3) & 1;
+  *wsparse_flag = (raw[7] >> 4) & 1;
+  *zlib_flag = (raw[7] >> 5) & 1;
+  *prec_flag = (raw[7] >> 6) & 1;
+  *type_flag = (raw[7] >> 7) & 1;
+
+  // std::cout << "c = " << std::bitset<8>(raw[7]) << std::endl;
+  // cout << "bufsize" << bufsize << "\n";
+  // cout << "bsparse_flag" << *bsparse_flag << "\n";
+  // cout << "wsparse_flag" << *wsparse_flag << "\n";
+  // cout << "zlib_flag" << *zlib_flag << "\n";
+  // cout << "prec_flag" << *prec_flag << "\n";
+  // cout << "type_flag" << *type_flag << "\n";
+
+  delete[] raw;
+  return bufsize;
+}
+
 
 
 template <class T>
@@ -434,6 +470,8 @@ void* read_record(const char* filename, int64_t ptr, int* prec_flag, int* type_f
   return raw;
 }
 
+
+
 // populate arr with a record
 // This function differs from read_record as it must be supplied with ``arr``, which must be sized properly to support the data coming from the file.
 void read_record_stream(ifstream* file, int64_t loc, void* arr, int* prec_flag,
@@ -499,6 +537,60 @@ void read_record_stream(ifstream* file, int64_t loc, void* arr, int* prec_flag,
 }
 
 
+// read a record given a file stream
+void* read_record_fid(fstream* file, int64_t loc, int* prec_flag, int* type_flag,
+                      int* size, int* out_bufsize){
+
+  int bsparse_flag, wsparse_flag, zlib_flag;
+
+  // seek to data location if supplied with a pointer
+  file->seekg(loc*4);
+  int bufsize = read_header(file, &bsparse_flag, &wsparse_flag,
+			    &zlib_flag, prec_flag, type_flag);
+  *size = bufsize;
+
+  // always read record
+  char *raw = new char[4*bufsize];
+  file->read(raw, 4*bufsize);
+  
+  *out_bufsize = bufsize + 3;  // include header and footer
+
+  if (bsparse_flag){
+    if (*type_flag){
+      if (*prec_flag){
+	raw = ReadShortBsparseRecord((int*)raw, size);
+      } else{
+	raw = ReadBsparseRecord((int*)raw, size);
+      }
+    } else{  // a float/double
+      if (*prec_flag){
+	raw = ReadBsparseRecord((float*)raw, size);
+      } else{
+	raw = ReadBsparseRecord((double*)raw, size);
+      }
+    }
+  } else if (wsparse_flag) {
+    if (*type_flag){
+      if (*prec_flag){
+	raw = ReadWindowedSparseBuffer((short*)raw, size);
+      } else{
+	raw = ReadWindowedSparseBuffer((int*)raw, size);
+      }
+    } else{  // a float/double
+      if (*prec_flag){
+	raw = ReadWindowedSparseBuffer((float*)raw, size);
+      } else{
+	raw = ReadWindowedSparseBuffer((double*)raw, size);
+      }
+    }
+    
+  }
+
+  return raw;
+}
+
+
+
 void read_nodes(const char* filename, int64_t ptrLOC, int nrec, int *nnum,
 		double *nodes){
 
@@ -527,5 +619,97 @@ void read_nodes(const char* filename, int64_t ptrLOC, int nrec, int *nnum,
   }
 
   delete[] raw;
+
+}
+
+// Simply open a fstream and return it
+fstream* open_fstream(const char* filename){
+  fstream *fs = new fstream(filename, ios::in | ios::out | ios::binary);
+  return fs;
+}
+
+
+// overwrite an existing ansys record at location ptr
+int overwriteRecord(fstream* fs, int ptr, double* data){
+  int bsparse_flag, wsparse_flag, zlib_flag, prec_flag, type_flag;
+  int size;
+
+  // read the header
+  // seek to data location if supplied with a pointer
+  fs->seekg(ptr*4);
+  int bufsize = read_header(fs, &bsparse_flag, &wsparse_flag,
+			    &zlib_flag, &prec_flag, &type_flag);
+  // need to perform size check
+
+  // No compression allowed
+  if (bsparse_flag || wsparse_flag || zlib_flag){
+    return 1;
+  }
+
+  // typeflag 0 -> int16 or int32
+  // typeflag 1 -> float or double
+
+  // prec_flag 0 int16 or float
+  // prec_flag 1 int32 or double
+
+  // seek back to right after the header
+  fs->seekg(ptr*4 + 8);
+
+  if (type_flag){ // int16 or int32
+    return 1; // type not supported yet
+  } else { // either float or double
+    if (prec_flag){  // float
+      // ideally we'd just copy this all at once
+      // float* float_array[bufsize];  cout << "here" << endl;
+      // std::copy(data, data + bufsize, *float_array);  cout << "here" << endl;
+      // fs->write(reinterpret_cast<const char *>(&float_array), bufsize*sizeof(float));
+
+      // however, this works
+      float val;
+      for (int i=0; i<bufsize; i++){
+        val = (double)(data[i]);
+        fs->write(reinterpret_cast<const char *>(&val), sizeof(float));
+      }
+
+    } else {  // must be double
+      fs->write(reinterpret_cast<const char *>(&data), bufsize*sizeof(double));
+    }
+  }
+
+  return 0;
+
+}
+
+
+// overwrite an existing ansys record at location ptr
+int overwriteRecordFloat(fstream* fs, int ptr, float* data){
+  int bsparse_flag, wsparse_flag, zlib_flag, prec_flag, type_flag;
+  int size;
+
+  // read the header
+  // seek to data location if supplied with a pointer
+  fs->seekg(ptr*4);
+  int bufsize = read_header(fs, &bsparse_flag, &wsparse_flag,
+			    &zlib_flag, &prec_flag, &type_flag);
+  // need to perform size check
+
+  // No compression allowed
+  if (bsparse_flag || wsparse_flag || zlib_flag){
+    return 1;
+  }
+
+  // seek back to right after the header
+  fs->seekg(ptr*4 + 8);
+  if (type_flag){ // either int16 or int32
+    return 1; // type not supported yet
+  } else { // int16 or int32
+    if (prec_flag){  // float
+      fs->write(reinterpret_cast<const char *>(data), bufsize*sizeof(float));
+    } else {  // must be double
+
+    }
+  }
+
+  return 0;
 
 }

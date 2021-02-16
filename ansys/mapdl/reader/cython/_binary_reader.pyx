@@ -19,36 +19,43 @@ ctypedef unsigned char uint8
 
 
 cdef extern from "<iostream>" namespace "std" nogil:
-     cdef cppclass ostream:
-          ostream& write(const char*, int) except +
-     cdef cppclass istream:
-          istream& read(const char*, int) except +
-     cdef cppclass ifstream(istream):
-          ifstream(const char *, open_mode) except +
+    cdef cppclass ostream:
+        ostream& write(const char*, int) except +
+    cdef cppclass istream:
+        istream& read(const char*, int) except +
+    cdef cppclass ifstream(istream):
+        ifstream(const char *, open_mode) except +
+
+    cdef cppclass ifstream(istream):
+        void close()
+        ifstream(const char*) except +
+        ifstream(const char*, open_mode) except+
 
 
 cdef extern from "<fstream>" namespace "std" nogil:          
-     cdef cppclass filebuf:
-          pass
-        
-     cdef cppclass fstream:
-          void close()
-          bint is_open()
-          void open(const char*, open_mode)
-          void open(const char&, open_mode)
-          filebuf* rdbuf() const
-          filebuf* rdbuf(filebuf* sb)
+    cdef cppclass filebuf:
+        pass
 
-     cdef cppclass ifstream(istream):
-          # void close()
-          ifstream(const char*) except +
-          ifstream(const char*, open_mode) except+
+        # filebuf* seekg(int)
+        # filebuf* read(char*, int)
+
+    cdef cppclass fstream:
+        void close()
+        fstream(const char*) except +
+        fstream(const char*, open_mode) except+
+        filebuf* read(char*, int)
+        filebuf* seekg(int)
+
 
 cdef extern from "<iostream>" namespace "std::ios_base" nogil:
      cdef cppclass open_mode:
           pass
      cdef open_mode binary
+     cdef open_mode out
+     # cdef open_mode _in
 
+cdef extern from "stdio.h":
+    FILE *fdopen(int, const char *)
 
 cdef extern from "numpy/npy_math.h" nogil:
     bint npy_isnan(double x)
@@ -57,7 +64,10 @@ cdef extern from 'binary_reader.h' nogil:
     void read_nodes(const char*, int64_t, int, int*, double*)
     void* read_record(const char*, int64_t, int*, int*, int*, int*)
     void read_record_stream(ifstream*, int64_t, void*, int*, int*, int*)
-
+    void* read_record_fid(fstream*, int64_t, int*, int*, int*, int*)
+    fstream* open_fstream(const char*)
+    int overwriteRecord(fstream*, int, double*);
+    int overwriteRecordFloat(fstream*, int, float*);
 
 # VTK numbering for vtk cells
 cdef uint8 VTK_EMPTY_CELL = 0
@@ -205,6 +215,132 @@ def c_read_record(filename, int64_t ptr, int return_bufsize=0):
         return ndarray
 
 
+cdef class AnsysFile:
+    """Open an Ansys file as an ifstream"""
+
+    cdef fstream* _file
+    # cdef fstream* _file_a
+
+    def __init__(self, filename):
+        cdef bytes py_bytes = filename.encode()
+        cdef char* c_filename = py_bytes
+        # self._file = new ifstream(c_filename, binary)
+        self._file = open_fstream(c_filename)
+
+    # def _read(self, int size):
+    #     cdef char raw[10000]
+    #     self._file_a.read(raw, size)
+    #     return raw[:size]
+
+    # def _seekg(self, int index):
+    #     self._file_a.seekg(index)
+
+    def read_record(self, int64_t ptr, int return_bufsize=0):
+        """Read a record from the opened file"""
+        cdef int prec_flag, type_flag, size, my_dtype, bufsize
+        cdef void* c_ptr
+        cdef np.ndarray ndarray
+
+        c_ptr = read_record_fid(self._file, ptr, &prec_flag, &type_flag, &size, &bufsize)
+        ndarray = wrap_array(c_ptr, size, type_flag, prec_flag)
+
+        if return_bufsize:
+            return ndarray, bufsize
+        else:
+            return ndarray
+
+    def close(self):
+        """Close the file"""
+        del self._file
+        del self._file_out
+
+    def read_element_data(self, int64_t [::1] ele_ind_table, int table_index, int ptr_off):
+        cdef int64_t ind
+        cdef int ptr
+        cdef int prec_flag, type_flag, size, bufsize
+        cdef void* c_ptr
+        cdef np.ndarray record 
+
+        # we have no idea the maximum amount of contiguous memory we
+        # need to store the results, so we need to append to a python list
+
+        # read element data
+        cdef list element_data = []
+        for ind in ele_ind_table:
+            if ind == 0:
+                element_data.append(None)
+            else:
+                # read element table index pointer to data
+                c_ptr = read_record_fid(self._file, ind + ptr_off, &prec_flag,
+                                        &type_flag, &size, &bufsize)
+                if prec_flag:
+                    ptr = <int>(<short*>c_ptr)[table_index]
+                else:
+                    ptr = (<int*>c_ptr)[table_index]
+
+                if ptr > 0:
+                    record = self.read_record(ptr_off + ind + ptr)
+                    element_data.append(record)
+
+                    # ideally we wouldn't convert to a numpy array just yet
+                    # cptr = read_record_fid(self._file, ptr_off + ind + ptr,
+                    #                        &prec_flag,
+                    #                        &type_flag, &size, &bufsize)
+                else:
+                    element_data.append(None)
+
+        return element_data
+
+    def overwrite_element_data_double(self, int64_t index, int table_index,
+                                      double [::1] data):
+        cdef int64_t ind
+        cdef int ptr
+        cdef int prec_flag, type_flag, size, bufsize
+        cdef void* c_ptr
+        cdef np.ndarray record 
+
+        # read element table index pointer to data
+        c_ptr = read_record_fid(self._file, index, &prec_flag,
+                                &type_flag, &size, &bufsize)
+        if prec_flag:
+            ptr = <int>(<short*>c_ptr)[table_index]
+        else:
+            ptr = (<int*>c_ptr)[table_index]
+
+        if ptr <= 0:
+            raise ValueError('This element does not have any data associated with the '
+                             ' solution_type.')
+
+        cdef int res = overwriteRecord(self._file, index + ptr, &data[0])
+        if res:
+            raise RuntimeError("Failed to write")
+
+    def overwrite_element_data_float(self, int64_t index, int table_index,
+                                     float [::1] data):
+        cdef int64_t ind
+        cdef int ptr
+        cdef int prec_flag, type_flag, size, bufsize
+        cdef void* c_ptr
+        cdef np.ndarray record 
+
+        # read element table index pointer to data
+        c_ptr = read_record_fid(self._file, index, &prec_flag,
+                                &type_flag, &size, &bufsize)
+        if prec_flag:
+            ptr = <int>(<short*>c_ptr)[table_index]
+        else:
+            ptr = (<int*>c_ptr)[table_index]
+
+        if ptr <= 0:
+            raise ValueError('This element does not have any data associated with the '
+                             ' solution_type.')
+
+        print("reading at ", index + ptr)
+        cdef int res = overwriteRecordFloat(self._file, index + ptr, &data[0])
+        if res:
+            raise RuntimeError("Failed to write")
+
+
 cdef np.ndarray wrap_array(void* c_ptr, int size, int type_flag, int prec_flag):
     """wrap a c array as a numpy array"""
     cdef int my_dtype
@@ -235,6 +371,27 @@ cdef np.ndarray wrap_array(void* c_ptr, int size, int type_flag, int prec_flag):
     Py_INCREF(array_wrapper)
 
     return ndarray
+
+
+cdef ArrayWrapper wrap_array_no_nd(void* c_ptr, int size, int type_flag, int prec_flag):
+    """wrap a c array as a numpy array"""
+    cdef int my_dtype
+
+    if type_flag:
+        if prec_flag:
+            my_dtype = 0  # np.NPY_INT16
+        else:
+            my_dtype = 1  # np.NPY_INT32
+    else:
+        if prec_flag:
+            my_dtype = 2  # np.NPY_FLOAT32
+        else:
+            my_dtype = 3  # np.NPY_FLOAT64
+
+    # wrap c_array 
+    array_wrapper = ArrayWrapper()
+    array_wrapper.set_data(size, c_ptr, my_dtype)
+    return array_wrapper()
 
 
 def load_elements(filename, int64_t loc, int nelem, int64_t [::1] e_disp_table):

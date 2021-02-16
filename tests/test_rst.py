@@ -113,7 +113,32 @@ def test_overwrite(tmpdir):
 
     # verify data has been written
     new_record = rst.element_solution_data(0, solution_type)[1][index]
+    assert not np.allclose(new_record, old_record), "nothing overwritten"
     assert np.allclose(ovr_record, new_record)
+
+
+def test_overwrite_dict(tmpdir):
+    tmp_path = str(tmpdir.mkdir("tmpdir"))
+    rst = pymapdl_reader.read_binary(copy(examples.rstfile, tmp_path))
+
+    # get the data
+    solution_type = 'EEL'
+    enum, esol_old, _ = rst.element_solution_data(0, solution_type)
+
+    indices = (10, 20)
+    old_records = [esol_old[index] for index in indices]
+
+    element_data = {enum[indices[0]]: np.random.random(old_records[0].size),
+                    enum[indices[1]]: np.random.random(old_records[1].size)}
+
+    rst.overwrite_element_solution_records(element_data, 0, solution_type)
+
+    # verify data has been written
+    new_record = rst.element_solution_data(0, solution_type)[1]
+
+    for i, index in enumerate(indices):
+        assert not np.allclose(old_records[i], new_record[index]), "nothing overwritten"
+        assert np.allclose(element_data[enum[indices[i]]], new_record[index])
 
 
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
