@@ -99,6 +99,7 @@ class Result(AnsysBinary):
         self._cfile = AnsysFile(filename)
         self._resultheader = self._read_result_header()
         self._animating = False
+        self._element_map = None
 
         # Get the total number of results and log it
         self.nsets = len(self._resultheader['rpointers'])
@@ -1821,6 +1822,16 @@ class Result(AnsysBinary):
         elemnum = self._eeqv[self._sidx_elem]
         return elemnum, element_stress, enode
 
+    def element_lookup(self, element_id):
+        """Index of the element the element within the result mesh"""
+        if self._element_map is None:
+            self._element_map = dict(zip(self.mesh.enum, np.arange(self.mesh.n_elem)))
+
+        try:
+            return self._element_map[element_id]
+        except KeyError:
+            raise KeyError(f'Element ID {element_id} not in this result file.') from None
+
     def overwrite_element_solution_record(self, data, rnum,
                                           solution_type, element_id):
         """Overwrite element solution record.
@@ -1913,66 +1924,73 @@ class Result(AnsysBinary):
         ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
 
         # index of the element in the element table
-        elem = self.mesh.enum
-
-        try:
-            idx = next((idx for idx, val in np.ndenumerate(elem) if val == element_id))
-        except StopIteration:
-            raise ValueError(f'Element ID {element_id} not in this result file.') from None
-
+        idx = self.element_lookup(element_id)
         elem_ptr = ele_ind_table[idx]
         if elem_ptr == 0:
             raise ValueError('This element does not have any data associated with the '
                              f' solution_type {solution_type}')
 
-        ptr = self.read_record(elem_ptr + ptr_off)[table_index]
-        if ptr <= 0:
-            raise ValueError('This element does not have any data associated with the '
-                             f' solution_type {solution_type}')
+        # new c stuff here
+        if data.dtype == np.float32:
+            self._cfile.overwrite_element_data_float(elem_ptr + ptr_off, table_index,
+                                                     data)
+        elif data.dtype == np.double:
+            self._cfile.overwrite_element_data_double(elem_ptr + ptr_off, table_index,
+                                                      data)
+        else:
+            self._cfile.overwrite_element_data_double(elem_ptr + ptr_off, table_index,
+                                                      data.astype(np.double))
 
-        with open(self.filename, 'r+b') as f:
-            # record size
-            f.seek((ptr_off + elem_ptr + ptr)*4)
-            sz = int.from_bytes(f.read(4), 'little')
+        py_overwrite = False
+        if py_overwrite:
+            ptr = self.read_record(elem_ptr + ptr_off)[table_index]
+            if ptr <= 0:
+                raise ValueError('This element does not have any data associated with the '
+                                 f' solution_type {solution_type}')
 
-            # verify data being written is the same size
-            if sz != data.size:
-                raise ValueError(f'Size of the data being overwritten is {sz}, while '
-                                 f'size of the data input is {data.size}.')
+            with open(self.filename, 'r+b') as f:
+                # record size
+                f.seek((ptr_off + elem_ptr + ptr)*4)
+                sz = int.from_bytes(f.read(4), 'little')
 
-            # verify no compression (8th byte from start of record)
-            f.seek(3, 1)
-            info_byte = f.read(1)
-            compression = access_bit(info_byte, 3) or \
-                access_bit(info_byte, 4) or \
-                access_bit(info_byte, 5)
-            # Note: file is now at the start of the data
+                # verify data being written is the same size
+                if sz != data.size:
+                    raise ValueError(f'Size of the data being overwritten is {sz}, while '
+                                     f'size of the data input is {data.size}.')
 
-            if compression:
-                raise RuntimeError('Unable to overwrite this compressed record.  '
-                                   'Please disable result file compression and try '
-                                   'again.')
+                # verify no compression (8th byte from start of record)
+                f.seek(3, 1)
+                info_byte = f.read(1)
+                compression = access_bit(info_byte, 3) or \
+                    access_bit(info_byte, 4) or \
+                    access_bit(info_byte, 5)
+                # Note: file is now at the start of the data
 
-            # make input data match data type of the record
-            prec_flag = access_bit(info_byte, 6)
-            type_flag = access_bit(info_byte, 7)
+                if compression:
+                    raise RuntimeError('Unable to overwrite this compressed record.  '
+                                       'Please disable result file compression and try '
+                                       'again.')
 
-            if type_flag:
-                if prec_flag:
-                    record_dtype = np.int16
+                # make input data match data type of the record
+                prec_flag = access_bit(info_byte, 6)
+                type_flag = access_bit(info_byte, 7)
+
+                if type_flag:
+                    if prec_flag:
+                        record_dtype = np.int16
+                    else:
+                        record_dtype = np.int32
                 else:
-                    record_dtype = np.int32
-            else:
-                if prec_flag:
-                    record_dtype = np.float32
-                else:
-                    record_dtype = np.float64
+                    if prec_flag:
+                        record_dtype = np.float32
+                    else:
+                        record_dtype = np.float64
 
-            if data.dtype != record_dtype:
-                data = data.astype(record_dtype)
+                if data.dtype != record_dtype:
+                    data = data.astype(record_dtype)
 
-            # write the record
-            f.write(data.tobytes())
+                # write the record
+                f.write(data.tobytes())
 
     def element_solution_data(self, rnum, datatype, sort=True, **kwargs):
         """Retrieves element solution data.  Similar to ETABLE.

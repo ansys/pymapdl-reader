@@ -113,6 +113,7 @@ def test_overwrite(tmpdir):
 
     # verify data has been written
     new_record = rst.element_solution_data(0, solution_type)[1][index]
+    assert not np.allclose(new_record, old_record), "nothing overwritten"
     assert np.allclose(ovr_record, new_record)
 
 

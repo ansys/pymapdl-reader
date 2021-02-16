@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
@@ -74,23 +75,23 @@ int read_header(ifstream* binFile, int* bsparse_flag, int* wsparse_flag,
 // bsparse_flag true when record uses binary compression
 // type_flag true when using integers
 // prec_flag true when using single precision (short for int)
-int read_header_fid(FILE* fp, int* bsparse_flag, int* wsparse_flag,
+int read_header(fstream* binFile, int* bsparse_flag, int* wsparse_flag,
 		int* zlib_flag, int* prec_flag, int* type_flag){
 
-  char *raw = new char[9];
+  char *raw = new char[8];
 
   // read the first 8 bytes, includes total buffer size and flags
-  fgets(raw, 9, fp);
+  binFile->read(raw, 8);
   int bufsize = *(int*)&raw[0];
 
   // bsparse flag
-  // std::cout << "c = " << std::bitset<8>(raw[7]) << std::endl;
   *bsparse_flag = (raw[7] >> 3) & 1;
   *wsparse_flag = (raw[7] >> 4) & 1;
   *zlib_flag = (raw[7] >> 5) & 1;
   *prec_flag = (raw[7] >> 6) & 1;
   *type_flag = (raw[7] >> 7) & 1;
 
+  // std::cout << "c = " << std::bitset<8>(raw[7]) << std::endl;
   // cout << "bufsize" << bufsize << "\n";
   // cout << "bsparse_flag" << *bsparse_flag << "\n";
   // cout << "wsparse_flag" << *wsparse_flag << "\n";
@@ -537,7 +538,7 @@ void read_record_stream(ifstream* file, int64_t loc, void* arr, int* prec_flag,
 
 
 // read a record given a file stream
-void* read_record_fid(ifstream* file, int64_t loc, int* prec_flag, int* type_flag,
+void* read_record_fid(fstream* file, int64_t loc, int* prec_flag, int* type_flag,
                       int* size, int* out_bufsize){
 
   int bsparse_flag, wsparse_flag, zlib_flag;
@@ -618,5 +619,91 @@ void read_nodes(const char* filename, int64_t ptrLOC, int nrec, int *nnum,
   }
 
   delete[] raw;
+
+}
+
+// Simply open a fstream and return it
+fstream* open_fstream(const char* filename){
+  fstream *fs = new fstream(filename, ios::in | ios::out | ios::binary);
+  return fs;
+}
+
+
+// overwrite an existing ansys record at location ptr
+int overwriteRecord(fstream* fs, int ptr, double* data){
+  int bsparse_flag, wsparse_flag, zlib_flag, prec_flag, type_flag;
+  int size;
+
+  // read the header
+  // seek to data location if supplied with a pointer
+  fs->seekg(ptr*4);
+  int bufsize = read_header(fs, &bsparse_flag, &wsparse_flag,
+			    &zlib_flag, &prec_flag, &type_flag);
+  // need to perform size check
+
+  // No compression allowed
+  if (bsparse_flag || wsparse_flag || zlib_flag){
+    return 1;
+  }
+
+  // typeflag 0 -> int16 or int32
+  // typeflag 1 -> float or double
+
+  // prec_flag 0 int16 or float
+  // prec_flag 1 int32 or double
+
+  // seek back to right after the header
+  fs->seekg(ptr*4 + 8);
+
+  if (type_flag){ // either float or double
+    if (prec_flag){  // float
+      size = bufsize / 4;
+      float* float_array[size];
+      std::copy(data, data + size, *float_array);
+      fs->write(reinterpret_cast<const char *>(&float_array), bufsize*sizeof(float));
+    } else {  // must be double
+      size = bufsize / 8;
+      fs->write(reinterpret_cast<const char *>(&data), bufsize*sizeof(double));
+    }
+  } else { // int16 or int32
+    // TBW
+    // if (prec_flag){  // float
+  }
+
+  return 0;
+
+}
+
+
+// overwrite an existing ansys record at location ptr
+int overwriteRecordFloat(fstream* fs, int ptr, float* data){
+  int bsparse_flag, wsparse_flag, zlib_flag, prec_flag, type_flag;
+  int size;
+
+  // read the header
+  // seek to data location if supplied with a pointer
+  fs->seekg(ptr*4);
+  int bufsize = read_header(fs, &bsparse_flag, &wsparse_flag,
+			    &zlib_flag, &prec_flag, &type_flag);
+  // need to perform size check
+
+  // No compression allowed
+  if (bsparse_flag || wsparse_flag || zlib_flag){
+    return 1;
+  }
+
+  // seek back to right after the header
+  fs->seekg(ptr*4 + 8);
+  if (type_flag){ // either int16 or int32
+    // To be programmed...
+  } else { // int16 or int32
+    if (prec_flag){  // float
+      fs->write(reinterpret_cast<const char *>(data), bufsize*sizeof(float));
+    } else {  // must be double
+
+    }
+  }
+
+  return 0;
 
 }
