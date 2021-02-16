@@ -655,17 +655,23 @@ int overwriteRecord(fstream* fs, int ptr, double* data){
   // seek back to right after the header
   fs->seekg(ptr*4 + 8);
 
-  if (type_flag){ // either float or double
-    // TBW
-    // if (prec_flag){  // float
-  } else { // int16 or int32
+  if (type_flag){ // int16 or int32
+    return 1; // type not supported yet
+  } else { // either float or double
     if (prec_flag){  // float
-      size = bufsize / 4;
-      float* float_array[size];
-      std::copy(data, data + size, *float_array);
-      fs->write(reinterpret_cast<const char *>(&float_array), bufsize*sizeof(float));
+      // ideally we'd just copy this all at once
+      // float* float_array[bufsize];  cout << "here" << endl;
+      // std::copy(data, data + bufsize, *float_array);  cout << "here" << endl;
+      // fs->write(reinterpret_cast<const char *>(&float_array), bufsize*sizeof(float));
+
+      // however, this works
+      float val;
+      for (int i=0; i<bufsize; i++){
+        val = (double)(data[i]);
+        fs->write(reinterpret_cast<const char *>(&val), sizeof(float));
+      }
+
     } else {  // must be double
-      size = bufsize / 8;
       fs->write(reinterpret_cast<const char *>(&data), bufsize*sizeof(double));
     }
   }
@@ -695,7 +701,7 @@ int overwriteRecordFloat(fstream* fs, int ptr, float* data){
   // seek back to right after the header
   fs->seekg(ptr*4 + 8);
   if (type_flag){ // either int16 or int32
-    // To be programmed...
+    return 1; // type not supported yet
   } else { // int16 or int32
     if (prec_flag){  // float
       fs->write(reinterpret_cast<const char *>(data), bufsize*sizeof(float));

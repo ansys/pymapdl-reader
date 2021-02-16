@@ -309,7 +309,7 @@ cdef class AnsysFile:
 
         if ptr <= 0:
             raise ValueError('This element does not have any data associated with the '
-                             f' solution_type {solution_type}')
+                             ' solution_type.')
 
         cdef int res = overwriteRecord(self._file, index + ptr, &data[0])
         if res:
@@ -333,7 +333,7 @@ cdef class AnsysFile:
 
         if ptr <= 0:
             raise ValueError('This element does not have any data associated with the '
-                             f' solution_type {solution_type}')
+                             ' solution_type.')
 
         print("reading at ", index + ptr)
         cdef int res = overwriteRecordFloat(self._file, index + ptr, &data[0])
