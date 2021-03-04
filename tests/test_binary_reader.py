@@ -403,6 +403,7 @@ def test_file_close(tmpdir):
     shutil.copy(examples.rstfile, tmpfile)
     rst = pymapdl_reader.read_binary(tmpfile)
     nnum, stress = rst.nodal_stress(0)
+    del rst
     os.remove(tmpfile)  # tests file has been correctly closed
 
 
