@@ -26,7 +26,8 @@ def mapdl(request):
             EXEC_FILE = get_ansys_bin(rver)
             break
 
-    return launch_mapdl(EXEC_FILE, override=True, cleanup_on_exit=cleanup)
+    return launch_mapdl(EXEC_FILE, override=True, cleanup_on_exit=cleanup,
+                        additional_switches='-smp')
 
 
 @pytest.fixture(scope='function')

@@ -759,11 +759,11 @@ class Result(AnsysBinary):
                                node_components=None,
                                element_components=None,
                                sel_type_all=True, add_text=True,
-                               displacement_factor=0.1, nangles=100,
+                               displacement_factor=0.1, n_frames=100,
                                loop=True, movie_filename=None,
                                **kwargs):
         """Animate nodal solution.  Assumes nodal solution is a
-        displacement array from a modal solution.
+        displacement array from a modal or static solution.
 
         rnum : int or list
             Cumulative result number with zero based indexing, or a
@@ -793,7 +793,7 @@ class Result(AnsysBinary):
         displacement_factor : float, optional
             Increases or decreases displacement by a factor.
 
-        nangles : int, optional
+        n_frames : int, optional
             Number of "frames" between each full cycle.
 
         loop : bool, optional
@@ -824,6 +824,11 @@ class Result(AnsysBinary):
 
         >>> rst.animate_nodal_solution(0, movie_filename='disp.mp4')
         """
+        if 'nangles' in kwargs:
+            n_frames = kwargs.pop('nangles')
+            warnings.warn('The ``nangles`` kwarg is depreciated and ``n_frames`` '
+                          'should be used instead.')
+
         scalars = None
         if comp:
             _, disp = self.nodal_solution(rnum)
@@ -861,7 +866,7 @@ class Result(AnsysBinary):
                                         node_components=node_components,
                                         element_components=element_components,
                                         sel_type_all=sel_type_all,
-                                        nangles=nangles,
+                                        n_frames=n_frames,
                                         displacement_factor=displacement_factor,
                                         movie_filename=movie_filename,
                                         loop=loop, **kwargs)
@@ -2407,7 +2412,7 @@ class Result(AnsysBinary):
 
     def _plot_point_scalars(self, scalars, rnum=None, grid=None,
                             show_displacement=False, displacement_factor=1,
-                            add_text=True, animate=False, nangles=100,
+                            add_text=True, animate=False, n_frames=100,
                             overlay_wireframe=False, node_components=None,
                             element_components=None,
                             sel_type_all=True, movie_filename=None,
@@ -2587,10 +2592,10 @@ class Result(AnsysBinary):
             plotter.add_key_event("q", q_callback)
 
             first_loop = True
-            cached_normals = [None for _ in range(nangles)]
+            cached_normals = [None for _ in range(n_frames)]
             while self._animating:
 
-                for j, angle in enumerate(np.linspace(0, np.pi*2, nangles + 1)[:-1]):
+                for j, angle in enumerate(np.linspace(0, np.pi*2, n_frames + 1)[:-1]):
                     mag_adj = np.sin(angle)
                     if scalars is not None:
                         copied_mesh.active_scalars[:] = scalars*mag_adj
