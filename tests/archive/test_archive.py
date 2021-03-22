@@ -428,7 +428,7 @@ def test_cython_write_eblock(hex_archive):
 
 def test_rlblock_prior_to_nblock():
     # test edge case where RLBLOCK is immediately prior to the NBLOCK
-    filename = os.path.join(TESTFILES_PATH, 'ErnoRadiation.CDB')
+    filename = os.path.join(TESTFILES_PATH, 'ErnoRadiation.cdb')
     archive = pymapdl_reader.Archive(filename)
     assert archive.n_node == 65
     assert archive.n_elem == 36
