@@ -411,10 +411,16 @@ class Result(AnsysBinary):
     def _load_section_data(self):
         """Loads the section data from the result file"""
         ptr_sec = self._geometry_header['ptrSEC']
-        sec_table = self.read_record(ptr_sec)
+        sec_table, sz = self.read_record(ptr_sec, True)
+
+        # Assemble section pointers relative to ptrSEC
+        if self._map_flag:  # required as of 2021R1
+            sec_pointers = self.read_record(ptr_sec + sz)
+        else:
+            sec_pointers = sec_table
 
         self._section_data = {}
-        for offset in sec_table:
+        for offset in sec_pointers:
             if offset:
                 table = self.read_record(ptr_sec + offset)
                 self._section_data[int(table[0])] = table[1:]

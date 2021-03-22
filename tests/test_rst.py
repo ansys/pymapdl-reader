@@ -78,6 +78,7 @@ else:
 temperature_rst = os.path.join(testfiles_path, 'temp_v13.rst')
 temperature_known_result = os.path.join(testfiles_path, 'temp_v13.npz')
 
+
 @pytest.fixture(scope='module')
 def hex_pipe_corner():
     filename = os.path.join(testfiles_path, 'rst', 'cyc_stress.rst')
@@ -95,6 +96,18 @@ def volume_rst():
     rst_file = os.path.join(testfiles_path, 'vol_test.rst')
     return pymapdl_reader.read_binary(rst_file)
 
+
+def test_map_flag_section_data():
+    # basic 4 element SHELL181 result files
+    shell181_2020r2 = os.path.join(testfiles_path, 'shell181_2020R2.rst')
+    shell181_2021r1 = os.path.join(testfiles_path, 'shell181_2021R1.rst')
+
+    rst_2020r2 = pymapdl_reader.read_binary(shell181_2020r2)
+    rst_2021r1 = pymapdl_reader.read_binary(shell181_2021r1)
+
+    for key in rst_2020r2.section_data:
+        assert np.allclose(rst_2020r2.section_data[key],
+                           rst_2021r1.section_data[key])
 
 def test_overwrite(tmpdir):
     tmp_path = str(tmpdir.mkdir("tmpdir"))
