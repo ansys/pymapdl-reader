@@ -18,9 +18,9 @@ LINEAR_CELL_TYPES = [VTK_TETRA,
                      VTK_WEDGE,
                      VTK_HEXAHEDRON]
 
-test_path = os.path.dirname(os.path.abspath(__file__))
-testfiles_path = os.path.join(test_path, 'test_data')
-DAT_FILE = os.path.join(testfiles_path, 'Panel_Transient.dat')
+TEST_PATH = os.path.dirname(os.path.abspath(__file__))
+TESTFILES_PATH = os.path.join(TEST_PATH, 'test_data')
+DAT_FILE = os.path.join(TESTFILES_PATH, 'Panel_Transient.dat')
 
 
 def proto_cmblock(array):
@@ -57,12 +57,12 @@ def hex_archive():
 
 @pytest.fixture(scope='module')
 def all_solid_cells_archive():
-    return pymapdl_reader.Archive(os.path.join(testfiles_path, 'all_solid_cells.cdb'))
+    return pymapdl_reader.Archive(os.path.join(TESTFILES_PATH, 'all_solid_cells.cdb'))
 
 
 @pytest.fixture(scope='module')
 def all_solid_cells_archive_linear():
-    return pymapdl_reader.Archive(os.path.join(testfiles_path, 'all_solid_cells.cdb'),
+    return pymapdl_reader.Archive(os.path.join(TESTFILES_PATH, 'all_solid_cells.cdb'),
                                   force_linear=True)
 
 
@@ -92,7 +92,7 @@ def test_repr(hex_archive):
 
 
 def test_read_mesh200():
-    archive = pymapdl_reader.Archive(os.path.join(testfiles_path, 'mesh200.cdb'))
+    archive = pymapdl_reader.Archive(os.path.join(TESTFILES_PATH, 'mesh200.cdb'))
     assert archive.grid.n_cells == 1000
 
 
@@ -135,7 +135,7 @@ def test_write_angle(tmpdir, hex_archive):
 
 def test_missing_midside():
     allowable_types = [45, 95, 185, 186, 92, 187]
-    archive_file = os.path.join(testfiles_path, 'mixed_missing_midside.cdb')
+    archive_file = os.path.join(TESTFILES_PATH, 'mixed_missing_midside.cdb')
     archive = pymapdl_reader.Archive(archive_file, allowable_types=allowable_types)
 
     assert (archive.quality > 0.0).all()
@@ -320,7 +320,7 @@ def test_write_component(tmpdir):
 
 
 def test_read_parm():
-    filename = os.path.join(testfiles_path, 'parm.cdb')
+    filename = os.path.join(TESTFILES_PATH, 'parm.cdb')
     archive = pymapdl_reader.Archive(filename)
     with pytest.raises(AttributeError):
         archive.parameters
@@ -335,7 +335,7 @@ def test_read_wb_nblock():
     expected = np.array([[9.89367578e-02, -8.07092192e-04,  8.53764953e+00],
                          [9.65803244e-02,  2.00906704e-02,  8.53744951e+00],
                          [9.19243555e-02,  3.98781615e-02,  8.53723652e+00]])
-    filename = os.path.join(testfiles_path, 'workbench_193.cdb')
+    filename = os.path.join(TESTFILES_PATH, 'workbench_193.cdb')
     archive = pymapdl_reader.Archive(filename)
     assert np.allclose(archive.nodes, expected)
     assert np.allclose(archive.node_angles, 0)
@@ -349,7 +349,7 @@ def test_read_hypermesh():
                          [5.98956, 2.97878, 2.37488],
                          [5.98956, 5.97878, 2.37488]])
 
-    filename = os.path.join(testfiles_path, 'hypermesh.cdb')
+    filename = os.path.join(TESTFILES_PATH, 'hypermesh.cdb')
     archive = pymapdl_reader.Archive(filename, verbose=True)
     assert np.allclose(archive.nodes[:6], expected)
 
@@ -424,3 +424,11 @@ def test_cython_write_eblock(hex_archive):
                              typenum,
                              nodenum,
                              vtk9)
+
+
+def test_rlblock_prior_to_nblock():
+    # test edge case where RLBLOCK is immediately prior to the NBLOCK
+    filename = os.path.join(TESTFILES_PATH, 'ErnoRadiation.CDB')
+    archive = pymapdl_reader.Archive(filename)
+    assert archive.n_node == 65
+    assert archive.n_elem == 36
