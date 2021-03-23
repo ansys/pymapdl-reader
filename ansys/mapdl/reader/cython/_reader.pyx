@@ -21,6 +21,17 @@ import numpy as np
 cimport numpy as np
 
 
+def safe_int(value):
+    """Safely convert a value to int.
+
+    Return int if can be converted, None if otherwise
+    """
+    try:
+        return int(value)
+    except:
+        return
+
+
 cdef extern from "reader.h":
     int read_nblock_from_nwrite(char*, int*, double*, int)
     int read_nblock(char*, int*, double*, int, int*, int, int*)
@@ -31,6 +42,7 @@ cdef extern from "reader.h":
 cdef extern from 'vtk_support.h':
     int ans_to_vtk(const int, const int*, const int*, const int*, const int,
     const int*, int64_t*, int64_t*, uint8_t*, const int)
+
 
 cdef int myfgets(char *outstr, char *instr, int *n, int fsize):
     """Copies a single line from instr to outstr starting from position n """
@@ -240,23 +252,46 @@ def read(filename, read_parameters=False, debug=False):
                 if debug:
                     print('reading RLBLOCK')
 
-                # Get number of sets
-                ist = line.find(b',') + 1
-                ien = line[ist:].find(b',') + ist
-                nset = int(line[ist:ien])
+                    
+                # The RLBLOCK command defines a real constant
+                # set. The real constant sets follow each set,
+                # starting with
+
+                # Format1 and followed by one or more Format2's, as
+                # needed. The command format is:
+                # RLBLOCK,NUMSETS,MAXSET,MAXITEMS,NPERLINE
+                # Format1
+                # Format2
+                #
+                # where:
+                # Format1 - Data descriptor defining the format of the
+                # first line. For the RLBLOCK command, this is always
+                # (2i8,6g16.9).  The first i8 is the set number, the
+                # second i8 is the number of values in this set,
+                # followed by up to 6 real
+                #
+                # Format2 - Data descriptors defining the format of
+                # the subsequent lines (as needed); this is always
+                # (7g16.9).
+                #
+                # - NUMSETS : The number of real constant sets defined
+                # - MAXSET : Maximum real constant set number
+                # - MAXITEMS : Maximum number of reals in any one set
+                # - NPERLINE : Number of reals defined on a line
+
+                # Get number of sets from the RLBLOCK line
+                set_dat = [safe_int(value) for value in line.split(b',')[1:]]
+                nset, maxset, maxitems, nperline = set_dat
 
                 # Skip Format1 and Format2 (always 2i8,6g16.9 and 7g16.9)
                 if myfgets(line, raw, &n, fsize): raise Exception(badstr)
                 if myfgets(line, raw, &n, fsize): raise Exception(badstr)
 
                 # Read data
-                c_set = 0
-                while True:
-                    if myfgets(line, raw, &n, fsize): raise Exception(badstr)
+                for _ in range(nset):
                     rcon = [] # real constants
-                    c_set += 1
-                    if c_set > nset:
-                        break
+
+                    if myfgets(line, raw, &n, fsize): raise Exception(badstr)
 
                     # Get real constant number
                     rnum.append(int(line[:8]))
