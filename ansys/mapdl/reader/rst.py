@@ -1396,7 +1396,7 @@ class Result(AnsysBinary):
         # Node information
         nnod = self._geometry_header['nnod']
         nnum = np.empty(nnod, np.int32)
-        nodes = np.empty((nnod, 6), np.float)
+        nodes = np.empty((nnod, 6), np.float64)
         _binary_reader.load_nodes(self.filename, self._geometry_header['ptrLOC'],
                                   nnod, nodes, nnum)
 
@@ -2913,8 +2913,11 @@ class Result(AnsysBinary):
                                        element_components,
                                        sel_type_all, **kwargs)
 
-    def save_as_vtk(self, filename, rsets=None, result_types=['ENS']):
+    def save_as_vtk(self, filename, rsets=None, result_types=['ENS'],
+                    progress_bar=True):
         """Writes results to a vtk readable file.
+
+        Nodal results will always be written.
 
         The file extension will select the type of writer to use.
         ``'.vtk'`` will use the legacy writer, while ``'.vtu'`` will
@@ -2929,7 +2932,8 @@ class Result(AnsysBinary):
             writer.
 
         rsets : collections.Iterable
-            List of result sets to write.  For example ``range(3)``
+            List of result sets to write.  For example ``range(3)`` or
+            [0].
 
         result_types : list
             Result type to write.  For example ``['ENF', 'ENS']``
@@ -2961,6 +2965,9 @@ class Result(AnsysBinary):
             - ESV: state variables
             - MNL: material nonlinear record
 
+        progress_bar : bool, optional
+            Display a progress bar using ``tqdm``.
+
         Notes
         -----
         Binary files write much faster than ASCII, but binary files
@@ -2969,7 +2976,7 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        Write in binary
+        Write nodal results as a binary vtk file.
 
         >>> rst.save_as_vtk('results.vtk')
 
@@ -2979,7 +2986,11 @@ class Result(AnsysBinary):
 
         Write only nodal and elastic strain for the first result
 
-        >>> rst.save_as_vtk('results.vtk', [0], ['EEL', 'EPL']
+        >>> rst.save_as_vtk('results.vtk', [0], ['EEL', 'EPL'])
+
+        Write only nodal results (i.e. displacements) for the first result.
+
+        >>> rst.save_as_vtk('results.vtk', [0], [])
 
         """
         # Copy grid as to not write results to original object
@@ -2999,13 +3010,15 @@ class Result(AnsysBinary):
         else:
             for item in result_types:
                 if item not in ELEMENT_INDEX_TABLE_KEYS:
-                    raise ValueError('Invalid result type "%s" % item')
+                    raise ValueError(f'Invalid result type "{item}"')
 
-        try:
-            from tqdm import tqdm
-            pbar = tqdm(total=len(rsets), desc='Saving to file')
-        except ImportError:
-            pbar = None
+        pbar = None
+        if progress_bar:
+            try:
+                from tqdm import tqdm
+                pbar = tqdm(total=len(rsets), desc='Saving to file')
+            except ImportError:
+                pass
 
         for i in rsets:
             # Nodal results
