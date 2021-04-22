@@ -1396,7 +1396,7 @@ class Result(AnsysBinary):
         # Node information
         nnod = self._geometry_header['nnod']
         nnum = np.empty(nnod, np.int32)
-        nodes = np.empty((nnod, 6), np.float)
+        nodes = np.empty((nnod, 6), np.float64)
         _binary_reader.load_nodes(self.filename, self._geometry_header['ptrLOC'],
                                   nnod, nodes, nnum)
 
