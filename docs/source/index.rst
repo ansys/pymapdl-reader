@@ -89,6 +89,7 @@ plots results directly from an ANSYS result file using
 
    getting_started
    user_guide/index
+   api/index
    examples/index
    contributing
 

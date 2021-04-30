@@ -335,7 +335,7 @@ class EmatFile(object):
     Parameters
     ----------
     filename : str
-        File to open.  Usually ends in .emat
+        File to open.  Generally ends in ``*.emat``.
 
     Examples
     --------
