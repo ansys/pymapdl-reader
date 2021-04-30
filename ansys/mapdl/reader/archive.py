@@ -234,7 +234,7 @@ class Archive(Mesh):
 
 
 def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
-                    real_constant_start=1, mode='w', nblock=True,
+                    real_constant_start=1, mode='w',
                     enum_start=1, nnum_start=1,
                     include_etype_header=True, reset_etype=False,
                     allow_missing=True, include_surface_elements=True,
@@ -283,9 +283,6 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
 
     mode : str, optional
         File mode.  See ``help(open)``
-
-    nblock : bool, optional
-        Write node block when writing archive file.
 
     enum_start : int, optional
         Starting element number to assign to unset cells.  Can be
