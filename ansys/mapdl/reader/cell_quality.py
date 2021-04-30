@@ -14,6 +14,11 @@ def quality(grid):
     Negative values indicate invalid cells while positive values
     indicate valid cells.  Varies between -1 and 1.
 
+    Parameters
+    ----------
+    grid : pyvista.UnstructuredGrid or pyvista.StructuredGrid
+        Structured or Unstructured Grid from ``pyvista``.
+
     Examples
     --------
     >>> from ansys.mapdl import reader as pymapdl_reader
