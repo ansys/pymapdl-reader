@@ -11,20 +11,23 @@ from ansys.mapdl.reader.dis_result import DistributedResult
 from ansys.mapdl.reader._rst_keys import element_index_table_info
 
 try:
+    from ansys.mapdl.core import _HAS_ANSYS
     from ansys.mapdl.core.mapdl_grpc import MapdlGrpc
     # from ansys.mapdl.core.mapdl_corba import MapdlCorba
     MapdlCorba = None
     from ansys.mapdl.core.mapdl_console import MapdlConsole
-    from ansys.mapdl.core import _HAS_ANSYS as HAS_ANSYS
 except:
-    HAS_ANSYS = False
+    _HAS_ANSYS = False
+
+if os.environ.get('SKIP_ANSYS', '').upper() == 'TRUE':
+    _HAS_ANSYS = False
 
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, 'testfiles')
 
 
-skip_no_ansys = pytest.mark.skipif(not HAS_ANSYS, reason="Requires ANSYS installed")
+skip_no_ansys = pytest.mark.skipif(not _HAS_ANSYS, reason="Requires ANSYS installed")
 
 
 @pytest.fixture()
