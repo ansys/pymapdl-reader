@@ -110,35 +110,6 @@ class AnsysBinary():
         record = c_read_record(self.filename, pointer, return_bufsize)
         return record
 
-    # def read_record(self, pointer, return_bufsize=False):
-    #     """Reads a record at a given position.
-
-    #     Because ANSYS 19.0+ uses compression by default, you must use
-    #     this method rather than ``np.fromfile``.
-
-    #     Parameters
-    #     ----------
-    #     pointer : int
-    #         ANSYS file position (n words from start of file).  A word
-    #         is four bytes.
-
-    #     return_bufsize : bool, optional
-    #         Returns the number of words read (includes header and
-    #         footer).  Useful for determining the new position in the
-    #         file after reading a record.
-
-    #     Returns
-    #     -------
-    #     record : np.ndarray
-    #         The record read as a ``n x 1`` numpy array.
-
-    #     bufsize : float, optional
-    #         When ``return_bufsize`` is enabled, returns the number of
-    #         words read.
-
-    #     """
-    #     return c_read_record(self.filename, pointer, return_bufsize)
-
 
 def read_binary(filename, **kwargs):
     """Reads ANSYS-written binary files:

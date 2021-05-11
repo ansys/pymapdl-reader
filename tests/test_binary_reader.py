@@ -20,6 +20,10 @@ try:
 except:
     _HAS_ANSYS = False
 
+if os.environ.get('SKIP_ANSYS', '').upper() == 'TRUE':
+    _HAS_ANSYS = False
+
+
 HAS_FFMPEG = True
 try:
     import imageio_ffmpeg
