@@ -1446,6 +1446,44 @@ class Result(AnsysBinary):
         header : dict
             Double precision solution header data.
 
+        Examples
+        --------
+        Extract the solution info from a sample example result file.
+
+        >>> from ansys.mapdl.reader import examples
+        >>> rst = examples.download_pontoon()
+        >>> rst.solution_info(0)
+        {'cgcent': [],
+         'fatjack': [],
+         'timfrq': 44.85185724963714,
+         'lfacto': 1.0,
+         'lfactn': 1.0,
+         'cptime': 3586.4873046875,
+         'tref': 71.6,
+         'tunif': 71.6,
+         'tbulk': 293.0,
+         'volbase': 0.0,
+         'tstep': 0.0,
+         '__unused': 0.0,
+         'accel_x': 0.0,
+         'accel_y': 0.0,
+         'accel_z': 0.0,
+         'omega_v_x': 0.0,
+         'omega_v_y': 0.0,
+         'omega_v_z': 0.0,
+         'omega_a_x': 0.0,
+         'omega_a_y': 0.0,
+         'omega_a_z': 0.0,
+         'omegacg_v_x': 0.0,
+         'omegacg_v_y': 0.0,
+         'omegacg_v_z': 0.0,
+         'omegacg_a_x': 0.0,
+         'omegacg_a_y': 0.0,
+         'omegacg_a_z': 0.0,
+         'dval1': 0.0,
+         'pCnvVal': 0.0}
+
+
         Notes
         -----
         The keys of the solution header are described below:
@@ -1478,7 +1516,7 @@ class Result(AnsysBinary):
         # convert to cumulative index
         rnum = self.parse_step_substep(rnum)
 
-        # skip pointers table
+        # skip solution data header
         ptr = self._resultheader['rpointers'][rnum]
         _, sz = self.read_record(ptr, True)
 
@@ -3243,7 +3281,7 @@ class Result(AnsysBinary):
         Returns
         -------
         rforces : np.ndarray
-            Reaction Forces
+            Nodal reaction forces.
 
         nnum : np.ndarray
             Node numbers corresponding to the reaction forces.  Does
@@ -3314,7 +3352,8 @@ class Result(AnsysBinary):
             dof = dof[sidx]
             rforces = rforces[sidx]
 
-        return rforces, index, dof
+        nnum = self._mesh.nnum[index]
+        return rforces, nnum, dof
 
     def plot_element_result(self, rnum, result_type, item_index,
                             in_element_coord_sys=False, **kwargs):
