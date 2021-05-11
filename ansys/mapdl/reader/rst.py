@@ -3281,7 +3281,7 @@ class Result(AnsysBinary):
         Returns
         -------
         rforces : np.ndarray
-            Reaction Forces
+            Nodal reaction forces.
 
         nnum : np.ndarray
             Node numbers corresponding to the reaction forces.  Does
@@ -3352,7 +3352,8 @@ class Result(AnsysBinary):
             dof = dof[sidx]
             rforces = rforces[sidx]
 
-        return rforces, index, dof
+        nnum = self._mesh.nnum[index]
+        return rforces, nnum, dof
 
     def plot_element_result(self, rnum, result_type, item_index,
                             in_element_coord_sys=False, **kwargs):

@@ -326,7 +326,6 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     >>> pymapdl_reader.save_as_archive('archive.cdb', grid)
 
     """
-
     if isinstance(grid, pv.PolyData):
         grid = grid.cast_to_unstructured_grid()
 
