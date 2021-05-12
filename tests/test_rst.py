@@ -358,7 +358,6 @@ def test_reaction_forces(volume_rst):
     assert (np.in1d(dof, [1, 2, 3])).all()
     assert rforces.dtype == np.float64
 
-    breakpoint()
     fz = rforces[dof == 3]
     # loose tolerance due to table printed from MAPDL
     assert np.allclose(fz_known, fz, rtol=1E-4)
