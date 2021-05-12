@@ -3266,7 +3266,7 @@ class Result(AnsysBinary):
             nitem = ELEMENT_RESULT_NCOMP.get(result_type, 1)
         return nitem
 
-    def nodal_reaction_forces(self, rnum, sort=True):
+    def nodal_reaction_forces(self, rnum):
         """Nodal reaction forces.
 
         Parameters
@@ -3275,19 +3275,15 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
-        sort : bool
-            Sort results by node number.  Default ``True``.
-
         Returns
         -------
         rforces : np.ndarray
-            Nodal reaction forces.
+            Nodal reaction forces for each degree of freedom.
 
         nnum : np.ndarray
-            Node numbers corresponding to the reaction forces.  Does
-            not necessarily corresponds to ``rst.mesh.nnum`` as each
-            node may not have a reaction force in each degree of
-            freedom.
+            Node numbers corresponding to the reaction forces.  Node
+            numbers may be repeated if there is more than one degree
+            of freedom for each node.
 
         dof : np.ndarray
             Degree of freedom corresponding to each node using the
@@ -3327,32 +3323,34 @@ class Result(AnsysBinary):
         #                                  shown above in the DOF
         #                                  number reference table.
 
+
         # pointer to result reaction forces
         rnum = self.parse_step_substep(rnum)
         rpointers = self._resultheader['rpointers']
-        ptr = rpointers[rnum] + self._solution_header(rnum)['ptrRF']
+        solution_header = self._solution_header(rnum)
+        ptr = rpointers[rnum] + solution_header['ptrRF']
+        n_rf = solution_header['nrf']
+        numdof = solution_header['numdof']
 
+        # Reaction force DOFs
         # table is always ANSYS LONG (INT64)
         table, bufsz = self.read_record(ptr, True)
         table = table.view(np.int64)
 
+        # reaction forces
+        rforces, bufsz = self.read_record(ptr + bufsz, return_bufsize=True)
+        rforces = rforces[:n_rf]
+
         solution_header = self._result_solution_header(rnum)
-        numdof = solution_header['numdof']
 
-        rforces = self.read_record(ptr + bufsz)[:table.size]
-
+        # following ``(N - 1)*numdof + DOF``
         shifted_table = (table - 1) / numdof
         index = np.array(shifted_table, np.int64)
-
         dof = np.round(1 + numdof*(shifted_table - index)).astype(np.int32)
 
-        if sort:
-            sidx = np.argsort(shifted_table)
-            index = index[sidx]
-            dof = dof[sidx]
-            rforces = rforces[sidx]
-
-        nnum = self._mesh.nnum[index]
+        # index appears to be sorted
+        idx = (table - dof)//numdof
+        nnum = self._resultheader['neqv'][idx]
         return rforces, nnum, dof
 
     def plot_element_result(self, rnum, result_type, item_index,

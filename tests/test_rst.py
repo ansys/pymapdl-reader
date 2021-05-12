@@ -349,7 +349,17 @@ def test_plot_cyl_stress(hex_pipe_corner):
 
 
 def test_reaction_forces(volume_rst):
+    known_result = os.path.join(testfiles_path, 'nodal_reaction.npy')
+    nnum_known, fz_known = np.load(known_result).T
+    nnum_known = nnum_known.astype(np.int32)
+
     rforces, nnum, dof = volume_rst.nodal_reaction_forces(0)
     assert (np.diff(nnum) >= 0).all()
     assert (np.in1d(dof, [1, 2, 3])).all()
     assert rforces.dtype == np.float64
+
+    breakpoint()
+    fz = rforces[dof == 3]
+    # loose tolerance due to table printed from MAPDL
+    assert np.allclose(fz_known, fz, rtol=1E-4)
+    assert np.allclose(nnum_known, nnum[dof == 1])
