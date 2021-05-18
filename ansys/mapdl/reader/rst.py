@@ -626,7 +626,7 @@ class Result(AnsysBinary):
         else:
             grid = self.grid
 
-        kwargs.setdefault('stitle', '%s\n%s\n' % (comp, label))
+        kwargs.setdefault('scalar_bar_args', {'title': f'{comp}\n{label}\n'})
         return self._plot_point_scalars(scalars, rnum=rnum, grid=grid,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
@@ -949,8 +949,10 @@ class Result(AnsysBinary):
         the top down.
 
         >>> rsets = range(0, rst.nsets, 50)
-        >>> rst.animate_nodal_solution_set(rsets, stitle='Temp', lighting=False,
-                               cpos='zx', movie_filename='example.gif')
+        >>> rst.animate_nodal_solution_set(rsets,
+        ...                                scalar_bar_args={'title': 'My Animation'},
+        ...                                lighting=False, cpos='zx',
+        ...                                movie_filename='example.gif')
         """
         if self.nsets == 1:
             raise RuntimeError('Unable to animate.  Solution contains only one '
@@ -2434,8 +2436,7 @@ class Result(AnsysBinary):
                             'S3': 'Principal Stress 3',
                             'SINT': 'Stress Intensity',
                             'SEQV': 'von Mises Stress'}
-        kwargs.setdefault('stitle', stype_stitle_map[comp])
-
+        kwargs.setdefault('scalar_bar_args', {'title': stype_stitle_map[comp]})
         return self._plot_point_scalars(stress, grid=grid, rnum=rnum,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
@@ -2564,7 +2565,6 @@ class Result(AnsysBinary):
         screenshot = kwargs.pop('screenshot', None)
         interactive = kwargs.pop('interactive', True)
         text_color = kwargs.pop('text_color', None)
-        use_ipyvtk = kwargs.pop('use_ipyvtk', pv.rcParams['use_ipyvtk'])
 
         kwargs.setdefault('smooth_shading', pv.rcParams.get('smooth_shading', True))
         kwargs.setdefault('color', 'w')
@@ -2625,8 +2625,7 @@ class Result(AnsysBinary):
             plotter.show(interactive=False, auto_close=False,
                          window_size=window_size,
                          full_screen=full_screen,
-                         interactive_update=not off_screen,
-                         use_ipyvtk=use_ipyvtk)
+                         interactive_update=not off_screen)
 
             self._animating = True
             def q_callback():
@@ -2928,10 +2927,10 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         kwargs : keyword arguments
-            Additional keyword arguments.  See help(pyvista.plot)
+            Additional keyword arguments.  See ``help(pyvista.plot)``
 
         Returns
         -------
@@ -2944,7 +2943,8 @@ class Result(AnsysBinary):
 
         >>> rst.plot_nodal_stress(0, comp='x', show_displacement=True)
         """
-        kwargs['stitle'] = '%s Component Nodal Stress' % comp
+        kwargs.setdefault('scalar_bar_args',
+                          {'title': f'{comp} Component Nodal Stress'})
         return self._plot_nodal_result(rnum, 'ENS', comp, STRESS_TYPES,
                                        show_displacement,
                                        displacement_factor, node_components,
@@ -3422,7 +3422,7 @@ class Result(AnsysBinary):
                                                      in_element_coord_sys)
 
         desc = self.available_results.description[result_type].capitalize()
-        kwargs.setdefault('stitle', desc)
+        kwargs.setdefault('scalar_bar_args', {'title': desc})
         return bsurf.plot(scalars='_scalars', **kwargs)
 
     def _extract_surface_element_result(self, rnum, result_type, item_index,
@@ -3646,14 +3646,14 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         **kwargs : keyword arguments
-            Optional keyword arguments.  See help(pyvista.plot)
+            Optional keyword arguments.  See ``help(pyvista.plot)``
 
         Examples
         --------
-        Plot nodal stress in the radial direction
+        Plot nodal stress in the radial direction.
 
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> result = pymapdl_reader.read_binary('file.rst')
@@ -3672,7 +3672,8 @@ class Result(AnsysBinary):
             grid, ind = self._extract_element_components(element_components)
             scalars = scalars[ind]
 
-        kwargs.setdefault('stitle', '%s Cylindrical\nNodal Stress' % comp)
+        kwargs.setdefault('scalar_bar_args',
+                          {'title': f'{comp} Cylindrical\nNodal Stress'})
         return self._plot_point_scalars(scalars, grid=grid, rnum=rnum,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
@@ -3707,10 +3708,10 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         **kwargs : keyword arguments
-            Optional keyword arguments.  See help(pyvista.plot)
+            Optional keyword arguments.  See ``help(pyvista.plot)``
 
         Examples
         --------
@@ -3737,7 +3738,7 @@ class Result(AnsysBinary):
         return self._plot_point_scalars(scalars, grid=grid, rnum=rnum,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
-                                        stitle='Nodal Tempature',
+                                        scalar_bar_args={'title': 'Nodal Tempature'},
                                         **kwargs)
 
     def nodal_thermal_strain(self, rnum):
@@ -3767,7 +3768,7 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        Load the nodal thermal strain for the first solution
+        Load the nodal thermal strain for the first solution.
 
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
@@ -3777,7 +3778,7 @@ class Result(AnsysBinary):
 
     def plot_nodal_thermal_strain(self, rnum,
                                   comp=None,
-                                  stitle='Nodal Thermal Strain',
+                                  scalar_bar_args={'title': 'Nodal Thermal Strain'},
                                   show_displacement=False,
                                   displacement_factor=1,
                                   node_components=None,
@@ -3841,7 +3842,7 @@ class Result(AnsysBinary):
                                        node_components=node_components,
                                        element_components=element_components,
                                        sel_type_all=sel_type_all,
-                                       stitle=stitle,
+                                       scalar_bar_args=scalar_bar_args,
                                        **kwargs)
 
     def nodal_elastic_strain(self, rnum):
@@ -3885,7 +3886,7 @@ class Result(AnsysBinary):
         return self._nodal_result(rnum, 'EEL')
 
     def plot_nodal_elastic_strain(self, rnum, comp,
-                                  stitle='Nodal Elastic Strain',
+                                  scalar_bar_args={'title': 'Nodal Elastic Strain'},
                                   show_displacement=False,
                                   displacement_factor=1,
                                   node_components=None,
@@ -3940,7 +3941,7 @@ class Result(AnsysBinary):
         >>> result = examples.download_pontoon()
         >>> result.plot_nodal_elastic_strain(0)
         """
-        stitle = ' '.join([comp.upper(), stitle])
+        scalar_bar_args['title'] = ' '.join([comp.upper(), scalar_bar_args['title']])
         return self._plot_nodal_result(rnum, 'EEL',
                                        comp,
                                        STRAIN_TYPES,
@@ -3949,7 +3950,7 @@ class Result(AnsysBinary):
                                        node_components=node_components,
                                        element_components=element_components,
                                        sel_type_all=sel_type_all,
-                                       stitle=stitle,
+                                       scalar_bar_args=scalar_bar_args,
                                        **kwargs)
 
     def nodal_plastic_strain(self, rnum):
@@ -3985,7 +3986,7 @@ class Result(AnsysBinary):
         return self._nodal_result(rnum, 'EPL')
 
     def plot_nodal_plastic_strain(self, rnum, comp,
-                                  stitle='Nodal Plastic Strain',
+                                  scalar_bar_args={'title': 'Nodal Plastic Strain'},
                                   show_displacement=False,
                                   displacement_factor=1,
                                   node_components=None,
@@ -4041,7 +4042,7 @@ class Result(AnsysBinary):
         >>> result = examples.download_pontoon()
         >>> result.plot_nodal_plastic_strain(0)
         """
-        stitle = ' '.join([comp.upper(), stitle])
+        scalar_bar_args['title'] = ' '.join([comp.upper(), scalar_bar_args['title']])
         return self._plot_nodal_result(rnum, 'EPL',
                                        comp,
                                        STRAIN_TYPES,
@@ -4050,7 +4051,7 @@ class Result(AnsysBinary):
                                        node_components=node_components,
                                        element_components=element_components,
                                        sel_type_all=sel_type_all,
-                                       stitle=stitle,
+                                       scalar_bar_args=scalar_bar_args,
                                        **kwargs)
 
     def _plot_nodal_result(self, rnum, result_type, comp, available_comps,

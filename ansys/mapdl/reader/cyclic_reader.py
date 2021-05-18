@@ -686,7 +686,7 @@ class CyclicResult(Result):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         Returns
         -------
@@ -707,7 +707,7 @@ class CyclicResult(Result):
         _, strain = self.nodal_thermal_strain(rnum, phase, False, True)
         scalars = strain[:, :, idx]
 
-        kwargs.setdefault('stitle', '%s Nodal Thermal Strain' % comp)
+        kwargs.setdefault('scalar_bar_args', {'title': f'{comp} Nodal Thermal Strain'})
         kwargs['node_components'] = node_components
         kwargs['element_components'] = element_components
         kwargs['show_displacement'] = show_displacement
@@ -825,7 +825,7 @@ class CyclicResult(Result):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         Returns
         -------
@@ -843,7 +843,7 @@ class CyclicResult(Result):
         _, strain = self.nodal_elastic_strain(rnum, phase, False, full_rotor)
         scalars = strain[:, :, idx]
 
-        kwargs.setdefault('stitle', '%s Nodal Elastic Strain' % comp.upper())
+        kwargs.setdefault('scalar_bar_args', {'title': f'{comp} Nodal Elastic Strain'})
         kwargs['node_components'] = node_components
         kwargs['element_components'] = element_components
         kwargs['show_displacement'] = show_displacement
@@ -961,7 +961,7 @@ class CyclicResult(Result):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         Returns
         -------
@@ -979,7 +979,7 @@ class CyclicResult(Result):
         _, strain = self.nodal_plastic_strain(rnum, phase, False, full_rotor)
         scalars = strain[:, :, idx]
 
-        kwargs.setdefault('stitle', '%s Nodal Plastic Strain' % comp)
+        kwargs.setdefault('scalar_bar_args', {'title': f'{comp} Nodal Plastic Strain'})
         kwargs['node_components'] = node_components
         kwargs['element_components'] = element_components
         kwargs['show_displacement'] = show_displacement
@@ -1106,7 +1106,7 @@ class CyclicResult(Result):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         Returns
         -------
@@ -1133,19 +1133,19 @@ class CyclicResult(Result):
         label = 'Cyclic Rotor\nDisplacement'
         if comp == 'x':
             scalars = result[:, :, 0]
-            stitle = 'X {:s}\n'.format(label)
+            title = 'X {:s}\n'.format(label)
         elif comp == 'y':
             scalars = result[:, :, 1]
-            stitle = 'Y {:s}\n'.format(label)
+            title = 'Y {:s}\n'.format(label)
         elif comp == 'z':
             scalars = result[:, :, 2]
-            stitle = 'Z {:s}\n'.format(label)
+            title = 'Z {:s}\n'.format(label)
         else:
             # Normalize displacement
             scalars = (result*result).sum(2)**0.5
-            stitle = 'Normalized\n%s\n' % label
-        kwargs.setdefault('stitle', stitle)
+            title = 'Normalized\n%s\n' % label
 
+        kwargs.setdefault('scalar_bar_args', {'title': title})
         kwargs['node_components'] = node_components
         kwargs['element_components'] = element_components
         kwargs['show_displacement'] = show_displacement
@@ -1211,7 +1211,7 @@ class CyclicResult(Result):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         Returns
         -------
@@ -1231,7 +1231,8 @@ class CyclicResult(Result):
         _, stress = self.nodal_stress(rnum, phase, False, full_rotor=True)
         scalars = stress[:, :, idx]
 
-        kwargs.setdefault('stitle', 'Cyclic Rotor\nNodal Stress\n%s\n' % comp)
+        kwargs.setdefault('scalar_bar_args',
+                          {'title': f'Cyclic Rotor\nNodal Stress\n{comp}\n'})
         kwargs['node_components'] = node_components
         kwargs['element_components'] = element_components
         kwargs['show_displacement'] = show_displacement
@@ -1291,7 +1292,7 @@ class CyclicResult(Result):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
@@ -1315,8 +1316,8 @@ class CyclicResult(Result):
         _, pstress = self.principal_nodal_stress(rnum, phase, full_rotor=True)
         scalars = pstress[:, :, idx]
 
-        kwargs.setdefault('stitle',
-                          'Cyclic Rotor\nPrincipal Nodal Stress\n%s\n' % comp)
+        kwargs.setdefault('scalar_bar_args',
+                          {'title': f'Cyclic Rotor\nPrincipal Nodal Stress\n{comp}\n'})
         kwargs['node_components'] = node_components
         kwargs['element_components'] = element_components
         kwargs['show_displacement'] = show_displacement
@@ -1330,8 +1331,7 @@ class CyclicResult(Result):
         self._plot_cyclic_point_scalars(scalars, rnum, **kwargs)
 
     def nodal_temperature(self, rnum, full_rotor=False):
-        """Retrieves the temperature for each node in the
-        solution.
+        """Retrieves the temperature for each node in the solution.
 
         The order of the results corresponds to the sorted node
         numbering.
@@ -1409,7 +1409,7 @@ class CyclicResult(Result):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         Returns
         -------
