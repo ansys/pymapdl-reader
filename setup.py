@@ -84,7 +84,7 @@ with io_open(version_file, mode='r') as fd:
     exec(fd.read())
 
 install_requires = ['numpy>=1.14.0',
-                    'pyvista>=0.28.0',
+                    'pyvista>=0.30.1',
                     'appdirs>=1.4.0',
                     'tqdm>=4.45.0']
 
