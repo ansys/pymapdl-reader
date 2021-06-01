@@ -1339,9 +1339,9 @@ class Result(AnsysBinary):
         e_type_table, sz = self.read_record(ptrety, True)
 
         # store information for each element type
-        nodelm = np.empty(10000, np.int32)  # n nodes for this element type
-        nodfor = np.empty(10000, np.int32)  # n nodes per element having nodal forces
-        nodstr = np.empty(10000, np.int32)  # n nodes per element having nodal stresses
+        nodelm = {}  # n nodes for this element type
+        nodfor = {}  # n nodes per element having nodal forces
+        nodstr = {}  # n nodes per element having nodal stresses
         ekey = []
         keyopts = np.zeros((10000, 11), np.int16)
 
@@ -1385,10 +1385,23 @@ class Result(AnsysBinary):
                 if keyopts[etype_ref, 7] == 0:
                     nodstr[etype_ref] *= 2
 
+        def dict_to_arr(index_dict):
+            """Convert an index dictionary to an array
+
+            For example:
+            {1: 20, 2: 30} --> [UNDEF, 20, 30]
+
+            """
+            arr = np.empty(max(index_dict.keys()) + 1, np.int32)
+            for key, value in index_dict.items():
+                arr[key] = value
+            return arr
+
+        # rest of pymapdl-reader expects the following as arrays.
         # store element table data
-        return {'nodelm': nodelm,
-                'nodfor': nodfor,
-                'nodstr': nodstr,
+        return {'nodelm': dict_to_arr(nodelm),
+                'nodfor': dict_to_arr(nodfor),
+                'nodstr': dict_to_arr(nodstr),
                 'keyopts': keyopts,
                 'ekey': np.array(ekey)}
 
