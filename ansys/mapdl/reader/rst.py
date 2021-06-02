@@ -1343,7 +1343,7 @@ class Result(AnsysBinary):
         nodfor = {}  # n nodes per element having nodal forces
         nodstr = {}  # n nodes per element having nodal stresses
         ekey = []
-        keyopts = np.zeros((10000, 11), np.int16)
+        keyopts = {}  # key options
 
         # Assemble element record pointers relative to ptrETY
         if self._map_flag:
@@ -1382,7 +1382,7 @@ class Result(AnsysBinary):
             #
             # Only valid for SHELL181 or SHELL281 elements.
             if einfo[1] == 181 or einfo[1] == 281:
-                if keyopts[etype_ref, 7] == 0:
+                if keyopts[etype_ref][7] == 0:
                     nodstr[etype_ref] *= 2
 
         def dict_to_arr(index_dict):
