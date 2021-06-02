@@ -1992,7 +1992,6 @@ class Result(AnsysBinary):
             self._cfile.overwrite_element_data_double(elem_ptr + ptr_off, table_index,
                                                       data)
         else:
-            # breakpoint()
             self._cfile.overwrite_element_data_double(elem_ptr + ptr_off,
                                                       table_index,
                                                       data.astype(np.double))
@@ -3160,7 +3159,7 @@ class Result(AnsysBinary):
         rst_info.append(str(self.available_results))
         return '\n'.join(rst_info)
 
-    def _nodal_result(self, rnum, result_type):
+    def _nodal_result(self, rnum, result_type, nnum_of_interest=None):
         """Generic load nodal result
 
         Parameters
@@ -3195,52 +3194,90 @@ class Result(AnsysBinary):
             ESV: state variables
             MNL: material nonlinear record
 
-        sort : bool, optional
-            Unused by base class.
+        nnum_of_interest : list, np.ndarray, optional
+            Array of nodes numbers to extract results for.  All
+            adjcent elements are still considered, so averaging will
+            still account for unselected nodes.
 
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers
+            Ansys node numbers
 
         result : np.ndarray
             Array of result data
         """
-        # check result exists
         if not self.available_results[result_type]:
-            raise ValueError('Result %s is not available in this result file'
-                             % result_type)
+            raise ValueError('Result {result_type} is not available in this result file')
 
         # element header
         rnum = self.parse_step_substep(rnum)
-        ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
+        ele_ind_table, nodstr, ans_etype, ptr_off = self._element_solution_header(rnum)
 
         result_type = result_type.upper()
         nitem = self._result_nitem(rnum, result_type)
         result_index = ELEMENT_INDEX_TABLE_KEYS.index(result_type)
 
-        # Element types for nodal averaging
-        cells, offset = vtk_cell_info(self.grid)
+        if nnum_of_interest is not None:
+            nnum_sel = np.unique(nnum_of_interest)
+            mask = np.in1d(self.mesh.nnum, nnum_sel)
+
+            # extract any elements containing these values
+            # note that we need this for accurate averaging of results
+            grid = self.grid.extract_points(np.nonzero(mask)[0],
+                                            adjacent_cells=True,
+                                            include_cells=True)
+
+            # mask relative to global eeqv array
+            ele_mask = np.in1d(self._eeqv, grid['ansys_elem_num'],
+                               assume_unique=True)
+
+            # verify that all nodes of interest actually occur within
+            node_mask = np.in1d(nnum_sel, grid['ansys_node_num'],
+                                assume_unique=True)
+            if not node_mask.all():
+                warnings.warn('Not all nodes IDs in the ``nnum_of_interest`` '
+                              'are within the result')
+            etype = self._mesh.etype[ele_mask]
+            ele_ind_table = ele_ind_table[ele_mask]
+
+        else:
+            grid = self.grid
+            etype = self._mesh.etype
+
+        # call cython to extract and assemble the data
+        cells, offset = vtk_cell_info(grid)
         data, ncount = _binary_reader.read_nodal_values(self.filename,
-                                                        self.grid.celltypes,
+                                                        grid.celltypes,
                                                         ele_ind_table,
                                                         offset,
                                                         cells,
                                                         nitem,
-                                                        self.grid.n_points,
+                                                        grid.n_points,
                                                         nodstr,
+                                                        ans_etype,
                                                         etype,
-                                                        self._mesh.etype,
                                                         result_index,
                                                         ptr_off)
+
+        # sanity check
+        if not np.any(ncount):
+            raise ValueError('Result file contains no %s records for result %d' %
+                             (element_index_table_info[result_type.upper()], rnum))
 
         if result_type == 'ENS' and nitem != 6:
             data = data[:, :6]
 
-        nnum = self.grid.point_arrays['ansys_node_num']
-        if not np.any(ncount):
-            raise ValueError('Result file contains no %s records for result %d' %
-                             (element_index_table_info[result_type.upper()], rnum))
+        if nnum_of_interest is not None:
+            if grid.n_points != nnum_sel.size:
+                mask = np.in1d(grid['ansys_node_num'], nnum_sel)
+                nnum = grid['ansys_node_num'][mask]
+                ncount = ncount[mask]
+                data = data[mask]
+            else:
+                nnum = self.grid.point_arrays['ansys_node_num']
+        else:
+            nnum = self.grid.point_arrays['ansys_node_num']
 
         # average across nodes
         ncount = ncount.reshape(-1, 1)

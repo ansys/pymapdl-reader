@@ -362,3 +362,17 @@ def test_reaction_forces(volume_rst):
     # loose tolerance due to table printed from MAPDL
     assert np.allclose(fz_known, fz, rtol=1E-4)
     assert np.allclose(nnum_known, nnum[dof == 1])
+
+
+@pytest.mark.parametrize(nnum_of_interest, [range(11, 50), 'all'])
+def test_nnum_of_interest(hex_rst, nnum_of_interest):
+    if nnum_of_interest == 'all':
+        nnum_of_interest = hex_rst.mesh.nnum
+
+    nnum_sel, data_sel = hex_rst._nodal_result(0, 'ENS',
+                                               nnum_of_interest=nnum_of_interest)
+    nnum, data = hex_rst._nodal_result(0, 'ENS')
+
+    mask = np.in1d(nnum, nnum_of_interest)
+    assert np.allclose(nnum[mask], nnum_sel)
+    assert np.allclose(data[mask], data_sel, equal_nan=True)
