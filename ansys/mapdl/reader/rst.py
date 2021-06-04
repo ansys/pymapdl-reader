@@ -3,7 +3,7 @@
 Used:
 .../ansys/customize/include/fdresu.inc
 """
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 import time
 import warnings
 from threading import Thread
@@ -1061,7 +1061,8 @@ class Result(AnsysBinary):
 
         return nnum, data
 
-    def nodal_solution(self, rnum, in_nodal_coord_sys=False):
+    def nodal_solution(self, rnum, in_nodal_coord_sys=False,
+                       nodes=None):
         """Returns the DOF solution for each node in the global
         cartesian coordinate system or nodal coordinate system.
 
@@ -1075,8 +1076,16 @@ class Result(AnsysBinary):
             list containing (step, substep) of the requested result.
 
         in_nodal_coord_sys : bool, optional
-            When ``True``, returns results in the nodal coordinate system.
-            Default ``False``.
+            When ``True``, returns results in the nodal coordinate
+            system.  Default ``False``.
+
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
 
         Returns
         -------
@@ -1091,9 +1100,21 @@ class Result(AnsysBinary):
 
         Examples
         --------
+        Return the nodal soltuion (in this case, displacement) for the
+        first result of ``"file.rst"``
+
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, data = rst.nodal_solution(0)
+
+        Return the nodal solution just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, data = rst.nodal_solution(0, nodes='MY_COMPONENT')
+
+        Return the nodal solution just for the nodes from 20 through 50.
+
+        >>> nnum, data = rst.nodal_solution(0, nodes=range(20, 51))
 
         Notes
         -----
@@ -1101,7 +1122,7 @@ class Result(AnsysBinary):
         These results are removed by and the node numbers of the
         solution results are reflected in ``nnum``.
         """
-        return self._nodal_solution_result(rnum, 'NSL', in_nodal_coord_sys)
+        return self._nodal_solution_result(rnum, 'NSL', in_nodal_coord_sys, nodes)
 
     def nodal_velocity(self, rnum, in_nodal_coord_sys=False):
         """Nodal velocities for a given result set.
@@ -1177,7 +1198,8 @@ class Result(AnsysBinary):
         """
         return self._nodal_solution_result(rnum, 'ASL', in_nodal_coord_sys)
 
-    def _nodal_solution_result(self, rnum, solution_type, in_nodal_coord_sys=False):
+    def _nodal_solution_result(self, rnum, solution_type,
+                               in_nodal_coord_sys=False, nodes=None):
         """Returns the DOF solution for each node in the global
         cartesian coordinate system or nodal coordinate system.
 
@@ -1195,6 +1217,14 @@ class Result(AnsysBinary):
         in_nodal_coord_sys : bool, optional
             When True, returns results in the nodal coordinate system.
             Default False.
+
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
 
         Returns
         -------
@@ -1266,6 +1296,34 @@ class Result(AnsysBinary):
 
         # check for invalid values (mapdl writes invalid values as 2*100)
         result[result == 2**100] = 0
+
+        # subselect from component or range
+        # TODO: inefficient and should be able to only read from this subselection.
+        if nodes is not None:
+            if isinstance(nodes, str):
+                if nodes not in self.grid.point_arrays:
+                    raise ValueError(f'Invalid node component {nodes}')
+                mask = self.grid.point_arrays[nodes].view(bool)
+            elif isinstance(nodes, Sequence):
+                if isinstance(nodes[0], int):
+                    mask = np.in1d(self.mesh.nnum, nodes)
+                elif isinstance(nodes[0], str):
+                    mask = np.zeros(self.grid.n_points, bool)
+                    for node_component in nodes:
+                        if node_component not in self.grid.point_arrays:
+                            raise ValueError(f'Invalid node component {nodes}')
+                        mask = np.logical_or(mask, self.grid.point_arrays[node_component].view(bool))
+                else:
+                    raise TypeError(f'Invalid type for {nodes}.  Expected Sequence of '
+                                    'str or int')
+            else:
+                raise TypeError(f'Invalid type for {nodes}.  Expected Sequence of '
+                                'str or int')
+
+            # mask is for global nodes, need for potentially subselectd nodes
+            submask = np.in1d(nnum, self.grid.point_arrays['ansys_node_num'][mask])
+            nnum, result = nnum[submask], result[submask]
+
         return nnum, result
 
     @wraps(nodal_solution)
@@ -1561,7 +1619,7 @@ class Result(AnsysBinary):
         # non-linear
         # = 2 - extrapolate always
         if solution_header['rxtrap'] == 0:
-            warnings.warn('Strains and stresses are being evaluated at ' +
+            warnings.warn('Strains and stresses are being evaluated at '
                           'gauss points and not extrapolated')
 
         # 64-bit pointer to element solution
@@ -3196,7 +3254,7 @@ class Result(AnsysBinary):
 
         nnum_of_interest : list, np.ndarray, optional
             Array of nodes numbers to extract results for.  All
-            adjcent elements are still considered, so averaging will
+            adjacent elements are still considered, so averaging will
             still account for unselected nodes.
 
         Returns
@@ -3208,7 +3266,9 @@ class Result(AnsysBinary):
             Array of result data
         """
         if not self.available_results[result_type]:
-            raise ValueError('Result {result_type} is not available in this result file')
+            rtype_str = element_index_table_info[result_type]
+            raise ValueError(f'Result {rtype_str} ({result_type}) is not available in '
+                             'this result file.')
 
         # element header
         rnum = self.parse_step_substep(rnum)
