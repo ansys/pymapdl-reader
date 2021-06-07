@@ -503,19 +503,9 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
 
     # write remainder of eblock
     cells, offset = vtk_cell_info(grid, shift_offset=False)
-    _archive.py_write_eblock(filename,
-                             enum,
-                             etype,
-                             mtype,
-                             rcon,
-                             elem_nnodes,
-                             cells,
-                             offset,
-                             grid.celltypes,
-                             typenum,
-                             nodenum,
-                             VTK9,
-                             mode='a')
+    _write_eblock(filename, enum, etype, mtype, rcon, elem_nnodes,
+                  cells, offset, grid.celltypes, typenum, nodenum,
+                  mode='a')
 
     if include_components:
         with open(filename, 'a') as fid:
@@ -667,3 +657,44 @@ def write_cmblock(filename, items, comp_name, comp_type,
 
     if opened_file:
         fid.close()
+
+
+def _write_eblock(filename, elem_id, etype, mtype, rcon, elem_nnodes,
+                 cells, offset, celltypes, typenum,
+                 nodenum, mode='a'):
+    """Write EBLOCK to disk"""
+    # perform type checking here
+    if elem_id.dtype != np.int32:
+        elem_id = elem_id.astype(np.int32)
+    if etype.dtype != np.int32:
+        etype = etype.astype(np.int32)
+    if mtype.dtype != np.int32:
+        mtype = mtype.astype(np.int32)
+    if rcon.dtype != np.int32:
+        rcon = rcon.astype(np.int32)
+    if elem_nnodes.dtype != np.int32:
+        elem_nnodes = elem_nnodes.astype(np.int32)
+    if cells.dtype != np.int64:
+        cells = cells.astype(np.int64)
+    if offset.dtype != np.int64:
+        offset = offset.astype(np.int64)
+    if celltypes.dtype != np.uint8:
+        celltypes = celltypes.astype(np.uint8)
+    if typenum.dtype != np.int32:
+        typenum = typenum.astype(np.int32)
+    if nodenum.dtype != np.int32:
+        nodenum = nodenum.astype(np.int32)
+
+    _archive.py_write_eblock(filename,
+                             elem_id,
+                             etype,
+                             mtype,
+                             rcon,
+                             elem_nnodes,
+                             cells,
+                             offset,
+                             celltypes,
+                             typenum,
+                             nodenum,
+                             VTK9,
+                             mode=mode)
