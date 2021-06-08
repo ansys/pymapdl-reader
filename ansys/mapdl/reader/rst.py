@@ -933,7 +933,9 @@ class Result(AnsysBinary):
 
         fps : int, optional
             Frames per second.  Defaults to 20 and limited to hardware
-            capabilities and model density.
+            capabilities and model density. Carries over to movies
+            created by providing the ``movie_filename`` argument,
+            but *not* to gifs.
 
         kwargs : optional keyword arguments, optional
             See help(pyvista.Plot) for additional keyword arguments.
@@ -2834,7 +2836,7 @@ class Result(AnsysBinary):
             if movie_filename.strip()[-3:] == 'gif':
                 plotter.open_gif(movie_filename)
             else:
-                plotter.open_movie(movie_filename)
+                plotter.open_movie(movie_filename, framerate=fps)
 
         # add table
         if text is not None:
