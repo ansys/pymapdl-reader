@@ -933,7 +933,9 @@ class Result(AnsysBinary):
 
         fps : int, optional
             Frames per second.  Defaults to 20 and limited to hardware
-            capabilities and model density.
+            capabilities and model density. Carries over to movies
+            created by providing the ``movie_filename`` argument,
+            but *not* to gifs.
 
         kwargs : optional keyword arguments, optional
             See help(pyvista.Plot) for additional keyword arguments.
@@ -2609,8 +2611,7 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            from pyvista.plotting.theme import parse_color
-            text_color = parse_color(text_color)
+            text_color = pv.parse_color(text_color)
             plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
@@ -2817,8 +2818,7 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            from pyvista.plotting.theme import parse_color
-            text_color = parse_color(text_color)
+            text_color = pv.parse_color(text_color)
             plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
@@ -2834,7 +2834,7 @@ class Result(AnsysBinary):
             if movie_filename.strip()[-3:] == 'gif':
                 plotter.open_gif(movie_filename)
             else:
-                plotter.open_movie(movie_filename)
+                plotter.open_movie(movie_filename, framerate=fps)
 
         # add table
         if text is not None:
