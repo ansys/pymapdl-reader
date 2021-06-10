@@ -2611,8 +2611,7 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            from pyvista.plotting.theme import parse_color
-            text_color = parse_color(text_color)
+            text_color = pv.parse_color(text_color)
             plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
@@ -2819,8 +2818,7 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            from pyvista.plotting.theme import parse_color
-            text_color = parse_color(text_color)
+            text_color = pv.parse_color(text_color)
             plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
