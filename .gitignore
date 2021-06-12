@@ -30,7 +30,7 @@ dist/
 _build/
 pyansys/Interface.py
 *.bat
-docs/source/examples/*
+doc/source/examples/*
 *.out
 *.tar.gz
 

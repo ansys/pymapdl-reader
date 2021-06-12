@@ -64,9 +64,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'PyMAPDL Reader'
-copyright = u'2020, ANSYS Open Source Developers'
-author = u'ANSYS Open Source Developers'
+project = u'PyMAPDL Legacy Reader'
+copyright = '(c) 2021 ANSYS, Inc. All rights reserved'
+author = 'ANSYS Inc.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -135,24 +135,13 @@ sphinx_gallery_conf = {
 }
 
 
-# -- Options for HTML output ----------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = 'pydata_sphinx_theme'
-html_logo = '_static/pyansys-logo-black-cropped.png'
+# -- Options for HTML output -------------------------------------------------
+html_theme = 'pyansys_sphinx_theme'
+html_logo = 'https://docs.pyansys.com/_static/pyansys-logo-black-cropped.png'
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/pymapdl-reader",
-    # "show_toc_level": 1,
-    # "show_prev_next": False
+    "github_url": "https://github.com/pyansys/PyMAPDL",
 }
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-html_css_files = ['css/ansys.css']
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -184,7 +173,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'pymapdl_reader.tex', u'PyMAPDL Reader Documentation',
+    (master_doc, 'pymapdl_reader.tex', u'PyMAPDL Legacy Reader Documentation',
      u'ANSYS Open Source Developers', 'manual'),
 ]
 
@@ -194,7 +183,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pymapdl_reader', u'PyMAPDL Reader Documentation',
+    (master_doc, 'pymapdl_reader', u'PyMAPDL Legacy Reader Documentation',
      [author], 1)
 ]
 
