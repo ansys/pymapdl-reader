@@ -947,7 +947,9 @@ class Result(AnsysBinary):
 
         fps : int, optional
             Frames per second.  Defaults to 20 and limited to hardware
-            capabilities and model density.
+            capabilities and model density. Carries over to movies
+            created by providing the ``movie_filename`` argument,
+            but *not* to gifs.
 
         kwargs : optional keyword arguments, optional
             See help(pyvista.Plot) for additional keyword arguments.
@@ -1411,11 +1413,11 @@ class Result(AnsysBinary):
         e_type_table, sz = self.read_record(ptrety, True)
 
         # store information for each element type
-        nodelm = np.empty(10000, np.int32)  # n nodes for this element type
-        nodfor = np.empty(10000, np.int32)  # n nodes per element having nodal forces
-        nodstr = np.empty(10000, np.int32)  # n nodes per element having nodal stresses
+        nodelm = {}  # n nodes for this element type
+        nodfor = {}  # n nodes per element having nodal forces
+        nodstr = {}  # n nodes per element having nodal stresses
         ekey = []
-        keyopts = np.zeros((10000, 11), np.int16)
+        keyopts = {}  # key options
 
         # Assemble element record pointers relative to ptrETY
         if self._map_flag:
@@ -1454,13 +1456,26 @@ class Result(AnsysBinary):
             #
             # Only valid for SHELL181 or SHELL281 elements.
             if einfo[1] == 181 or einfo[1] == 281:
-                if keyopts[etype_ref, 7] == 0:
+                if keyopts[etype_ref][7] == 0:
                     nodstr[etype_ref] *= 2
 
+        def dict_to_arr(index_dict):
+            """Convert an index dictionary to an array
+
+            For example:
+            {1: 20, 2: 30} --> [UNDEF, 20, 30]
+
+            """
+            arr = np.empty(max(index_dict.keys()) + 1, np.int32)
+            for key, value in index_dict.items():
+                arr[key] = value
+            return arr
+
+        # rest of pymapdl-reader expects the following as arrays.
         # store element table data
-        return {'nodelm': nodelm,
-                'nodfor': nodfor,
-                'nodstr': nodstr,
+        return {'nodelm': dict_to_arr(nodelm),
+                'nodfor': dict_to_arr(nodfor),
+                'nodstr': dict_to_arr(nodstr),
                 'keyopts': keyopts,
                 'ekey': np.array(ekey)}
 
@@ -2685,8 +2700,7 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            from pyvista.plotting.theme import parse_color
-            text_color = parse_color(text_color)
+            text_color = pv.parse_color(text_color)
             plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
@@ -2893,8 +2907,7 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            from pyvista.plotting.theme import parse_color
-            text_color = parse_color(text_color)
+            text_color = pv.parse_color(text_color)
             plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
             plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
@@ -2910,7 +2923,7 @@ class Result(AnsysBinary):
             if movie_filename.strip()[-3:] == 'gif':
                 plotter.open_gif(movie_filename)
             else:
-                plotter.open_movie(movie_filename)
+                plotter.open_movie(movie_filename, framerate=fps)
 
         # add table
         if text is not None:

@@ -254,9 +254,9 @@ cdef class AnsysFile:
         del self._file
         del self._file_out
 
-    def read_element_data(self, int64_t [::1] ele_ind_table, int table_index, int ptr_off):
-        cdef int64_t ind
-        cdef int ptr
+    def read_element_data(self, int64_t [::1] ele_ind_table, int table_index,
+                          int64_t ptr_off):
+        cdef int64_t ind, ptr
         cdef int prec_flag, type_flag, size, bufsize
         cdef void* c_ptr
         cdef np.ndarray record 
