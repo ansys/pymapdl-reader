@@ -641,6 +641,7 @@ class CyclicResult(Result):
                                   sel_type_all=True,
                                   add_text=True,
                                   overlay_wireframe=False,
+                                  treat_nan_as_zero=True,
                                   **kwargs):
         """Plot nodal thermal strain.
 
@@ -688,6 +689,10 @@ class CyclicResult(Result):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         Returns
         -------
         cpos : list
@@ -701,7 +706,9 @@ class CyclicResult(Result):
 
         """
         if not full_rotor:
-            return super().plot_nodal_thermal_strain(rnum, **kwargs)
+            return super().plot_nodal_thermal_strain(rnum,
+                                                     treat_nan_as_zero=treat_nan_as_zero,
+                                                     **kwargs)
 
         idx = check_comp(THERMAL_STRAIN_TYPES, comp)
         _, strain = self.nodal_thermal_strain(rnum, phase, False, True)
@@ -718,7 +725,10 @@ class CyclicResult(Result):
         kwargs['element_components'] = element_components
         kwargs['sel_type_all'] = sel_type_all
         kwargs['phase'] = phase
-        return self._plot_cyclic_point_scalars(scalars, rnum, **kwargs)
+        return self._plot_cyclic_point_scalars(scalars,
+                                               rnum,
+                                               treat_nan_as_zero=treat_nan_as_zero,
+                                               **kwargs)
 
     def nodal_elastic_strain(self, rnum, phase=0, as_complex=False,
                              full_rotor=False):
@@ -782,6 +792,7 @@ class CyclicResult(Result):
                                   sel_type_all=True,
                                   add_text=True,
                                   overlay_wireframe=False,
+                                  treat_nan_as_zero=True,
                                   **kwargs):
         """Plot nodal elastic strain.
 
@@ -827,6 +838,10 @@ class CyclicResult(Result):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         Returns
         -------
         cpos : list
@@ -834,7 +849,7 @@ class CyclicResult(Result):
 
         Examples
         --------
-        Plot nodal elastic strain for an academic rotor
+        Plot nodal elastic strain for an academic rotor.
 
         >>> result.plot_nodal_elastic_strain(0, 'X')
 
@@ -854,7 +869,10 @@ class CyclicResult(Result):
         kwargs['element_components'] = element_components
         kwargs['sel_type_all'] = sel_type_all
         kwargs['phase'] = phase
-        return self._plot_cyclic_point_scalars(scalars, rnum, **kwargs)
+        return self._plot_cyclic_point_scalars(scalars,
+                                               rnum,
+                                               treat_nan_as_zero=treat_nan_as_zero,
+                                               **kwargs)
 
     def nodal_plastic_strain(self, rnum, phase=0, as_complex=False,
                              full_rotor=False):
@@ -918,6 +936,7 @@ class CyclicResult(Result):
                                   sel_type_all=True,
                                   add_text=True,
                                   overlay_wireframe=False,
+                                  treat_nan_as_zero=True,
                                   **kwargs):
         """Plot nodal plastic strain.
 
@@ -963,6 +982,10 @@ class CyclicResult(Result):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         Returns
         -------
         cpos : list
@@ -990,7 +1013,10 @@ class CyclicResult(Result):
         kwargs['element_components'] = element_components
         kwargs['sel_type_all'] = sel_type_all
         kwargs['phase'] = phase
-        return self._plot_cyclic_point_scalars(scalars, rnum, **kwargs)
+        return self._plot_cyclic_point_scalars(scalars,
+                                               rnum,
+                                               treat_nan_as_zero=treat_nan_as_zero,
+                                               **kwargs)
 
     def principal_nodal_stress(self, rnum, phase=0, as_complex=False,
                                full_rotor=False):
@@ -1072,6 +1098,7 @@ class CyclicResult(Result):
                             overlay_wireframe=False,
                             add_text=True,
                             sel_type_all=True,
+                            treat_nan_as_zero=True,
                             **kwargs):
         """Plot the nodal solution (generally displacement).
 
@@ -1108,10 +1135,20 @@ class CyclicResult(Result):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         Returns
         -------
         cpos : list
             Camera position from vtk render window.
+
+        Examples
+        --------
+        Plot the displacement of the first cyclic result.
+
+        >>> result.plot_nodal_solution(0)
 
         """
 
@@ -1124,6 +1161,7 @@ class CyclicResult(Result):
                                                node_components=node_components,
                                                element_components=element_components,
                                                sel_type_all=sel_type_all,
+                                               treat_nan_as_zero=treat_nan_as_zero,
                                                **kwargs)
 
         rnum = self.parse_step_substep(rnum)
@@ -1156,7 +1194,10 @@ class CyclicResult(Result):
         kwargs['element_components'] = element_components
         kwargs['sel_type_all'] = sel_type_all
         kwargs['phase'] = phase
-        return self._plot_cyclic_point_scalars(scalars, rnum, **kwargs)
+        return self._plot_cyclic_point_scalars(scalars,
+                                               rnum,
+                                               treat_nan_as_zero=treat_nan_as_zero,
+                                               **kwargs)
 
     def plot_nodal_stress(self, rnum,
                           comp=None,
@@ -1168,7 +1209,9 @@ class CyclicResult(Result):
                           element_components=None,
                           overlay_wireframe=False,
                           add_text=True,
-                          sel_type_all=True, **kwargs):
+                          sel_type_all=True,
+                          treat_nan_as_zero=True,
+                          **kwargs):
         """Plot nodal stress of a given component
 
         Parameters
@@ -1213,10 +1256,20 @@ class CyclicResult(Result):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         Returns
         -------
         cpos : list
             Camera position from vtk render window.
+
+        Examples
+        --------
+        Plot the ``"Z"`` nodal stress of the first cyclic result.
+
+        >>> result.plot_nodal_stress(0, comp="Z")
 
         """
         if not full_rotor:
@@ -1225,7 +1278,9 @@ class CyclicResult(Result):
                                       displacement_factor,
                                       node_components,
                                       element_components,
-                                      sel_type_all, **kwargs)
+                                      sel_type_all,
+                                      treat_nan_as_zero=treat_nan_as_zero,
+                                      **kwargs)
 
         idx = check_comp(STRESS_TYPES, comp)
         _, stress = self.nodal_stress(rnum, phase, False, full_rotor=True)
@@ -1243,7 +1298,10 @@ class CyclicResult(Result):
         kwargs['element_components'] = element_components
         kwargs['sel_type_all'] = sel_type_all
         kwargs['phase'] = phase
-        return self._plot_cyclic_point_scalars(scalars, rnum, **kwargs)
+        return self._plot_cyclic_point_scalars(scalars,
+                                               rnum,
+                                               treat_nan_as_zero=treat_nan_as_zero,
+                                               **kwargs)
 
     def plot_principal_nodal_stress(self, rnum,
                                     comp=None,
@@ -1256,6 +1314,7 @@ class CyclicResult(Result):
                                     sel_type_all=True,
                                     add_text=True,
                                     overlay_wireframe=False,
+                                    treat_nan_as_zero=True,
                                     **kwargs):
         """Plot the nodal principal stress.
 
@@ -1294,6 +1353,10 @@ class CyclicResult(Result):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
 
@@ -1302,6 +1365,12 @@ class CyclicResult(Result):
         cpos : list
             VTK camera position.
 
+        Examples
+        --------
+        Plot the von Mises stress of the first cyclic result.
+
+        >>> result.plot_principal_nodal_stress(0, comp='SEQV')
+
         """
         if not full_rotor:
             return super().plot_principal_nodal_stress(rnum, comp,
@@ -1309,7 +1378,9 @@ class CyclicResult(Result):
                                                        displacement_factor,
                                                        node_components,
                                                        element_components,
-                                                       sel_type_all, **kwargs)
+                                                       sel_type_all,
+                                                       treat_nan_as_zero=treat_nan_as_zero,
+                                                       **kwargs)
 
         # get the correct component of the principal stress for the rotor
         idx = check_comp(PRINCIPAL_STRESS_TYPES, comp)
@@ -1328,7 +1399,10 @@ class CyclicResult(Result):
         kwargs['element_components'] = element_components
         kwargs['sel_type_all'] = sel_type_all
         kwargs['phase'] = phase
-        self._plot_cyclic_point_scalars(scalars, rnum, **kwargs)
+        self._plot_cyclic_point_scalars(scalars,
+                                        rnum,
+                                        treat_nan_as_zero=treat_nan_as_zero,
+                                        **kwargs)
 
     def nodal_temperature(self, rnum, full_rotor=False):
         """Retrieves the temperature for each node in the solution.
@@ -1381,6 +1455,7 @@ class CyclicResult(Result):
                                add_text=True,
                                element_components=None,
                                sel_type_all=True,
+                               treat_nan_as_zero=True,
                                **kwargs):
         """Plot the nodal temperature.
 
@@ -1411,10 +1486,20 @@ class CyclicResult(Result):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         Returns
         -------
         cpos : list
             Camera position from vtk render window.
+
+        Examples
+        --------
+        Plot the nodal temperature of a rotor for the first result.
+
+        >>> result.plot_nodal_temperature(0)
 
         """
         # Load result from file
@@ -1425,6 +1510,7 @@ class CyclicResult(Result):
                                                   node_components=node_components,
                                                   element_components=element_components,
                                                   sel_type_all=sel_type_all,
+                                                  treat_nan_as_zero=treat_nan_as_zero,
                                                   **kwargs)
 
         _, temp = self.nodal_temperature(rnum, True)
@@ -1439,7 +1525,10 @@ class CyclicResult(Result):
         kwargs['element_components'] = element_components
         kwargs['sel_type_all'] = sel_type_all
         kwargs['phase'] = phase
-        return self._plot_cyclic_point_scalars(temp, rnum, **kwargs)
+        return self._plot_cyclic_point_scalars(temp,
+                                               rnum,
+                                               treat_nan_as_zero=treat_nan_as_zero,
+                                               **kwargs)
 
     def animate_nodal_solution(self, rnum, comp='norm',
                                displacement_factor=0.1,
@@ -1654,6 +1743,7 @@ class CyclicResult(Result):
                                    element_components=None,
                                    sel_type_all=True,
                                    phase=None,
+                                   treat_nan_as_zero=True,
                                    **kwargs):
         """Plot point scalars on active mesh.
 
@@ -1682,6 +1772,10 @@ class CyclicResult(Result):
         add_text : bool, optional
             Adds information about the result when rnum is given.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
 
@@ -1703,6 +1797,9 @@ class CyclicResult(Result):
             grid, ind = self._extract_element_components(element_components)
             if scalars is not None:
                 scalars = scalars[:, ind]
+
+        if treat_nan_as_zero and scalars is not None:
+            scalars[np.isnan(scalars)] = 0
 
         # must be removed before add_mesh **kwargs
         window_size = kwargs.pop('window_size', None)

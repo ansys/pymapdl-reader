@@ -475,10 +475,10 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         **kwargs : keyword arguments
-            Optional keyword arguments.  See help(pyvista.plot)
+            Optional keyword arguments.  See ``help(pyvista.plot)``.
 
         Returns
         -------
@@ -515,6 +515,7 @@ class Result(AnsysBinary):
                             node_components=None,
                             element_components=None,
                             sel_type_all=True,
+                            treat_nan_as_zero=True,
                             **kwargs):
         """Plots the nodal solution.
 
@@ -551,7 +552,14 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
+        **kwargs : keyword arguments
+            Optional keyword arguments.  See ``help(pyvista.plot)``.
 
         Returns
         -------
@@ -633,6 +641,7 @@ class Result(AnsysBinary):
                                         node_components=node_components,
                                         element_components=element_components,
                                         sel_type_all=sel_type_all,
+                                        treat_nan_as_zero=treat_nan_as_zero,
                                         **kwargs)
 
     @wraps(plot_nodal_solution)
@@ -791,7 +800,7 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         add_text : bool, optional
             Adds information about the result.
@@ -813,7 +822,7 @@ class Result(AnsysBinary):
             recorded.
 
         kwargs : optional keyword arguments, optional
-            See help(pyvista.Plot) for additional keyword arguments.
+            See ``help(pyvista.Plot)`` for additional keyword arguments.
 
         Examples
         --------
@@ -916,7 +925,7 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         loop : bool, optional
             Loop the animation.  Default ``True``.  Disable this to
@@ -2423,7 +2432,9 @@ class Result(AnsysBinary):
                                     displacement_factor=1.0,
                                     node_components=None,
                                     element_components=None,
-                                    sel_type_all=True, **kwargs):
+                                    sel_type_all=True,
+                                    treat_nan_as_zero=True,
+                                    **kwargs):
         """Plot the principal stress.
 
         Parameters
@@ -2457,7 +2468,11 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
 
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
@@ -2469,7 +2484,7 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        Plot the equivalent von mises stress
+        Plot the equivalent von mises stress.
 
         >>> rst.plot_principal_nodal_stress(0, comp='SEQV')
 
@@ -2497,6 +2512,7 @@ class Result(AnsysBinary):
         return self._plot_point_scalars(stress, grid=grid, rnum=rnum,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
+                                        treat_nan_as_zero=treat_nan_as_zero,
                                         **kwargs)
 
     def cs_4x4(self, cs_cord, as_vtk_matrix=False):
@@ -2518,6 +2534,7 @@ class Result(AnsysBinary):
                             overlay_wireframe=False, node_components=None,
                             element_components=None,
                             sel_type_all=True, movie_filename=None,
+                            treat_nan_as_zero=True,
                             **kwargs):
         """Plot point scalars on active mesh.
 
@@ -2546,6 +2563,10 @@ class Result(AnsysBinary):
         overlay_wireframe : bool, optional
             Overlay a wireframe of the original undeformed mesh.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
 
@@ -2560,6 +2581,9 @@ class Result(AnsysBinary):
 
         if grid is None:
             grid = self.grid
+
+        if treat_nan_as_zero and scalars is not None:
+            scalars[np.isnan(scalars)] = 0
 
         disp = None
         if show_displacement and not animate:
@@ -2954,7 +2978,9 @@ class Result(AnsysBinary):
                           displacement_factor=1,
                           node_components=None,
                           element_components=None,
-                          sel_type_all=True, **kwargs):
+                          sel_type_all=True,
+                          treat_nan_as_zero=True,
+                          **kwargs):
         """Plots the stresses at each node in the solution.
 
         Parameters
@@ -2986,6 +3012,10 @@ class Result(AnsysBinary):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
 
@@ -3006,7 +3036,9 @@ class Result(AnsysBinary):
                                        show_displacement,
                                        displacement_factor, node_components,
                                        element_components,
-                                       sel_type_all, **kwargs)
+                                       sel_type_all,
+                                       treat_nan_as_zero=treat_nan_as_zero,
+                                       **kwargs)
 
     def save_as_vtk(self, filename, rsets=None, result_types=['ENS'],
                     progress_bar=True):
@@ -3245,7 +3277,7 @@ class Result(AnsysBinary):
             EPT: element temperatures
             ESF: element surface stresses
             EDI: diffusion strains
-            ETB: ETABLE items(post1 only
+            ETB: ETABLE items (post1 only)
             ECT: contact data
             EXY: integration point locations
             EBA: back stresses
@@ -3507,11 +3539,10 @@ class Result(AnsysBinary):
         # check result exists
         result_type = result_type.upper()
         if not self.available_results[result_type]:
-            raise ValueError('Result %s is not available in this result file'
-                             % result_type)
+            raise ValueError(f'Result {result_type} is not available in this result file')
 
         if result_type not in ELEMENT_INDEX_TABLE_KEYS:
-            raise ValueError('Result "%s" is not an element result' % result_type)
+            raise ValueError(f'Result "{result_type}" is not an element result')
 
         bsurf = self._extract_surface_element_result(rnum,
                                                      result_type,
@@ -3708,6 +3739,7 @@ class Result(AnsysBinary):
     def plot_cylindrical_nodal_stress(self, rnum, comp=None, show_displacement=False,
                                       displacement_factor=1, node_components=None,
                                       element_components=None, sel_type_all=True,
+                                      treat_nan_as_zero=True,
                                       **kwargs):
         """Plot nodal_stress in the cylindrical coordinate system.
 
@@ -3745,6 +3777,10 @@ class Result(AnsysBinary):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         **kwargs : keyword arguments
             Optional keyword arguments.  See ``help(pyvista.plot)``
 
@@ -3774,11 +3810,13 @@ class Result(AnsysBinary):
         return self._plot_point_scalars(scalars, grid=grid, rnum=rnum,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
+                                        treat_nan_as_zero=treat_nan_as_zero,
                                         **kwargs)
 
     def plot_nodal_temperature(self, rnum, show_displacement=False,
                                displacement_factor=1, node_components=None,
                                element_components=None, sel_type_all=True,
+                               treat_nan_as_zero=True,
                                **kwargs):
         """Plot nodal temperature
 
@@ -3807,12 +3845,16 @@ class Result(AnsysBinary):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         **kwargs : keyword arguments
             Optional keyword arguments.  See ``help(pyvista.plot)``
 
         Examples
         --------
-        Plot temperature of a result
+        Plot temperature of a result.
 
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> result = pymapdl_reader.read_binary('file.rst')
@@ -3836,6 +3878,7 @@ class Result(AnsysBinary):
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
                                         scalar_bar_args={'title': 'Nodal Tempature'},
+                                        treat_nan_as_zero=treat_nan_as_zero,
                                         **kwargs)
 
     def nodal_thermal_strain(self, rnum):
@@ -3880,7 +3923,9 @@ class Result(AnsysBinary):
                                   displacement_factor=1,
                                   node_components=None,
                                   element_components=None,
-                                  sel_type_all=True, **kwargs):
+                                  sel_type_all=True,
+                                  treat_nan_as_zero=True,
+                                  **kwargs):
         """Plot nodal component thermal strains.
 
         Equivalent MAPDL command: PLNSOL, EPTH, COMP
@@ -3919,7 +3964,11 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
 
         **kwargs : keyword arguments
             Optional keyword arguments.  See ``help(pyvista.plot)``
@@ -3940,6 +3989,7 @@ class Result(AnsysBinary):
                                        element_components=element_components,
                                        sel_type_all=sel_type_all,
                                        scalar_bar_args=scalar_bar_args,
+                                       treat_nan_as_zero=treat_nan_as_zero,
                                        **kwargs)
 
     def nodal_elastic_strain(self, rnum):
@@ -3988,7 +4038,9 @@ class Result(AnsysBinary):
                                   displacement_factor=1,
                                   node_components=None,
                                   element_components=None,
-                                  sel_type_all=True, **kwargs):
+                                  sel_type_all=True,
+                                  treat_nan_as_zero=True,
+                                  **kwargs):
         """Plot nodal elastic strain.
 
         Parameters
@@ -4024,10 +4076,14 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
 
         **kwargs : keyword arguments
-            Optional keyword arguments.  See help(pyvista.plot)
+            Optional keyword arguments.  See ``help(pyvista.plot)``p
 
         Examples
         --------
@@ -4048,6 +4104,7 @@ class Result(AnsysBinary):
                                        element_components=element_components,
                                        sel_type_all=sel_type_all,
                                        scalar_bar_args=scalar_bar_args,
+                                       treat_nan_as_zero=treat_nan_as_zero,
                                        **kwargs)
 
     def nodal_plastic_strain(self, rnum):
@@ -4088,7 +4145,9 @@ class Result(AnsysBinary):
                                   displacement_factor=1,
                                   node_components=None,
                                   element_components=None,
-                                  sel_type_all=True, **kwargs):
+                                  sel_type_all=True,
+                                  treat_nan_as_zero=True,
+                                  **kwargs):
         """Plot nodal component plastic strain.
 
         Parameters
@@ -4125,10 +4184,14 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
 
         **kwargs : keyword arguments
-            Optional keyword arguments.  See help(pyvista.plot)
+            Optional keyword arguments.  See ``help(pyvista.plot)``.
 
         Examples
         --------
@@ -4149,12 +4212,15 @@ class Result(AnsysBinary):
                                        element_components=element_components,
                                        sel_type_all=sel_type_all,
                                        scalar_bar_args=scalar_bar_args,
+                                       treat_nan_as_zero=treat_nan_as_zero,
                                        **kwargs)
 
     def _plot_nodal_result(self, rnum, result_type, comp, available_comps,
                            show_displacement=False, displacement_factor=1,
                            node_components=None, element_components=None,
-                           sel_type_all=True, **kwargs):
+                           sel_type_all=True,
+                           treat_nan_as_zero=True,
+                           **kwargs):
         """Plot nodal result"""
         component_index = check_comp(available_comps, comp)
         _, result = self._nodal_result(rnum, result_type)
@@ -4172,6 +4238,7 @@ class Result(AnsysBinary):
         return self._plot_point_scalars(scalars, grid=grid, rnum=rnum,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
+                                        treat_nan_as_zero=treat_nan_as_zero,
                                         **kwargs)
 
     def _animate_time_solution(self, result_type, index=0, frame_rate=10,
