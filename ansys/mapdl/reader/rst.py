@@ -3,7 +3,7 @@
 Used:
 .../ansys/customize/include/fdresu.inc
 """
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 import time
 import warnings
 from threading import Thread
@@ -475,10 +475,10 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         **kwargs : keyword arguments
-            Optional keyword arguments.  See help(pyvista.plot)
+            Optional keyword arguments.  See ``help(pyvista.plot)``.
 
         Returns
         -------
@@ -507,7 +507,12 @@ class Result(AnsysBinary):
         else:
             grid = self.grid
 
-        return self._plot_point_scalars(None, grid=grid, **kwargs)
+        return self._plot_point_scalars(None,
+                                        grid=grid,
+                                        node_components=node_components,
+                                        element_components=element_components,
+                                        sel_type_all=sel_type_all,
+                                        **kwargs)
 
     def plot_nodal_solution(self, rnum, comp=None,
                             show_displacement=False,
@@ -515,6 +520,7 @@ class Result(AnsysBinary):
                             node_components=None,
                             element_components=None,
                             sel_type_all=True,
+                            treat_nan_as_zero=True,
                             **kwargs):
         """Plots the nodal solution.
 
@@ -551,7 +557,14 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
+        **kwargs : keyword arguments
+            Optional keyword arguments.  See ``help(pyvista.plot)``.
 
         Returns
         -------
@@ -633,6 +646,7 @@ class Result(AnsysBinary):
                                         node_components=node_components,
                                         element_components=element_components,
                                         sel_type_all=sel_type_all,
+                                        treat_nan_as_zero=treat_nan_as_zero,
                                         **kwargs)
 
     @wraps(plot_nodal_solution)
@@ -791,7 +805,7 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         add_text : bool, optional
             Adds information about the result.
@@ -813,7 +827,7 @@ class Result(AnsysBinary):
             recorded.
 
         kwargs : optional keyword arguments, optional
-            See help(pyvista.Plot) for additional keyword arguments.
+            See ``help(pyvista.Plot)`` for additional keyword arguments.
 
         Examples
         --------
@@ -916,7 +930,7 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
 
         loop : bool, optional
             Loop the animation.  Default ``True``.  Disable this to
@@ -1063,7 +1077,8 @@ class Result(AnsysBinary):
 
         return nnum, data
 
-    def nodal_solution(self, rnum, in_nodal_coord_sys=False):
+    def nodal_solution(self, rnum, in_nodal_coord_sys=False,
+                       nodes=None):
         """Returns the DOF solution for each node in the global
         cartesian coordinate system or nodal coordinate system.
 
@@ -1077,8 +1092,16 @@ class Result(AnsysBinary):
             list containing (step, substep) of the requested result.
 
         in_nodal_coord_sys : bool, optional
-            When ``True``, returns results in the nodal coordinate system.
-            Default ``False``.
+            When ``True``, returns results in the nodal coordinate
+            system.  Default ``False``.
+
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
 
         Returns
         -------
@@ -1093,9 +1116,21 @@ class Result(AnsysBinary):
 
         Examples
         --------
+        Return the nodal soltuion (in this case, displacement) for the
+        first result of ``"file.rst"``
+
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, data = rst.nodal_solution(0)
+
+        Return the nodal solution just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, data = rst.nodal_solution(0, nodes='MY_COMPONENT')
+
+        Return the nodal solution just for the nodes from 20 through 50.
+
+        >>> nnum, data = rst.nodal_solution(0, nodes=range(20, 51))
 
         Notes
         -----
@@ -1103,7 +1138,7 @@ class Result(AnsysBinary):
         These results are removed by and the node numbers of the
         solution results are reflected in ``nnum``.
         """
-        return self._nodal_solution_result(rnum, 'NSL', in_nodal_coord_sys)
+        return self._nodal_solution_result(rnum, 'NSL', in_nodal_coord_sys, nodes)
 
     def nodal_velocity(self, rnum, in_nodal_coord_sys=False):
         """Nodal velocities for a given result set.
@@ -1179,7 +1214,8 @@ class Result(AnsysBinary):
         """
         return self._nodal_solution_result(rnum, 'ASL', in_nodal_coord_sys)
 
-    def _nodal_solution_result(self, rnum, solution_type, in_nodal_coord_sys=False):
+    def _nodal_solution_result(self, rnum, solution_type,
+                               in_nodal_coord_sys=False, nodes=None):
         """Returns the DOF solution for each node in the global
         cartesian coordinate system or nodal coordinate system.
 
@@ -1197,6 +1233,14 @@ class Result(AnsysBinary):
         in_nodal_coord_sys : bool, optional
             When True, returns results in the nodal coordinate system.
             Default False.
+
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
 
         Returns
         -------
@@ -1268,6 +1312,34 @@ class Result(AnsysBinary):
 
         # check for invalid values (mapdl writes invalid values as 2*100)
         result[result == 2**100] = 0
+
+        # subselect from component or range
+        # TODO: inefficient and should be able to only read from this subselection.
+        if nodes is not None:
+            if isinstance(nodes, str):
+                if nodes not in self.grid.point_arrays:
+                    raise ValueError(f'Invalid node component {nodes}')
+                mask = self.grid.point_arrays[nodes].view(bool)
+            elif isinstance(nodes, Sequence):
+                if isinstance(nodes[0], int):
+                    mask = np.in1d(self.mesh.nnum, nodes)
+                elif isinstance(nodes[0], str):
+                    mask = np.zeros(self.grid.n_points, bool)
+                    for node_component in nodes:
+                        if node_component not in self.grid.point_arrays:
+                            raise ValueError(f'Invalid node component {nodes}')
+                        mask = np.logical_or(mask, self.grid.point_arrays[node_component].view(bool))
+                else:
+                    raise TypeError(f'Invalid type for {nodes}.  Expected Sequence of '
+                                    'str or int')
+            else:
+                raise TypeError(f'Invalid type for {nodes}.  Expected Sequence of '
+                                'str or int')
+
+            # mask is for global nodes, need for potentially subselectd nodes
+            submask = np.in1d(nnum, self.grid.point_arrays['ansys_node_num'][mask])
+            nnum, result = nnum[submask], result[submask]
+
         return nnum, result
 
     @wraps(nodal_solution)
@@ -1576,7 +1648,7 @@ class Result(AnsysBinary):
         # non-linear
         # = 2 - extrapolate always
         if solution_header['rxtrap'] == 0:
-            warnings.warn('Strains and stresses are being evaluated at ' +
+            warnings.warn('Strains and stresses are being evaluated at '
                           'gauss points and not extrapolated')
 
         # 64-bit pointer to element solution
@@ -2007,7 +2079,6 @@ class Result(AnsysBinary):
             self._cfile.overwrite_element_data_double(elem_ptr + ptr_off, table_index,
                                                       data)
         else:
-            # breakpoint()
             self._cfile.overwrite_element_data_double(elem_ptr + ptr_off,
                                                       table_index,
                                                       data.astype(np.double))
@@ -2381,7 +2452,9 @@ class Result(AnsysBinary):
                                     displacement_factor=1.0,
                                     node_components=None,
                                     element_components=None,
-                                    sel_type_all=True, **kwargs):
+                                    sel_type_all=True,
+                                    treat_nan_as_zero=True,
+                                    **kwargs):
         """Plot the principal stress.
 
         Parameters
@@ -2415,7 +2488,11 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
 
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
@@ -2427,7 +2504,7 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        Plot the equivalent von mises stress
+        Plot the equivalent von mises stress.
 
         >>> rst.plot_principal_nodal_stress(0, comp='SEQV')
 
@@ -2455,6 +2532,10 @@ class Result(AnsysBinary):
         return self._plot_point_scalars(stress, grid=grid, rnum=rnum,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
+                                        treat_nan_as_zero=treat_nan_as_zero,
+                                        node_components=node_components,
+                                        element_components=element_components,
+                                        sel_type_all=sel_type_all,
                                         **kwargs)
 
     def cs_4x4(self, cs_cord, as_vtk_matrix=False):
@@ -2476,6 +2557,7 @@ class Result(AnsysBinary):
                             overlay_wireframe=False, node_components=None,
                             element_components=None,
                             sel_type_all=True, movie_filename=None,
+                            treat_nan_as_zero=True,
                             **kwargs):
         """Plot point scalars on active mesh.
 
@@ -2489,8 +2571,8 @@ class Result(AnsysBinary):
             text.
 
         grid : pyvista.PolyData or pyvista.UnstructuredGrid, optional
-            Uses self.grid by default.  When specified, uses this grid
-            instead.
+            Uses ``self.grid`` by default.  When specified, uses this
+            grid instead.
 
         show_displacement : bool, optional
             Deforms mesh according to the result.
@@ -2503,6 +2585,10 @@ class Result(AnsysBinary):
 
         overlay_wireframe : bool, optional
             Overlay a wireframe of the original undeformed mesh.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
 
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
@@ -2518,6 +2604,9 @@ class Result(AnsysBinary):
 
         if grid is None:
             grid = self.grid
+
+        if treat_nan_as_zero and scalars is not None:
+            scalars[np.isnan(scalars)] = 0
 
         disp = None
         if show_displacement and not animate:
@@ -2910,7 +2999,9 @@ class Result(AnsysBinary):
                           displacement_factor=1,
                           node_components=None,
                           element_components=None,
-                          sel_type_all=True, **kwargs):
+                          sel_type_all=True,
+                          treat_nan_as_zero=True,
+                          **kwargs):
         """Plots the stresses at each node in the solution.
 
         Parameters
@@ -2942,6 +3033,10 @@ class Result(AnsysBinary):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
 
@@ -2962,7 +3057,9 @@ class Result(AnsysBinary):
                                        show_displacement,
                                        displacement_factor, node_components,
                                        element_components,
-                                       sel_type_all, **kwargs)
+                                       sel_type_all,
+                                       treat_nan_as_zero=treat_nan_as_zero,
+                                       **kwargs)
 
     def save_as_vtk(self, filename, rsets=None, result_types=['ENS'],
                     progress_bar=True):
@@ -3173,7 +3270,7 @@ class Result(AnsysBinary):
         rst_info.append(str(self.available_results))
         return '\n'.join(rst_info)
 
-    def _nodal_result(self, rnum, result_type):
+    def _nodal_result(self, rnum, result_type, nnum_of_interest=None):
         """Generic load nodal result
 
         Parameters
@@ -3201,59 +3298,99 @@ class Result(AnsysBinary):
             EPT: element temperatures
             ESF: element surface stresses
             EDI: diffusion strains
-            ETB: ETABLE items(post1 only
+            ETB: ETABLE items (post1 only)
             ECT: contact data
             EXY: integration point locations
             EBA: back stresses
             ESV: state variables
             MNL: material nonlinear record
 
-        sort : bool, optional
-            Unused by base class.
+        nnum_of_interest : list, np.ndarray, optional
+            Array of nodes numbers to extract results for.  All
+            adjacent elements are still considered, so averaging will
+            still account for unselected nodes.
 
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers
+            Ansys node numbers
 
         result : np.ndarray
             Array of result data
         """
-        # check result exists
         if not self.available_results[result_type]:
-            raise ValueError('Result %s is not available in this result file'
-                             % result_type)
+            rtype_str = element_index_table_info[result_type]
+            raise ValueError(f'Result {rtype_str} ({result_type}) is not available in '
+                             'this result file.')
 
         # element header
         rnum = self.parse_step_substep(rnum)
-        ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
+        ele_ind_table, nodstr, ans_etype, ptr_off = self._element_solution_header(rnum)
 
         result_type = result_type.upper()
         nitem = self._result_nitem(rnum, result_type)
         result_index = ELEMENT_INDEX_TABLE_KEYS.index(result_type)
 
-        # Element types for nodal averaging
-        cells, offset = vtk_cell_info(self.grid)
+        if nnum_of_interest is not None:
+            nnum_sel = np.unique(nnum_of_interest)
+            mask = np.in1d(self.mesh.nnum, nnum_sel)
+
+            # extract any elements containing these values
+            # note that we need this for accurate averaging of results
+            grid = self.grid.extract_points(np.nonzero(mask)[0],
+                                            adjacent_cells=True,
+                                            include_cells=True)
+
+            # mask relative to global eeqv array
+            ele_mask = np.in1d(self._eeqv, grid['ansys_elem_num'],
+                               assume_unique=True)
+
+            # verify that all nodes of interest actually occur within
+            node_mask = np.in1d(nnum_sel, grid['ansys_node_num'],
+                                assume_unique=True)
+            if not node_mask.all():
+                warnings.warn('Not all nodes IDs in the ``nnum_of_interest`` '
+                              'are within the result')
+            etype = self._mesh.etype[ele_mask]
+            ele_ind_table = ele_ind_table[ele_mask]
+
+        else:
+            grid = self.grid
+            etype = self._mesh.etype
+
+        # call cython to extract and assemble the data
+        cells, offset = vtk_cell_info(grid)
         data, ncount = _binary_reader.read_nodal_values(self.filename,
-                                                        self.grid.celltypes,
+                                                        grid.celltypes,
                                                         ele_ind_table,
                                                         offset,
                                                         cells,
                                                         nitem,
-                                                        self.grid.n_points,
+                                                        grid.n_points,
                                                         nodstr,
+                                                        ans_etype,
                                                         etype,
-                                                        self._mesh.etype,
                                                         result_index,
                                                         ptr_off)
+
+        # sanity check
+        if not np.any(ncount):
+            raise ValueError('Result file contains no %s records for result %d' %
+                             (element_index_table_info[result_type.upper()], rnum))
 
         if result_type == 'ENS' and nitem != 6:
             data = data[:, :6]
 
-        nnum = self.grid.point_arrays['ansys_node_num']
-        if not np.any(ncount):
-            raise ValueError('Result file contains no %s records for result %d' %
-                             (element_index_table_info[result_type.upper()], rnum))
+        if nnum_of_interest is not None:
+            if grid.n_points != nnum_sel.size:
+                mask = np.in1d(grid['ansys_node_num'], nnum_sel)
+                nnum = grid['ansys_node_num'][mask]
+                ncount = ncount[mask]
+                data = data[mask]
+            else:
+                nnum = self.grid.point_arrays['ansys_node_num']
+        else:
+            nnum = self.grid.point_arrays['ansys_node_num']
 
         # average across nodes
         ncount = ncount.reshape(-1, 1)
@@ -3423,11 +3560,10 @@ class Result(AnsysBinary):
         # check result exists
         result_type = result_type.upper()
         if not self.available_results[result_type]:
-            raise ValueError('Result %s is not available in this result file'
-                             % result_type)
+            raise ValueError(f'Result {result_type} is not available in this result file')
 
         if result_type not in ELEMENT_INDEX_TABLE_KEYS:
-            raise ValueError('Result "%s" is not an element result' % result_type)
+            raise ValueError(f'Result "{result_type}" is not an element result')
 
         bsurf = self._extract_surface_element_result(rnum,
                                                      result_type,
@@ -3489,7 +3625,7 @@ class Result(AnsysBinary):
         ptr = self._resultheader['rpointers'][rnum]
         return parse_header(self.read_record(ptr), solution_data_header_keys)
 
-    def nodal_stress(self, rnum):
+    def nodal_stress(self, rnum, nodes=None):
         """Retrieves the component stresses for each node in the
         solution.
 
@@ -3507,13 +3643,21 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : numpy.ndarray
             Node numbers of the result.
 
         stress : numpy.ndarray
-            Stresses at X, Y, Z, XY, YZ, and XZ averaged at each corner
+            Stresses at ``X, Y, Z, XY, YZ, XZ`` averaged at each corner
             node.
 
         Examples
@@ -3522,14 +3666,23 @@ class Result(AnsysBinary):
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, stress = rst.nodal_stress(0)
 
+        Return the nodal stress just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, stress = rst.nodal_stress(0, nodes='MY_COMPONENT')
+
+        Return the nodal stress just for the nodes from 20 through 50.
+
+        >>> nnum, stress = rst.nodal_solution(0, nodes=range(20, 51))
+
         Notes
         -----
         Nodes without a stress value will be NAN.
         Equivalent ANSYS command: PRNSOL, S
         """
-        return self._nodal_result(rnum, 'ENS')
+        return self._nodal_result(rnum, 'ENS', nnum_of_interest=nodes)
 
-    def cylindrical_nodal_stress(self, rnum):
+    def cylindrical_nodal_stress(self, rnum, nodes=None):
         """Retrieves the stresses for each node in the solution in the
         cylindrical coordinate system as the following values:
 
@@ -3549,20 +3702,37 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : numpy.ndarray
             Node numbers of the result.
 
         stress : numpy.ndarray
-            Stresses at R, THETA, Z, RTHETA, THETAZ, and RZ averaged
-            at each corner node where R is radial.
+            Stresses at ``R, THETA, Z, RTHETA, THETAZ, RZ`` averaged
+            at each corner node where ``R`` is radial.
 
         Examples
         --------
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, stress = rst.cylindrical_nodal_stress(0)
+
+        Return the cylindrical nodal stress just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, stress = rst.cylindrical_nodal_stress(0, nodes='MY_COMPONENT')
+
+        Return the nodal stress just for the nodes from 20 through 50.
+
+        >>> nnum, stress = rst.cylindrical_nodal_stress(0, nodes=range(20, 51))
 
         Notes
         -----
@@ -3571,7 +3741,7 @@ class Result(AnsysBinary):
         RSYS, 1
         PRNSOL, S
         """
-        nnum, stress = self._nodal_result(rnum, 'ENS')
+        nnum, stress = self._nodal_result(rnum, 'ENS', nnum_of_interest=nodes)
 
         # angles relative to the XZ plane
         if nnum.size != self._mesh.nodes.shape[0]:
@@ -3585,7 +3755,7 @@ class Result(AnsysBinary):
         _binary_reader.euler_cart_to_cyl(stress, angle)  # mod stress inplace
         return nnum, stress
 
-    def nodal_temperature(self, rnum, **kwargs):
+    def nodal_temperature(self, rnum, nodes=None, **kwargs):
         """Retrieves the temperature for each node in the
         solution.
 
@@ -3600,6 +3770,14 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : numpy.ndarray
@@ -3612,18 +3790,28 @@ class Result(AnsysBinary):
         --------
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
-        >>> nnum, stress = rst.nodal_temperature(0)
+        >>> nnum, temp = rst.nodal_temperature(0)
+
+        Return the temperature just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, temp = rst.nodal_stress(0, nodes='MY_COMPONENT')
+
+        Return the temperature just for the nodes from 20 through 50.
+
+        >>> nnum, temp = rst.nodal_solution(0, nodes=range(20, 51))
+
         """
         if self._is_thermal:
-            nnum, temp = self.nodal_solution(rnum)
+            nnum, temp = self.nodal_solution(rnum, nodes=nodes)
         else:
-            nnum, temp = self._nodal_result(rnum, 'EPT')
-        temp = temp.ravel()
-        return nnum, temp
+            nnum, temp = self._nodal_result(rnum, 'EPT', nnum_of_interest=nodes)
+        return nnum, temp.ravel()
 
     def plot_cylindrical_nodal_stress(self, rnum, comp=None, show_displacement=False,
                                       displacement_factor=1, node_components=None,
                                       element_components=None, sel_type_all=True,
+                                      treat_nan_as_zero=True,
                                       **kwargs):
         """Plot nodal_stress in the cylindrical coordinate system.
 
@@ -3661,6 +3849,10 @@ class Result(AnsysBinary):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         **kwargs : keyword arguments
             Optional keyword arguments.  See ``help(pyvista.plot)``
 
@@ -3690,11 +3882,16 @@ class Result(AnsysBinary):
         return self._plot_point_scalars(scalars, grid=grid, rnum=rnum,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
+                                        treat_nan_as_zero=treat_nan_as_zero,
+                                        node_components=node_components,
+                                        element_components=element_components,
+                                        sel_type_all=sel_type_all,
                                         **kwargs)
 
     def plot_nodal_temperature(self, rnum, show_displacement=False,
                                displacement_factor=1, node_components=None,
                                element_components=None, sel_type_all=True,
+                               treat_nan_as_zero=True,
                                **kwargs):
         """Plot nodal temperature
 
@@ -3723,12 +3920,16 @@ class Result(AnsysBinary):
             If node_components is specified, plots those elements
             containing all nodes of the component.  Default ``True``.
 
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
+
         **kwargs : keyword arguments
             Optional keyword arguments.  See ``help(pyvista.plot)``
 
         Examples
         --------
-        Plot temperature of a result
+        Plot temperature of a result.
 
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> result = pymapdl_reader.read_binary('file.rst')
@@ -3752,9 +3953,13 @@ class Result(AnsysBinary):
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
                                         scalar_bar_args={'title': 'Nodal Tempature'},
+                                        treat_nan_as_zero=treat_nan_as_zero,
+                                        node_components=node_components,
+                                        element_components=element_components,
+                                        sel_type_all=sel_type_all,
                                         **kwargs)
 
-    def nodal_thermal_strain(self, rnum):
+    def nodal_thermal_strain(self, rnum, nodes=None):
         """Nodal component thermal strain.
 
         This record contains strains in the order X, Y, Z, XY, YZ, XZ,
@@ -3770,14 +3975,22 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers.
+            MAPDL node numbers.
 
         thermal_strain : np.ndarray
             Nodal component plastic strains.  Array is in the order
-            X, Y, Z, XY, YZ, XZ, EQV, ESWELL
+            ``X, Y, Z, XY, YZ, XZ, EQV, ESWELL``
 
         Examples
         --------
@@ -3786,8 +3999,17 @@ class Result(AnsysBinary):
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, thermal_strain = rst.nodal_thermal_strain(0)
+
+        Return the nodal thermal strain just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, thermal_strain = rst.nodal_thermal_strain(0, nodes='MY_COMPONENT')
+
+        Return the nodal thermal strain just for the nodes from 20 through 50.
+
+        >>> nnum, thermal_strain = rst.nodal_thermal_strain(0, nodes=range(20, 51))
         """
-        return self._nodal_result(rnum, 'ETH')
+        return self._nodal_result(rnum, 'ETH', nnum_of_interest=nodes)
 
     def plot_nodal_thermal_strain(self, rnum,
                                   comp=None,
@@ -3796,7 +4018,9 @@ class Result(AnsysBinary):
                                   displacement_factor=1,
                                   node_components=None,
                                   element_components=None,
-                                  sel_type_all=True, **kwargs):
+                                  sel_type_all=True,
+                                  treat_nan_as_zero=True,
+                                  **kwargs):
         """Plot nodal component thermal strains.
 
         Equivalent MAPDL command: PLNSOL, EPTH, COMP
@@ -3835,14 +4059,18 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
 
         **kwargs : keyword arguments
             Optional keyword arguments.  See ``help(pyvista.plot)``
 
         Examples
         --------
-        Plot thermal strain for result 0 of verification manual example 33
+        Plot thermal strain for result 0 of verification manual example 33.
 
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
@@ -3856,11 +4084,12 @@ class Result(AnsysBinary):
                                        element_components=element_components,
                                        sel_type_all=sel_type_all,
                                        scalar_bar_args=scalar_bar_args,
+                                       treat_nan_as_zero=treat_nan_as_zero,
                                        **kwargs)
 
-    def nodal_elastic_strain(self, rnum):
+    def nodal_elastic_strain(self, rnum, nodes=None):
         """Nodal component elastic strains.  This record contains
-        strains in the order X, Y, Z, XY, YZ, XZ, EQV.
+        strains in the order ``X, Y, Z, XY, YZ, XZ, EQV``.
 
         Elastic strains can be can be nodal values extrapolated from
         the integration points or values at the integration points
@@ -3874,14 +4103,22 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers.
+            MAPDL node numbers.
 
         elastic_strain : np.ndarray
             Nodal component elastic strains.  Array is in the order
-            X, Y, Z, XY, YZ, XZ, EQV.
+            ``X, Y, Z, XY, YZ, XZ, EQV``.
 
         Examples
         --------
@@ -3891,12 +4128,20 @@ class Result(AnsysBinary):
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, elastic_strain = rst.nodal_elastic_strain(0)
 
+        Return the nodal elastic strain just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, elastic_strain = rst.nodal_elastic_strain(0, nodes='MY_COMPONENT')
+
+        Return the nodal elastic strain just for the nodes from 20 through 50.
+
+        >>> nnum, elastic_strain = rst.nodal_elastic_strain(0, nodes=range(20, 51))
+
         Notes
         -----
         Nodes without a strain will be NAN.
-
         """
-        return self._nodal_result(rnum, 'EEL')
+        return self._nodal_result(rnum, 'EEL', nnum_of_interest=nodes)
 
     def plot_nodal_elastic_strain(self, rnum, comp,
                                   scalar_bar_args={'title': 'Nodal Elastic Strain'},
@@ -3904,7 +4149,9 @@ class Result(AnsysBinary):
                                   displacement_factor=1,
                                   node_components=None,
                                   element_components=None,
-                                  sel_type_all=True, **kwargs):
+                                  sel_type_all=True,
+                                  treat_nan_as_zero=True,
+                                  **kwargs):
         """Plot nodal elastic strain.
 
         Parameters
@@ -3940,10 +4187,14 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
 
         **kwargs : keyword arguments
-            Optional keyword arguments.  See help(pyvista.plot)
+            Optional keyword arguments.  See ``help(pyvista.plot)``p
 
         Examples
         --------
@@ -3964,11 +4215,14 @@ class Result(AnsysBinary):
                                        element_components=element_components,
                                        sel_type_all=sel_type_all,
                                        scalar_bar_args=scalar_bar_args,
+                                       treat_nan_as_zero=treat_nan_as_zero,
                                        **kwargs)
 
-    def nodal_plastic_strain(self, rnum):
-        """Nodal component plastic strains.  This record contains
-        strains in the order X, Y, Z, XY, YZ, XZ, EQV.
+    def nodal_plastic_strain(self, rnum, nodes=None):
+        """Nodal component plastic strains.
+
+        This record contains strains in the order:
+        ``X, Y, Z, XY, YZ, XZ, EQV``.
 
         Plastic strains are always values at the integration points
         moved to the nodes.
@@ -3979,14 +4233,22 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers.
+            MAPDL node numbers.
 
         plastic_strain : np.ndarray
             Nodal component plastic strains.  Array is in the order
-            X, Y, Z, XY, YZ, XZ, EQV.
+            ``X, Y, Z, XY, YZ, XZ, EQV``.
 
         Examples
         --------
@@ -3995,8 +4257,19 @@ class Result(AnsysBinary):
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, plastic_strain = rst.nodal_plastic_strain(0)
+
+        Return the nodal plastic strain just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, plastic_strain = rst.nodal_plastic_strain(0, nodes='MY_COMPONENT')
+
+        Return the nodal plastic strain just for the nodes from 20
+        through 50.
+
+        >>> nnum, plastic_strain = rst.nodal_plastic_strain(0, nodes=range(20, 51))
+
         """
-        return self._nodal_result(rnum, 'EPL')
+        return self._nodal_result(rnum, 'EPL', nnum_of_interest=nodes)
 
     def plot_nodal_plastic_strain(self, rnum, comp,
                                   scalar_bar_args={'title': 'Nodal Plastic Strain'},
@@ -4004,7 +4277,9 @@ class Result(AnsysBinary):
                                   displacement_factor=1,
                                   node_components=None,
                                   element_components=None,
-                                  sel_type_all=True, **kwargs):
+                                  sel_type_all=True,
+                                  treat_nan_as_zero=True,
+                                  **kwargs):
         """Plot nodal component plastic strain.
 
         Parameters
@@ -4041,10 +4316,14 @@ class Result(AnsysBinary):
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
-            containing all nodes of the component.  Default True.
+            containing all nodes of the component.  Default ``True``.
+
+        treat_nan_as_zero : bool, optional
+            Treat NAN values (i.e. stresses at midside nodes) as zero
+            when plotting.
 
         **kwargs : keyword arguments
-            Optional keyword arguments.  See help(pyvista.plot)
+            Optional keyword arguments.  See ``help(pyvista.plot)``.
 
         Examples
         --------
@@ -4065,12 +4344,15 @@ class Result(AnsysBinary):
                                        element_components=element_components,
                                        sel_type_all=sel_type_all,
                                        scalar_bar_args=scalar_bar_args,
+                                       treat_nan_as_zero=treat_nan_as_zero,
                                        **kwargs)
 
     def _plot_nodal_result(self, rnum, result_type, comp, available_comps,
                            show_displacement=False, displacement_factor=1,
                            node_components=None, element_components=None,
-                           sel_type_all=True, **kwargs):
+                           sel_type_all=True,
+                           treat_nan_as_zero=True,
+                           **kwargs):
         """Plot nodal result"""
         component_index = check_comp(available_comps, comp)
         _, result = self._nodal_result(rnum, result_type)
@@ -4088,6 +4370,8 @@ class Result(AnsysBinary):
         return self._plot_point_scalars(scalars, grid=grid, rnum=rnum,
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
+                                        treat_nan_as_zero=treat_nan_as_zero,
+                                        sel_type_all=sel_type_all,
                                         **kwargs)
 
     def _animate_time_solution(self, result_type, index=0, frame_rate=10,
@@ -4173,8 +4457,8 @@ class Result(AnsysBinary):
         """
         return self._available_results
 
-    def nodal_static_forces(self, rnum):
-        """Return the nodal forces averaged at the nodes
+    def nodal_static_forces(self, rnum, nodes=None):
+        """Return the nodal forces averaged at the nodes.
 
         Nodal forces are computed on an element by element basis, and
         this method averages the nodal forces for each element for
@@ -4186,10 +4470,18 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers.
+            MAPDL node numbers.
 
         forces : np.ndarray
            Averaged nodal forces.  Array is sized ``[nnod x numdof]``
@@ -4206,12 +4498,21 @@ class Result(AnsysBinary):
         >>> rst = pymapdl_reader.read_binary(examples.rstfile)
         >>> nnum, forces = rst.nodal_static_forces(0)
 
+        Return the nodal static forces just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, forces = rst.nodal_static_forces(0, nodes='MY_COMPONENT')
+
+        Return the nodal static forces just for the nodes from 20 through 50.
+
+        >>> nnum, forces = rst.nodal_static_forces(0, nodes=range(20, 51))
+
         Notes
         -----
         Nodes without a a nodal will be NAN.  These are generally
         midside (quadratic) nodes.
         """
-        return self._nodal_result(rnum, 'ENF')
+        return self._nodal_result(rnum, 'ENF', nnum_of_interest=nodes)
 
     @property
     def _is_distributed(self):

@@ -362,3 +362,38 @@ def test_reaction_forces(volume_rst):
     # loose tolerance due to table printed from MAPDL
     assert np.allclose(fz_known, fz, rtol=1E-4)
     assert np.allclose(nnum_known, nnum[dof == 1])
+
+
+@pytest.mark.parametrize('nnum_of_interest', [range(11, 50), 'all'])
+def test_nnum_of_interest(nnum_of_interest):
+    rst = pymapdl_reader.read_binary(examples.rstfile)
+    if nnum_of_interest == 'all':
+        nnum_of_interest = rst.mesh.nnum
+
+    nnum_sel, data_sel = rst._nodal_result(0, 'ENS', nnum_of_interest=nnum_of_interest)
+    nnum, data = rst._nodal_result(0, 'ENS')
+
+    mask = np.in1d(nnum, nnum_of_interest)
+    assert np.allclose(nnum[mask], nnum_sel)
+    assert np.allclose(data[mask], data_sel, equal_nan=True)
+
+
+@pytest.mark.parametrize('nodes', [range(11, 50), 'NCOMP2', ('NCOMP2', 'NODE_COMP')])
+def test_nodes_subselection(hex_rst, nodes):
+    nnum_sel, data_sel = hex_rst.nodal_solution(0, nodes=nodes)
+    nnum, data = hex_rst.nodal_solution(0, nodes=nodes)
+
+    grid_nnum = hex_rst.grid.point_arrays['ansys_node_num']
+    if isinstance(nodes, str):
+        nnum_of_interest = grid_nnum[hex_rst.grid.point_arrays[nodes].view(bool)]
+    elif isinstance(nodes, tuple):
+        mask = np.logical_or(hex_rst.grid.point_arrays[nodes[0]].view(bool),
+                              hex_rst.grid.point_arrays[nodes[1]].view(bool))
+        nnum_of_interest = grid_nnum[mask]
+    else:
+        nnum_of_interest = nodes
+
+    mask = np.in1d(nnum, nnum_of_interest)
+
+    assert np.allclose(nnum[mask], nnum_sel)
+    assert np.allclose(data[mask], data_sel, equal_nan=True)
