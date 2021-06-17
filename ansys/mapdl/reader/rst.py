@@ -507,7 +507,12 @@ class Result(AnsysBinary):
         else:
             grid = self.grid
 
-        return self._plot_point_scalars(None, grid=grid, **kwargs)
+        return self._plot_point_scalars(None,
+                                        grid=grid,
+                                        node_components=node_components,
+                                        element_components=element_components,
+                                        sel_type_all=sel_type_all,
+                                        **kwargs)
 
     def plot_nodal_solution(self, rnum, comp=None,
                             show_displacement=False,
@@ -2513,6 +2518,9 @@ class Result(AnsysBinary):
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
                                         treat_nan_as_zero=treat_nan_as_zero,
+                                        node_components=node_components,
+                                        element_components=element_components,
+                                        sel_type_all=sel_type_all,
                                         **kwargs)
 
     def cs_4x4(self, cs_cord, as_vtk_matrix=False):
@@ -2548,8 +2556,8 @@ class Result(AnsysBinary):
             text.
 
         grid : pyvista.PolyData or pyvista.UnstructuredGrid, optional
-            Uses self.grid by default.  When specified, uses this grid
-            instead.
+            Uses ``self.grid`` by default.  When specified, uses this
+            grid instead.
 
         show_displacement : bool, optional
             Deforms mesh according to the result.
@@ -3811,6 +3819,9 @@ class Result(AnsysBinary):
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
                                         treat_nan_as_zero=treat_nan_as_zero,
+                                        node_components=node_components,
+                                        element_components=element_components,
+                                        sel_type_all=sel_type_all,
                                         **kwargs)
 
     def plot_nodal_temperature(self, rnum, show_displacement=False,
@@ -3879,6 +3890,9 @@ class Result(AnsysBinary):
                                         displacement_factor=displacement_factor,
                                         scalar_bar_args={'title': 'Nodal Tempature'},
                                         treat_nan_as_zero=treat_nan_as_zero,
+                                        node_components=node_components,
+                                        element_components=element_components,
+                                        sel_type_all=sel_type_all,
                                         **kwargs)
 
     def nodal_thermal_strain(self, rnum):
@@ -3975,7 +3989,7 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        Plot thermal strain for result 0 of verification manual example 33
+        Plot thermal strain for result 0 of verification manual example 33.
 
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> from ansys.mapdl.reader import examples
@@ -4239,6 +4253,7 @@ class Result(AnsysBinary):
                                         show_displacement=show_displacement,
                                         displacement_factor=displacement_factor,
                                         treat_nan_as_zero=treat_nan_as_zero,
+                                        sel_type_all=sel_type_all,
                                         **kwargs)
 
     def _animate_time_solution(self, result_type, index=0, frame_rate=10,
