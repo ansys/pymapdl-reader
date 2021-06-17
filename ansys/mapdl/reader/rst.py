@@ -3625,7 +3625,7 @@ class Result(AnsysBinary):
         ptr = self._resultheader['rpointers'][rnum]
         return parse_header(self.read_record(ptr), solution_data_header_keys)
 
-    def nodal_stress(self, rnum):
+    def nodal_stress(self, rnum, nodes=None):
         """Retrieves the component stresses for each node in the
         solution.
 
@@ -3643,13 +3643,21 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : numpy.ndarray
             Node numbers of the result.
 
         stress : numpy.ndarray
-            Stresses at X, Y, Z, XY, YZ, and XZ averaged at each corner
+            Stresses at ``X, Y, Z, XY, YZ, XZ`` averaged at each corner
             node.
 
         Examples
@@ -3658,14 +3666,23 @@ class Result(AnsysBinary):
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, stress = rst.nodal_stress(0)
 
+        Return the nodal stress just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, stress = rst.nodal_stress(0, nodes='MY_COMPONENT')
+
+        Return the nodal stress just for the nodes from 20 through 50.
+
+        >>> nnum, stress = rst.nodal_solution(0, nodes=range(20, 51))
+
         Notes
         -----
         Nodes without a stress value will be NAN.
         Equivalent ANSYS command: PRNSOL, S
         """
-        return self._nodal_result(rnum, 'ENS')
+        return self._nodal_result(rnum, 'ENS', nnum_of_interest=nodes)
 
-    def cylindrical_nodal_stress(self, rnum):
+    def cylindrical_nodal_stress(self, rnum, nodes=None):
         """Retrieves the stresses for each node in the solution in the
         cylindrical coordinate system as the following values:
 
@@ -3685,20 +3702,37 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : numpy.ndarray
             Node numbers of the result.
 
         stress : numpy.ndarray
-            Stresses at R, THETA, Z, RTHETA, THETAZ, and RZ averaged
-            at each corner node where R is radial.
+            Stresses at ``R, THETA, Z, RTHETA, THETAZ, RZ`` averaged
+            at each corner node where ``R`` is radial.
 
         Examples
         --------
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, stress = rst.cylindrical_nodal_stress(0)
+
+        Return the cylindrical nodal stress just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, stress = rst.cylindrical_nodal_stress(0, nodes='MY_COMPONENT')
+
+        Return the nodal stress just for the nodes from 20 through 50.
+
+        >>> nnum, stress = rst.cylindrical_nodal_stress(0, nodes=range(20, 51))
 
         Notes
         -----
@@ -3707,7 +3741,7 @@ class Result(AnsysBinary):
         RSYS, 1
         PRNSOL, S
         """
-        nnum, stress = self._nodal_result(rnum, 'ENS')
+        nnum, stress = self._nodal_result(rnum, 'ENS', nnum_of_interest=nodes)
 
         # angles relative to the XZ plane
         if nnum.size != self._mesh.nodes.shape[0]:
@@ -3721,7 +3755,7 @@ class Result(AnsysBinary):
         _binary_reader.euler_cart_to_cyl(stress, angle)  # mod stress inplace
         return nnum, stress
 
-    def nodal_temperature(self, rnum, **kwargs):
+    def nodal_temperature(self, rnum, nodes=None, **kwargs):
         """Retrieves the temperature for each node in the
         solution.
 
@@ -3736,6 +3770,14 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : numpy.ndarray
@@ -3748,14 +3790,23 @@ class Result(AnsysBinary):
         --------
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
-        >>> nnum, stress = rst.nodal_temperature(0)
+        >>> nnum, temp = rst.nodal_temperature(0)
+
+        Return the temperature just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, temp = rst.nodal_stress(0, nodes='MY_COMPONENT')
+
+        Return the temperature just for the nodes from 20 through 50.
+
+        >>> nnum, temp = rst.nodal_solution(0, nodes=range(20, 51))
+
         """
         if self._is_thermal:
-            nnum, temp = self.nodal_solution(rnum)
+            nnum, temp = self.nodal_solution(rnum, nodes=nodes)
         else:
-            nnum, temp = self._nodal_result(rnum, 'EPT')
-        temp = temp.ravel()
-        return nnum, temp
+            nnum, temp = self._nodal_result(rnum, 'EPT', nnum_of_interest=nodes)
+        return nnum, temp.ravel()
 
     def plot_cylindrical_nodal_stress(self, rnum, comp=None, show_displacement=False,
                                       displacement_factor=1, node_components=None,
@@ -3908,7 +3959,7 @@ class Result(AnsysBinary):
                                         sel_type_all=sel_type_all,
                                         **kwargs)
 
-    def nodal_thermal_strain(self, rnum):
+    def nodal_thermal_strain(self, rnum, nodes=None):
         """Nodal component thermal strain.
 
         This record contains strains in the order X, Y, Z, XY, YZ, XZ,
@@ -3924,14 +3975,22 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers.
+            MAPDL node numbers.
 
         thermal_strain : np.ndarray
             Nodal component plastic strains.  Array is in the order
-            X, Y, Z, XY, YZ, XZ, EQV, ESWELL
+            ``X, Y, Z, XY, YZ, XZ, EQV, ESWELL``
 
         Examples
         --------
@@ -3940,8 +3999,17 @@ class Result(AnsysBinary):
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, thermal_strain = rst.nodal_thermal_strain(0)
+
+        Return the nodal thermal strain just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, thermal_strain = rst.nodal_thermal_strain(0, nodes='MY_COMPONENT')
+
+        Return the nodal thermal strain just for the nodes from 20 through 50.
+
+        >>> nnum, thermal_strain = rst.nodal_thermal_strain(0, nodes=range(20, 51))
         """
-        return self._nodal_result(rnum, 'ETH')
+        return self._nodal_result(rnum, 'ETH', nnum_of_interest=nodes)
 
     def plot_nodal_thermal_strain(self, rnum,
                                   comp=None,
@@ -4019,9 +4087,9 @@ class Result(AnsysBinary):
                                        treat_nan_as_zero=treat_nan_as_zero,
                                        **kwargs)
 
-    def nodal_elastic_strain(self, rnum):
+    def nodal_elastic_strain(self, rnum, nodes=None):
         """Nodal component elastic strains.  This record contains
-        strains in the order X, Y, Z, XY, YZ, XZ, EQV.
+        strains in the order ``X, Y, Z, XY, YZ, XZ, EQV``.
 
         Elastic strains can be can be nodal values extrapolated from
         the integration points or values at the integration points
@@ -4035,14 +4103,22 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers.
+            MAPDL node numbers.
 
         elastic_strain : np.ndarray
             Nodal component elastic strains.  Array is in the order
-            X, Y, Z, XY, YZ, XZ, EQV.
+            ``X, Y, Z, XY, YZ, XZ, EQV``.
 
         Examples
         --------
@@ -4052,12 +4128,20 @@ class Result(AnsysBinary):
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, elastic_strain = rst.nodal_elastic_strain(0)
 
+        Return the nodal elastic strain just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, elastic_strain = rst.nodal_elastic_strain(0, nodes='MY_COMPONENT')
+
+        Return the nodal elastic strain just for the nodes from 20 through 50.
+
+        >>> nnum, elastic_strain = rst.nodal_elastic_strain(0, nodes=range(20, 51))
+
         Notes
         -----
         Nodes without a strain will be NAN.
-
         """
-        return self._nodal_result(rnum, 'EEL')
+        return self._nodal_result(rnum, 'EEL', nnum_of_interest=nodes)
 
     def plot_nodal_elastic_strain(self, rnum, comp,
                                   scalar_bar_args={'title': 'Nodal Elastic Strain'},
@@ -4134,9 +4218,11 @@ class Result(AnsysBinary):
                                        treat_nan_as_zero=treat_nan_as_zero,
                                        **kwargs)
 
-    def nodal_plastic_strain(self, rnum):
-        """Nodal component plastic strains.  This record contains
-        strains in the order X, Y, Z, XY, YZ, XZ, EQV.
+    def nodal_plastic_strain(self, rnum, nodes=None):
+        """Nodal component plastic strains.
+
+        This record contains strains in the order:
+        ``X, Y, Z, XY, YZ, XZ, EQV``.
 
         Plastic strains are always values at the integration points
         moved to the nodes.
@@ -4147,14 +4233,22 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers.
+            MAPDL node numbers.
 
         plastic_strain : np.ndarray
             Nodal component plastic strains.  Array is in the order
-            X, Y, Z, XY, YZ, XZ, EQV.
+            ``X, Y, Z, XY, YZ, XZ, EQV``.
 
         Examples
         --------
@@ -4163,8 +4257,19 @@ class Result(AnsysBinary):
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
         >>> nnum, plastic_strain = rst.nodal_plastic_strain(0)
+
+        Return the nodal plastic strain just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, plastic_strain = rst.nodal_plastic_strain(0, nodes='MY_COMPONENT')
+
+        Return the nodal plastic strain just for the nodes from 20
+        through 50.
+
+        >>> nnum, plastic_strain = rst.nodal_plastic_strain(0, nodes=range(20, 51))
+
         """
-        return self._nodal_result(rnum, 'EPL')
+        return self._nodal_result(rnum, 'EPL', nnum_of_interest=nodes)
 
     def plot_nodal_plastic_strain(self, rnum, comp,
                                   scalar_bar_args={'title': 'Nodal Plastic Strain'},
@@ -4352,8 +4457,8 @@ class Result(AnsysBinary):
         """
         return self._available_results
 
-    def nodal_static_forces(self, rnum):
-        """Return the nodal forces averaged at the nodes
+    def nodal_static_forces(self, rnum, nodes=None):
+        """Return the nodal forces averaged at the nodes.
 
         Nodal forces are computed on an element by element basis, and
         this method averages the nodal forces for each element for
@@ -4365,10 +4470,18 @@ class Result(AnsysBinary):
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
+        nodes : str, sequence of int or str, optional
+            Select a limited subset of nodes.  Can be a nodal
+            component or array of node numbers.  For example
+
+            * ``"MY_COMPONENT"``
+            * ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            * ``np.arange(1000, 2001)``
+
         Returns
         -------
         nnum : np.ndarray
-            ANSYS node numbers.
+            MAPDL node numbers.
 
         forces : np.ndarray
            Averaged nodal forces.  Array is sized ``[nnod x numdof]``
@@ -4385,12 +4498,21 @@ class Result(AnsysBinary):
         >>> rst = pymapdl_reader.read_binary(examples.rstfile)
         >>> nnum, forces = rst.nodal_static_forces(0)
 
+        Return the nodal static forces just for the nodal component
+        ``'MY_COMPONENT'``.
+
+        >>> nnum, forces = rst.nodal_static_forces(0, nodes='MY_COMPONENT')
+
+        Return the nodal static forces just for the nodes from 20 through 50.
+
+        >>> nnum, forces = rst.nodal_static_forces(0, nodes=range(20, 51))
+
         Notes
         -----
         Nodes without a a nodal will be NAN.  These are generally
         midside (quadratic) nodes.
         """
-        return self._nodal_result(rnum, 'ENF')
+        return self._nodal_result(rnum, 'ENF', nnum_of_interest=nodes)
 
     @property
     def _is_distributed(self):
