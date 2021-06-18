@@ -781,6 +781,7 @@ class Result(AnsysBinary):
                                sel_type_all=True, add_text=True,
                                displacement_factor=0.1, n_frames=100,
                                loop=True, movie_filename=None,
+                               progress_bar=True,
                                **kwargs):
         """Animate nodal solution.  Assumes nodal solution is a
         displacement array from a modal or static solution.
@@ -818,20 +819,25 @@ class Result(AnsysBinary):
 
         loop : bool, optional
             Loop the animation.  Default ``True``.  Disable this to
-            animate once and close.
+            animate once and close.  Automatically disabled when
+            ``off_screen=True`` and ``movie_filename`` is set.
 
         movie_filename : str, optional
             Filename of the movie to open.  Filename should end in
-            ``'mp4'``, but other filetypes may be supported.  See
-            ``imagio.get_writer``.  A single loop of the mode will be
-            recorded.
+            ``'mp4'``, but other filetypes may be supported like
+            ``"gif"``.  See ``imagio.get_writer``.  A single loop of
+            the mode will be recorded.
+
+        progress_bar : bool, optional
+            Displays a progress bar when generating a movie while
+            ``off_screen=True``.  Default is ``True``.
 
         kwargs : optional keyword arguments, optional
             See ``help(pyvista.Plot)`` for additional keyword arguments.
 
         Examples
         --------
-        Animate first result
+        Animate the first result interactively.
 
         >>> rst.animate_nodal_solution(0)
 
@@ -840,9 +846,14 @@ class Result(AnsysBinary):
 
         >>> rst.animate_nodal_solution(1, comp='x', loop=False)
 
-        Animate second result and save as a movie
+        Animate the second result and save as a movie.
 
         >>> rst.animate_nodal_solution(0, movie_filename='disp.mp4')
+
+        Animate the second result and save as a movie in the background.
+
+        >>> rst.animate_nodal_solution(0, movie_filename='disp.mp4', off_screen=True)
+
         """
         if 'nangles' in kwargs:
             n_frames = kwargs.pop('nangles')
@@ -889,7 +900,9 @@ class Result(AnsysBinary):
                                         n_frames=n_frames,
                                         displacement_factor=displacement_factor,
                                         movie_filename=movie_filename,
-                                        loop=loop, **kwargs)
+                                        loop=loop,
+                                        progress_bar=progress_bar,
+                                        **kwargs)
 
     @wraps(animate_nodal_solution)
     def animate_nodal_displacement(self, *args, **kwargs):
@@ -2558,6 +2571,7 @@ class Result(AnsysBinary):
                             element_components=None,
                             sel_type_all=True, movie_filename=None,
                             treat_nan_as_zero=True,
+                            progress_bar=True,
                             **kwargs):
         """Plot point scalars on active mesh.
 
@@ -2589,6 +2603,10 @@ class Result(AnsysBinary):
         treat_nan_as_zero : bool, optional
             Treat NAN values (i.e. stresses at midside nodes) as zero
             when plotting.
+
+        progress_bar : bool, optional
+            Displays a progress bar when generating a movie while
+            ``off_screen=True``.  Default is ``True``.
 
         kwargs : keyword arguments
             Additional keyword arguments.  See ``help(pyvista.plot)``
@@ -2724,6 +2742,12 @@ class Result(AnsysBinary):
             plotter.add_text(result_text, font_size=20, color=text_color)
 
         if animate:
+            if off_screen:  # otherwise this never exits
+                loop = False
+            pbar = None
+            if progress_bar and off_screen and movie_filename is not None:
+                pbar = tqdm(total=n_frames, desc='Rendering animation')
+
             orig_pts = copied_mesh.points.copy()
             plotter.show(interactive=False, auto_close=False,
                          window_size=window_size,
@@ -2767,6 +2791,8 @@ class Result(AnsysBinary):
                         break
 
                     if movie_filename and first_loop:
+                        if pbar is not None:
+                            pbar.update()
                         plotter.write_frame()
 
                 first_loop = False
@@ -3162,11 +3188,7 @@ class Result(AnsysBinary):
 
         pbar = None
         if progress_bar:
-            try:
-                from tqdm import tqdm
-                pbar = tqdm(total=len(rsets), desc='Saving to file')
-            except ImportError:
-                pass
+            pbar = tqdm(total=len(rsets), desc='Saving to file')
 
         for i in rsets:
             # Nodal results
