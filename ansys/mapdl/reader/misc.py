@@ -8,9 +8,7 @@ from pyvista.utilities.errors import GPUInfo
 import scooby
 import pyvista
 import numpy as np
-import vtk
-
-VTK9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
+from pyvista._vtk import VTK9
 
 
 def vtk_cell_info(grid, force_int64=True, shift_offset=True):
@@ -65,39 +63,71 @@ def vtk_cell_info(grid, force_int64=True, shift_offset=True):
 
 
 class Report(scooby.Report):
-    """A class for custom scooby.Report."""
+    """Generate an enviornment and software report.
+
+    Parameters
+    ----------
+    additional : list(ModuleType), list(str)
+        List of packages or package names to add to output information.
+
+    ncol : int, optional
+        Number of package-columns in html table; only has effect if
+        ``mode='HTML'`` or ``mode='html'``. Defaults to 3.
+
+    text_width : int, optional
+        The text width for non-HTML display modes.
+
+    sort : bool, optional
+        Alphabetically sort the packages.
+
+    gpu : bool, optional
+        Gather information about the GPU. Defaults to ``True`` but if
+        experiencing renderinng issues, pass ``False`` to safely generate
+        a report.
+
+    Examples
+    --------
+    >>> from ansys.mapdl import reader as pymapdl_reader
+    >>> print(pymapdl_reader.Report())
+    -----------------------------------------------------------------
+    PyMAPDL-Reader Software and Environment Report
+    -----------------------------------------------------------------
+      Date: Sat Jun 19 14:52:00 2021 MDT
+    |
+                    OS : Linux
+                CPU(s) : 16
+               Machine : x86_64
+          Architecture : 64bit
+                   RAM : 62.8 GiB
+           Environment : Python
+    NVIDIA Corporation : GPU Vendor
+    NVIDIA Quadro P2000/PCIe/SSE2 : GPU Renderer
+    4.5.0 NVIDIA 465.27 : GPU Version
+    |
+      Python 3.8.5 (default, May 27 2021, 13:30:53)  [GCC 9.3.0]
+    |
+               pyvista : 0.31.1
+                   vtk : 9.0.1
+                 numpy : 1.20.3
+               appdirs : 1.4.4
+    ansys.mapdl.reader : 0.51.dev0
+                  tqdm : 4.61.1
+            matplotlib : 3.4.2
+      ansys.mapdl.core : 0.59.dev0
+                 scipy : 1.6.3
+    -----------------------------------------------------------------
+
+    """
 
     def __init__(self, additional=None, ncol=3, text_width=80, sort=False,
                  gpu=True):
-        """Generate a :class:`scooby.Report` instance.
-
-        Parameters
-        ----------
-        additional : list(ModuleType), list(str)
-            List of packages or package names to add to output information.
-
-        ncol : int, optional
-            Number of package-columns in html table; only has effect if
-            ``mode='HTML'`` or ``mode='html'``. Defaults to 3.
-
-        text_width : int, optional
-            The text width for non-HTML display modes
-
-        sort : bool, optional
-            Alphabetically sort the packages
-
-        gpu : bool
-            Gather information about the GPU. Defaults to ``True`` but if
-            experiencing renderinng issues, pass ``False`` to safely generate
-            a report.
-
-        """
+        """Generate a :class:`scooby.Report` instance."""
         # Mandatory packages.
-        core = ['pyansys', 'pyvista', 'vtk', 'numpy', 'scipy',
-                'appdirs', 'ansys.mapdl.core']
+        core = ['pyvista', 'vtk', 'numpy', 'appdirs',
+                'ansys.mapdl.reader', 'tqdm', 'matplotlib']
 
         # Optional packages.
-        optional = ['matplotlib', 'ansys.mapdl.corba']
+        optional = ['matplotlib', 'ansys.mapdl.core', 'scipy']
 
         # Information about the GPU - bare except in case there is a rendering
         # bug that the user is trying to report.
@@ -115,7 +145,7 @@ class Report(scooby.Report):
                                extra_meta=extra_meta)
 
     def __repr__(self):
-        add_text = '-'*79 + '\nPyMAPDL-Reader Software and Environment Report'
+        add_text = '-'*80 + '\nPyMAPDL-Reader Software and Environment Report'
         return add_text + super().__repr__()
 
 
@@ -141,7 +171,6 @@ def _configure_pyvista():
     pv.rcParams["cmap"] = "jet"
     pv.rcParams["font"]["family"] = "courier"
     pv.rcParams["title"] = "pyansys"
-    return
 
 
 def break_apart_surface(surf, force_linear=True):
