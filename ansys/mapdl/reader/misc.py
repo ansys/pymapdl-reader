@@ -63,7 +63,7 @@ def vtk_cell_info(grid, force_int64=True, shift_offset=True):
 
 
 class Report(scooby.Report):
-    """Generate an enviornment and software report.
+    """Generate an environment and software report.
 
     Parameters
     ----------
