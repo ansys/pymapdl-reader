@@ -82,8 +82,8 @@ class Report(scooby.Report):
 
     gpu : bool, optional
         Gather information about the GPU. Defaults to ``True`` but if
-        experiencing renderinng issues, pass ``False`` to safely generate
-        a report.
+        experiencing rendering issues, pass ``False`` to safely
+        generate a report.
 
     Examples
     --------
@@ -119,7 +119,7 @@ class Report(scooby.Report):
 
     """
 
-    def __init__(self, additional=None, ncol=3, text_width=80, sort=False,
+    def __init__(self, additional=None, ncol=3, text_width=79, sort=False,
                  gpu=True):
         """Generate a :class:`scooby.Report` instance."""
         # Mandatory packages.
@@ -143,9 +143,10 @@ class Report(scooby.Report):
                                optional=optional, ncol=ncol,
                                text_width=text_width, sort=sort,
                                extra_meta=extra_meta)
+        self._text_width = text_width
 
     def __repr__(self):
-        add_text = '-'*80 + '\nPyMAPDL-Reader Software and Environment Report'
+        add_text = '-'*self.text_width + '\nPyMAPDL-Reader Software and Environment Report'
         return add_text + super().__repr__()
 
 
