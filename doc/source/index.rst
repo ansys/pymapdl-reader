@@ -10,7 +10,6 @@ straightforward API coupled with C libraries based on header files
 provided by ANSYS.
 
 The ``ansys-mapdl-reader`` module supports the following formats:
-
   - ``*.rst`` - Structural analysis result file
   - ``*.rth`` - Thermal analysis result file 
   - ``*.emat`` - Element matrice data file

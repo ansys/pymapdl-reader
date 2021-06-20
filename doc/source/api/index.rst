@@ -15,3 +15,4 @@ PyMAPDL-Reader classes, functions, and attributes.
    full
    mesh_quality
    rst
+   misc
