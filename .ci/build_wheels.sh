@@ -21,6 +21,9 @@ case $PYTHON_VERSION in
 3.8)
   PYBIN="/opt/python/cp38-cp38/bin"
   ;;
+3.9)
+  PYBIN="/opt/python/cp39-cp39/bin"
+  ;;
 esac
 
 # build, don't install
