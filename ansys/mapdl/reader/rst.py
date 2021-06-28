@@ -91,6 +91,9 @@ class Result(AnsysBinary):
     >>> rst = pymapdl_reader.read_binary('file.rst')
     """
 
+    ELEMENT_INDEX_TABLE_KEYS = ELEMENT_INDEX_TABLE_KEYS
+    ELEMENT_RESULT_NCOMP = ELEMENT_RESULT_NCOMP
+
     def __init__(self, filename, read_mesh=True, **kwargs):
         """Loads basic result information from result file and
         initializes result object.
