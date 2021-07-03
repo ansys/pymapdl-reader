@@ -2413,7 +2413,7 @@ class Result(AnsysBinary):
 
         return enum, element_data, enode
 
-    def principal_nodal_stress(self, rnum):
+    def principal_nodal_stress(self, rnum, nodes = None):
         """Computes the principal component stresses for each node in
         the solution.
 
@@ -2458,7 +2458,7 @@ class Result(AnsysBinary):
 
         """
         # get component stress
-        nodenum, stress = self.nodal_stress(rnum)
+        nodenum, stress = self.nodal_stress(rnum,nodes)
         pstress, isnan = _binary_reader.compute_principal_stress(stress)
         pstress[isnan] = np.nan
         return nodenum, pstress
