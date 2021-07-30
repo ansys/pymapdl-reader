@@ -6,7 +6,7 @@ from functools import wraps
 
 import pyvista as pv
 import numpy as np
-from vtk import vtkAppendFilter
+from pyvista._vtk import vtkAppendFilter
 
 from ansys.mapdl.reader.misc import is_float, vtk_cell_info
 from ansys.mapdl.reader.mesh import Mesh

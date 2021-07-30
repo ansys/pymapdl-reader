@@ -1,7 +1,7 @@
 """Supports reading cyclic structural result files from ANSYS"""
 from functools import wraps
 
-from vtk import vtkMatrix4x4, vtkTransform, vtkAppendFilter
+from pyvista._vtk import vtkMatrix4x4, vtkTransform, vtkAppendFilter
 import numpy as np
 import pyvista as pv
 
