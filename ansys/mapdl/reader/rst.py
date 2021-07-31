@@ -9,9 +9,9 @@ import warnings
 from threading import Thread
 from functools import wraps
 
-import vtk
 import numpy as np
 import pyvista as pv
+from pyvista import _vtk as vtk
 from tqdm import tqdm
 
 from ansys.mapdl.reader import _binary_reader, _reader
@@ -35,8 +35,6 @@ from ansys.mapdl.reader.common import (read_table, parse_header,
                                        THERMAL_STRAIN_TYPES)
 from ansys.mapdl.reader.misc import vtk_cell_info, break_apart_surface
 from ansys.mapdl.reader.rst_avail import AvailableResults
-
-VTK9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
 
 
 def access_bit(data, num):
