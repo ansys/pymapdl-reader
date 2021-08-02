@@ -28,7 +28,7 @@ jobs:
 
       - name: Build wheels
         uses: joerick/cibuildwheel@v2.0.1
-        env
+        env:
           CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
 
       - name: Show files
