@@ -35,6 +35,7 @@ from ansys.mapdl.reader.common import (read_table, parse_header,
                                        THERMAL_STRAIN_TYPES)
 from ansys.mapdl.reader.misc import vtk_cell_info, break_apart_surface
 from ansys.mapdl.reader.rst_avail import AvailableResults
+from ansys.mapdl.reader import elements
 
 
 def access_bit(data, num):
@@ -101,6 +102,7 @@ class Result(AnsysBinary):
         self._resultheader = self._read_result_header()
         self._animating = False
         self.__element_map = None
+        self._ignore154 = True
 
         # Get the total number of results and log it
         self.nsets = len(self._resultheader['rpointers'])
@@ -1640,9 +1642,6 @@ class Result(AnsysBinary):
             A table of pointers relative to the element result table
             offset containing element result pointers.
 
-        nodstr : np.ndarray
-            Array containing the number of nodes with values for each element.
-
         etype : np.ndarray
             Element type array
 
@@ -1651,7 +1650,6 @@ class Result(AnsysBinary):
         """
         # Get the header information from the header dictionary
         rpointers = self._resultheader['rpointers']
-        nodstr = self._element_table['nodstr']
 
         # read result solution header
         solution_header = self._result_solution_header(rnum)
@@ -1675,7 +1673,7 @@ class Result(AnsysBinary):
         ele_ind_table = self.read_record(element_rst_ptr).view(np.int64)
         # ele_ind_table += element_rst_ptr
 
-        return ele_ind_table, nodstr, self._mesh._ans_etype, element_rst_ptr
+        return ele_ind_table, self._mesh._ans_etype, element_rst_ptr
 
     def result_dof(self, rnum):
         """Return a list of degrees of freedom for a given result number.
@@ -1908,13 +1906,13 @@ class Result(AnsysBinary):
         the bottom layer is reported.
         """
         rnum = self.parse_step_substep(rnum)
-        ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
+        ele_ind_table, etype, ptr_off = self._element_solution_header(rnum)
 
         # certain element types do not output stress
         elemtype = self._mesh.etype
 
         # load in raw results
-        nnode = nodstr[etype]
+        nnode = self._nodstr[etype]
         nelemnode = nnode.sum()
 
         # bitmask (might use this at some point)
@@ -1935,7 +1933,7 @@ class Result(AnsysBinary):
 
             _binary_reader.read_element_stress(self.filename,
                                                ele_ind_table,
-                                               nodstr.astype(np.int64),
+                                               self._nodstr.astype(np.int64),
                                                etype, ele_data_arr,
                                                nitem, elemtype,
                                                ptr_off,
@@ -2076,7 +2074,7 @@ class Result(AnsysBinary):
         table_index = ELEMENT_INDEX_TABLE_KEYS.index(table_ptr)
 
         rnum = self.parse_step_substep(rnum)
-        ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
+        ele_ind_table, etype, ptr_off = self._element_solution_header(rnum)
 
         # index of the element in the element table
         idx = self.element_lookup(element_id)
@@ -2235,7 +2233,7 @@ class Result(AnsysBinary):
         table_index = ELEMENT_INDEX_TABLE_KEYS.index(table_ptr)
 
         rnum = self.parse_step_substep(rnum)
-        ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
+        ele_ind_table, etype, ptr_off = self._element_solution_header(rnum)
 
         # index of the element in the element table
         for element_id, data in element_data.items():
@@ -2373,7 +2371,7 @@ class Result(AnsysBinary):
         table_index = ELEMENT_INDEX_TABLE_KEYS.index(table_ptr)
 
         rnum = self.parse_step_substep(rnum)
-        ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
+        ele_ind_table, etype, ptr_off = self._element_solution_header(rnum)
 
         # read element data
         if self._cfile is not None:
@@ -2403,7 +2401,7 @@ class Result(AnsysBinary):
             element_data = [element_data[i] for i in sidx]
 
         enode = []
-        nnode = nodstr[etype]
+        nnode = self._nodstr[etype]
         if sort:
             enode = [self._mesh.elem[i][10:10+nnode[i]] for i in sidx]
         else:
@@ -2679,6 +2677,7 @@ class Result(AnsysBinary):
         else:
             rng = kwargs.pop('rng', None)
 
+        return_cpos = kwargs.pop('return_cpos', False)
         cmap = kwargs.pop('cmap', 'jet')
         window_size = kwargs.pop('window_size', pv.rcParams['window_size'])
         full_screen = kwargs.pop('full_screen', pv.rcParams.get('full_screen', None))
@@ -2750,10 +2749,16 @@ class Result(AnsysBinary):
                 pbar = tqdm(total=n_frames, desc='Rendering animation')
 
             orig_pts = copied_mesh.points.copy()
+
+            # camera position added in 0.32.0
+            show_kwargs = {}
+            if pv._version.version_info[1] > 31:
+                show_kwargs['return_cpos'] = return_cpos
+
             plotter.show(interactive=False, auto_close=False,
                          window_size=window_size,
                          full_screen=full_screen,
-                         interactive_update=not off_screen)
+                         interactive_update=not off_screen, **show_kwargs)
 
             self._animating = True
             def q_callback():
@@ -3335,10 +3340,10 @@ class Result(AnsysBinary):
 
         Returns
         -------
-        nnum : np.ndarray
+        np.ndarray
             Ansys node numbers
 
-        result : np.ndarray
+        np.ndarray
             Array of result data
         """
         if not self.available_results[result_type]:
@@ -3348,7 +3353,7 @@ class Result(AnsysBinary):
 
         # element header
         rnum = self.parse_step_substep(rnum)
-        ele_ind_table, nodstr, ans_etype, ptr_off = self._element_solution_header(rnum)
+        ele_ind_table, ans_etype, ptr_off = self._element_solution_header(rnum)
 
         result_type = result_type.upper()
         nitem = self._result_nitem(rnum, result_type)
@@ -3381,6 +3386,21 @@ class Result(AnsysBinary):
             grid = self.grid
             etype = self._mesh.etype
 
+        # Ignore contributions from SURF154 for temperature results
+        ignore_154 = result_type in ['EPT']
+
+        # NOTE: For nodal temperatures:
+        # For solid elements and SHELL41, the record contains nodal
+        # temperatures at each node and the number of items in this
+        # record is nodfor.
+        # nodfor
+        nodstr = self._nodstr.copy()  # copy here since we may change it inplace
+        if result_type == 'EPT':
+            # replace values in nodstr
+            is_solid = elements.SOLID_ELEMENTS[self.mesh.ekey[:, 1]]
+            is_solid += self.mesh.ekey[:, 1] == 41  # must include SHELL41
+            nodstr[1:][is_solid] = self._nodfor[1:][is_solid]
+
         # call cython to extract and assemble the data
         cells, offset = vtk_cell_info(grid)
         data, ncount = _binary_reader.read_nodal_values(self.filename,
@@ -3394,7 +3414,8 @@ class Result(AnsysBinary):
                                                         ans_etype,
                                                         etype,
                                                         result_index,
-                                                        ptr_off)
+                                                        ptr_off,
+                                                        ignore_154)
 
         # sanity check
         if not np.any(ncount):
@@ -3418,6 +3439,22 @@ class Result(AnsysBinary):
         # average across nodes
         ncount = ncount.reshape(-1, 1)
         return nnum, data/ncount
+
+    @property
+    def _nodstr(self):
+        """Number of nodes per element having stresses or strains.
+
+        For higher-order elements, nodstr equals to the number of
+        corner nodes (e.g., for 20-noded SOLID186, nodstr = 8). NOTE-
+        the /config NST1 option may suppress all but one node output
+        of nodal ENS EEL EPL ECR ETH and ENL for any given element.
+        """
+        return self._element_table['nodstr']
+
+    @property
+    def _nodfor(self):
+        """Number of nodes per element having nodal forces"""
+        return self._element_table['nodfor']
 
     def _result_nitem(self, rnum, result_type):
         """Return the number of items for a given result type"""
@@ -3603,7 +3640,7 @@ class Result(AnsysBinary):
         being the element result"""
         # element header
         rnum = self.parse_step_substep(rnum)
-        ele_ind_table, nodstr, etype, ptr_off = self._element_solution_header(rnum)
+        ele_ind_table, etype, ptr_off = self._element_solution_header(rnum)
 
         # the number of items per node
         nitem = self._result_nitem(rnum, result_type)
@@ -3626,7 +3663,7 @@ class Result(AnsysBinary):
 
         data = populate_surface_element_result(self.filename,
                                                ele_ind_table,
-                                               nodstr,
+                                               self._nodstr,
                                                etype,
                                                nitem,
                                                ptr_off,  # start of result data

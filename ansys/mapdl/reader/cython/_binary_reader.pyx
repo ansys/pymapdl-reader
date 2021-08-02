@@ -868,7 +868,8 @@ def read_nodal_values(filename, uint8 [::1] celltypes,
                       int [::1] etype,
                       int [::1] element_type,
                       int result_index,
-                      int64_t ptr_off):
+                      int64_t ptr_off,
+                      int skip_154):
     """Read nodal results from ANSYS directly into a numpy array
 
     element_type : int [::1] np.ndarray
@@ -903,6 +904,7 @@ def read_nodal_values(filename, uint8 [::1] celltypes,
         EBA - 22 : back stresses
         ESV - 23 : state variables
         MNL - 24 : material nonlinear record
+
     """
     cdef int64_t i, j, k, ind, nread, offset
     cdef int64_t ncells = ele_ind_table.size
@@ -929,6 +931,8 @@ def read_nodal_values(filename, uint8 [::1] celltypes,
         nnode_elem = nodstr[etype[i]]
         if ele_ind_table[i] == 0:  # element contains no data
             continue
+        elif element_type[i] == 154 and skip_154:  # ignore SURF154 elements
+            continue
         else:
             skip = read_element_result(binfile, ele_ind_table[i] + ptr_off,
                                        result_index, nnode_elem, nitems,
@@ -941,15 +945,15 @@ def read_nodal_values(filename, uint8 [::1] celltypes,
         offset = offsets[i] + 1
 
         if celltype == VTK_LINE:
-            read_element(cells, offset, ncount, data, bufferdata, nitems, 2)
+            read_element(cells, offset, ncount, data, bufferdata, nitems, nnode_elem)
         elif celltype == VTK_TRIANGLE:  # untested
-            read_element(cells, offset, ncount, data, bufferdata, nitems, 3)
+            read_element(cells, offset, ncount, data, bufferdata, nitems, nnode_elem)
         elif celltype == VTK_QUAD or celltype == VTK_QUADRATIC_QUAD:
-            read_element(cells, offset, ncount, data, bufferdata, nitems, 4)
+            read_element(cells, offset, ncount, data, bufferdata, nitems, nnode_elem)
         elif celltype == VTK_HEXAHEDRON:
-            read_element(cells, offset, ncount, data, bufferdata, nitems, 8)
+            read_element(cells, offset, ncount, data, bufferdata, nitems, nnode_elem)
         elif celltype == VTK_PYRAMID:
-            read_element(cells, offset, ncount, data, bufferdata, nitems, 5)
+            read_element(cells, offset, ncount, data, bufferdata, nitems, nnode_elem)
         elif celltype == VTK_TETRA:  # dependent on element type
             if nodstr[etype[i]] == 4:
                 read_element(cells, offset, ncount, data, bufferdata, nitems, 4)

@@ -413,7 +413,11 @@ def test_nodal_temperature(result_x):
 
     # include only common values
     assert np.allclose(nnum, nnum_ans)
-    assert np.allclose(temp, temp_ans, equal_nan=True)
+
+    # ignore nans from Ansys.  Reader now gets results for midside
+    # nodes, cached results contain only edge
+    mask = ~np.isnan(temp_ans[0])
+    assert np.allclose(temp[mask], temp_ans[:, mask], equal_nan=True)
 
 
 @skip_with_no_xserver
