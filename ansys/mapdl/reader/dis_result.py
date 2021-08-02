@@ -249,7 +249,7 @@ class DistributedResult(Result):
 
         c = 0  # global cell index counter
         for result in self._results:
-            ele_ind_table, nodstr, etype, ptr_off = result._element_solution_header(rnum)
+            ele_ind_table, etype, ptr_off = result._element_solution_header(rnum)
             # we return c here since it is copied to C, not passed by reference
             c = read_nodal_values_dist(result.filename,
                                        self.grid.celltypes,
@@ -258,7 +258,7 @@ class DistributedResult(Result):
                                        cells,
                                        nitem,
                                        n_points,
-                                       nodstr,
+                                       self._nodstr,
                                        etype,
                                        self._mesh.etype,
                                        result_index,
@@ -289,11 +289,11 @@ class DistributedResult(Result):
             glb_element_data.extend(element_data)
 
         # Assemble and sort (args[0] is rnum)
-        _, nodstr, etype, _ = self._element_solution_header(args[0])
+        _, etype, _ = self._element_solution_header(args[0])
 
         enum = self._eeqv
         enode = []
-        nnode = nodstr[etype]
+        nnode = self._nodstr[etype]
         if sort:
             sidx = np.argsort(enum)
             enum = enum[sidx]
@@ -318,11 +318,11 @@ class DistributedResult(Result):
             glb_stress.extend(element_data)
 
         # Assemble and sort (args[0] is rnum)
-        _, nodstr, etype, _ = self._element_solution_header(args[0])
+        _, etype, _ = self._element_solution_header(args[0])
 
         enum = self._eeqv
         enode = []
-        nnode = nodstr[etype]
+        nnode = self._nodstr[etype]
 
         if sort:
             sidx = np.argsort(enum)

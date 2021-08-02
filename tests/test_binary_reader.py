@@ -454,7 +454,7 @@ def test_thermal_result(thermal_rst):
 
 
 def test_plot_temperature(thermal_rst):
-    cpos = thermal_rst.plot_nodal_temperature(0)
+    cpos = thermal_rst.plot_nodal_temperature(0, return_cpos=True)
     assert isinstance(cpos, CameraPosition)
 
 
