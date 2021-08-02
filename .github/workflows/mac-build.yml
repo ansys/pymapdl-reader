@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name Build wheels
+      - name: Build wheels
         uses: joerick/cibuildwheel@v2.0.1
         env
           CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
