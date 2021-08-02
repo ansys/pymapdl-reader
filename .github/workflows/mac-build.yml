@@ -34,14 +34,13 @@ jobs:
       - name: Install package
         run: |
           pip install dist/*
+          cd tests/
           python -c "from ansys.mapdl import reader; print(reader.Report(gpu=False))"
-
-      - name: Install test dependencies
-        run: |
-          pip install -r requirements_test.txt
 
       - name: Unit testing
         run: |
+          pip install -r requirements_test.txt
+          cd tests/
           pytest -v
 
       - name: Validate package
