@@ -9,7 +9,7 @@ on:
 
 jobs:
   macOS:
-    runs-on: macos-latest
+    runs-on: macos-11
     name: Mac OS Unit Testing
     strategy:
       matrix:
