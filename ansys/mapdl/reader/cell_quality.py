@@ -4,7 +4,6 @@ cell quality from VTK unstructured grids.
 import numpy as np
 import pyvista as pv
 
-from ansys.mapdl.reader._cellqual import cell_quality_float, cell_quality
 from ansys.mapdl.reader.misc import vtk_cell_info
 
 
@@ -32,6 +31,10 @@ def quality(grid):
     array([1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
            1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.])
     """
+
+    # lazy load to speed up import
+    from ansys.mapdl.reader._cellqual import cell_quality_float, cell_quality
+
     flip = False
     if isinstance(grid, pv.StructuredGrid):
         grid = grid.cast_to_unstructured_grid()

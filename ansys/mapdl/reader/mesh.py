@@ -1,6 +1,7 @@
 """Module for common class between Archive, and result mesh"""
 import pyvista as pv
-import vtk
+from pyvista import _vtk as vtk
+from pyvista._vtk import VTK9
 import numpy as np
 
 from ansys.mapdl.reader import _relaxmidside, _reader
@@ -8,7 +9,6 @@ from ansys.mapdl.reader.misc import unique_rows
 from ansys.mapdl.reader.elements import ETYPE_MAP
 
 
-VTK9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
 INVALID_ALLOWABLE_TYPES = TypeError('`allowable_types` must be an array '
                                     'of ANSYS element types from 1 and 300')
 

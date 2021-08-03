@@ -92,12 +92,14 @@ install_requires = ['numpy>=1.14.0',
 
 # perform python version checking
 # this is necessary to avoid the new pip package checking as vtk does
-# not support Python 3.9 or any 32-bit as of 17 June 2021.
-is64 = struct.calcsize("P")*8 == 64
-if not is64:
-    raise RuntimeError('\n\n``ansys-mapdl-reader`` requires 64-bit Python due to vtk.\n'
-                       'Please check the version of Python installed at\n'
-                       '%s' % sys.executable)
+# not support Python 32-bit as of 17 June 2021.
+if not struct.calcsize("P")*8 == 64:
+    try:
+        import vtk
+    except ImportError:
+        raise RuntimeError('\n\n``ansys-mapdl-reader`` requires 64-bit Python due to vtk.\n'
+                           'Please check the version of Python installed at\n'
+                           '%s' % sys.executable)
 
 # Actual setup
 setup(
