@@ -28,11 +28,10 @@ if os.environ.get('SKIP_ANSYS', '').upper() == 'TRUE':
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, 'testfiles')
 
-
+IS_MAC = platform.system() == 'Darwin'
 skip_no_ansys = pytest.mark.skipif(not _HAS_ANSYS, reason="Requires ANSYS installed")
-skip_no_xserver = pytest.mark.skipif(not system_supports_plotting(),
-                                     reason="Requires active X Server")
-skip_mac = pytest.mark.skipif(platform.system() == 'Darwin', reason="Flaky Mac tests")
+skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
+                                   reason="Requires active X Server")
 
 
 @pytest.fixture()
@@ -279,8 +278,7 @@ def test_result_does_not_exist(static_dis):
         static_dis.nodal_plastic_strain(0)
 
 
-@skip_no_xserver
-@skip_mac
+@skip_plotting
 def test_animate_nodal_solution(static_dis):
     static_dis.animate_nodal_solution(0, loop=False)
 

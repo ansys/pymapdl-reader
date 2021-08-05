@@ -21,10 +21,10 @@ except:
     shaft = None
 
 
-skip_plotting = pytest.mark.skipif(not system_supports_plotting(),
+IS_MAC = platform.system() == 'Darwin'
+skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
                                    reason="Requires active X Server")
 skip_no_shaft = pytest.mark.skipif(shaft is None, reason="Requires example file")
-skip_mac = pytest.mark.skipif(platform.system() == 'Darwin', reason="Flaky Mac tests")
 
 
 def test_load_verif():
@@ -64,7 +64,6 @@ def test_show_cell_qual():
 @skip_plotting
 @skip_no_shaft
 @pytest.mark.skipif(not HAS_IMAGEIO, reason='Requires imageio_ffmpeg')
-@skip_mac
 def test_shaft_animate(tmpdir):
     filename = str(tmpdir.mkdir("tmpdir").join('tmp.mp4'))
     shaft.animate_nodal_solution(5, element_components='SHAFT_MESH',

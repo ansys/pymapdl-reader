@@ -31,9 +31,9 @@ try:
 except:
     result_z = None
 
-skip_with_no_xserver = pytest.mark.skipif(not system_supports_plotting(),
-                                          reason="Requires active X Server")
-skip_mac = pytest.mark.skipif(platform.system() == 'Darwin', reason="Flaky Mac tests")
+IS_MAC = platform.system() == 'Darwin'
+skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
+                                   reason="Requires active X Server")
 
 
 # static result x axis
@@ -107,7 +107,7 @@ def test_non_cyclic():
         rst = CyclicResult(examples.rstfile)
 
 
-@skip_with_no_xserver
+@skip_plotting
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_plot_sectors(tmpdir):
     filename = str(tmpdir.mkdir("tmpdir").join('tmp.png'))
@@ -117,14 +117,14 @@ def test_plot_sectors(tmpdir):
     assert os.path.isfile(filename)
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_plot_sectors_x(result_x):
     cpos = result_x.plot_sectors()
     if cpos is not None:
         assert isinstance(cpos, CameraPosition)
 
 
-@skip_with_no_xserver
+@skip_plotting
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_plot_z_cyc():
     cpos = result_z.plot()
@@ -132,14 +132,14 @@ def test_plot_z_cyc():
         assert isinstance(cpos, CameraPosition)
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_plot_x_cyc(result_x):
     cpos = result_x.plot()
     if cpos is not None:
         assert isinstance(cpos, CameraPosition)
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_plot_component_rotor(cyclic_v182_z_with_comp):
     cyclic_v182_z_with_comp.plot_nodal_solution(0, full_rotor=False,
                                                 node_components='REFINE',
@@ -276,7 +276,7 @@ def test_full_z_nodal_solution_phase(cyclic_v182_z):
     assert np.allclose(disp[:, mask], tmp)
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_full_x_nodal_solution_plot(result_x):
     result_x.plot_nodal_solution(0)
 
@@ -345,10 +345,9 @@ def test_full_x_principal_nodal_stress(result_x):
     assert np.allclose(stress[:, mask], tmp, atol=4E-3)  # too loose
 
 
-@skip_with_no_xserver
+@skip_plotting
 @pytest.mark.skipif(not HAS_FFMPEG, reason="requires imageio_ffmpeg")
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
-@skip_mac
 def test_animate_nodal_solution(tmpdir):
     temp_movie = str(tmpdir.mkdir("tmpdir").join('tmp.mp4'))
     result_z.animate_nodal_solution(0, nangles=20, movie_filename=temp_movie,
@@ -375,17 +374,17 @@ def test_cyclic_z_harmonic_displacement():
     assert np.allclose(disp[:, mask], tmp, atol=1E-5)
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_plot_nodal_stress(result_x):
     result_x.plot_nodal_stress(0, 'z')
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_plot_nodal_stress(result_x):
     result_x.plot_nodal_stress(0, 'z')
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_plot_principal_nodal_stress(result_x):
     result_x.plot_principal_nodal_stress(0, 'seqv')
 
@@ -406,7 +405,7 @@ def test_nodal_elastic_strain_cyclic(result_x):
     assert np.allclose(stress, stress_ans)
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_plot_nodal_elastic_strain(result_x):
     result_x.plot_nodal_elastic_strain(0, 'X')
 
@@ -427,7 +426,7 @@ def test_nodal_temperature(result_x):
     assert np.allclose(temp[mask], temp_ans[:, mask], equal_nan=True)
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_plot_nodal_nodal_temperature(result_x):
     result_x.plot_nodal_temperature(0)
 
@@ -447,6 +446,6 @@ def test_nodal_thermal_strain_cyclic(result_x):
     assert np.allclose(strain, strain_ans)
 
 
-@skip_with_no_xserver
+@skip_plotting
 def test_plot_nodal_thermal_strain(result_x):
     result_x.plot_nodal_thermal_strain(0, 'X')

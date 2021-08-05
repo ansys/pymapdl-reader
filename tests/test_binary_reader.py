@@ -15,7 +15,6 @@ from ansys.mapdl.reader import examples
 try:
     from ansys.mapdl.core import _HAS_ANSYS
     from ansys.mapdl.core.mapdl_grpc import MapdlGrpc
-    # from ansys.mapdl.core.mapdl_corba import MapdlCorba
     MapdlCorba = None
     from ansys.mapdl.core.mapdl_console import MapdlConsole
 except:
@@ -34,10 +33,10 @@ except ImportError:
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, 'testfiles')
 
+IS_MAC = platform.system() == 'Darwin'
 skip_no_ansys = pytest.mark.skipif(not _HAS_ANSYS, reason="Requires ANSYS installed")
-skip_no_xserver = pytest.mark.skipif(not system_supports_plotting(),
-                                     reason="Requires active X Server")
-skip_mac = pytest.mark.skipif(platform.system() == 'Darwin', reason="Flaky Mac tests")
+skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
+                                   reason="Requires active X Server")
 
 RSETS = list(zip(range(1, 9), [1]*8))
 
@@ -359,7 +358,7 @@ def test_save_as_vtk(tmpdir, result, result_type):
         assert np.allclose(arr, rst_arr, atol=1E-5, equal_nan=True)
 
 
-@skip_no_xserver
+@skip_plotting
 def test_plot_component():
     """
     # create example file for component plotting
@@ -413,9 +412,8 @@ def test_file_close(tmpdir):
     os.remove(tmpfile)  # tests file has been correctly closed
 
 
-@skip_no_xserver
+@skip_plotting
 @pytest.mark.skipif(not HAS_FFMPEG, reason="requires imageio_ffmpeg")
-@skip_mac
 def test_animate_nodal_solution(tmpdir, result):
     temp_movie = str(tmpdir.mkdir("tmpdir").join('tmp.mp4'))
     result.animate_nodal_solution(0, nangles=20, movie_filename=temp_movie,
