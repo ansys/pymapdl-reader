@@ -39,6 +39,7 @@ from shutil import copy
 import numpy as np
 import pytest
 from pyvista.plotting import system_supports_plotting
+from pyvista.plotting.renderer import CameraPosition
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
