@@ -40,8 +40,6 @@ jobs:
         env:
           CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
           CIBW_SKIP: pp* cp38-macosx_x86_64
-          CIBW_BEFORE_TEST: pip install -r requirements_test.txt
-          CIBW_TEST_COMMAND: pytest -v
 
       - name: Show files
         run: ls -lh wheelhouse
@@ -51,6 +49,16 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: wheelhouse/*.whl
+
+      - name: Install
+        run: |
+          pip install wheelhouse/*38*
+
+      - name: Test
+        run: |
+          pip install -r requirements_test.txt
+          cd tests
+          pytest -v
 
       - name: Upload to PyPi
         if: startsWith(github.event.ref, 'refs/tags')
