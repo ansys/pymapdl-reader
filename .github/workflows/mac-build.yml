@@ -30,6 +30,18 @@ jobs:
         uses: joerick/cibuildwheel@v2.0.1
         env:
           CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
+          CIBW_BUILD: cp38-macosx_x86_64
+          CIBW_BEFORE_TEST: pip install -r requirements_test.txt
+          CIBW_TEST_COMMAND: pytest -v
+
+      - name: Build wheels
+        if: startsWith(github.event.ref, 'refs/tags')
+        uses: joerick/cibuildwheel@v2.0.1
+        env:
+          CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
+          CIBW_SKIP: pp* cp38-macosx_x86_64
+          CIBW_BEFORE_TEST: pip install -r requirements_test.txt
+          CIBW_TEST_COMMAND: pytest -v
 
       - name: Show files
         run: ls -lh wheelhouse
@@ -40,26 +52,9 @@ jobs:
         with:
           path: wheelhouse/*.whl
 
-      - name: Install package
-        run: |
-          pip install dist/*
-          cd tests/
-          python -c "from ansys.mapdl import reader; print(reader.Report(gpu=False))"
-
-      - name: Unit testing
-        run: |
-          pip install -r requirements_test.txt
-          cd tests/
-          pytest -v
-
-      - name: Validate package
-        run: |
-          pip install twine
-          twine check dist/*
-
       - name: Upload to PyPi
         if: startsWith(github.event.ref, 'refs/tags')
         run: |
-          twine upload -u __token__ --skip-existing dist/*
+          twine upload -u __token__ --skip-existing wheelhouse/*
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}

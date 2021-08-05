@@ -53,24 +53,25 @@ class build_ext(_build_ext):
         self.include_dirs.append(numpy.get_include())
 
     def build_extensions(self):
-        binary = self.compiler.compiler[0]
-        if is_clang(binary):
-            for e in self.extensions:
-                e.extra_compile_args.append('-stdlib=libc++')
+        if os.name != 'nt':
+            binary = self.compiler.compiler[0]
+            if is_clang(binary):
+                for e in self.extensions:
+                    e.extra_compile_args.append('-stdlib=libc++')
 
-                if platform.system() == 'Darwin':
-                    mac_version, _, _ = platform.mac_ver()
-                    major, minor, patch = [int(n) for n in mac_version.split('.')]
+                    if platform.system() == 'Darwin':
+                        mac_version, _, _ = platform.mac_ver()
+                        major, minor, patch = [int(n) for n in mac_version.split('.')]
 
-                    # libstdc++ is deprecated in recent versions of XCode
-                    if minor >= 9:
-                        e.extra_compile_args.append('-mmacosx-version-min=10.9')
-                        e.extra_compile_args.append('-stdlib=libc++')
-                        e.extra_link_args.append('-mmacosx-version-min=10.9')
-                        e.extra_link_args.append('-stdlib=libc++')
-                    else:
-                        e.extra_compile_args.append('-mmacosx-version-min=10.7')
-                        e.extra_link_args.append('-mmacosx-version-min=10.7')
+                        # libstdc++ is deprecated in recent versions of XCode
+                        if minor >= 9:
+                            e.extra_compile_args.append('-mmacosx-version-min=10.9')
+                            e.extra_compile_args.append('-stdlib=libc++')
+                            e.extra_link_args.append('-mmacosx-version-min=10.9')
+                            e.extra_link_args.append('-stdlib=libc++')
+                        else:
+                            e.extra_compile_args.append('-mmacosx-version-min=10.7')
+                            e.extra_link_args.append('-mmacosx-version-min=10.7')
 
         _build_ext.build_extensions(self)
 
