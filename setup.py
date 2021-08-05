@@ -1,4 +1,5 @@
 """Installation file for ansys-mapdl-reader"""
+import platform
 import re
 import subprocess
 import struct
