@@ -31,8 +31,6 @@ jobs:
         env:
           CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
           CIBW_BUILD: cp38-macosx_x86_64
-          CIBW_BEFORE_TEST: pip install -r requirements_test.txt
-          CIBW_TEST_COMMAND: pytest -v
 
       - name: Build wheels
         if: startsWith(github.event.ref, 'refs/tags')
@@ -50,7 +48,7 @@ jobs:
         with:
           path: wheelhouse/*.whl
 
-      - name: Install
+      - name: Install wheel
         run: |
           pip install wheelhouse/*38*
 
