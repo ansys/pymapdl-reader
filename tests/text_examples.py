@@ -1,3 +1,4 @@
+import platform
 import os
 import warnings
 
@@ -20,7 +21,8 @@ except:
     shaft = None
 
 
-skip_plotting = pytest.mark.skipif(not system_supports_plotting(),
+IS_MAC = platform.system() == 'Darwin'
+skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
                                    reason="Requires active X Server")
 skip_no_shaft = pytest.mark.skipif(shaft is None, reason="Requires example file")
 
