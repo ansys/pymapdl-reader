@@ -214,6 +214,10 @@ solution_header_keys_dp = ['timfrq', 'lfacto', 'lfactn', 'cptime',
                            'cgcent', 'cgcent', 'fatjack', 'fatjack',
                            'dval1', 'pCnvVal']
 
+# solution_data_header_ext = [
+
+
+
 result_header_keys = ['fun12', 'maxn', 'nnod', 'resmax', 'numdof',
                       'maxe', 'nelm', 'kan', 'nsets', 'ptrend',
                       'ptrDSIl', 'ptrTIMl', 'ptrLSPl', 'ptrELMl',
