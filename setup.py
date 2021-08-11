@@ -1,4 +1,7 @@
 """Installation file for ansys-mapdl-reader"""
+import platform
+import re
+import subprocess
 import struct
 import os
 import sys
@@ -11,6 +14,14 @@ try:
     import numpy as np
 except ImportError:
     raise Exception('Please install numpy first with "pip install numpy"')
+
+
+# Facilities to install properly on Mac using clang
+def is_clang(bin):
+    proc = subprocess.Popen([bin, '-v'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = proc.communicate()
+    output = str(b'\n'.join([stdout, stderr]).decode('ascii', 'ignore'))
+    return not re.search(r'clang', output) is None
 
 
 def check_cython():
@@ -40,6 +51,29 @@ class build_ext(_build_ext):
         __builtins__.__NUMPY_SETUP__ = False
         import numpy
         self.include_dirs.append(numpy.get_include())
+
+    def build_extensions(self):
+        if os.name != 'nt':
+            binary = self.compiler.compiler[0]
+            if is_clang(binary):
+                for e in self.extensions:
+                    e.extra_compile_args.append('-stdlib=libc++')
+
+                    if platform.system() == 'Darwin':
+                        mac_version, _, _ = platform.mac_ver()
+                        major, minor, patch = [int(n) for n in mac_version.split('.')]
+
+                        # libstdc++ is deprecated in recent versions of XCode
+                        if minor >= 9:
+                            e.extra_compile_args.append('-mmacosx-version-min=10.9')
+                            e.extra_compile_args.append('-stdlib=libc++')
+                            e.extra_link_args.append('-mmacosx-version-min=10.9')
+                            e.extra_link_args.append('-stdlib=libc++')
+                        else:
+                            e.extra_compile_args.append('-mmacosx-version-min=10.7')
+                            e.extra_link_args.append('-mmacosx-version-min=10.7')
+
+        _build_ext.build_extensions(self)
 
 
 def compilerName():

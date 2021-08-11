@@ -32,12 +32,14 @@ mapdl.allsel()
 mapdl.modal_analysis(nmode=1)
 
 """
+import platform
 import os
 from shutil import copy
 
 import numpy as np
 import pytest
 from pyvista.plotting import system_supports_plotting
+from pyvista.plotting.renderer import CameraPosition
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
@@ -64,6 +66,9 @@ try:
 except:
     pontoon = None
 
+IS_MAC = platform.system() == 'Darwin'
+skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
+                                   reason="Requires active X Server")
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, 'testfiles')
@@ -193,13 +198,13 @@ def test_nodal_thermal_strain():
     assert tstrain.shape == (vm33.grid.n_points, 8)
 
 
-@pytest.mark.skipif(not system_supports_plotting(), reason="Requires active X Server")
+@skip_plotting
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
 def test_plot_nodal_thermal_strain():
     vm33.plot_nodal_thermal_strain(0, 'X', off_screen=True)
 
 
-@pytest.mark.skipif(not system_supports_plotting(), reason="Requires active X Server")
+@skip_plotting
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
 def test_plot_nodal_thermal_strain():
     vm33._animate_time_solution('ENS', off_screen=True)
@@ -212,26 +217,26 @@ def test_nodal_elastic_strain():
     assert estrain.shape == (pontoon.grid.n_points, 7)
 
 
-@pytest.mark.skipif(not system_supports_plotting(), reason="Requires active X Server")
+@skip_plotting
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_plot_nodal_elastic_strain():
     pontoon.plot_nodal_elastic_strain(0, 'X', off_screen=True)
 
 
-@pytest.mark.skipif(not system_supports_plotting(), reason="Requires active X Server")
+@skip_plotting
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_plot_pontoon():
     pontoon.plot(off_screen=True)
 
 
-@pytest.mark.skipif(not system_supports_plotting(), reason="Requires active X Server")
+@skip_plotting
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_plot_pontoon_nodal_displacement():
     pontoon.plot_nodal_solution(0, show_displacement=True,
                                 overlay_wireframe=True, off_screen=True)
 
 
-@pytest.mark.skipif(not system_supports_plotting(), reason="Requires active X Server")
+@skip_plotting
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_plot_pontoon_nodal_displacement():
     pontoon.plot_nodal_displacement(0, show_displacement=True,
@@ -291,7 +296,7 @@ def test_read_temperature():
     assert np.allclose(temp, npz_rst['temp'])
 
 
-@pytest.mark.skipif(not system_supports_plotting(), reason="Requires active X Server")
+@skip_plotting
 @pytest.mark.skipif(not os.path.isfile(temperature_rst),
                     reason="Requires example files")
 def test_plot_nodal_temperature():
@@ -337,7 +342,7 @@ def test_cyl_stress(hex_pipe_corner):
     assert np.allclose(my_stress[-114:], ans_stress, atol=1E-7)
 
 
-@pytest.mark.skipif(not system_supports_plotting(), reason="Requires active X Server")
+@skip_plotting
 def test_plot_cyl_stress(hex_pipe_corner):
     with pytest.raises(ValueError):
         cpos = hex_pipe_corner.plot_cylindrical_nodal_stress(0, off_screen=True)
@@ -345,7 +350,8 @@ def test_plot_cyl_stress(hex_pipe_corner):
         cpos = hex_pipe_corner.plot_cylindrical_nodal_stress(0, comp='X',
                                                              off_screen=True)
     cpos = hex_pipe_corner.plot_cylindrical_nodal_stress(0, comp='R', off_screen=True)
-    assert cpos
+    if cpos is not None:
+        assert isinstance(cpos, CameraPosition)
 
 
 def test_reaction_forces(volume_rst):

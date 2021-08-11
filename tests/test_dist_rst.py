@@ -1,3 +1,4 @@
+import platform
 import shutil
 import os
 
@@ -5,6 +6,7 @@ import pyvista as pv
 import numpy as np
 import pytest
 from pyvista.plotting.renderer import CameraPosition
+from pyvista.plotting import system_supports_plotting
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader.dis_result import DistributedResult
@@ -26,8 +28,10 @@ if os.environ.get('SKIP_ANSYS', '').upper() == 'TRUE':
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, 'testfiles')
 
-
+IS_MAC = platform.system() == 'Darwin'
 skip_no_ansys = pytest.mark.skipif(not _HAS_ANSYS, reason="Requires ANSYS installed")
+skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
+                                   reason="Requires active X Server")
 
 
 @pytest.fixture()
@@ -120,7 +124,8 @@ def test_plot_temperature(thermal_solution, mapdl):
         return
 
     dist_rst = pymapdl_reader.read_binary(os.path.join(mapdl.directory, 'file0.rth'))
-    cpos = dist_rst.plot_nodal_temperature(0)
+    if cpos is not None:
+        cpos = dist_rst.plot_nodal_temperature(0)
     assert isinstance(cpos, CameraPosition)
 
 
@@ -136,7 +141,8 @@ def test_blade_result(beam_blade):
 
 def test_plot_blade_result(beam_blade):
     cpos = beam_blade.plot_nodal_displacement(0)
-    assert isinstance(cpos, CameraPosition)
+    if cpos is not None:
+        assert isinstance(cpos, CameraPosition)
 
 
 def test_nodal_stress(static_dis, static_rst):
@@ -148,7 +154,8 @@ def test_nodal_stress(static_dis, static_rst):
 
 def test_plot_nodal_stress(static_dis, static_rst):
     cpos = static_dis.plot_nodal_stress(0, 'x')
-    assert isinstance(cpos, CameraPosition)
+    if cpos is not None:
+        assert isinstance(cpos, CameraPosition)
 
 
 def test_nodal_reaction(static_dis, static_rst):
@@ -167,7 +174,8 @@ def test_nodal_principal_stress(static_dis, static_rst):
 
 def test_plot_nodal_principal_stress(static_dis):
     cpos = static_dis.plot_principal_nodal_stress(0, 'SEQV')
-    assert isinstance(cpos, CameraPosition)
+    if cpos is not None:
+        assert isinstance(cpos, CameraPosition)
 
 
 rtypes = ['EMS', 'ENF', 'ENS', 'ENG', 'EEL', 'ETH', 'EUL', 'EMN']
@@ -235,7 +243,8 @@ def test_cylindrical_nodal_stress(static_dis):
 
 def test_plot_cylindrical_nodal_stress(static_dis):
     cpos = static_dis.plot_cylindrical_nodal_stress(0, 'Z')
-    assert isinstance(cpos, CameraPosition)
+    if cpos is not None:
+        assert isinstance(cpos, CameraPosition)
 
 
 def test_nodal_thermal_strain(static_dis):
@@ -247,7 +256,8 @@ def test_nodal_thermal_strain(static_dis):
 
 def test_plot_nodal_thermal_strain(static_dis):
     cpos = static_dis.plot_nodal_thermal_strain(0, 'Z')
-    assert isinstance(cpos, CameraPosition)
+    if cpos is not None:
+        assert isinstance(cpos, CameraPosition)
 
 
 def test_nodal_elastic_strain(static_dis):
@@ -259,7 +269,8 @@ def test_nodal_elastic_strain(static_dis):
 
 def test_plot_nodal_elastic_strain(static_dis):
     cpos = static_dis.plot_nodal_elastic_strain(0, 'Z')
-    assert isinstance(cpos, CameraPosition)
+    if cpos is not None:
+        assert isinstance(cpos, CameraPosition)
 
 
 def test_result_does_not_exist(static_dis):
@@ -267,6 +278,7 @@ def test_result_does_not_exist(static_dis):
         static_dis.nodal_plastic_strain(0)
 
 
+@skip_plotting
 def test_animate_nodal_solution(static_dis):
     static_dis.animate_nodal_solution(0, loop=False)
 
