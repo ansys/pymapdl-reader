@@ -39,6 +39,7 @@ from ansys.mapdl.reader import elements
 
 
 def access_bit(data, num):
+    """Access a single bit from a bitmask"""
     base = int(num // 8)
     shift = int(num % 8)
     return (data[base] & (1 <<shift)) >> shift
@@ -1292,14 +1293,24 @@ class Result(AnsysBinary):
         nfldof = result_solution_header['nfldof']
         sumdof = numdof + nfldof
 
+        # # Size of the results is dependent on result type
+        if solution_type == 'NSL':
+            dof = sumdof  # NSL : nnod*Sumdof
+        elif solution_type == 'VSL':  # for transient
+            # nnod*numvdof
+            dof = self._result_solution_header_ext(rnum)[126]
+        elif solution_type == 'ASL':
+            # nnod*numadof
+            dof = self._result_solution_header_ext(rnum)[127]
+
         ptr = result_solution_header['ptr' + solution_type]
         if ptr == 0:  # shouldn't get here...
             raise AttributeError('Result file is missing "%s"' %
                                  self.available_results.description[solution_type])
 
-        # Read the nodal solution
+        # Read the nodal results
         result, bufsz = self.read_record(ptr + ptr_rst, True)
-        result = result.reshape(-1, sumdof)
+        result = result.reshape(-1, dof)
 
         # additional entries are sometimes written for no discernible
         # reason
@@ -3681,9 +3692,67 @@ class Result(AnsysBinary):
         return bsurf
 
     def _result_solution_header(self, rnum):
-        """Return the solution header for a given cumulative result index"""
+        """Return the solution header for a given cumulative result index."""
         ptr = self._resultheader['rpointers'][rnum]
         return parse_header(self.read_record(ptr), solution_data_header_keys)
+
+    def _result_solution_header_ext(self, rnum):
+        """Return the extended solution header for a given cumulative result index.
+
+        This header remains unparsed:
+
+        Header extension
+        positions   1-32  - current DOF for this
+                            result set
+        positions  33-64  - current DOF labels for
+                            this result set
+        positions  65-84  - The third title, in
+                            integer form
+        positions  85-104 - The fourth title, in
+                            integer form
+        positions 105-124 - The fifth title, in
+                            integer form
+        position 125 - unused
+        position 126 - unused
+        position 127 - numvdof, number of velocity
+                       items per node (ANSYS
+                       transient)
+        position 128 - numadof, number of
+                       acceleration items per
+                       node (ANSYS transient)
+        position 131-133 - position of velocity
+                           in DOF record
+                           (ANSYS transient)
+        position 134-136 - position of acceleration
+                           in DOF record
+                           (ANSYS transient)
+        position 137-142 - velocity and
+                           acceleration labels
+                           (ANSYS transient)
+        position 143 - number of stress items
+                       (6 or 11); a -11 indicates
+                       to use principals directly
+                       and not recompute (for PSD)
+        position 144-146 - position of rotational
+                           velocity in DOF record
+                           (ANSYS transient)
+        position 147-149 - position of rotational
+                           accel. in DOF record
+                           (ANSYS transient)
+        position 150-155 - rotational velocity and
+                           acceleration labels
+                           (ANSYS transient)
+        position 160 - pointer to CINT results
+        position 161 - size of CINT record
+        position 162 - Pointer to  XFEM/SMART-crack surface information
+        position 163 - size of crk surface records
+        position 164-200 - unused
+
+        """
+        # adding 203 here as the header is 200 words + 3 for padding and the
+        # dp solution header is 203 + 3
+        ptr = self._resultheader['rpointers'][rnum] + (203 + 203)
+        return self.read_record(ptr)
 
     def nodal_stress(self, rnum, nodes=None):
         """Retrieves the component stresses for each node in the
