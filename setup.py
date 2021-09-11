@@ -118,8 +118,8 @@ with io_open(version_file, mode='r') as fd:
     # execute file from raw string
     exec(fd.read())
 
-install_requires = ['numpy>=1.14.0',
-                    'pyvista>=0.30.1',
+install_requires = ['numpy>=1.16.0',
+                    'pyvista>=0.32.0',
                     'appdirs>=1.4.0',
                     'matplotlib>=3.0.0',
                     'tqdm>=4.45.0']

@@ -90,7 +90,7 @@ class CyclicResult(Result):
 
         # idenfity the sector based on number of elements in master sector
         cs_els = self._resultheader['csEls']
-        mask = self.quadgrid.cell_arrays['ansys_elem_num'] <= cs_els
+        mask = self.quadgrid.cell_data['ansys_elem_num'] <= cs_els
 
         self.master_cell_mask = mask
         self._mas_grid = self.grid.extract_cells(mask)
@@ -1532,7 +1532,7 @@ class CyclicResult(Result):
 
     def animate_nodal_solution(self, rnum, comp='norm',
                                displacement_factor=0.1,
-                               nangles=180,
+                               n_frames=180,
                                add_text=True, loop=True,
                                movie_filename=None,
                                **kwargs):
@@ -1551,7 +1551,7 @@ class CyclicResult(Result):
         displacement_factor : float, optional
             Increases or decreases displacement by a factor.
 
-        nangles : int, optional
+        n_frames : int, optional
             Number of "frames" between each full cycle.
 
         show_phase : bool, optional
@@ -1573,6 +1573,12 @@ class CyclicResult(Result):
             See help(pyvista.plot) for additional keyword arguments.
 
         """
+        if 'nangles' in kwargs:  # pragma: no cover
+            n_frames = kwargs.pop('nangles')
+            warnings.warn('The ``nangles`` kwarg is depreciated and ``n_frames`` '
+                          'should be used instead.')
+
+
         rnum = self.parse_step_substep(rnum)  # need cumulative
         if 'full_rotor' in kwargs:
             raise NotImplementedError('``full_rotor`` keyword argument not supported')
@@ -1601,7 +1607,7 @@ class CyclicResult(Result):
         orig_pt = plot_mesh.points.copy()
 
         # reduce the complex displacement to just the surface points
-        ind = plot_mesh.point_arrays['vtkOriginalPointIds']
+        ind = plot_mesh.point_data['vtkOriginalPointIds']
         complex_disp = np.take(complex_disp, ind, axis=0)
 
         if axis is not None:
@@ -1657,7 +1663,7 @@ class CyclicResult(Result):
 
         first_loop = True
         while self._animating:
-            for angle in np.linspace(0, np.pi*2, nangles):
+            for angle in np.linspace(0, np.pi*2, n_frames):
                 padj = 1*np.cos(angle) - 1j*np.sin(angle)
                 complex_disp_adj = np.real(complex_disp*padj)
 
@@ -1703,7 +1709,7 @@ class CyclicResult(Result):
             grid.transform(matrix)
 
         # consider forcing low and high to be exact
-        # self._mas_grid.point_arrays['CYCLIC_M01H'] --> rotate and match
+        # self._mas_grid.point_data['CYCLIC_M01H'] --> rotate and match
 
         vtkappend = vtkAppendFilter()
         # vtkappend.MergePointsOn()
@@ -1714,7 +1720,7 @@ class CyclicResult(Result):
             sector = grid.copy()
             sector_id = np.empty(grid.n_points)
             sector_id[:] = i
-            sector.point_arrays['sector_id'] = sector_id
+            sector.point_data['sector_id'] = sector_id
             sector.rotate_z(rang * i)
             vtkappend.AddInputData(sector)
 
@@ -1872,7 +1878,7 @@ class CyclicResult(Result):
 
         else:
             surf_sector = grid.extract_surface()
-            ind = surf_sector.point_arrays['vtkOriginalPointIds']
+            ind = surf_sector.point_data['vtkOriginalPointIds']
             rang = 360.0 / self.n_sector
             for i in range(self.n_sector):
                 if scalars is not None:

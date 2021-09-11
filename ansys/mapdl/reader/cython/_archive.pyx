@@ -59,6 +59,8 @@ def py_write_nblock(filename, const int [::1] node_id, int max_node_id,
     cdef int has_angles = 0
     if angles.size == pos.size:
         has_angles = 1
+    else:
+        angles = np.zeros((1, 1), np.double)
     write_nblock(cfile, n_nodes, max_node_id, &node_id[0], &pos[0, 0],
                  &angles[0, 0], has_angles);
     fclose(cfile)
@@ -90,6 +92,8 @@ def py_write_nblock_float(filename, const int [::1] node_id, int max_node_id,
     cdef int has_angles = 0
     if angles.size == pos.size:
         has_angles = 1
+    else:
+        angles = np.zeros((1, 1), np.float32)
     write_nblock_float(cfile, n_nodes, max_node_id, &node_id[0], &pos[0, 0],
                        &angles[0, 0], has_angles);
     fclose(cfile)

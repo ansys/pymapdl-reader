@@ -179,7 +179,7 @@ def test_read_volume(volume_rst):
     edata = np.asarray(edata)
     volume = edata[:, 0]
 
-    enum_vtk = np.sort(volume_rst.grid.cell_arrays['ansys_elem_num'])
+    enum_vtk = np.sort(volume_rst.grid.cell_data['ansys_elem_num'])
     assert np.allclose(enum, enum_vtk)
     assert np.allclose(volume, 291895460.0)
 
@@ -389,12 +389,12 @@ def test_nodes_subselection(hex_rst, nodes):
     nnum_sel, data_sel = hex_rst.nodal_solution(0, nodes=nodes)
     nnum, data = hex_rst.nodal_solution(0, nodes=nodes)
 
-    grid_nnum = hex_rst.grid.point_arrays['ansys_node_num']
+    grid_nnum = hex_rst.grid.point_data['ansys_node_num']
     if isinstance(nodes, str):
-        nnum_of_interest = grid_nnum[hex_rst.grid.point_arrays[nodes].view(bool)]
+        nnum_of_interest = grid_nnum[hex_rst.grid.point_data[nodes].view(bool)]
     elif isinstance(nodes, tuple):
-        mask = np.logical_or(hex_rst.grid.point_arrays[nodes[0]].view(bool),
-                              hex_rst.grid.point_arrays[nodes[1]].view(bool))
+        mask = np.logical_or(hex_rst.grid.point_data[nodes[0]].view(bool),
+                              hex_rst.grid.point_data[nodes[1]].view(bool))
         nnum_of_interest = grid_nnum[mask]
     else:
         nnum_of_interest = nodes

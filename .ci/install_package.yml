@@ -1,5 +1,0 @@
-steps:
-- script: |
-    python -m pip install -r requirements.txt
-    python -m pip install $(package_name) -f dist/ --no-index
-  displayName: 'Install ansys-mapdl-reader'

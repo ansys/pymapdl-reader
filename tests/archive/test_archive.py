@@ -2,13 +2,12 @@ import os
 
 import pytest
 import numpy as np
-from vtk import (VTK_TETRA, VTK_QUADRATIC_TETRA, VTK_PYRAMID,
-                 VTK_QUADRATIC_PYRAMID, VTK_WEDGE,
-                 VTK_QUADRATIC_WEDGE, VTK_HEXAHEDRON,
-                 VTK_QUADRATIC_HEXAHEDRON)
+from pyvista._vtk import (VTK_TETRA, VTK_QUADRATIC_TETRA, VTK_PYRAMID,
+                          VTK_QUADRATIC_PYRAMID, VTK_WEDGE,
+                          VTK_QUADRATIC_WEDGE, VTK_HEXAHEDRON,
+                          VTK_QUADRATIC_HEXAHEDRON, VTK9)
 from pyvista import examples as pyvista_examples
 import pyvista as pv
-import vtk
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples, _archive, archive
@@ -105,7 +104,7 @@ def test_parse_vtk(hex_archive):
     grid = hex_archive.grid
     assert grid.points.size
     assert grid.cells.size
-    assert 'ansys_node_num' in grid.point_arrays
+    assert 'ansys_node_num' in grid.point_data
     assert np.all(hex_archive.quality > 0)
 
     with pytest.raises(TypeError):
@@ -170,9 +169,9 @@ def test_writesector(tmpdir):
 
 def test_writehex_missing_elem_num(tmpdir, hex_archive):
     grid = hex_archive.grid
-    grid.cell_arrays['ansys_elem_num'][:10] = -1
-    grid.cell_arrays['ansys_etype'] = np.ones(grid.number_of_cells)*-1
-    grid.cell_arrays['ansys_elem_type_num'] = np.ones(grid.number_of_cells)*-1
+    grid.cell_data['ansys_elem_num'][:10] = -1
+    grid.cell_data['ansys_etype'] = np.ones(grid.number_of_cells)*-1
+    grid.cell_data['ansys_elem_type_num'] = np.ones(grid.number_of_cells)*-1
 
     filename = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
     pymapdl_reader.save_as_archive(filename, grid)
@@ -183,7 +182,7 @@ def test_writehex_missing_elem_num(tmpdir, hex_archive):
 
 
 def test_writehex_missing_node_num(tmpdir, hex_archive):
-    hex_archive.grid.point_arrays['ansys_node_num'][:-1] = -1
+    hex_archive.grid.point_data['ansys_node_num'][:-1] = -1
 
     filename = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
     pymapdl_reader.save_as_archive(filename, hex_archive.grid)
@@ -194,8 +193,8 @@ def test_writehex_missing_node_num(tmpdir, hex_archive):
 
 def test_write_non_ansys_grid(tmpdir):
     grid = pv.UnstructuredGrid(pyvista_examples.hexbeamfile)
-    del grid.point_arrays['sample_point_scalars']
-    del grid.cell_arrays['sample_cell_scalars']
+    del grid.point_data['sample_point_scalars']
+    del grid.cell_data['sample_cell_scalars']
     archive_file = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
     pymapdl_reader.save_as_archive(archive_file, grid)
 
@@ -397,9 +396,8 @@ def test_write_nblock(hex_archive, tmpdir, dtype, has_angles):
         assert np.allclose(hex_archive.node_angles, tmp_archive.node_angles)
 
 
-def test_cython_write_eblock(hex_archive):
-    vtk9 = vtk.vtkVersion().GetVTKMajorVersion() >= 9
-    filename = '/tmp/eblock.inp'
+def test_cython_write_eblock(hex_archive, tmpdir):
+    filename = str(tmpdir.mkdir("tmpdir").join('eblock.inp'))
 
     etype = np.ones(hex_archive.n_elem, np.int32)
     typenum = hex_archive.etype
@@ -423,7 +421,7 @@ def test_cython_write_eblock(hex_archive):
                              hex_archive.grid.celltypes,
                              typenum,
                              nodenum,
-                             vtk9)
+                             VTK9)
 
 
 def test_rlblock_prior_to_nblock():

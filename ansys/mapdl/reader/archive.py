@@ -358,8 +358,8 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     header = '/PREP7\n'
 
     # node numbers
-    if 'ansys_node_num' in grid.point_arrays:
-        nodenum = grid.point_arrays['ansys_node_num']
+    if 'ansys_node_num' in grid.point_data:
+        nodenum = grid.point_data['ansys_node_num']
     else:
         log.info('No ANSYS node numbers set in input. Adding default range')
         nodenum = np.arange(1, grid.number_of_points + 1, dtype=np.int32)
@@ -378,8 +378,8 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
 
     # element block
     ncells = grid.number_of_cells
-    if 'ansys_elem_num' in grid.cell_arrays:
-        enum = grid.cell_arrays['ansys_elem_num']
+    if 'ansys_elem_num' in grid.cell_data:
+        enum = grid.cell_data['ansys_elem_num']
     else:
         if not allow_missing:
             raise Exception('Missing node numbers.  Exiting due "allow_missing=False"')
@@ -402,8 +402,8 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
         enum[enum == -1] = np.arange(start_num, end_num, dtype=np.int32)
 
     # material type
-    if 'ansys_material_type' in grid.cell_arrays:
-        mtype = grid.cell_arrays['ansys_material_type']
+    if 'ansys_material_type' in grid.cell_data:
+        mtype = grid.cell_data['ansys_material_type']
     else:
         log.info('No ANSYS element numbers set in input.  ' +
                  'Adding default range starting from %d', mtype_start)
@@ -414,8 +414,8 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
         mtype[mtype == -1] = mtype_start
 
     # real constant
-    if 'ansys_real_constant' in grid.cell_arrays:
-        rcon = grid.cell_arrays['ansys_real_constant']
+    if 'ansys_real_constant' in grid.cell_data:
+        rcon = grid.cell_data['ansys_real_constant']
     else:
         log.info('No ANSYS element numbers set in input.  ' +
                  'Adding default range starting from %d', real_constant_start)
@@ -427,10 +427,10 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
 
     # element type
     invalid = False
-    if 'ansys_etype' in grid.cell_arrays and not reset_etype:
+    if 'ansys_etype' in grid.cell_data and not reset_etype:
         missing = False
-        typenum = grid.cell_arrays['ansys_elem_type_num']
-        etype = grid.cell_arrays['ansys_etype']
+        typenum = grid.cell_data['ansys_elem_type_num']
+        etype = grid.cell_data['ansys_etype']
         if np.any(etype == -1):
             log.warning('Some elements are missing element type numbers.')
             invalid = True
@@ -445,7 +445,7 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     # check if valid
     if not missing:
         mask = grid.celltypes < 20
-        if np.any(grid.cell_arrays['ansys_elem_type_num'][mask] == 186):
+        if np.any(grid.cell_data['ansys_elem_type_num'][mask] == 186):
             invalid = True
             log.warning('Invalid ANSYS element types.')
 
@@ -513,15 +513,15 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
         with open(filename, 'a') as fid:
 
             # write node components
-            for node_key in grid.point_arrays:
-                arr = grid.point_arrays[node_key]
+            for node_key in grid.point_data:
+                arr = grid.point_data[node_key]
                 if arr.dtype in [np.uint8, np.bool]:
                     items = nodenum[arr.view(np.bool)]
                     write_cmblock(fid, items, node_key, 'NODE')
 
             # write element components
-            for node_key in grid.cell_arrays:
-                arr = grid.cell_arrays[node_key]
+            for node_key in grid.cell_data:
+                arr = grid.cell_data[node_key]
                 if arr.dtype in [np.uint8, np.bool]:
                     items = enum[arr.view(np.bool)]
                     write_cmblock(fid, items, node_key, 'ELEMENT')

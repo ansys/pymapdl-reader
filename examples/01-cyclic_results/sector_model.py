@@ -38,8 +38,8 @@ rotor.plot_nodal_displacement(20, show_displacement=True,
 ###############################################################################
 # Animate Mode 21
 # ~~~~~~~~~~~~~~~
-# Disable movie_filename and increase nangles for a smoother plot
+# Disable movie_filename and increase n_frames for a smoother plot
 rotor.animate_nodal_solution(20, loop=False, movie_filename='rotor_mode.gif',
                              background='w', displacement_factor=0.001,
                              add_text=False,
-                             nangles=30)
+                             n_frames=30)
