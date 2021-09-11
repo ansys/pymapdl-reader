@@ -42,7 +42,7 @@ def access_bit(data, num):
     """Access a single bit from a bitmask"""
     base = int(num // 8)
     shift = int(num % 8)
-    return (data[base] & (1 <<shift)) >> shift
+    return (data & (1 <<shift)) >> shift
 
 
 EMAIL_ME = """Please raise an issue at:
@@ -629,7 +629,7 @@ class Result(AnsysBinary):
         npoints = self.grid.number_of_points
         if nnum.size != npoints:
             new_scalars = np.zeros(npoints)
-            nnum_grid = self.grid.point_arrays['ansys_node_num']
+            nnum_grid = self.grid.point_data['ansys_node_num']
             new_scalars[np.in1d(nnum_grid, nnum, assume_unique=True)] = scalars
             scalars = new_scalars
 
@@ -714,11 +714,11 @@ class Result(AnsysBinary):
         mask = np.zeros(grid.n_points, np.bool)
         for component in node_components:
             component = component.upper()
-            if component not in grid.point_arrays:
+            if component not in grid.point_data:
                 raise KeyError('Result file does not contain node ' +
                                'component "%s"' % component)
 
-            mask += grid.point_arrays[component].view(np.bool)
+            mask += grid.point_data[component].view(np.bool)
 
         # need to extract the mesh
         cells, offset = vtk_cell_info(grid)
@@ -737,7 +737,7 @@ class Result(AnsysBinary):
             raise RuntimeError('Empty mesh due to component selection\n' +
                                'Try "sel_type_all=False"')
 
-        ind = reduced_grid.point_arrays['vtkOriginalPointIds']
+        ind = reduced_grid.point_data['vtkOriginalPointIds']
         if not ind.any():
             raise RuntimeError('Invalid selection.\n' +
                                'Try ``sel_type_all=False``')
@@ -760,16 +760,16 @@ class Result(AnsysBinary):
         cell_mask = np.zeros(grid.n_cells, np.bool)
         for component in element_components:
             component = component.upper()
-            if component not in grid.cell_arrays:
+            if component not in grid.cell_data:
                 raise KeyError('Result file does not contain element ' +
                                'component "%s"' % component)
-            cell_mask += grid.cell_arrays[component].view(np.bool)
+            cell_mask += grid.cell_data[component].view(np.bool)
 
         if not cell_mask.any():
             raise RuntimeError('Empty component')
         reduced_grid = grid.extract_cells(cell_mask)
 
-        ind = reduced_grid.point_arrays['vtkOriginalPointIds']
+        ind = reduced_grid.point_data['vtkOriginalPointIds']
         if not ind.any():
             raise RuntimeError('Invalid component')
 
@@ -859,7 +859,7 @@ class Result(AnsysBinary):
         >>> rst.animate_nodal_solution(0, movie_filename='disp.mp4', off_screen=True)
 
         """
-        if 'nangles' in kwargs:
+        if 'nangles' in kwargs:  # pragma: no cover
             n_frames = kwargs.pop('nangles')
             warnings.warn('The ``nangles`` kwarg is depreciated and ``n_frames`` '
                           'should be used instead.')
@@ -1344,18 +1344,18 @@ class Result(AnsysBinary):
         # TODO: inefficient and should be able to only read from this subselection.
         if nodes is not None:
             if isinstance(nodes, str):
-                if nodes not in self.grid.point_arrays:
+                if nodes not in self.grid.point_data:
                     raise ValueError(f'Invalid node component {nodes}')
-                mask = self.grid.point_arrays[nodes].view(bool)
+                mask = self.grid.point_data[nodes].view(bool)
             elif isinstance(nodes, Sequence):
                 if isinstance(nodes[0], int):
                     mask = np.in1d(self.mesh.nnum, nodes)
                 elif isinstance(nodes[0], str):
                     mask = np.zeros(self.grid.n_points, bool)
                     for node_component in nodes:
-                        if node_component not in self.grid.point_arrays:
+                        if node_component not in self.grid.point_data:
                             raise ValueError(f'Invalid node component {nodes}')
-                        mask = np.logical_or(mask, self.grid.point_arrays[node_component].view(bool))
+                        mask = np.logical_or(mask, self.grid.point_data[node_component].view(bool))
                 else:
                     raise TypeError(f'Invalid type for {nodes}.  Expected Sequence of '
                                     'str or int')
@@ -1364,7 +1364,7 @@ class Result(AnsysBinary):
                                 'str or int')
 
             # mask is for global nodes, need for potentially subselectd nodes
-            submask = np.in1d(nnum, self.grid.point_arrays['ansys_node_num'][mask])
+            submask = np.in1d(nnum, self.grid.point_data['ansys_node_num'][mask])
             nnum, result = nnum[submask], result[submask]
 
         return nnum, result
@@ -2659,14 +2659,14 @@ class Result(AnsysBinary):
 
         # extract mesh surface
         mapped_indices = None
-        if 'vtkOriginalPointIds' in grid.point_arrays:
-            mapped_indices = grid.point_arrays['vtkOriginalPointIds']
+        if 'vtkOriginalPointIds' in grid.point_data:
+            mapped_indices = grid.point_data['vtkOriginalPointIds']
 
         # weird bug in some edge cases, have to roll our own indices here
-        if '_temp_id' not in grid.point_arrays:
-            grid.point_arrays['_temp_id'] = np.arange(grid.n_points)
+        if '_temp_id' not in grid.point_data:
+            grid.point_data['_temp_id'] = np.arange(grid.n_points)
         mesh = grid.extract_surface()
-        ind = mesh.point_arrays['_temp_id']
+        ind = mesh.point_data['_temp_id']
 
         if disp is not None:
             if mapped_indices is not None:
@@ -2690,16 +2690,16 @@ class Result(AnsysBinary):
 
         return_cpos = kwargs.pop('return_cpos', False)
         cmap = kwargs.pop('cmap', 'jet')
-        window_size = kwargs.pop('window_size', pv.rcParams['window_size'])
-        full_screen = kwargs.pop('full_screen', pv.rcParams.get('full_screen', None))
-        notebook = kwargs.pop('notebook', pv.rcParams.get('notebook', None))
+        window_size = kwargs.get('window_size')
+        full_screen = kwargs.get('full_screen')
+        notebook = kwargs.get('notebook')
         off_screen = kwargs.pop('off_screen', pv.OFF_SCREEN)
         cpos = kwargs.pop('cpos', None)
         screenshot = kwargs.pop('screenshot', None)
         interactive = kwargs.pop('interactive', True)
         text_color = kwargs.pop('text_color', None)
 
-        kwargs.setdefault('smooth_shading', pv.rcParams.get('smooth_shading', True))
+        kwargs.setdefault('smooth_shading', None)
         kwargs.setdefault('color', 'w')
         kwargs.setdefault('interpolate_before_map', True)
 
@@ -2793,9 +2793,9 @@ class Result(AnsysBinary):
                         if cached_normals[j] is None:
                             copied_mesh.compute_normals(cell_normals=False,
                                                         inplace=True)
-                            cached_normals[j] = copied_mesh.point_arrays['Normals']
+                            cached_normals[j] = copied_mesh.point_data['Normals']
                         else:
-                            copied_mesh.point_arrays['Normals'][:] = cached_normals[j]
+                            copied_mesh.point_data['Normals'][:] = cached_normals[j]
 
                     if add_text:
                         # 2 maps to vtk.vtkCornerAnnotation.UpperLeft
@@ -2890,14 +2890,14 @@ class Result(AnsysBinary):
 
         # extract mesh surface
         # mapped_indices = None
-        # if 'vtkOriginalPointIds' in grid.point_arrays:
-        #     mapped_indices = grid.point_arrays['vtkOriginalPointIds']
+        # if 'vtkOriginalPointIds' in grid.point_data:
+        #     mapped_indices = grid.point_data['vtkOriginalPointIds']
 
         # weird bug in some edge cases, have to roll our own indices here
-        if '_temp_id' not in grid.point_arrays:
+        if '_temp_id' not in grid.point_data:
             grid['_temp_id'] = np.arange(grid.n_points)
         mesh = grid.extract_surface()
-        ind = mesh.point_arrays['_temp_id']
+        ind = mesh.point_data['_temp_id']
 
         # if disp is not None:
         #     if mapped_indices is not None:
@@ -3210,14 +3210,14 @@ class Result(AnsysBinary):
         for i in rsets:
             # Nodal results
             _, val = self.nodal_solution(i)
-            grid.point_arrays['Nodal Solution {:d}'.format(i)] = val
+            grid.point_data['Nodal Solution {:d}'.format(i)] = val
 
             # Nodal results
             for rtype in self.available_results:
                 if rtype in result_types:
                     _, values = self._nodal_result(i, rtype)
                     desc = element_index_table_info[rtype]
-                    grid.point_arrays['{:s} {:d}'.format(desc, i)] = values
+                    grid.point_data['{:s} {:d}'.format(desc, i)] = values
 
             if pbar is not None:
                 pbar.update(1)
@@ -3443,9 +3443,9 @@ class Result(AnsysBinary):
                 ncount = ncount[mask]
                 data = data[mask]
             else:
-                nnum = self.grid.point_arrays['ansys_node_num']
+                nnum = self.grid.point_data['ansys_node_num']
         else:
-            nnum = self.grid.point_arrays['ansys_node_num']
+            nnum = self.grid.point_data['ansys_node_num']
 
         # average across nodes
         ncount = ncount.reshape(-1, 1)
@@ -3663,12 +3663,12 @@ class Result(AnsysBinary):
         # TODO: add element/node components
         surf = self.grid.extract_surface()
         bsurf = break_apart_surface(surf, force_linear=True)
-        nnum_surf = surf.point_arrays['ansys_node_num'][bsurf['orig_ind']]
+        nnum_surf = surf.point_data['ansys_node_num'][bsurf['orig_ind']]
         faces = bsurf.faces
         if faces.dtype != np.int64:
             faces = faces.astype(np.int64)
 
-        elem_ind = surf.cell_arrays['vtkOriginalCellIds']
+        elem_ind = surf.cell_data['vtkOriginalCellIds']
         # index within the element table pointing to the data of interest
         result_index = ELEMENT_INDEX_TABLE_KEYS.index(result_type)
 

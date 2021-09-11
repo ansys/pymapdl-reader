@@ -288,7 +288,7 @@ def test_loadresult(result):
     grid = result.grid
     assert grid.points.size
     assert grid.cells.size
-    assert 'ansys_node_num' in grid.point_arrays
+    assert 'ansys_node_num' in grid.point_data
 
     # check results can be loaded
     nnum, disp = result.nodal_solution(0)
@@ -345,13 +345,13 @@ def test_save_as_vtk(tmpdir, result, result_type):
     grid = pv.UnstructuredGrid(filename)
     for i in range(result.nsets):
         key = 'Nodal Solution %d' % i
-        assert key in grid.point_arrays
-        arr = grid.point_arrays[key]
+        assert key in grid.point_data
+        arr = grid.point_data[key]
         assert np.allclose(arr, result.nodal_solution(i)[1], atol=1E-5)
 
         key = '%s %d' % (element_index_table_info[result_type], i)
-        assert key in grid.point_arrays
-        arr = grid.point_arrays[key]
+        assert key in grid.point_data
+        arr = grid.point_data[key]
         _, rst_arr = result._nodal_result(i, result_type)
         if rst_arr.shape[1] == 1:
             rst_arr = rst_arr.ravel()
@@ -416,7 +416,7 @@ def test_file_close(tmpdir):
 @pytest.mark.skipif(not HAS_FFMPEG, reason="requires imageio_ffmpeg")
 def test_animate_nodal_solution(tmpdir, result):
     temp_movie = str(tmpdir.mkdir("tmpdir").join('tmp.mp4'))
-    result.animate_nodal_solution(0, nangles=20, movie_filename=temp_movie,
+    result.animate_nodal_solution(0, n_frames=20, movie_filename=temp_movie,
                                   loop=False, off_screen=True)
     assert np.any(result.grid.points)
     assert os.path.isfile(temp_movie)

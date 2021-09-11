@@ -221,13 +221,13 @@ def test_save_as_vtk(tmpdir, static_dis, static_rst, rtype):
 
     grid = pv.read(filename)
     key = 'Nodal Solution %d' % 0
-    assert key in grid.point_arrays
-    arr = grid.point_arrays[key]
+    assert key in grid.point_data
+    arr = grid.point_data[key]
     assert np.allclose(arr, static_dis.nodal_solution(0)[1], atol=1E-5)
 
     key = '%s %d' % (element_index_table_info[rtype], 0)
-    assert key in grid.point_arrays
-    arr = grid.point_arrays[key]
+    assert key in grid.point_data
+    arr = grid.point_data[key]
     _, rst_arr = static_dis._nodal_result(0, rtype)
     if rst_arr.shape[1] == 1:
         rst_arr = rst_arr.ravel()

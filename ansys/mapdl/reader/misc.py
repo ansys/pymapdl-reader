@@ -168,10 +168,10 @@ def random_string(stringLength=10):
 def _configure_pyvista():
     """Configure PyVista's ``rcParams`` for pyansys"""
     import pyvista as pv
-    pv.rcParams['interactive'] = True
-    pv.rcParams["cmap"] = "jet"
-    pv.rcParams["font"]["family"] = "courier"
-    pv.rcParams["title"] = "pyansys"
+    # pv.global_theme.interactive = True
+    pv.global_theme.cmap = "jet"
+    pv.global_theme.font.family = "courier"
+    pv.global_theme.title = "PyMAPDL-Reader"
 
 
 def break_apart_surface(surf, force_linear=True):
@@ -192,7 +192,7 @@ def break_apart_surface(surf, force_linear=True):
     -------
     bsurf : pyvista.PolyData
         Surface with unique points for each face.  Contains the
-        original indices in point_arrays "orig_ind".
+        original indices in point_data "orig_ind".
 
     """
     faces = surf.faces
@@ -205,7 +205,7 @@ def break_apart_surface(surf, force_linear=True):
                                                                 surf.n_faces,
                                                                 force_linear)
     bsurf = pyvista.PolyData(b_points, b_faces)
-    bsurf.point_arrays['orig_ind'] = idx
+    bsurf.point_data['orig_ind'] = idx
     return bsurf
 
 

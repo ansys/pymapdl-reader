@@ -157,28 +157,28 @@ class Mesh():
                                        deep=True)
 
         # Store original ANSYS element and node information
-        grid.point_arrays['ansys_node_num'] = nnum
-        grid.cell_arrays['ansys_elem_num'] = self.enum
-        grid.cell_arrays['ansys_real_constant'] = self.elem_real_constant
-        grid.cell_arrays['ansys_material_type'] = self.material_type
-        grid.cell_arrays['ansys_etype'] = self._ans_etype
-        grid.cell_arrays['ansys_elem_type_num'] = self.etype
+        grid.point_data['ansys_node_num'] = nnum
+        grid.cell_data['ansys_elem_num'] = self.enum
+        grid.cell_data['ansys_real_constant'] = self.elem_real_constant
+        grid.cell_data['ansys_material_type'] = self.material_type
+        grid.cell_data['ansys_etype'] = self._ans_etype
+        grid.cell_data['ansys_elem_type_num'] = self.etype
 
         # add components
         # Add element components to unstructured grid
         for key, item in self.element_components.items():
             mask = np.in1d(self.enum, item, assume_unique=True)
-            grid.cell_arrays[key] = mask
+            grid.cell_data[key] = mask
 
         # Add node components to unstructured grid
         for key, item in self.node_components.items():
             mask = np.in1d(nnum, item, assume_unique=True)
-            grid.point_arrays[key] = mask
+            grid.point_data[key] = mask
 
         # store node angles
         if angles is not None:
             if angles.shape[1] == 3:
-                grid.point_arrays['angles'] = angles
+                grid.point_data['angles'] = angles
 
         if not null_unallowed:
             grid = grid.extract_cells(grid.celltypes != 0)
@@ -189,8 +189,8 @@ class Mesh():
         # map over element types
         # Add tracker for original node numbering
         ind = np.arange(grid.number_of_points)
-        grid.point_arrays['origid'] = ind
-        grid.point_arrays['VTKorigID'] = ind
+        grid.point_data['origid'] = ind
+        grid.point_data['VTKorigID'] = ind
         return grid
 
     @property

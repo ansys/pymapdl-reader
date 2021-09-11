@@ -350,7 +350,7 @@ def test_full_x_principal_nodal_stress(result_x):
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_animate_nodal_solution(tmpdir):
     temp_movie = str(tmpdir.mkdir("tmpdir").join('tmp.mp4'))
-    result_z.animate_nodal_solution(0, nangles=20, movie_filename=temp_movie,
+    result_z.animate_nodal_solution(0, n_frames=20, movie_filename=temp_movie,
                                     loop=False)
     assert os.path.isfile(temp_movie)
 

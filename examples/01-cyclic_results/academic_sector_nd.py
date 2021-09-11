@@ -231,11 +231,11 @@ _ = multi_blade_rotor.plot_nodal_displacement(rnum, comp='z',
 # on the settings within the modal analysis.
 #
 # Set ``loop=True`` to allow for a continuous plot, and modify
-# ``nangles`` to allow for a smoother or faster plot.  See
+# ``n_frames`` to allow for a smoother or faster plot.  See
 # ``help(pyvista.plot)`` for additional keyword arguments.
 #
 _ = rotor.animate_nodal_displacement((3, 1), displacement_factor=0.03,
-                                     nangles=30, show_axes=False, background='w',
+                                     n_frames=30, show_axes=False, background='w',
                                      loop=False, add_text=False,
                                      movie_filename='EO3_Mode1.gif')
 
@@ -245,6 +245,6 @@ _ = rotor.animate_nodal_displacement((3, 1), displacement_factor=0.03,
 # second mode in the mode pair ``(3, 2)`` instead of ``(3, 1)``.
 #
 _ = rotor.animate_nodal_displacement((3, 2), displacement_factor=0.03,
-                                     nangles=30, show_axes=False, background='w',
+                                     n_frames=30, show_axes=False, background='w',
                                      loop=False, add_text=False,
                                      movie_filename='EO3_Mode1.gif')

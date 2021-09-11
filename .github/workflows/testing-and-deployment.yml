@@ -1,0 +1,269 @@
+name: GH Actions
+
+# repo specific gh actions
+env:
+  SHELLOPTS: 'errexit:pipefail'
+  PACKAGE_NAME: ansys-mapdl-reader
+  PYVISTA_OFF_SCREEN: true
+
+on:
+  pull_request:
+  push:
+    tags:
+      - "*"
+    branches:
+      - main
+
+jobs:
+  check_style:
+    name: Style Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Style
+        run: |
+          pip install -r requirements_style.txt --disable-pip-version-check
+          make
+
+  doc_build:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install XVFB
+        run: |
+          sudo apt-get install libgl1-mesa-glx xvfb
+          pip install pyvista
+          xvfb-run python -c "import pyvista; print(pyvista.Report())"
+
+      - name: Install ansys-mapdl-reader
+        run: |
+          pip install -r requirements_build.txt --disable-pip-version-check
+          python setup.py bdist_wheel
+          pip install dist/ansys*.whl --disable-pip-version-check
+          cd tests/
+          xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
+
+      - name: Build Documentation
+        run: |
+          sudo apt install pandoc -qy
+          pip install -r requirements_docs.txt --disable-pip-version-check
+          xvfb-run make -C doc html
+          sudo apt install zip
+          cd doc/build/html/
+          zip ../../../${{ env.PACKAGE_NAME }}-HTML.zip ./*
+
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PACKAGE_NAME }}-Documentation
+          path: |
+            ${{ env.PACKAGE_NAME }}-HTML.zip
+            doc/build/latex/*.pdf
+          retention-days: 7
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: doc/build/html
+          CLEAN: true
+
+  build:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ['3.6', '3.7', '3.8', '3.9']
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Linux pip cache
+        uses: actions/cache@v2
+        if: ${{ runner.os == 'Linux' }}
+        with:
+          path: ~/.cache/pip
+          key: Python-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
+          restore-keys: |
+            Python-${{ runner.os }}-${{ matrix.python-version }}
+
+      - name: Window pip cache
+        uses: actions/cache@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: Python-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
+          restore-keys: |
+            Python-${{ runner.os }}-${{ matrix.python-version }}
+
+      # Docker layer caching.
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        if: runner.os == 'Linux'
+        # Ignore the failure of a step and avoid terminating the job.
+        continue-on-error: true
+
+      - name: Build ManyLinux wheel
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          docker run \
+               --rm -v `pwd`:/io \
+               quay.io/pypa/manylinux2014_x86_64 \
+               /io/.ci/build_wheels.sh ${{ matrix.python-version }}
+
+      - name: Build wheel on Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          pip install -r requirements_build.txt
+          python setup.py bdist_wheel
+
+      - name: Validate wheel
+        run: |
+          pip install twine
+          twine check dist/*
+
+      - name: Install
+        run: |
+          pip install wheel
+          pip install --find-links=dist ${{ env.PACKAGE_NAME }}
+          pip list
+
+      - name: Get PyVista tools
+        if: ${{ runner.os == 'Windows' }}
+        uses: actions/checkout@v2
+        with:
+          repository: pyvista/gl-ci-helpers
+          path: pyvista-tools
+
+      - name: Install OpenGL on Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          pyvista-tools/appveyor/install_opengl.ps1
+          python -c "import pyvista; print(pyvista.Report())"
+
+      - name: Install XVFB on Linux
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          sudo apt-get install libgl1-mesa-glx xvfb
+          xvfb-run python -c "import pyvista; print(pyvista.Report())"
+
+      - name: Test with XVFB
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          pip install -r requirements_test.txt
+          xvfb-run pytest -v tests/ --durations=0
+
+      - name: Test without XVFB
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          pip install -r requirements_test.txt
+          pytest -v tests/ --durations=0
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PACKAGE_NAME }}-${{ runner.os }}-${{ matrix.python-version }}
+          path: dist/
+          retention-days: 7
+
+  mac_build:
+    runs-on: macos-latest
+    name: Mac OS Unit Testing
+    strategy:
+      matrix:
+        python-version: ['3.8']
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Build wheels
+        uses: joerick/cibuildwheel@v2.0.1
+        env:
+          CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
+          CIBW_BUILD: cp38-macosx_x86_64
+
+      - name: Build wheels
+        if: startsWith(github.event.ref, 'refs/tags')
+        uses: joerick/cibuildwheel@v2.0.1
+        env:
+          CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
+          CIBW_SKIP: pp* cp38-macosx_x86_64
+
+      - name: Show files
+        run: ls -lh wheelhouse
+        shell: bash
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          path: wheelhouse/*.whl
+
+      - name: Install wheel
+        run: |
+          pip install wheelhouse/*38*
+
+      - name: Test
+        run: |
+          pip install -r requirements_test.txt
+          cd tests
+          pytest -v
+
+  Release:
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    needs: [check_style, doc_build, build, mac_build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      # this downloads all artifacts
+      - uses: actions/download-artifact@v2
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Upload to Public PyPi
+        run: |
+          pip install twine
+          twine upload --skip-existing ./**/*.whl
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./**/*.whl
+            ./**/*.zip
+            ./**/*.pdf
