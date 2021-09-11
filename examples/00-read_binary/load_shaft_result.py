@@ -74,9 +74,9 @@ shaft.plot_nodal_solution(1, element_components=['SHAFT_MESH'],
 # Animate a mode of a component the shaft
 #
 # Set ``loop==True`` to plot continuously.
-# Disable ``movie_filename`` and increase ``nangles`` for a smoother plot
+# Disable ``movie_filename`` and increase ``n_frames`` for a smoother plot
 shaft.animate_nodal_solution(5, element_components='SHAFT_MESH',
                              comp='norm', displacement_factor=1,
                              show_edges=True, cpos=cpos,
                              loop=False, movie_filename='demo.gif',
-                             nangles=30)
+                             n_frames=30)

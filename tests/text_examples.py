@@ -68,7 +68,7 @@ def test_shaft_animate(tmpdir):
     filename = str(tmpdir.mkdir("tmpdir").join('tmp.mp4'))
     shaft.animate_nodal_solution(5, element_components='SHAFT_MESH',
                                  comp='norm', loop=False,
-                                 nangles=10, show_edges=True,
+                                 n_frames=10, show_edges=True,
                                  off_screen=True,
                                  movie_filename=filename)
 

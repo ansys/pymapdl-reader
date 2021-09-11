@@ -101,7 +101,7 @@ class DistributedResult(Result):
             result.grid['_dist_idx'] = np.arange(st, st + result.grid.n_points)
             _result_idx = np.empty(result.grid.n_cells, np.int32)
             _result_idx[:] = i
-            result.grid.cell_arrays['_result_idx'] = _result_idx
+            result.grid.cell_data['_result_idx'] = _result_idx
             st += result.grid.n_points
             vtkappend.AddInputData(result.grid)
 
@@ -118,7 +118,7 @@ class DistributedResult(Result):
         # elem_split_ind = np.diff(self.grid['_result_idx']).nonzero()[0]
         # self._elem_split = np.hstack(([0], elem_split_ind))
 
-        elem = np.hstack(result.mesh._elem for result in self._results)
+        elem = np.hstack(list(result.mesh._elem for result in self._results))
         glb_elem_off = []
         for result in self._results:
             elem_off = result.mesh._elem_off
@@ -143,7 +143,7 @@ class DistributedResult(Result):
         self.grid = self.quadgrid.linear_copy()
 
         # self._neqv = self._resultheader['neqv']  # may not need this
-        self._eeqv = self.grid.cell_arrays['ansys_elem_num']
+        self._eeqv = self.grid.cell_data['ansys_elem_num']
 
     @property
     def _main_result(self):
@@ -276,7 +276,7 @@ class DistributedResult(Result):
 
         # average across nodes
         data /= ncount.reshape(-1, 1)
-        return self.grid.point_arrays['ansys_node_num'], data
+        return self.grid.point_data['ansys_node_num'], data
 
     @wraps(Result.element_solution_data)
     def element_solution_data(self, *args, **kwargs):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import warnings
 import os
 
@@ -14,7 +13,7 @@ pyvista.set_error_output_file('errors.txt')
 pyvista.OFF_SCREEN = True
 # Preferred plotting style for documentation
 # pyvista.set_plot_theme('document')
-pyvista.rcParams['window_size'] = np.array([1024, 768]) * 2
+pyvista.global_theme.window_size = (1024, 768)
 # Save figures in specified directory
 pyvista.FIGURE_PATH = os.path.join(os.path.abspath('./images/'), 'auto-generated/')
 if not os.path.exists(pyvista.FIGURE_PATH):
