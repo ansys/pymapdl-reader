@@ -1,0 +1,123 @@
+name: GH Actions
+
+# repo specific gh actions
+env:
+  SHELLOPTS: 'errexit:pipefail'
+  PACKAGE_NAME: ansys-mapdl-reader
+  PYVISTA_OFF_SCREEN: true
+
+on:
+  pull_request:
+  push:
+    tags:
+      - "*"
+    branches:
+      - main
+
+jobs:
+
+  Build:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ['3.9']
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Linux pip cache
+        uses: actions/cache@v2
+        if: ${{ runner.os == 'Linux' }}
+        with:
+          path: ~/.cache/pip
+          key: Python-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
+          restore-keys: |
+            Python-${{ runner.os }}-${{ matrix.python-version }}
+
+      - name: Window pip cache
+        uses: actions/cache@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: Python-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
+          restore-keys: |
+            Python-${{ runner.os }}-${{ matrix.python-version }}
+
+      # Docker layer caching.
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        if: runner.os == 'Linux'
+        # Ignore the failure of a step and avoid terminating the job.
+        continue-on-error: true
+
+      - name: Build ManyLinux wheel
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          docker run \
+               --rm -v `pwd`:/io \
+               quay.io/pypa/manylinux2014_x86_64 \
+               /io/.ci/build_wheels.sh ${{ matrix.python-version }}
+
+      - name: Build wheel on Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          pip install -r requirements_build.txt
+          python setup.py bdist_wheel
+
+      - name: Validate wheel
+        run: |
+          pip install twine
+          twine check dist/*
+
+      - name: Install
+        run: |
+          pip install wheel
+          pip install --find-links=dist ${{ env.PACKAGE_NAME }}
+          pip list
+
+      - name: Get PyVista tools
+        if: ${{ runner.os == 'Windows' }}
+        uses: actions/checkout@v2
+        with:
+          repository: pyvista/gl-ci-helpers
+          path: pyvista-tools
+
+      - name: Install OpenGL on Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          pyvista-tools/appveyor/install_opengl.ps1
+          python -c "import pyvista; print(pyvista.Report())"
+
+      - name: Install XVFB on Linux
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          sudo apt-get install libgl1-mesa-glx xvfb
+          xvfb-run python -c "import pyvista; print(pyvista.Report())"
+
+      - name: Test with XVFB
+        if: ${{ runner.os == 'Linux' && env.NEEDS_FRAMEBUFFER == 'true' }}
+        run: |
+          pip install -r requirements_test.txt
+          xvfb-run pytest -v tests/ --durations=0
+
+      - name: Test without XVFB
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          pip install -r requirements_test.txt
+          pytest -v tests/ --durations=0
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PACKAGE_NAME }}-${{ runner.os }}-${{ matrix.python-version }}
+          path: dist/
+          retention-days: 7

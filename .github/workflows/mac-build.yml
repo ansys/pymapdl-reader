@@ -2,7 +2,7 @@ name: Mac Unit Testing and Deployment
 
 on:
   push:
-    branches: "*"
+    branches: "main"
     tags: "*"
   pull_request:
     branches: "**"
