@@ -67,6 +67,7 @@ jobs:
   
       - name: Build PDF
         run: |
+          sudo apt update
           sudo apt-get install -y texlive-latex-extra latexmk
           make -C doc latexpdf
 
