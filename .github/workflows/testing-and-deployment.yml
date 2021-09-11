@@ -54,7 +54,7 @@ jobs:
           python setup.py bdist_wheel
           pip install dist/ansys*.whl --disable-pip-version-check
           cd tests/
-          python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
+          xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
 
       - name: Build Documentation
         run: |
@@ -93,7 +93,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.9']
+        python-version: ['3.6', '3.7', '3.8', '3.9']
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -200,9 +200,6 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.8']
-
-    env:
-      SHELLOPTS: 'errexit:pipefail'
 
     steps:
       - uses: actions/checkout@v2
