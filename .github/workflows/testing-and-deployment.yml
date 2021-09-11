@@ -64,12 +64,6 @@ jobs:
           sudo apt install zip
           cd doc/build/html/
           zip ../../../${{ env.PACKAGE_NAME }}-HTML.zip ./*
-  
-      - name: Build PDF
-        run: |
-          sudo apt update
-          sudo apt-get install -y texlive-latex-extra latexmk
-          make -C doc latexpdf
 
       - name: Upload
         uses: actions/upload-artifact@v2
