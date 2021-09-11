@@ -1,11 +1,12 @@
 name: Mac Unit Testing and Deployment
 
 on:
-  push:
-    branches: "main"
-    tags: "*"
   pull_request:
-    branches: "**"
+  push:
+    tags:
+      - "*"
+    branches:
+      - main
 
 jobs:
   macOS:
