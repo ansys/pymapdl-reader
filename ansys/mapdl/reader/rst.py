@@ -2819,21 +2819,18 @@ class Result(AnsysBinary):
             plotter.close()
             cpos = plotter.camera_position
 
-        elif screenshot:
-            cpos = plotter.show(auto_close=False, interactive=interactive,
-                                window_size=window_size,
-                                full_screen=full_screen,
-                                **show_kwargs)
-            if screenshot is True:
-                img = plotter.screenshot()
-            else:
-                plotter.screenshot(screenshot)
-            plotter.close()
+        elif screenshot is True:
+            cpos, img = plotter.show(interactive=interactive,
+                                     window_size=window_size,
+                                     full_screen=full_screen,
+                                     screenshot=screenshot,
+                                     **show_kwargs)
 
         else:
             cpos = plotter.show(interactive=interactive,
                                 window_size=window_size,
                                 full_screen=full_screen,
+                                screenshot=screenshot,
                                 **show_kwargs)
 
         if screenshot is True:
