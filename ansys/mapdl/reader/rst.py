@@ -2752,6 +2752,11 @@ class Result(AnsysBinary):
             result_text = self.text_result_table(rnum)
             plotter.add_text(result_text, font_size=20, color=text_color)
 
+        # camera position added in 0.32.0
+        show_kwargs = {}
+        if pv._version.version_info[1] > 31:
+            show_kwargs['return_cpos'] = return_cpos
+
         if animate:
             if off_screen:  # otherwise this never exits
                 loop = False
@@ -2760,11 +2765,6 @@ class Result(AnsysBinary):
                 pbar = tqdm(total=n_frames, desc='Rendering animation')
 
             orig_pts = copied_mesh.points.copy()
-
-            # camera position added in 0.32.0
-            show_kwargs = {}
-            if pv._version.version_info[1] > 31:
-                show_kwargs['return_cpos'] = return_cpos
 
             plotter.show(interactive=False, auto_close=False,
                          window_size=window_size,
@@ -2822,7 +2822,8 @@ class Result(AnsysBinary):
         elif screenshot:
             cpos = plotter.show(auto_close=False, interactive=interactive,
                                 window_size=window_size,
-                                full_screen=full_screen)
+                                full_screen=full_screen,
+                                **show_kwargs)
             if screenshot is True:
                 img = plotter.screenshot()
             else:
@@ -2832,7 +2833,8 @@ class Result(AnsysBinary):
         else:
             cpos = plotter.show(interactive=interactive,
                                 window_size=window_size,
-                                full_screen=full_screen)
+                                full_screen=full_screen,
+                                **show_kwargs)
 
         if screenshot is True:
             return cpos, img
