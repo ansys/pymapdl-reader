@@ -2754,7 +2754,7 @@ class Result(AnsysBinary):
 
         # camera position added in 0.32.0
         show_kwargs = {}
-        if pv._version.version_info[1] > 31:
+        if pv._version.version_info >= (0, 32, 0):
             show_kwargs['return_cpos'] = return_cpos
 
         if animate:
