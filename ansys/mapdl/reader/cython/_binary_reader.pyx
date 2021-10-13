@@ -1644,7 +1644,7 @@ def cells_with_all_nodes(index_type [::1] offset, index_type [::1] cells,
     Updates mask of cells containing all points in the point indices
     or mask.
     """
-    cdef int ncells = offset - 1
+    cdef int ncells = offset.size - 1
     cdef int i, j
     cdef index_type cell_offset, next_cell_offset
     cdef uint8 [::1] cell_mask = np.ones(ncells, np.uint8)
@@ -1666,7 +1666,7 @@ def cells_with_any_nodes(index_type [::1] offset, index_type [::1] cells,
     Updates mask of cells containing at least one point in the point
     indices or mask.
     """
-    cdef int ncells = offset - 1
+    cdef int ncells = offset.size - 1
     cdef index_type cell_offset, next_cell_offset
     cdef int i, j
 
