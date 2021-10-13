@@ -723,10 +723,10 @@ class Result(AnsysBinary):
         # need to extract the mesh
         cells, offset = vtk_cell_info(grid)
         if sel_type_all:
-            cell_mask = cells_with_all_nodes(offset, cells, grid.celltypes,
+            cell_mask = cells_with_all_nodes(offset, cells,
                                              mask.view(np.uint8))
         else:
-            cell_mask = cells_with_any_nodes(offset, cells, grid.celltypes,
+            cell_mask = cells_with_any_nodes(offset, cells,
                                              mask.view(np.uint8))
 
         if not cell_mask.any():
