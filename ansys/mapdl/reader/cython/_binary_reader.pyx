@@ -252,7 +252,6 @@ cdef class AnsysFile:
     def close(self):
         """Close the file"""
         del self._file
-        del self._file_out
 
     def read_element_data(self, int64_t [::1] ele_ind_table, int table_index,
                           int64_t ptr_off):
