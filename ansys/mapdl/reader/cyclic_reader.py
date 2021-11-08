@@ -1921,13 +1921,6 @@ class CyclicResult(Result):
         if cpos is not None:
             plotter.camera_position = cpos
 
-        if screenshot:
-            cpos = plotter.show(auto_close=False,
-                                window_size=window_size,
-                                full_screen=full_screen)
-            plotter.screenshot(screenshot)
-            plotter.close()
-        else:
-            cpos = plotter.show(window_size=window_size, full_screen=full_screen)
-
-        return cpos
+        return plotter.show(
+            screenshot=screenshot, window_size=window_size, full_screen=full_screen
+        )
