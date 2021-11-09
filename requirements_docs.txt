@@ -12,3 +12,4 @@ sphinx-copybutton
 sphinx-gallery>=0.8.1
 pyansys_sphinx_theme
 pypandoc
+vtk<9.1.0
