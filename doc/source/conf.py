@@ -142,7 +142,6 @@ html_theme_options = {
     "github_url": "https://github.com/pyansys/pymapdl-reader",
     "show_prev_next": False,
     "logo_link": "https://readerdocs.pyansys.com/"  # navigate to the main page
-
 }
 
 # -- Options for HTMLHelp output ------------------------------------------
