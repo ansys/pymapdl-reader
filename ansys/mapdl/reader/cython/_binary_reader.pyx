@@ -252,7 +252,6 @@ cdef class AnsysFile:
     def close(self):
         """Close the file"""
         del self._file
-        del self._file_out
 
     def read_element_data(self, int64_t [::1] ele_ind_table, int table_index,
                           int64_t ptr_off):
@@ -1638,35 +1637,22 @@ def affline_transform(float_or_double [:, ::1] points, float_or_double [:, ::1] 
         points[i, 2] = t20*x + t21*y + t22*z + t23
 
 
-cdef inline int cell_lookup(uint8 celltype) nogil:
-    if celltype == VTK_HEXAHEDRON or celltype == VTK_QUADRATIC_HEXAHEDRON:
-        return 8
-    elif celltype == VTK_TETRA or celltype == VTK_QUADRATIC_TETRA:
-        return 4
-    elif celltype == VTK_PYRAMID or celltype == VTK_QUADRATIC_PYRAMID:
-        return 5
-    elif celltype == VTK_WEDGE or celltype == VTK_QUADRATIC_WEDGE:
-        return 6
-
-
 def cells_with_all_nodes(index_type [::1] offset, index_type [::1] cells,
-                         uint8 [::1] celltypes, uint8 [::1] point_mask):
+                         uint8 [::1] point_mask):
     """
     Updates mask of cells containing all points in the point indices
     or mask.
     """
-    cdef int ncells = celltypes.size
-    cdef uint8 celltype
-    cdef int ncell_points, i, j
-    cdef index_type cell_offset
+    cdef int ncells = offset.size - 1
+    cdef int i, j
+    cdef index_type cell_offset, next_cell_offset
     cdef uint8 [::1] cell_mask = np.ones(ncells, np.uint8)
 
     with nogil:
         for i in range(ncells):
-            celltype = celltypes[i]
-            ncell_points = cell_lookup(celltype)
             cell_offset = offset[i] + 1
-            for j in range(cell_offset, cell_offset + ncell_points):
+            next_cell_offset = offset[i+1] + 1
+            for j in range(cell_offset, next_cell_offset):
                 if point_mask[cells[j]] != 1:
                     cell_mask[i] = 0
 
@@ -1674,25 +1660,22 @@ def cells_with_all_nodes(index_type [::1] offset, index_type [::1] cells,
 
 
 def cells_with_any_nodes(index_type [::1] offset, index_type [::1] cells,
-                         uint8 [::1] celltypes, uint8 [::1] point_mask):
+                         uint8 [::1] point_mask):
     """
     Updates mask of cells containing at least one point in the point
     indices or mask.
     """
-    cdef int ncells = celltypes.size
-    cdef uint8 celltype
-    cdef int ncell_points
-    cdef index_type cell_offset
+    cdef int ncells = offset.size - 1
+    cdef index_type cell_offset, next_cell_offset
     cdef int i, j
 
     cdef uint8 [::1] cell_mask = np.zeros(ncells, np.uint8)
 
     with nogil:
         for i in range(ncells):
-            celltype = celltypes[i]
-            ncell_points = cell_lookup(celltype)
             cell_offset = offset[i] + 1
-            for j in range(cell_offset, cell_offset + ncell_points):
+            next_cell_offset = offset[i+1] + 1
+            for j in range(cell_offset, next_cell_offset):
                 if point_mask[cells[j]] == 1:
                     cell_mask[i] = 1
                     break
