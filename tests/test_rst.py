@@ -461,3 +461,14 @@ def test_materials(materials_281_rst):
         ans_mat = materials_281_rst.materials[mat_type]
         for key, value in known_material.items():
             assert pytest.approx(ans_mat[key]) == known_material[key]
+
+
+def test_materials_v150():
+    """Validate on older result files"""
+    rst = pymapdl_reader.read_binary(examples.rstfile)
+    mat = {1: {'EX': 16900000.0, 'NUXY': 0.31, 'DENS': 0.00041408}}
+
+    for mat_type, known_material in mat.items():
+        ans_mat = rst.materials[mat_type]
+        for key, value in known_material.items():
+            assert pytest.approx(ans_mat[key]) == known_material[key]
