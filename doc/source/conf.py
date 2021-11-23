@@ -1,3 +1,4 @@
+from sphinx_gallery.sorting import FileNameSortKey
 import warnings
 import os
 
@@ -15,7 +16,8 @@ pyvista.OFF_SCREEN = True
 # pyvista.set_plot_theme('document')
 pyvista.global_theme.window_size = (1024, 768)
 # Save figures in specified directory
-pyvista.FIGURE_PATH = os.path.join(os.path.abspath('./images/'), 'auto-generated/')
+pyvista.FIGURE_PATH = os.path.join(
+    os.path.abspath('./images/'), 'auto-generated/')
 if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
@@ -99,7 +101,6 @@ copybutton_prompt_text = ">>> "
 
 
 # -- Sphinx Gallery Options
-from sphinx_gallery.sorting import FileNameSortKey
 
 sphinx_gallery_conf = {
     'pypandoc': True,  # convert rst to md for ipynb
@@ -134,12 +135,13 @@ sphinx_gallery_conf = {
 }
 
 
-
 # -- Options for HTML output -------------------------------------------------
 html_theme = 'pyansys_sphinx_theme'
-html_logo = 'https://docs.pyansys.com/_static/pyansys-logo-black-cropped.png'
+html_logo = os.path.join("_static", "pyansys-logo-black-cropped.png")
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/PyMAPDL",
+    "github_url": "https://github.com/pyansys/pymapdl-reader",
+    "show_prev_next": False,
+    "logo_link": "https://readerdocs.pyansys.com/"  # navigate to the main page
 }
 
 # -- Options for HTMLHelp output ------------------------------------------
