@@ -44,6 +44,7 @@ jobs:
 
       - name: Install XVFB
         run: |
+          sudo apt update
           sudo apt-get install libgl1-mesa-glx xvfb
           pip install pyvista
           xvfb-run python -c "import pyvista; print(pyvista.Report())"
@@ -167,6 +168,7 @@ jobs:
       - name: Install XVFB on Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
+          sudo apt update
           sudo apt-get install libgl1-mesa-glx xvfb
           xvfb-run python -c "import pyvista; print(pyvista.Report())"
 
