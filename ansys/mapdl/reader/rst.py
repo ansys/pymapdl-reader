@@ -223,7 +223,7 @@ class Result(AnsysBinary):
                 tvalues = resultheader['time_values']
                 for i in range(tvalues.size - 1):
                     # adjust tolarance(?)
-                    if np.isclose(tvalues[i], tvalues[i + 1]):  
+                    if np.isclose(tvalues[i], tvalues[i + 1]):
                         hindex[i + 1] *= -1
 
             resultheader['hindex'] = hindex
@@ -334,15 +334,42 @@ class Result(AnsysBinary):
                 return arr[0]
 
         mat_table = self.read_record(self._geometry_header['ptrMAT'])
+        if mat_table[0] != -101:  # pragma: no cover
+            raise RuntimeError('Legacy record: Unable to read this material record.')
         self._materials = {}
+
+        # size of record (from fdresu.inc)
+        n_mat_prop = self._geometry_header.get('nMatProp')
         for i in range(self._geometry_header['nummat']):
+            # Material Record pointers for the Material Id at I th Position 
+            # is stored from location.
+            # NOTE: somewhere between 182 and 194 this changed from:
+            # 3+(I-1)*(158+1)+2 to 3+(I-1)*(158+1)+1+158
+            # to
+            # 3+(I-1)*(nMatProp+1)+2 to 3+(I-1)*(nMatProp+1)+1+nMatProp
+
             # pointers to the material data for each material
-            mat_data_ptr = mat_table[3 + 176*i:3 + 176*i + 159]
+            legacy = not n_mat_prop  # < v194 (that we know)
+            if legacy:
+                mat_data_ptr = mat_table[3 + 158*i:3 + 159*i + 159]
+            else:
+                idx_st = 3 + i*(n_mat_prop + 1)
+                idx_en = 3 + i*(n_mat_prop + 1) + 1 + n_mat_prop
+                mat_data_ptr = mat_table[idx_st:idx_en]
+
             material = {}
             for j, key in enumerate(mp_keys):
                 ptr = mat_data_ptr[j + 1]
                 if ptr:
-                    material[key] = read_mat_data(ptr)
+                    if legacy:
+                        # CPP reader does not work here since we are
+                        # reading only a single value and not a table
+                        # of data.
+                        fs = (self._geometry_header['ptrMAT'] + ptr + 202)*4
+                        self._cfile._seekg(fs)
+                        material[key] = np.fromstring(self._cfile._read(8))[0]
+                    else:
+                        material[key] = read_mat_data(ptr)
 
             # store by material number
             self._materials[mat_data_ptr[0]] = material
@@ -379,7 +406,7 @@ class Result(AnsysBinary):
         - GYZ : Shear modulus, y-z plane (Force/Area)
         - GXZ : Shear modulus, x-z plane (Force/Area)
         - DAMP : K matrix multiplier for damping [BETAD] (Time)
-        - MU : Coefficient of friction (or, for FLUID29 and FLUID30 
+        - MU : Coefficient of friction (or, for FLUID29 and FLUID30
                elements, boundary admittance)
         - DENS : Mass density (Mass/Vol)
         - C : Specific heat (Heat/Mass*Temp)
@@ -407,6 +434,19 @@ class Result(AnsysBinary):
         - MGXX : Magnetic coercive force, element x direction (Charge / (Length*Time))
         - MGYY : Magnetic coercive force, element y direction (Charge / (Length*Time))
         - MGZZ : Magnetic coercive force, element z direction (Charge / (Length*Time))
+
+        Examples
+        --------
+        Return the material properties from the example result
+        file. Note that the keys of ``rst.materials`` is the material
+        type.
+
+        >>> from ansys.mapdl import reader as pymapdl_reader
+        >>> from ansys.mapdl.reader import examples
+        >>> rst = pymapdl_reader.read_binary(examples.rstfile)
+        >>> rst.materials
+        {1: {'EX': 16900000.0, 'NUXY': 0.31, 'DENS': 0.00041408}}
+
         """
         if self._materials is None:
             self._load_materials()
