@@ -143,10 +143,18 @@ jobs:
           pip install twine
           twine check dist/*
 
-      - name: Install
+      - name: Install on Linux
+        if: ${{ runner.os == 'Linux' }}
         run: |
           pip install wheel
-          pip install --find-links=dist ${{ env.PACKAGE_NAME }}
+          pip install dist/*
+          pip list
+
+      - name: Install on Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          pip install wheel
+          FOR %i in (dist\*.whl) DO python -m pip install %i
           pip list
 
       - name: Get PyVista tools

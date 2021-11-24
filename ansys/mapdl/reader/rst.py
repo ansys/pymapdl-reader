@@ -326,13 +326,12 @@ class Result(AnsysBinary):
         values for each material (up to 101).
         """
 
-        # def read_mat_data(ptr):
-        #     """reads double precision material data given an offset from ptrMAT"""
-        #     arr = self.read_record(self._geometry_header['ptrMAT'] + ptr)
-        #     arr = arr[arr != 0]
-        #     if arr.size == 1:
-        #         return arr[0]
-        #     return arr[-1]
+        def read_mat_data(ptr):
+            """reads double precision material data given an offset from ptrMAT"""
+            arr, sz = self.read_record(self._geometry_header['ptrMAT'] + ptr, True)
+            arr = arr[arr != 0]
+            if arr.size == 1:
+                return arr[0]
 
         mat_table = self.read_record(self._geometry_header['ptrMAT'])
         if mat_table[0] != -101:  # pragma: no cover
@@ -372,14 +371,8 @@ class Result(AnsysBinary):
                         self._cfile._seekg(fs)
                         material[key] = np.fromstring(self._cfile._read(8))[0]
                     else:
-                        # sparse window reader segfaults
-                        # material[key] = read_mat_data(ptr)
-
-                        # shift forward by 5 due to 2 padding, 1 for
-                        # sz, 1 for nwin, 1 for iloc
-                        fs = (self._geometry_header['ptrMAT'] + ptr + 5)*4
-                        self._cfile._seekg(fs)
-                        material[key] = np.fromstring(self._cfile._read(8))[0]
+                        for i in range(-5, 10):
+                            material[key] = read_mat_data(ptr)
 
             # store by material number
             self._materials[mat_data_ptr[0]] = material
