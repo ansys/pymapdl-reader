@@ -227,13 +227,16 @@ cdef class AnsysFile:
         # self._file = new ifstream(c_filename, binary)
         self._file = open_fstream(c_filename)
 
-    # def _read(self, int size):
-    #     cdef char raw[10000]
-    #     self._file_a.read(raw, size)
-    #     return raw[:size]
+    def _read(self, int size):
+        mx_sz = 10000
+        if size > mx_sz:
+            raise RuntimeError(f"Maximum read size is {mx_sz}")
+        cdef char raw[10000]
+        self._file.read(raw, size)
+        return raw[:size]
 
-    # def _seekg(self, int index):
-    #     self._file_a.seekg(index)
+    def _seekg(self, int index):
+        self._file.seekg(index)
 
     def read_record(self, int64_t ptr, int return_bufsize=0):
         """Read a record from the opened file"""
@@ -246,8 +249,7 @@ cdef class AnsysFile:
 
         if return_bufsize:
             return ndarray, bufsize
-        else:
-            return ndarray
+        return ndarray
 
     def close(self):
         """Close the file"""

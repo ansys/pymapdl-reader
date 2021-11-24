@@ -102,6 +102,12 @@ def volume_rst():
     return pymapdl_reader.read_binary(rst_file)
 
 
+@pytest.fixture(scope='module')
+def materials_281_rst():
+    rst_file = os.path.join(testfiles_path, 'materials', 'file.rst')
+    return pymapdl_reader.read_binary(rst_file)
+
+
 def test_map_flag_section_data():
     # basic 4 element SHELL181 result files
     shell181_2020r2 = os.path.join(testfiles_path, 'shell181_2020R2.rst')
@@ -403,3 +409,66 @@ def test_nodes_subselection(hex_rst, nodes):
 
     assert np.allclose(nnum[mask], nnum_sel)
     assert np.allclose(data[mask], data_sel, equal_nan=True)
+
+
+def test_materials(materials_281_rst):
+    # known material results from MPLIST,ALL
+    mat = {}
+    mat[1] = {
+        'EX': 200000.0,
+        'NUXY': 0.3000000,
+        'ALPX': 0.1200000E-04,
+        'DENS': 0.7850000E-08,
+        'KXX': 60.50000,
+        'RSVX': 0.1700000E-03,
+        'C': 0.4340000E+09,
+        'MURX': 10000.00,
+    }
+
+    mat[2] = {
+        'EX': 47869.10,
+        'EY': 12099.50,
+        'EZ': 12099.50,
+        'NUXY': 0.7621539E-01,
+        'NUYZ': 0.4249800,
+        'NUXZ': 0.7621539E-01,
+        'GXY': 4118.700,
+        'GYZ': 4245.500,
+        'GXZ': 4118.700,
+        'DENS': 0.1947300E-08,
+        'PRXY': 0.3015300,
+        'PRYZ': 0.4249800,
+        'PRXZ': 0.3015300,
+    }
+
+    mat[3] = {
+        'EX': 38479.10,
+        'EY': 10456.20,
+        'EZ': 10456.20,
+        'NUXY': 0.8242602E-01,
+        'NUYZ': 0.4435900,
+        'NUXZ': 0.8242602E-01,
+        'GXY': 3548.900,
+        'GYZ': 3621.600,
+        'GXZ': 3548.900,
+        'DENS': 0.1877000E-08,
+        'PRXY': 0.3033300,
+        'PRYZ': 0.4435900,
+        'PRXZ': 0.3033300,
+    }
+
+    for mat_type, known_material in mat.items():
+        ans_mat = materials_281_rst.materials[mat_type]
+        for key, value in known_material.items():
+            assert pytest.approx(ans_mat[key]) == known_material[key]
+
+
+def test_materials_v150():
+    """Validate on older result files"""
+    rst = pymapdl_reader.read_binary(examples.rstfile)
+    mat = {1: {'EX': 16900000.0, 'NUXY': 0.31, 'DENS': 0.00041408}}
+
+    for mat_type, known_material in mat.items():
+        ans_mat = rst.materials[mat_type]
+        for key, value in known_material.items():
+            assert pytest.approx(ans_mat[key]) == known_material[key]
