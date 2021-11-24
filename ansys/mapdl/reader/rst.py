@@ -328,10 +328,11 @@ class Result(AnsysBinary):
 
         def read_mat_data(ptr):
             """reads double precision material data given an offset from ptrMAT"""
-            arr = self.read_record(self._geometry_header['ptrMAT'] + ptr)
-            arr = arr[arr != 0]
-            if arr.size == 1:
-                return arr[0]
+            arr, sz = self.read_record(self._geometry_header['ptrMAT'] + ptr, True)
+            # arr = arr[arr != 0]
+            # if arr.size == 1:
+            #     return arr[0]
+            return arr[-1]
 
         mat_table = self.read_record(self._geometry_header['ptrMAT'])
         if mat_table[0] != -101:  # pragma: no cover
@@ -356,6 +357,8 @@ class Result(AnsysBinary):
                 idx_st = 3 + i*(n_mat_prop + 1)
                 idx_en = 3 + i*(n_mat_prop + 1) + 1 + n_mat_prop
                 mat_data_ptr = mat_table[idx_st:idx_en]
+
+            self.read_record(self._geometry_header['ptrMAT'] + mat_table.size)
 
             material = {}
             for j, key in enumerate(mp_keys):

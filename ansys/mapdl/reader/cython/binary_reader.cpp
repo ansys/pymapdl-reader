@@ -552,7 +552,6 @@ void* read_record_fid(fstream* file, int64_t loc, int* prec_flag, int* type_flag
   // always read record
   char *raw = new char[4*bufsize];
   file->read(raw, 4*bufsize);
-  
   *out_bufsize = bufsize + 3;  // include header and footer
 
   if (bsparse_flag){
@@ -632,7 +631,6 @@ fstream* open_fstream(const char* filename){
 // overwrite an existing ansys record at location ptr
 int overwriteRecord(fstream* fs, int ptr, double* data){
   int bsparse_flag, wsparse_flag, zlib_flag, prec_flag, type_flag;
-  int size;
 
   // read the header
   // seek to data location if supplied with a pointer
