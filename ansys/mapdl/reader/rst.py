@@ -372,7 +372,14 @@ class Result(AnsysBinary):
                         self._cfile._seekg(fs)
                         material[key] = np.fromstring(self._cfile._read(8))[0]
                     else:
-                        material[key] = read_mat_data(ptr)
+                        # sparse window reader segfaults
+                        # material[key] = read_mat_data(ptr)
+
+                        # shift forward by 5 due to 2 padding, 1 for
+                        # sz, 1 for nwin, 1 for iloc
+                        fs = (self._geometry_header['ptrMAT'] + ptr + 5)*4
+                        self._cfile._seekg(fs)
+                        material[key] = np.fromstring(self._cfile._read(8))[0]
 
             # store by material number
             self._materials[mat_data_ptr[0]] = material
