@@ -44,6 +44,7 @@ jobs:
 
       - name: Install XVFB
         run: |
+          sudo apt update
           sudo apt-get install libgl1-mesa-glx xvfb
           pip install pyvista
           xvfb-run python -c "import pyvista; print(pyvista.Report())"
@@ -142,10 +143,18 @@ jobs:
           pip install twine
           twine check dist/*
 
-      - name: Install
+      - name: Install on Linux
+        if: ${{ runner.os == 'Linux' }}
         run: |
           pip install wheel
-          pip install --find-links=dist ${{ env.PACKAGE_NAME }}
+          pip install dist/*
+          pip list
+
+      - name: Install on Windows Powershell
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          pip install wheel
+          pip install (get-item .\dist\*.whl)
           pip list
 
       - name: Get PyVista tools
@@ -167,6 +176,7 @@ jobs:
       - name: Install XVFB on Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
+          sudo apt update
           sudo apt-get install libgl1-mesa-glx xvfb
           xvfb-run python -c "import pyvista; print(pyvista.Report())"
 

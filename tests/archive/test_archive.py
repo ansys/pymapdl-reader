@@ -318,6 +318,16 @@ def test_write_component(tmpdir):
     assert np.allclose(archive.node_components[comp_name], items)
 
 
+def test_write_component_edge_case(tmpdir):
+    items = np.arange(2, 34, step=2)
+    filename = str(tmpdir.mkdir("tmpdir").join('tmp.cdb'))
+
+    comp_name = 'TEST'
+    pymapdl_reader.write_cmblock(filename, items, comp_name, 'node')
+    archive = pymapdl_reader.Archive(filename)
+    assert np.allclose(archive.node_components[comp_name], items)
+
+
 def test_read_parm():
     filename = os.path.join(TESTFILES_PATH, 'parm.cdb')
     archive = pymapdl_reader.Archive(filename)

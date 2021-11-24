@@ -1,12 +1,12 @@
 import os
 
 import pytest
-import numpy as np
 
 from ansys.mapdl import reader as pymapdl_reader
 
 
 path = os.path.dirname(os.path.abspath(__file__))
+
 
 @pytest.fixture(scope='module')
 def rst():
@@ -28,7 +28,7 @@ def test_materials(rst):
     material['GXZ'] = 5000000000
 
 
-def test_materials(rst):
+def test_sections(rst):
     sections = rst.section_data
     assert isinstance(sections, dict)
     # assert isinstance(sections[3], np.ndarray)

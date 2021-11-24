@@ -235,7 +235,7 @@ import numpy as np
 
 _etype_map = [0, 2,  # LINK1
               3,  # PLANE2
-              3,  # BEAM3
+              2,  # BEAM3
               2,  # BEAM4
               4,  # SOLID5
               0,  # UNUSED6

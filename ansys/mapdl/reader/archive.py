@@ -605,19 +605,14 @@ def write_cmblock(filename, items, comp_name, comp_type,
     ----------
     filename : str or file handle
         File to write CMBLOCK component to.
-
     items : list or np.ndarray
         Element or node numbers to write.
-
     comp_name : str
         Name of the component
-
     comp_type : str
         Component type to write.  Should be either 'ELEMENT' or 'NODE'.
-
     digit_width : int, optional
         Default 10
-
     mode : str, optional
         Write mode.  Default ``'w'``.
     """
@@ -650,11 +645,15 @@ def write_cmblock(filename, items, comp_name, comp_type,
     # writing each line.
     # nearest multiple of 8
     up_to = len(cmblock_items) % 8
-    np.savetxt(fid, cmblock_items[:-up_to].reshape(-1, 8), digit_formatter*8)
+    if up_to:  # deal with the zero case
+        np.savetxt(fid, cmblock_items[:-up_to].reshape(-1, 8), digit_formatter*8)
 
-    # write the final line
-    chunk = cmblock_items[-up_to:]
-    print(''.join([digit_formatter] * len(chunk)) % tuple(chunk), file=fid)
+        # write the final line
+        chunk = cmblock_items[-up_to:]
+        print(''.join([digit_formatter] * len(chunk)) % tuple(chunk), file=fid)
+    else:
+        np.savetxt(fid, cmblock_items.reshape(-1, 8), digit_formatter*8)
+
     print('', file=fid)
 
     if opened_file:
@@ -662,8 +661,8 @@ def write_cmblock(filename, items, comp_name, comp_type,
 
 
 def _write_eblock(filename, elem_id, etype, mtype, rcon, elem_nnodes,
-                 cells, offset, celltypes, typenum,
-                 nodenum, mode='a'):
+                  cells, offset, celltypes, typenum,
+                  nodenum, mode='a'):
     """Write EBLOCK to disk"""
     # perform type checking here
     if elem_id.dtype != np.int32:
