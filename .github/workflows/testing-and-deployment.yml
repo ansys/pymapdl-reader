@@ -150,11 +150,11 @@ jobs:
           pip install dist/*
           pip list
 
-      - name: Install on Windows
+      - name: Install on Windows Powershell
         if: ${{ runner.os == 'Windows' }}
         run: |
           pip install wheel
-          FOR %i in (dist\*.whl) DO python -m pip install %i
+          pip install (get-item .\dist\*.whl)
           pip list
 
       - name: Get PyVista tools
