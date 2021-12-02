@@ -60,8 +60,9 @@ class build_ext(_build_ext):
                     e.extra_compile_args.append('-stdlib=libc++')
 
                     if platform.system() == 'Darwin':
+                        # get the minor version
                         mac_version, _, _ = platform.mac_ver()
-                        major, minor, patch = [int(n) for n in mac_version.split('.')]
+                        minor = mac_version.split('.')[1]
 
                         # libstdc++ is deprecated in recent versions of XCode
                         if minor >= 9:
