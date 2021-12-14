@@ -180,7 +180,8 @@ def read_binary(filename, **kwargs):
             return CyclicResult(filename)
 
         if read_mesh:
-            result._store_mesh()
+            flag_vtk_parse = kwargs.pop('flag_vtk_parse', True)
+            result._store_mesh(flag_vtk_parse)
 
         return result
 

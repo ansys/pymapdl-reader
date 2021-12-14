@@ -94,9 +94,10 @@ class Result(AnsysBinary):
     ELEMENT_INDEX_TABLE_KEYS = ELEMENT_INDEX_TABLE_KEYS
     ELEMENT_RESULT_NCOMP = ELEMENT_RESULT_NCOMP
 
-    def __init__(self, filename, read_mesh=True, **kwargs):
+    def __init__(self, filename, read_mesh=True, flag_vtk_parse=True, **kwargs):
         """Loads basic result information from result file and
         initializes result object.
+        flag_vtk_parse can be used to skip the parsing for vtk, which might take long for large models
         """
         self.filename = filename
         self._cfile = AnsysFile(filename)
@@ -130,7 +131,7 @@ class Result(AnsysBinary):
         # store mesh for later retrieval
         self._mesh = None
         if read_mesh:
-            self._store_mesh()
+            self._store_mesh(flag_vtk_parse)
 
     @property
     def mesh(self):
@@ -1549,8 +1550,9 @@ class Result(AnsysBinary):
                 'keyopts': keyopts,
                 'ekey': np.array(ekey)}
 
-    def _store_mesh(self):
-        """Store the mesh from the result file"""
+    def _store_mesh(self, flag_vtk_parse=True):
+        """Store the mesh from the result file
+        flag_vtk_parse can be used to skip the parsing for vtk, which might take long for large models"""
 
         # Node information
         nnod = self._geometry_header['nnod']
@@ -1582,9 +1584,10 @@ class Result(AnsysBinary):
         self._mesh = Mesh(nnum, nodes, elem, elem_off,
                           self._element_table['ekey'],
                           node_comps=ncomp, elem_comps=ecomp)
-        self.quadgrid = self._mesh._parse_vtk(null_unallowed=True,
-                                              fix_midside=False)
-        self.grid = self.quadgrid.linear_copy()
+        if flag_vtk_parse:
+            self.quadgrid = self._mesh._parse_vtk(null_unallowed=True,
+                                                  fix_midside=False)
+            self.grid = self.quadgrid.linear_copy()
 
         # identify nodes that are actually in the solution
         self._insolution = np.in1d(self._mesh.nnum, self._resultheader['neqv'],
