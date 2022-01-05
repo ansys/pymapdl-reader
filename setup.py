@@ -61,7 +61,7 @@ class build_ext(_build_ext):
 
                     if platform.system() == 'Darwin':
                         mac_version, _, _ = platform.mac_ver()
-                        major, minor, patch = [int(n) for n in mac_version.split('.')]
+                        minor = [int(n) for n in mac_version.split('.')][1]
 
                         # libstdc++ is deprecated in recent versions of XCode
                         if minor >= 9:
