@@ -137,6 +137,7 @@ jobs:
         run: |
           pip install -r requirements_build.txt
           python setup.py bdist_wheel
+          python setup.py sdist
 
       - name: Validate wheel
         run: |
@@ -147,7 +148,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         run: |
           pip install wheel
-          pip install dist/*
+          pip install dist/*.whl
           pip list
 
       - name: Install on Windows Powershell
