@@ -184,11 +184,13 @@ class Mesh():
             grid = grid.extract_cells(grid.celltypes != 0)
 
         if force_linear:
-            grid = grid.linear_copy()
+            # only run if the grid has points or cells
+            if grid.n_points:
+                grid = grid.linear_copy()
 
         # map over element types
         # Add tracker for original node numbering
-        ind = np.arange(grid.number_of_points)
+        ind = np.arange(grid.n_points)
         grid.point_data['origid'] = ind
         grid.point_data['VTKorigID'] = ind
         return grid

@@ -60,6 +60,7 @@ class build_ext(_build_ext):
                     e.extra_compile_args.append('-stdlib=libc++')
 
                     if platform.system() == 'Darwin':
+                        # get the minor version
                         mac_version, _, _ = platform.mac_ver()
                         minor = [int(n) for n in mac_version.split('.')][1]
 
