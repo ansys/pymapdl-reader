@@ -4,9 +4,8 @@ PyMAPDL Reader - Legacy Binary and Archive File Reader
 .. image:: https://badge.fury.io/py/ansys-mapdl-reader.svg
     :target: https://badge.fury.io/py/ansys-mapdl-reader
 
-.. image:: https://dev.azure.com/pyansys/pyansys/_apis/build/status/pyansys.pymapdl-reader?branchName=master
-    :target: https://dev.azure.com/pyansys/pyansys/_build/latest?definitionId=4&branchName=master
-
+.. image:: https://github.com/pyansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml/badge.svg
+   :target: https://github.com/pyansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml
 
 This is the legacy module for reading in binary and ASCII files
 generated from MAPDL.
