@@ -77,13 +77,14 @@ class Result(AnsysBinary):
     ----------
     filename : str, optional
         Filename of the ANSYS binary result file.
-
     ignore_cyclic : bool, optional
         Ignores any cyclic properties.
-
     read_mesh : bool, optional
         Debug parameter.  Set to False to disable reading in the
         mesh from the result file.
+    parse_vtk : bool, optional
+       Set to ``False`` to skip the parsing the mesh as a VTK
+       UnstructuredGrid, which might take a long time for large models.
 
     Examples
     --------
@@ -94,11 +95,8 @@ class Result(AnsysBinary):
     ELEMENT_INDEX_TABLE_KEYS = ELEMENT_INDEX_TABLE_KEYS
     ELEMENT_RESULT_NCOMP = ELEMENT_RESULT_NCOMP
 
-    def __init__(self, filename, read_mesh=True, flag_vtk_parse=True, **kwargs):
-        """Loads basic result information from result file and
-        initializes result object.
-        flag_vtk_parse can be used to skip the parsing for vtk, which might take long for large models
-        """
+    def __init__(self, filename, read_mesh=True, parse_vtk=True, **kwargs):
+        """Load basic result information from result file and init the rst object."""
         self.filename = filename
         self._cfile = AnsysFile(filename)
         self._resultheader = self._read_result_header()
@@ -131,11 +129,11 @@ class Result(AnsysBinary):
         # store mesh for later retrieval
         self._mesh = None
         if read_mesh:
-            self._store_mesh(flag_vtk_parse)
+            self._store_mesh(parse_vtk)
 
     @property
     def mesh(self):
-        """Mesh from result file
+        """Mesh from result file.
 
         Examples
         --------
@@ -1550,10 +1548,15 @@ class Result(AnsysBinary):
                 'keyopts': keyopts,
                 'ekey': np.array(ekey)}
 
-    def _store_mesh(self, flag_vtk_parse=True):
-        """Store the mesh from the result file
-        flag_vtk_parse can be used to skip the parsing for vtk, which might take long for large models"""
+    def _store_mesh(self, parse_vtk=True):
+        """Store the mesh from the result file.
 
+        Parameters
+        ----------
+        parse_vtk : bool, optional
+            Set to ``False`` to skip the parsing the mesh as a VTK
+            UnstructuredGrid, which might take a long time for large models.
+        """
         # Node information
         nnod = self._geometry_header['nnod']
         nnum = np.empty(nnod, np.int32)
@@ -1584,10 +1587,13 @@ class Result(AnsysBinary):
         self._mesh = Mesh(nnum, nodes, elem, elem_off,
                           self._element_table['ekey'],
                           node_comps=ncomp, elem_comps=ecomp)
-        if flag_vtk_parse:
+        if parse_vtk:
             self.quadgrid = self._mesh._parse_vtk(null_unallowed=True,
                                                   fix_midside=False)
             self.grid = self.quadgrid.linear_copy()
+        else:
+            self.quadgrid = None
+            self.grid = None
 
         # identify nodes that are actually in the solution
         self._insolution = np.in1d(self._mesh.nnum, self._resultheader['neqv'],
