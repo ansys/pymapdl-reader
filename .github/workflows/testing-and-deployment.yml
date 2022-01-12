@@ -200,56 +200,56 @@ jobs:
           path: dist/
           retention-days: 7
 
-  mac_build:
-    runs-on: macos-latest
-    name: Mac OS Unit Testing
-    strategy:
-      matrix:
-        python-version: ['3.8']
+  # mac_build:
+  #   runs-on: macos-latest
+  #   name: Mac OS Unit Testing
+  #   strategy:
+  #     matrix:
+  #       python-version: ['3.8']
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
-        with:
-          python-version: ${{ matrix.python-version }}
+  #     - name: Set up Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v1
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
 
-      - name: Build wheels
-        uses: joerick/cibuildwheel@v2.0.1
-        env:
-          CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
-          CIBW_BUILD: cp38-macosx_x86_64
+  #     - name: Build wheels
+  #       uses: joerick/cibuildwheel@v2.0.1
+  #       env:
+  #         CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
+  #         CIBW_BUILD: cp38-macosx_x86_64
 
-      - name: Build wheels
-        if: startsWith(github.event.ref, 'refs/tags')
-        uses: joerick/cibuildwheel@v2.0.1
-        env:
-          CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
-          CIBW_SKIP: pp* cp38-macosx_x86_64
+  #     - name: Build wheels
+  #       if: startsWith(github.event.ref, 'refs/tags')
+  #       uses: joerick/cibuildwheel@v2.0.1
+  #       env:
+  #         CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
+  #         CIBW_SKIP: pp* cp38-macosx_x86_64
 
-      - name: Show files
-        run: ls -lh wheelhouse
-        shell: bash
+  #     - name: Show files
+  #       run: ls -lh wheelhouse
+  #       shell: bash
 
-      - name: Upload wheels
-        uses: actions/upload-artifact@v2
-        with:
-          path: wheelhouse/*.whl
+  #     - name: Upload wheels
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         path: wheelhouse/*.whl
 
-      - name: Install wheel
-        run: |
-          pip install wheelhouse/*38*
+  #     - name: Install wheel
+  #       run: |
+  #         pip install wheelhouse/*38*
 
-      - name: Test
-        run: |
-          pip install -r requirements_test.txt
-          cd tests
-          pytest -v
+  #     - name: Test
+  #       run: |
+  #         pip install -r requirements_test.txt
+  #         cd tests
+  #         pytest -v
 
   Release:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [check_style, doc_build, build, mac_build]
+    needs: [check_style, doc_build, build] # , mac_build
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
