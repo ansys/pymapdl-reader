@@ -478,4 +478,4 @@ def test_nodal_time_history(mapdl, transient_thermal):
     assert np.allclose(nnum, mapdl.mesh.nnum)
     for i in range(mapdl.post_processing.nsets):
         mapdl.set(1, i + 1)
-        assert np.allclose(data[i].ravel(), mapdl.post_processing.nodal_temperature)
+        assert np.allclose(data[i].ravel(), mapdl.post_processing.nodal_temperature())
