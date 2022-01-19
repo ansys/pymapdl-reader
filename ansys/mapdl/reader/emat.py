@@ -311,6 +311,8 @@ c   kygaf        global applied force matrix calculate key
 c   kygrf        global restoring force matrix calculate key
 
 """
+import pathlib
+
 import numpy as np
 
 from ansys.mapdl.reader.common import read_table, parse_header
@@ -334,7 +336,7 @@ class EmatFile(object):
 
     Parameters
     ----------
-    filename : str
+    filename : str, pathlib.Path
         File to open.  Generally ends in ``*.emat``.
 
     Examples
@@ -350,12 +352,26 @@ class EmatFile(object):
         self._nnum = None
         self._eeqv = None
         self._enum = None
-        self.filename = filename
+        self._filename = pathlib.Path(filename)
         self.read_header()
+
+    @property
+    def filename(self):
+        """String form of the filename. Accepts ``pathlib.Path`` and string objects when set."""
+        return str(self._filename)
+
+    @property
+    def pathlib_filename(self):
+        """Return the ``pathlib.Path`` version of the filename. This property can not be set."""
+        return self._filename
+
+    @filename.setter
+    def filename(self, value):
+        self._filename = pathlib.Path(value)
 
     def read_header(self):
         """Read standard emat file header"""
-        with open(self.filename, 'rb') as f:
+        with open(self.pathlib_filename, 'rb') as f:
             f.seek(103*4)
             self.header = parse_header(read_table(f), EMAT_HEADER_KEYS)
 
@@ -402,7 +418,7 @@ class EmatFile(object):
             lower triangular form.
 
         """
-        with open(self.filename, 'rb') as f:
+        with open(self.pathlib_filename, 'rb') as f:
             f.seek(4*f_index)
             return parse_header(read_table(f), ELEMENT_HEADER_KEYS)
 
@@ -410,7 +426,7 @@ class EmatFile(object):
     def element_matrices_index_table(self):
         """Return element matrices index table"""
         if self._element_matrices_index_table is None:
-            with open(self.filename, 'rb') as f:
+            with open(self.pathlib_filename, 'rb') as f:
                 f.seek(self.header['ptrIDX']*4)
                 self._element_matrices_index_table = read_table(f)
         return self._element_matrices_index_table
@@ -435,7 +451,7 @@ class EmatFile(object):
         for storage to the actual node number.
         """
         if self._neqv is None:
-            with open(self.filename, 'rb') as f:
+            with open(self.pathlib_filename, 'rb') as f:
                 f.seek(self.header['ptrBAC']*4)
                 self._neqv = read_table(f)
         return self._neqv
@@ -459,7 +475,7 @@ class EmatFile(object):
         table equates the order number used to the actual element.
         """
         if self._eeqv is None:
-            with open(self.filename, 'rb') as f:
+            with open(self.pathlib_filename, 'rb') as f:
                 f.seek(self.header['ptrElm']*4)
                 self._eeqv = read_table(f)
         return self._eeqv
@@ -540,7 +556,7 @@ class EmatFile(object):
         reference number given by ``dof_idx``.
         """
         element_data = {}
-        with open(self.filename, 'rb') as fobj:
+        with open(self.pathlib_filename, 'rb') as fobj:
             # seek to the position of the element table in the file
             fobj.seek(self.element_matrices_index_table[index]*4)
 

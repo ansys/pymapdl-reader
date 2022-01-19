@@ -3,6 +3,8 @@ from inspect import currentframe
 import glob
 import os
 from functools import wraps
+from typing import Union
+import pathlib
 
 import pyvista as pv
 import numpy as np
@@ -17,7 +19,7 @@ from ansys.mapdl.reader._binary_reader import (read_nodal_values_dist,
 from ansys.mapdl.reader._rst_keys import element_index_table_info
 
 
-def find_dis_files(main_file):
+def find_dis_files(main_file: Union[str, pathlib.Path]):
     """Find the individual distributed result files given a main result file"""
     basename = os.path.basename(main_file)
     jobname = basename[:basename.rfind('0')]

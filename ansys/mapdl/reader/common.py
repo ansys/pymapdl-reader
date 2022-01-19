@@ -1,6 +1,7 @@
 """Methods common to binary files"""
 import struct
-import os
+import pathlib
+from typing import Union
 from collections import Counter
 
 import numpy as np
@@ -22,7 +23,6 @@ ANSYS_BINARY_FILE_TYPES = {2: 'Element Matrix File',
                            12: 'Result File',
                            16: 'Database File',
                            45: 'Component Mode Synthesis Matrices (CMS) File'}
-
 
 
 # c *** standard usage of the block number (buffers) and file unit number(FUN)
@@ -61,9 +61,9 @@ ANSYS_BINARY_FILE_TYPES = {2: 'Element Matrix File',
 # c     ASI  ->    ASIRSTNM     FUN66        9      asi results
 
 
-class AnsysBinary():
+class AnsysBinary:
     """ANSYS binary file class"""
-    filename = None
+    filename: Union[str, pathlib.Path] = None
 
     # read only file handle
     _cfile = None
@@ -120,7 +120,7 @@ def read_binary(filename, **kwargs):
 
     Parameters
     ----------
-    filename : str
+    filename : str, pathlib.Path
         Filename to read.
 
     **kwargs : keyword arguments
@@ -148,9 +148,9 @@ def read_binary(filename, **kwargs):
     - Jobname.RMG A magnetic analysis
     - Jobname.RFL A FLOTRAN analysis (a legacy results file)
     """
-    if not os.path.isfile(filename):
-        raise FileNotFoundError('%s is not a file or cannot be found' %
-                                str(filename))
+    filename = pathlib.Path(filename)
+    if not filename.is_file():
+        raise FileNotFoundError(f'{filename} is not a file or cannot be found')
 
     file_format = read_standard_header(filename)['file format']
 
