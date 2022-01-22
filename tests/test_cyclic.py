@@ -34,7 +34,7 @@ except:
 
 IS_MAC = platform.system() == 'Darwin'
 skip_plotting = pytest.mark.skipif(
-    not system_supports_plotting() or IS_MAC or sys.version >= (3, 10),
+    not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
     reason="Plotting disabled for these tests"
 )
 
