@@ -22,6 +22,9 @@ case $PYTHON_VERSION in
   PYBIN="/opt/python/cp38-cp38/bin"
   ;;
 3.9)
+  PYBIN="/opt/python/cp39-cp39/bin"
+  ;;
+3.10)
   PYBIN="/opt/python/cp310-cp310/bin"
   ;;
 esac
