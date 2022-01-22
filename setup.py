@@ -111,12 +111,15 @@ if not is64:
 
 
 if sys.version_info.minor == 10 and is64:
-    # use dev wheels from pyvista until kitware releases VTK for 3.10 on PyPI
-    install_requires.append(
-        'vtk @ https://github.com/pyvista/pyvista-wheels/raw/main/vtk-9.1.0.dev0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl;platform_system=="Linux"',
-    )
-    install_requires.append(
-        'vtk @ https://github.com/pyvista/pyvista-wheels/raw/main/vtk-9.1.0.dev0-cp310-cp310-win_amd64.whl;platform_system=="Windows"',
+    # use pip to check if vtk is available or installed
+    sys_name = platform.system()
+    if sys_name == 'Linux':
+        install_requires.append(
+            'vtk @ https://github.com/pyvista/pyvista-wheels/raw/main/vtk-9.1.0.dev0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
+        )
+    elif sys_name == 'Windows':
+        install_requires.append(
+            'vtk @ https://github.com/pyvista/pyvista-wheels/raw/main/vtk-9.1.0.dev0-cp310-cp310-win_amd64.whl',
         )
 
 setup(
