@@ -31,6 +31,7 @@ esac
 
 # build, don't install
 cd io
+"${PYBIN}/pip" install -r requirements_build.txt
 "${PYBIN}/python" setup.py bdist_wheel
 auditwheel repair dist/ansys_mapdl_reader*.whl
 rm -f dist/*
