@@ -9,6 +9,7 @@ pyvista.OFF_SCREEN = True
 
 @pytest.fixture(scope="session")
 def mapdl(request):
+    import warnings; warnings.warn('using ansys-mapdl-core')
     """This fixture will only be called if ``ansys.mapdl.core`` is installed."""
     from ansys.mapdl.core import launch_mapdl
     from ansys.mapdl.core.misc import get_ansys_bin

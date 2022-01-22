@@ -30,13 +30,17 @@ try:
 except ImportError:
     HAS_FFMPEG = False
 
+skip_no_ansys = pytest.mark.skipif(not _HAS_ANSYS, reason="Requires ANSYS installed")
+
+
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, 'testfiles')
 
 IS_MAC = platform.system() == 'Darwin'
-skip_no_ansys = pytest.mark.skipif(not _HAS_ANSYS, reason="Requires ANSYS installed")
-skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
-                                   reason="Requires active X Server")
+skip_plotting = pytest.mark.skipif(
+    not system_supports_plotting() or IS_MAC,
+    reason="Requires active X Server"
+)
 
 RSETS = list(zip(range(1, 9), [1]*8))
 
@@ -173,16 +177,7 @@ def transient_thermal(mapdl):
 def test_prnsol_u(mapdl, cyclic_modal, rset):
     mapdl.set(*rset)
     # verify cyclic displacements
-    table = mapdl.prnsol('u').splitlines()
-    if isinstance(mapdl, MapdlGrpc):
-        array = np.genfromtxt(table[7:])
-    elif isinstance(mapdl, MapdlCorba):
-        array = np.genfromtxt(table[8:])
-    elif isinstance(mapdl, MapdlConsole):
-        array = np.genfromtxt(table[9:])
-    else:
-        raise RuntimeError('Invalid instance')
-
+    array = mapdl.prnsol('u').to_array()
     ansys_nnum = array[:, 0].astype(np.int)
     ansys_disp = array[:, 1:-1]
 
@@ -207,16 +202,9 @@ def test_presol_s(mapdl, cyclic_modal, rset):
     enode = np.hstack(enode)
 
     # parse ansys result
-    table = mapdl.presol('S').splitlines()
-    ansys_element_stress = []
-    line_length = len(table[15])
-    for line in table:
-        if len(line) == line_length:
-            ansys_element_stress.append(line)
-
-    ansys_element_stress = np.genfromtxt(ansys_element_stress)
-    ansys_enode = ansys_element_stress[:, 0].astype(np.int)
-    ansys_element_stress = ansys_element_stress[:, 1:]
+    array = mapdl.presol('S').to_array()
+    ansys_enode = array[:, 0].astype(np.int)
+    ansys_element_stress = array[:, 1:]
 
     arr_sz = element_stress.shape[0]
     assert np.allclose(element_stress, ansys_element_stress[:arr_sz])
@@ -229,13 +217,7 @@ def test_prnsol_s(mapdl, cyclic_modal, rset):
     mapdl.set(*rset)
 
     # verify cyclic displacements
-    table = mapdl.prnsol('s').splitlines()
-    if isinstance(mapdl, MapdlGrpc):
-        array = np.genfromtxt(table[7:])
-    elif isinstance(mapdl, MapdlCorba):
-        array = np.genfromtxt(table[8:])
-    else:
-        array = np.genfromtxt(table[10:])
+    array = mapdl.prnsol('s').to_array()
     ansys_nnum = array[:, 0].astype(np.int)
     ansys_stress = array[:, 1:]
 
@@ -257,13 +239,7 @@ def test_prnsol_prin(mapdl, cyclic_modal, rset):
     mapdl.set(*rset)
 
     # verify principal stress
-    table = mapdl.prnsol('prin').splitlines()
-    if isinstance(mapdl, MapdlGrpc):
-        array = np.genfromtxt(table[7:])
-    elif isinstance(mapdl, MapdlCorba):
-        array = np.genfromtxt(table[8:])
-    else:
-        array = np.genfromtxt(table[10:])
+    array = mapdl.prnsol('prin').to_array()
     ansys_nnum = array[:, 0].astype(np.int)
     ansys_stress = array[:, 1:]
 
