@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 import pytest
 import numpy as np
@@ -19,6 +20,7 @@ LINEAR_CELL_TYPES = [VTK_TETRA,
 
 TEST_PATH = os.path.dirname(os.path.abspath(__file__))
 TESTFILES_PATH = os.path.join(TEST_PATH, 'test_data')
+TESTFILES_PATH_PATHLIB = pathlib.Path(TESTFILES_PATH)
 DAT_FILE = os.path.join(TESTFILES_PATH, 'Panel_Transient.dat')
 
 
@@ -47,6 +49,12 @@ def proto_cmblock(array):
         items[c] = -array[i + 1]; c += 1
 
     return items[:c]
+
+
+@pytest.fixture()
+def pathlib_archive():
+    filename = TESTFILES_PATH_PATHLIB / 'ErnoRadiation.cdb'
+    return pymapdl_reader.Archive(filename)
 
 
 @pytest.fixture()
@@ -440,3 +448,23 @@ def test_rlblock_prior_to_nblock():
     archive = pymapdl_reader.Archive(filename)
     assert archive.n_node == 65
     assert archive.n_elem == 36
+
+
+class TestPathlibFilename:
+    def test_pathlib_filename_property(self, pathlib_archive):
+        assert isinstance(pathlib_archive.pathlib_filename, pathlib.Path)
+
+    def test_filename_property_is_string(self, pathlib_archive):
+        filename = TESTFILES_PATH_PATHLIB / 'ErnoRadiation.cdb'
+        a = pymapdl_reader.Archive(filename)
+        assert isinstance(a.filename, str)
+
+    def test_filename_setter_pathlib(self, pathlib_archive):
+        pathlib_archive.filename = pathlib.Path('dummy2')
+        assert isinstance(pathlib_archive.filename, str)
+        assert isinstance(pathlib_archive.pathlib_filename, pathlib.Path)
+
+    def test_filename_setter_string(self, pathlib_archive):
+        pathlib_archive.filename = 'dummy2'
+        assert isinstance(pathlib_archive.filename, str)
+        assert isinstance(pathlib_archive.pathlib_filename, pathlib.Path)

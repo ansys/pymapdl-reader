@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 import pytest
 import numpy as np
@@ -19,6 +20,12 @@ def emat():
     return emat_bin
 
 
+@pytest.fixture(scope='module')
+def emat_pathlib():
+    emat_bin = EmatFile(pathlib.Path(emat_filename))
+    return emat_bin
+
+
 def test_load_element(emat):
     dof_idx, element_data = emat.read_element(0)
     assert 'stress' in element_data
@@ -36,3 +43,21 @@ def test_eeqv(emat):
 
 def test_neqv(emat):
     assert np.allclose(np.sort(emat.neqv), emat.nnum)
+
+
+class TestPathlibFilename:
+    def test_pathlib_filename_property(self, emat_pathlib):
+        assert isinstance(emat_pathlib.pathlib_filename, pathlib.Path)
+
+    def test_filename_property_is_string(self, emat_pathlib):
+        assert isinstance(emat_pathlib.filename, str)
+
+    def test_filename_setter_pathlib(self, emat_pathlib):
+        emat_pathlib.filename = pathlib.Path('dummy2')
+        assert isinstance(emat_pathlib.filename, str)
+        assert isinstance(emat_pathlib.pathlib_filename, pathlib.Path)
+
+    def test_filename_setter_string(self, emat_pathlib):
+        emat_pathlib.filename = 'dummy2'
+        assert isinstance(emat_pathlib.filename, str)
+        assert isinstance(emat_pathlib.pathlib_filename, pathlib.Path)
