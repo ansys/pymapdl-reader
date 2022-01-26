@@ -262,6 +262,21 @@ natural frequencies and mode shapes.
     5781.975 Hz
     6919.399 Hz
 
+Developing on Windows
+---------------------
+
+This package is designed to be developed on Linux, and if you need to develop on Windows
+you will need to install your own C++ compiler. We recommend:
+
+ 1. Install Visual C++
+        a. See `here <https://wiki.python.org/moin/WindowsCompilers>`_ for a list of which Python versions correspond to which Visual C++ version
+        b. Only Python <= 3.8 appears to be supported at the moment.
+ 2. Install the development version of pymapdl-reader to your Python environment
+        a. Navigate to the project's top level (the same directory as this README)
+        b. run ``pip install -e .``
+
+To get the package up and running.
+
 License and Acknowledgments
 ---------------------------
 The ``ansys-mapdl-reader`` module is licensed under the MIT license.
