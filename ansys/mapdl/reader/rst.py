@@ -100,7 +100,7 @@ class Result(AnsysBinary):
     def __init__(self, filename, read_mesh=True, parse_vtk=True, **kwargs):
         """Load basic result information from result file and init the rst object."""
         self._filename = pathlib.Path(filename)
-        self._cfile = AnsysFile(filename)
+        self._cfile = AnsysFile(str(filename))
         self._resultheader = self._read_result_header()
         self._animating = False
         self.__element_map = None
@@ -4732,7 +4732,7 @@ class Result(AnsysBinary):
     @property
     def _is_thermal(self):
         """True when result file is a rth file"""
-        return self.pathlib_filename.suffix == 'rth'
+        return self.pathlib_filename.suffix == '.rth'
 
     @property
     def _is_cyclic(self):
