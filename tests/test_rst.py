@@ -120,6 +120,7 @@ def test_map_flag_section_data():
         assert np.allclose(rst_2020r2.section_data[key],
                            rst_2021r1.section_data[key])
 
+
 def test_overwrite(tmpdir):
     tmp_path = str(tmpdir.mkdir("tmpdir"))
     rst = pymapdl_reader.read_binary(copy(examples.rstfile, tmp_path))
