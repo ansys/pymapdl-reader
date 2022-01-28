@@ -182,7 +182,7 @@ def solve_km():
     # add two meshes to the plotting class
     pl.add_mesh(grid.copy(), color='w', style='wireframe')
     pl.add_mesh(grid, scalars=n, stitle='Normalized\nDisplacement',
-                flip_scalars=True, cmap='jet')
+                flip_scalars=True, cmap='viridis')
     # Update the coordinates by adding the mode shape to the grid
     pl.update_coordinates(grid.points + disp / 80, render=False)
     pl.add_text('Cantliver Beam 4th\nMode Shape at\n{:.4f}'.format(f[3]),
