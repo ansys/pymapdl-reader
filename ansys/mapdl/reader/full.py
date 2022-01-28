@@ -4,7 +4,9 @@ Used fortran header file for item definitions.  See:
 
 """
 import os
+import pathlib
 import warnings
+from typing import Union
 
 import numpy as np
 
@@ -68,7 +70,7 @@ class FullFile(AnsysBinary):
 
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename: Union[str, pathlib.Path]):
         """Loads full header on initialization.
 
         See ANSYS programmer's reference manual full header section
@@ -86,12 +88,9 @@ class FullFile(AnsysBinary):
         self._m = None
         self._dof_ref = None
 
-        self.filename = filename
+        self._filename = pathlib.Path(filename)
         self._standard_header = read_standard_header(self.filename)
         self._header = parse_header(self.read_record(103), SYMBOLIC_FULL_HEADER_KEYS)
-
-        # if not self._header['fun04'] < 0:
-            # raise NotImplementedError("Unable to read a frontal assembly full file")
 
         # Check if lumped (item 11)
         if self._header['lumpm']:
@@ -100,6 +99,20 @@ class FullFile(AnsysBinary):
         # Check if arrays are unsymmetric (item 14)
         if self._header['keyuns']:
             raise NotImplementedError("Unable to read an unsymmetric mass/stiffness matrix")
+
+    @property
+    def filename(self):
+        """String form of the filename. Accepts ``pathlib.Path`` and string objects when set."""
+        return str(self._filename)
+
+    @property
+    def pathlib_filename(self):
+        """Return the ``pathlib.Path`` version of the filename. This property can not be set."""
+        return self._filename
+
+    @filename.setter
+    def filename(self, value):
+        self._filename = pathlib.Path(value)
 
     @property
     def k(self):
@@ -221,8 +234,8 @@ class FullFile(AnsysBinary):
         Constrained DOF can be accessed from ``const``, which returns
         the node number and DOF constrained in ANSYS.
         """
-        if not os.path.isfile(self.filename):
-            raise Exception('%s not found' % self.filename)
+        if not self.pathlib_filename.is_file():
+            raise Exception('%s not found' % self.pathlib_filename)
 
         if as_sparse:
             try:
@@ -242,7 +255,7 @@ class FullFile(AnsysBinary):
         ptrDOF = self._header['ptrDOF']  # pointer to DOF info
 
         # DOF information
-        with open(self.filename, 'rb') as f:
+        with open(self.pathlib_filename, 'rb') as f:
             read_table(f, skip=True)  # standard header
             read_table(f, skip=True)  # full header
             read_table(f, skip=True)  # number of degrees of freedom

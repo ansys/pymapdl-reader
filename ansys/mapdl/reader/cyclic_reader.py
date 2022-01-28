@@ -1645,6 +1645,7 @@ class CyclicResult(Result):
             plotter.camera_position = cpos
 
         if movie_filename:
+            movie_filename = str(movie_filename)
             if movie_filename.strip()[-3:] == 'gif':
                 plotter.open_gif(movie_filename)
             else:

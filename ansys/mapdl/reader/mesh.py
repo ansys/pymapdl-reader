@@ -558,7 +558,7 @@ class Mesh():
 
         Parameters
         ----------
-        filename : str
+        filename : str, pathlib.Path
             Filename of output file. Writer type is inferred from
             the extension of the filename.
 
@@ -593,7 +593,7 @@ class Mesh():
         grid = self._parse_vtk(allowable_types=allowable_types,
                                force_linear=force_linear,
                                null_unallowed=null_unallowed)
-        return grid.save(filename, binary=binary)
+        return grid.save(str(filename), binary=binary)
 
     @property
     def n_node(self):

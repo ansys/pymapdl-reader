@@ -435,23 +435,36 @@ def test_reaction_forces():
     assert np.allclose(forces[:, 1], [-600, 250, 500, -900])
 
 
-def test_thermal_result(thermal_rst):
-    assert thermal_rst._is_thermal
-    assert thermal_rst.result_dof(0) == ['TEMP']
-    with pytest.raises(AttributeError):
-        thermal_rst.nodal_displacement()
+class TestThermalResult:
+    def test_nodal_displacement(self, thermal_rst):
+        assert thermal_rst._is_thermal
+        assert thermal_rst.result_dof(0) == ['TEMP']
+        with pytest.raises(AttributeError):
+            thermal_rst.nodal_displacement()
 
-    with pytest.raises(AttributeError):
-        thermal_rst.nodal_velocity(0)
+    def test_nodal_velocity(self, thermal_rst):
+        assert thermal_rst._is_thermal
+        assert thermal_rst.result_dof(0) == ['TEMP']
+        with pytest.raises(AttributeError):
+            thermal_rst.nodal_velocity(0)
 
-    with pytest.raises(AttributeError):
-        thermal_rst.nodal_acceleration(0)
+    def test_nodal_acceleration(self, thermal_rst):
+        assert thermal_rst._is_thermal
+        assert thermal_rst.result_dof(0) == ['TEMP']
+        with pytest.raises(AttributeError):
+            thermal_rst.nodal_acceleration(0)
 
-    with pytest.raises(AttributeError):
-        thermal_rst.plot_nodal_solution(0, 'NORM')
+    def test_nodal_solution(self, thermal_rst):
+        assert thermal_rst._is_thermal
+        assert thermal_rst.result_dof(0) == ['TEMP']
+        with pytest.raises(AttributeError):
+            thermal_rst.plot_nodal_solution(0, 'NORM')
 
-    with pytest.raises(ValueError):
-        thermal_rst.plot_nodal_solution(0, 'ROTX')
+    def test_plot_nodal_solution(self, thermal_rst):
+        assert thermal_rst._is_thermal
+        assert thermal_rst.result_dof(0) == ['TEMP']
+        with pytest.raises(ValueError):
+            thermal_rst.plot_nodal_solution(0, 'ROTX')
 
 
 def test_plot_temperature(thermal_rst):
