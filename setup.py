@@ -1,20 +1,15 @@
 """Installation file for ansys-mapdl-reader"""
-import platform
-import re
-import subprocess
-import struct
-import os
-import sys
 from io import open as io_open
-
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
+import os
+import platform
+import re
+import struct
+import subprocess
+import sys
 
-try:
-    import numpy as np
-except ImportError:
-    raise Exception('Please install numpy first with "pip install numpy"')
-
+import numpy as np
 
 # Facilities to install properly on Mac using clang
 def is_clang(bin):
@@ -24,33 +19,8 @@ def is_clang(bin):
     return not re.search(r'clang', output) is None
 
 
-def check_cython():
-    """Check if binaries exist and if not check if Cython is installed"""
-    has_binary_reader = False
-    for filename in os.listdir('ansys/mapdl/reader'):
-        if '_binary_reader' in filename:
-            has_binary_reader = True
-
-    if not has_binary_reader:
-        # ensure cython is installed before trying to build
-        try:
-            import cython
-        except ImportError:
-            raise ImportError('\n\n\nTo build pyansys please install Cython with:\n\n'
-                              'pip install cython\n\n') from None
-
-
-check_cython()
-
-
 class build_ext(_build_ext):
     """ build class that includes numpy directory """
-    def finalize_options(self):
-        _build_ext.finalize_options(self)
-        # Prevent numpy from thinking it is still in its setup process:
-        __builtins__.__NUMPY_SETUP__ = False
-        import numpy
-        self.include_dirs.append(numpy.get_include())
 
     def build_extensions(self):
         if os.name != 'nt':
@@ -77,7 +47,7 @@ class build_ext(_build_ext):
         _build_ext.build_extensions(self)
 
 
-def compilerName():
+def compiler_name():
     """ Check compiler and assign compile arguments accordingly """
     import re
     import distutils.ccompiler
@@ -104,7 +74,7 @@ def compilerName():
 
 
 # Assign arguments based on compiler
-compiler = compilerName()
+compiler = compiler_name()
 if compiler == 'unix':
     cmp_arg = ['-O3', '-w']
 else:
@@ -119,16 +89,19 @@ with io_open(version_file, mode='r') as fd:
     # execute file from raw string
     exec(fd.read())
 
-install_requires = ['numpy>=1.16.0',
-                    'pyvista>=0.32.0',
-                    'appdirs>=1.4.0',
-                    'matplotlib>=3.0.0',
-                    'tqdm>=4.45.0']
+install_requires = [
+    'numpy>=1.16.0',
+    'pyvista>=0.32.0',
+    'appdirs>=1.4.0',
+    'matplotlib>=3.0.0',
+    'tqdm>=4.45.0'
+]
 
 # perform python version checking
 # this is necessary to avoid the new pip package checking as vtk does
 # not support Python 32-bit as of 17 June 2021.
-if not struct.calcsize("P")*8 == 64:
+is64 = struct.calcsize("P") * 8 == 64
+if not is64:
     try:
         import vtk
     except ImportError:
@@ -136,7 +109,19 @@ if not struct.calcsize("P")*8 == 64:
                            'Please check the version of Python installed at\n'
                            '%s' % sys.executable)
 
-# Actual setup
+
+if sys.version_info.minor == 10 and is64:
+    # use pip to check if vtk is available or installed
+    sys_name = platform.system()
+    if sys_name == 'Linux':
+        install_requires.append(
+            'vtk @ https://github.com/pyvista/pyvista-wheels/raw/main/vtk-9.1.0.dev0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
+        )
+    elif sys_name == 'Windows':
+        install_requires.append(
+            'vtk @ https://github.com/pyvista/pyvista-wheels/raw/main/vtk-9.1.0.dev0-cp310-cp310-win_amd64.whl',
+        )
+
 setup(
     name='ansys-mapdl-reader',
     packages=['ansys.mapdl.reader', 'ansys.mapdl.reader.examples'],
@@ -157,11 +142,13 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
     url='https://github.com/pyansys/pymapdl-reader',
 
     # Build cython modules
     cmdclass={'build_ext': build_ext},
+    include_dirs=[np.get_include()],
     ext_modules=[
                  Extension('ansys.mapdl.reader._archive',
                            ['ansys/mapdl/reader/cython/_archive.pyx',
