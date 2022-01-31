@@ -53,11 +53,10 @@ class TestPathlibFilename:
         assert isinstance(emat_pathlib.filename, str)
 
     def test_filename_setter_pathlib(self, emat_pathlib):
-        emat_pathlib.filename = pathlib.Path('dummy2')
-        assert isinstance(emat_pathlib.filename, str)
-        assert isinstance(emat_pathlib.pathlib_filename, pathlib.Path)
+        with pytest.raises(AttributeError):
+            emat_pathlib.filename = pathlib.Path('dummy2')
 
     def test_filename_setter_string(self, emat_pathlib):
-        emat_pathlib.filename = 'dummy2'
-        assert isinstance(emat_pathlib.filename, str)
-        assert isinstance(emat_pathlib.pathlib_filename, pathlib.Path)
+        with pytest.raises(AttributeError):
+            emat_pathlib.filename = 'dummy2'
+

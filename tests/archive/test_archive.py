@@ -460,11 +460,9 @@ class TestPathlibFilename:
         assert isinstance(a.filename, str)
 
     def test_filename_setter_pathlib(self, pathlib_archive):
-        pathlib_archive.filename = pathlib.Path('dummy2')
-        assert isinstance(pathlib_archive.filename, str)
-        assert isinstance(pathlib_archive.pathlib_filename, pathlib.Path)
+        with pytest.raises(AttributeError):
+            pathlib_archive.filename = pathlib.Path('dummy2')
 
     def test_filename_setter_string(self, pathlib_archive):
-        pathlib_archive.filename = 'dummy2'
-        assert isinstance(pathlib_archive.filename, str)
-        assert isinstance(pathlib_archive.pathlib_filename, pathlib.Path)
+        with pytest.raises(AttributeError):
+            pathlib_archive.filename = 'dummy2'

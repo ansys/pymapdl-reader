@@ -102,17 +102,13 @@ class FullFile(AnsysBinary):
 
     @property
     def filename(self):
-        """String form of the filename. Accepts ``pathlib.Path`` and string objects when set."""
+        """String form of the filename. This property is read-only."""
         return str(self._filename)
 
     @property
     def pathlib_filename(self):
         """Return the ``pathlib.Path`` version of the filename. This property can not be set."""
         return self._filename
-
-    @filename.setter
-    def filename(self, value):
-        self._filename = pathlib.Path(value)
 
     @property
     def k(self):
