@@ -336,17 +336,15 @@ class TestPathlibFilename:
     @pytest.mark.skipif(not os.path.isfile(temperature_rst),
                         reason="Requires example files")
     def test_filename_setter_pathlib(self, pathlib_result):
-        pathlib_result.filename = pathlib.Path('dummy2')
-        assert isinstance(pathlib_result.filename, str)
-        assert isinstance(pathlib_result.pathlib_filename, pathlib.Path)
+        with pytest.raises(AttributeError):
+            pathlib_result.filename = pathlib.Path('dummy2')
 
     @skip_plotting
     @pytest.mark.skipif(not os.path.isfile(temperature_rst),
                         reason="Requires example files")
     def test_filename_setter_string(self, pathlib_result):
-        pathlib_result.filename = 'dummy2'
-        assert isinstance(pathlib_result.filename, str)
-        assert isinstance(pathlib_result.pathlib_filename, pathlib.Path)
+        with pytest.raises(AttributeError):
+            pathlib_result.filename = 'dummy2'
 
 
 def test_rst_node_components(hex_rst):

@@ -85,11 +85,9 @@ class TestPathlibFilename:
         assert isinstance(sparse_full_pathlib_full_file.filename, str)
 
     def test_filename_setter_pathlib(self, sparse_full_pathlib_full_file):
-        sparse_full_pathlib_full_file.filename = pathlib.Path('dummy2')
-        assert isinstance(sparse_full_pathlib_full_file.filename, str)
-        assert isinstance(sparse_full_pathlib_full_file.pathlib_filename, pathlib.Path)
+        with pytest.raises(AttributeError):
+            sparse_full_pathlib_full_file.filename = pathlib.Path('dummy2')
 
     def test_filename_setter_string(self, sparse_full_pathlib_full_file):
-        sparse_full_pathlib_full_file.filename = 'dummy2'
-        assert isinstance(sparse_full_pathlib_full_file.filename, str)
-        assert isinstance(sparse_full_pathlib_full_file.pathlib_filename, pathlib.Path)
+        with pytest.raises(AttributeError):
+            sparse_full_pathlib_full_file.filename = 'dummy2'
