@@ -2842,10 +2842,16 @@ class Result(AnsysBinary):
                 """exit when user wants to leave"""
                 self._animating = False
 
+            def exit_callback(plotter, RenderWindowInteractor, event):
+                """exit when user wants to leave"""
+                self._animating = False
+                plotter.close()
+
             plotter.add_key_event("q", q_callback)
             if os.name == 'nt':
                 # Adding closing window callback
-                plotter.iren.add_observer(vtk.vtkCommand.ExitEvent, q_callback)
+                plotter.iren.add_observer(vtk.vtkCommand.ExitEvent, 
+                                          lambda render, event: exit_callback(plotter, render, event))
 
             first_loop = True
             cached_normals = [None for _ in range(n_frames)]
