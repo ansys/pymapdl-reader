@@ -3,6 +3,7 @@
 Used:
 .../ansys/customize/include/fdresu.inc
 """
+import os
 from collections.abc import Iterable, Sequence
 import time
 import warnings
@@ -2842,6 +2843,9 @@ class Result(AnsysBinary):
                 self._animating = False
 
             plotter.add_key_event("q", q_callback)
+            if os.name == 'nt':
+                # Adding closing window callback
+                plotter.iren.add_observer(vtk.vtkCommand.ExitEvent, q_callback)
 
             first_loop = True
             cached_normals = [None for _ in range(n_frames)]
