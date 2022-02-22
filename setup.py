@@ -180,7 +180,7 @@ setup(
                            language='c++'),
                  ],
 
-    python_requires='>=3.6.*',
+    python_requires='>=3.7.*',
     keywords='vtk MAPDL ANSYS cdb full rst',
     package_data={'ansys.mapdl.reader.examples': ['TetBeam.cdb',
                                                   'HexBeam.cdb',
