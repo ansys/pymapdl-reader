@@ -1,4 +1,4 @@
-name: GH Actions
+name: Actions
 
 # repo specific gh actions
 env:
@@ -29,6 +29,7 @@ jobs:
         run: |
           pip install -r requirements_style.txt --disable-pip-version-check
           make
+
   doc_build:
     name: Build Documentation
     runs-on: ubuntu-latest
@@ -47,6 +48,7 @@ jobs:
           sudo apt-get install libgl1-mesa-glx xvfb
           pip install pyvista
           xvfb-run python -c "import pyvista; print(pyvista.Report())"
+
       - name: Install ansys-mapdl-reader
         run: |
           pip install -r requirements_build.txt --disable-pip-version-check
@@ -54,6 +56,7 @@ jobs:
           pip install dist/ansys*.whl --disable-pip-version-check
           cd tests/
           xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
+
       - name: Build Documentation
         run: |
           sudo apt install pandoc -qy
@@ -62,6 +65,7 @@ jobs:
           sudo apt install zip
           cd doc/build/html/
           zip ../../../${{ env.PACKAGE_NAME }}-HTML.zip ./*
+
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
