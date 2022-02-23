@@ -43,14 +43,32 @@ Installation
 ------------
 Installation through pip::
 
-    pip install ansys-mapdl-reader
+   pip install ansys-mapdl-reader
 
 You can also visit `pymapdl-reader <https://github.com/pyansys/pymapdl-reader>`_
 to download the source or releases from GitHub.
 
+Python 3.10 Extra Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Loading and Plotting an ANSYS Archive File
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PyMAPDL-Reader requires the `VTK library <https://vtk.org/>`_ which, at the
+moment, is not available for Python 3.10 in `their official channel
+<https://pypi.org/project/vtk/>`_.
+
+If you wish to install PyMAPDL-Reader in Python 3.10, you can still do it by
+using the unofficial VTK wheel from PyVista using ``--find-links``. This tells ``pip`` to look for vtk at `wheels.pyvista.org <https://wheels.pyvista.org/>`_. Use this with::
+
+    pip install ansys-mapdl-reader --find-links https://wheels.pyvista.org/
+
+Please visit `Unofficial VTK Wheels for Python 3.10
+<https://github.com/pyvista/pyvista/discussions/2064>`_ for further details.
+
+
+Examples
+--------
+
+Loading and Plotting a MAPDL Archive File
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ANSYS archive files containing solid elements (both legacy and
 modern), can be loaded using Archive and then converted to a vtk
 object.
@@ -215,7 +233,7 @@ movie_filename and animate it with:
 
 
 Reading a Full File
--------------------
+~~~~~~~~~~~~~~~~~~~
 This example reads in the mass and stiffness matrices associated with
 the above example.
 
@@ -276,6 +294,7 @@ you will need to install your own C++ compiler. We recommend:
         b. run ``pip install -e .``
 
 To get the package up and running.
+
 
 License and Acknowledgments
 ---------------------------
