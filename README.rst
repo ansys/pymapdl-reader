@@ -277,6 +277,16 @@ you will need to install your own C++ compiler. We recommend:
 
 To get the package up and running.
 
+PyMAPDL-Reader and Python 3.10
+------------------------------
+PyMAPDL-Reader requires the `VTK library <https://vtk.org/>`_ which, at the moment, is not available for Python 3.10 in `their official channel <https://pypi.org/project/vtk/>`_.
+
+If you wish to install PyMAPDL-Reader in a Python 3.10 virtual environment, you can still do it by installing first an unofficial VTK library build.
+We do recommend to follow `this discussion <https://github.com/pyvista/pyvista/discussions/2064>`_ for further details.
+
+After you installed VTK, you can proceed to install PyMAPDL-Reader using `pip`.
+
+
 License and Acknowledgments
 ---------------------------
 The ``ansys-mapdl-reader`` module is licensed under the MIT license.
