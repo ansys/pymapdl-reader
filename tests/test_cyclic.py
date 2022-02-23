@@ -1,5 +1,6 @@
-import platform
 import os
+import platform
+import sys
 
 import numpy as np
 import pytest
@@ -32,8 +33,10 @@ except:
     result_z = None
 
 IS_MAC = platform.system() == 'Darwin'
-skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
-                                   reason="Requires active X Server")
+skip_plotting = pytest.mark.skipif(
+    not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
+    reason="Plotting disabled for these tests"
+)
 
 
 # static result x axis

@@ -2,13 +2,21 @@ import os
 
 import scipy
 import pytest
+import pathlib
 import numpy as np
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
+from ansys.mapdl.reader.full import FullFile
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, 'testfiles')
+
+
+@pytest.fixture()
+def sparse_full_pathlib_full_file():
+    filename = os.path.join(testfiles_path, 'sparse.full')
+    return FullFile(pathlib.Path(filename))
 
 
 @pytest.fixture()
@@ -67,3 +75,19 @@ def test_full_load_km(sparse_full):
 
 def test_load_vector(sparse_full):
     assert not sparse_full.load_vector.any()
+
+
+class TestPathlibFilename:
+    def test_pathlib_filename_property(self, sparse_full_pathlib_full_file):
+        assert isinstance(sparse_full_pathlib_full_file.pathlib_filename, pathlib.Path)
+
+    def test_filename_property_is_string(self, sparse_full_pathlib_full_file):
+        assert isinstance(sparse_full_pathlib_full_file.filename, str)
+
+    def test_filename_setter_pathlib(self, sparse_full_pathlib_full_file):
+        with pytest.raises(AttributeError):
+            sparse_full_pathlib_full_file.filename = pathlib.Path('dummy2')
+
+    def test_filename_setter_string(self, sparse_full_pathlib_full_file):
+        with pytest.raises(AttributeError):
+            sparse_full_pathlib_full_file.filename = 'dummy2'

@@ -1,4 +1,4 @@
-name: GH Actions
+name: Actions
 
 # repo specific gh actions
 env:
@@ -89,7 +89,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
+        python-version: ['3.7', '3.8', '3.9', '3.10']
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -135,9 +135,8 @@ jobs:
       - name: Build wheel on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          pip install -r requirements_build.txt
-          python setup.py bdist_wheel
-          python setup.py sdist
+          pip install build
+          python -m build
 
       - name: Validate wheel
         run: |
@@ -181,17 +180,16 @@ jobs:
           sudo apt-get install libgl1-mesa-glx xvfb
           xvfb-run python -c "import pyvista; print(pyvista.Report())"
 
+      - name: Install test requirements
+        run: pip install -r requirements_test.txt
+
       - name: Test with XVFB
         if: ${{ runner.os == 'Linux' }}
-        run: |
-          pip install -r requirements_test.txt
-          xvfb-run pytest -v tests/ --durations=0
+        run: xvfb-run pytest -v tests/ --durations=0
 
       - name: Test without XVFB
         if: ${{ runner.os == 'Windows' }}
-        run: |
-          pip install -r requirements_test.txt
-          pytest -v tests/ --durations=0
+        run: pytest -v tests/ --durations=0
 
       - name: Upload wheel
         uses: actions/upload-artifact@v2

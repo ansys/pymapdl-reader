@@ -1645,6 +1645,7 @@ class CyclicResult(Result):
             plotter.camera_position = cpos
 
         if movie_filename:
+            movie_filename = str(movie_filename)
             if movie_filename.strip()[-3:] == 'gif':
                 plotter.open_gif(movie_filename)
             else:
@@ -1812,7 +1813,7 @@ class CyclicResult(Result):
         full_screen = kwargs.pop('full_screen', False)
         screenshot = kwargs.pop('screenshot', None)
         text_color = kwargs.pop('text_color', None)
-        kwargs.setdefault('cmap', 'jet')
+        kwargs.setdefault('cmap', 'viridis')
         if scalars is not None:
             kwargs.setdefault('rng', [np.nanmin(scalars), np.nanmax(scalars)])
 

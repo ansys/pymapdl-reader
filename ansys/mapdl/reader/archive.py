@@ -3,6 +3,8 @@ import io
 import os
 import logging
 from functools import wraps
+import pathlib
+from typing import Union
 
 import numpy as np
 from pyvista._vtk import (VTK_TETRA, VTK_QUADRATIC_TETRA, VTK_PYRAMID,
@@ -37,7 +39,7 @@ class Archive(Mesh):
 
     Parameters
     ----------
-    filename : string
+    filename : string, pathlib.Path
         Filename of block formatted cdb file
 
     read_parameters : bool, optional
@@ -113,9 +115,9 @@ class Archive(Mesh):
                  verbose=False, name=''):
         """Initializes an instance of the archive class."""
         self._read_parameters = read_parameters
-        self._filename = filename
+        self._filename = pathlib.Path(filename)
         self._name = name
-        self._raw = _reader.read(filename, read_parameters=read_parameters,
+        self._raw = _reader.read(self.filename, read_parameters=read_parameters,
                                  debug=verbose)
         super().__init__(self._raw['nnum'],
                          self._raw['nodes'],
@@ -135,6 +137,16 @@ class Archive(Mesh):
         if parse_vtk:
             self._grid = self._parse_vtk(allowable_types,
                                          force_linear, null_unallowed)
+
+    @property
+    def filename(self) -> str:
+        """String form of the filename. This property is read-only."""
+        return str(self._filename)
+
+    @property
+    def pathlib_filename(self) -> pathlib.Path:
+        """Return the ``pathlib.Path`` version of the filename. This property can not be set."""
+        return self._filename
 
     @property
     def raw(self):  # pragma: no cover
@@ -262,7 +274,7 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
 
     Parameters
     ----------
-    filename : str
+    filename : str, pathlib.Path
        Filename to write archive file.
 
     grid : vtk.UnstructuredGrid

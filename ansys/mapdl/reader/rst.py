@@ -3,11 +3,14 @@
 Used:
 .../ansys/customize/include/fdresu.inc
 """
+import os
 from collections.abc import Iterable, Sequence
 import time
 import warnings
 from threading import Thread
 from functools import wraps
+from typing import Union
+import pathlib
 
 import numpy as np
 import pyvista as pv
@@ -75,7 +78,7 @@ class Result(AnsysBinary):
 
     Parameters
     ----------
-    filename : str, optional
+    filename : str, pathlib.Path, optional
         Filename of the ANSYS binary result file.
     ignore_cyclic : bool, optional
         Ignores any cyclic properties.
@@ -97,8 +100,8 @@ class Result(AnsysBinary):
 
     def __init__(self, filename, read_mesh=True, parse_vtk=True, **kwargs):
         """Load basic result information from result file and init the rst object."""
-        self.filename = filename
-        self._cfile = AnsysFile(filename)
+        self._filename = pathlib.Path(filename)
+        self._cfile = AnsysFile(str(filename))
         self._resultheader = self._read_result_header()
         self._animating = False
         self.__element_map = None
@@ -130,6 +133,16 @@ class Result(AnsysBinary):
         self._mesh = None
         if read_mesh:
             self._store_mesh(parse_vtk)
+
+    @property
+    def filename(self) -> str:
+        """String form of the filename. This property is read-only."""
+        return str(self._filename)
+
+    @property
+    def pathlib_filename(self) -> pathlib.Path:
+        """Return the ``pathlib.Path`` version of the filename. This property can not be set."""
+        return self._filename
 
     @property
     def mesh(self):
@@ -868,7 +881,7 @@ class Result(AnsysBinary):
             animate once and close.  Automatically disabled when
             ``off_screen=True`` and ``movie_filename`` is set.
 
-        movie_filename : str, optional
+        movie_filename : str, pathlib.Path, optional
             Filename of the movie to open.  Filename should end in
             ``'mp4'``, but other filetypes may be supported like
             ``"gif"``.  See ``imagio.get_writer``.  A single loop of
@@ -2741,7 +2754,7 @@ class Result(AnsysBinary):
             rng = kwargs.pop('rng', None)
 
         return_cpos = kwargs.pop('return_cpos', False)
-        cmap = kwargs.pop('cmap', 'jet')
+        cmap = kwargs.pop('cmap', 'viridis')
         window_size = kwargs.get('window_size')
         full_screen = kwargs.get('full_screen')
         notebook = kwargs.get('notebook')
@@ -2794,6 +2807,7 @@ class Result(AnsysBinary):
             plotter.camera_position = cpos
 
         if movie_filename:
+            movie_filename = str(movie_filename)
             if movie_filename.strip()[-3:] == 'gif':
                 plotter.open_gif(movie_filename)
             else:
@@ -2828,7 +2842,16 @@ class Result(AnsysBinary):
                 """exit when user wants to leave"""
                 self._animating = False
 
+            def exit_callback(plotter, RenderWindowInteractor, event):
+                """exit when user wants to leave"""
+                self._animating = False
+                plotter.close()
+
             plotter.add_key_event("q", q_callback)
+            if os.name == 'nt':
+                # Adding closing window callback
+                plotter.iren.add_observer(vtk.vtkCommand.ExitEvent, 
+                                          lambda render, event: exit_callback(plotter, render, event))
 
             first_loop = True
             cached_normals = [None for _ in range(n_frames)]
@@ -2961,7 +2984,7 @@ class Result(AnsysBinary):
             scalars[i] = scalars[i][ind]
 
         rng = kwargs.pop('rng', [np.min(scalars), np.max(scalars)])
-        cmap = kwargs.pop('cmap', 'jet')
+        cmap = kwargs.pop('cmap', 'viridis')
         window_size = kwargs.pop('window_size', [1024, 768])
         full_screen = kwargs.pop('full_screen', False)
         notebook = kwargs.pop('notebook', False)
@@ -3014,6 +3037,7 @@ class Result(AnsysBinary):
             plotter.camera_position = cpos
 
         if movie_filename:
+            movie_filename = str(movie_filename)
             if movie_filename.strip()[-3:] == 'gif':
                 plotter.open_gif(movie_filename)
             else:
@@ -3167,7 +3191,7 @@ class Result(AnsysBinary):
 
         Parameters
         ----------
-        filename : str
+        filename : str, pathlib.Path
             Filename of grid to be written.  The file extension will
             select the type of writer to use.  ``'.vtk'`` will use the
             legacy writer, while ``'.vtu'`` will select the VTK XML
@@ -3273,23 +3297,23 @@ class Result(AnsysBinary):
             if pbar is not None:
                 pbar.update(1)
 
-        grid.save(filename)
+        grid.save(str(filename))
         if pbar is not None:
             pbar.close()
 
-    def write_tables(self, filename):
+    def write_tables(self, filename: Union[str, pathlib.Path]):
         """Write binary tables to ASCII.  Assumes int32
 
         Parameters
         ----------
-        filename : str
+        filename : str, pathlib.Path
             Filename to write the tables to.
 
         Examples
         --------
         >>> rst.write_tables('tables.txt')
         """
-        rawresult = open(self.filename, 'rb')
+        rawresult = open(self.pathlib_filename, 'rb')
         with open(filename, 'w') as f:
             while True:
                 try:
@@ -4714,7 +4738,7 @@ class Result(AnsysBinary):
     @property
     def _is_thermal(self):
         """True when result file is a rth file"""
-        return self.filename[-3:] == 'rth'
+        return self.pathlib_filename.suffix == '.rth'
 
     @property
     def _is_cyclic(self):

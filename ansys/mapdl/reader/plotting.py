@@ -20,7 +20,7 @@ def general_plotter(title, meshes, points, labels,
                     interpolate_before_map=True, cmap=None,
                     render_points_as_spheres=False, render_lines_as_tubes=False,
                     stitle=None,
-                    smooth_shading=None,
+                    smooth_shading=False,
                     # labels kwargs
                     font_size=None,
                     font_family=None,

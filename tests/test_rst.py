@@ -32,6 +32,7 @@ mapdl.allsel()
 mapdl.modal_analysis(nmode=1)
 
 """
+import pathlib
 import platform
 import os
 from shutil import copy
@@ -43,6 +44,7 @@ from pyvista.plotting.renderer import CameraPosition
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
+from ansys.mapdl.reader.rst import Result
 from ansys.mapdl.reader.examples.downloads import _download_and_read
 
 try:
@@ -85,6 +87,12 @@ temperature_known_result = os.path.join(testfiles_path, 'temp_v13.npz')
 
 
 @pytest.fixture(scope='module')
+def pathlib_result():
+    temperature_rst_pathlib = pathlib.Path(temperature_rst)
+    return Result(temperature_rst_pathlib)
+
+
+@pytest.fixture(scope='module')
 def hex_pipe_corner():
     filename = os.path.join(testfiles_path, 'rst', 'cyc_stress.rst')
     return pymapdl_reader.read_binary(filename)
@@ -119,6 +127,7 @@ def test_map_flag_section_data():
     for key in rst_2020r2.section_data:
         assert np.allclose(rst_2020r2.section_data[key],
                            rst_2021r1.section_data[key])
+
 
 def test_overwrite(tmpdir):
     tmp_path = str(tmpdir.mkdir("tmpdir"))
@@ -308,6 +317,34 @@ def test_read_temperature():
 def test_plot_nodal_temperature():
     temp_rst = pymapdl_reader.read_binary(temperature_rst)
     temp_rst.plot_nodal_temperature(0, off_screen=True)
+
+
+class TestPathlibFilename:
+    @skip_plotting
+    @pytest.mark.skipif(not os.path.isfile(temperature_rst),
+                        reason="Requires example files")
+    def test_pathlib_filename_property(self, pathlib_result):
+        assert isinstance(pathlib_result.pathlib_filename, pathlib.Path)
+
+    @skip_plotting
+    @pytest.mark.skipif(not os.path.isfile(temperature_rst),
+                        reason="Requires example files")
+    def test_filename_property_is_string(self, pathlib_result):
+        assert isinstance(pathlib_result.filename, str)
+
+    @skip_plotting
+    @pytest.mark.skipif(not os.path.isfile(temperature_rst),
+                        reason="Requires example files")
+    def test_filename_setter_pathlib(self, pathlib_result):
+        with pytest.raises(AttributeError):
+            pathlib_result.filename = pathlib.Path('dummy2')
+
+    @skip_plotting
+    @pytest.mark.skipif(not os.path.isfile(temperature_rst),
+                        reason="Requires example files")
+    def test_filename_setter_string(self, pathlib_result):
+        with pytest.raises(AttributeError):
+            pathlib_result.filename = 'dummy2'
 
 
 def test_rst_node_components(hex_rst):
