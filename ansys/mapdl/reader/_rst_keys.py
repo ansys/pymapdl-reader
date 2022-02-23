@@ -313,3 +313,23 @@ DOF_REF = {
     63: 'TE31',
     64: 'TTOP'
 }
+
+# from fcCom.inc
+STR_LIM_REF = {
+    86: 'XTEN',
+    87: 'XCMP',
+    88: 'YTEN',
+    89: 'YCMP',
+    90: 'ZTEN',
+    91: 'ZCMP',
+    92: 'XY',
+    93: 'YZ',
+    94: 'XZ',
+    95: 'XYCP',
+    96: 'YZCP',
+    97: 'XZCP',
+    98: 'XZIT',
+    99: 'XZIC',
+    100: 'YZIT',
+    101: 'YZIC',
+}

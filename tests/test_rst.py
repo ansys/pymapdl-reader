@@ -116,6 +116,12 @@ def materials_281_rst():
     return pymapdl_reader.read_binary(rst_file)
 
 
+@pytest.fixture(scope='module')
+def materials_stress_lim_rst():
+    rst_file = os.path.join(testfiles_path, 'materials', 'stress_lim.rst')
+    return pymapdl_reader.read_binary(rst_file)
+
+
 def test_map_flag_section_data():
     # basic 4 element SHELL181 result files
     shell181_2020r2 = os.path.join(testfiles_path, 'shell181_2020R2.rst')
@@ -498,6 +504,113 @@ def test_materials(materials_281_rst):
         ans_mat = materials_281_rst.materials[mat_type]
         for key, value in known_material.items():
             assert pytest.approx(ans_mat[key]) == known_material[key]
+
+
+def test_materials_str_lim(materials_stress_lim_rst):
+    # output from:
+    # from ansys.mapdl.core import launch_mapdl
+    # mapdl = launch_mapdl()
+    # mapdl.post1()
+    # mapdl.set(1, 1)
+    # print(mapdl.tblist(mat=1))
+    #
+    # validate material stress limits can be extracted
+    #                   FC LIMIT (FCLI) Table For Material     1
+    #               Stress Strength Limits
+    #
+    #                     1
+    # Temps     0.0000000e+00
+    # XTEN     5.0000000e-01
+    # XCMP     -2.5000000e-01
+    # YTEN     5.0000000e-01
+    # YCMP     -2.5000000e-01
+    # ZTEN     5.0000000e+00
+    # ZCMP     -5.0000000e+00
+    #   XY     5.0000000e-01
+    #   YZ     3.0000000e+00
+    #   XZ     3.0000000e+00
+    # XYCP     0.0000000e+00
+    # YZCP     0.0000000e+00
+    # XZCP     0.0000000e+00
+    # XZIT     0.0000000e+00
+    # XZIC     0.0000000e+00
+    # YZIT     0.0000000e+00
+    # YZIC     0.0000000e+00
+    # GI/GII   0.0000000e+00
+    # ETA_L    0.0000000e+00
+    # ETA_T    0.0000000e+00
+    # ALPHA_0  0.0000000e+00
+    #
+    #               FC LIMIT (FCLI) Table For Material     2
+    #               Stress Strength Limits
+    #                     1
+    # Temps     0.0000000e+00
+    # XTEN     2.0000000e+00
+    # XCMP     -2.0000000e+00
+    # YTEN     2.0000000e+00
+    # YCMP     -2.0000000e+00
+    # ZTEN     3.0000000e+00
+    # ZCMP     -4.0000000e+00
+    #   XY     1.0000000e+00
+    #   YZ     2.0000000e+00
+    #   XZ     2.0000000e+00
+    # XYCP     0.0000000e+00
+    # YZCP     0.0000000e+00
+    # XZCP     0.0000000e+00
+    # XZIT     0.0000000e+00
+    # XZIC     0.0000000e+00
+    # YZIT     0.0000000e+00
+    # YZIC     0.0000000e+00
+    # GI/GII   0.0000000e+00
+    # ETA_L    0.0000000e+00
+    # ETA_T    0.0000000e+00
+    # ALPHA_0  0.0000000e+00
+
+    mat = {}
+    mat[1] = {
+        'XTEN': 5.0000000e-01,
+        'XCMP': -2.5000000e-01,
+        'YTEN': 5.0000000e-01,
+        'YCMP': -2.5000000e-01,
+        'ZTEN': 5.0000000e+00,
+        'ZCMP': -5.0000000e+00,
+        'XY': 5.0000000e-01,
+        'YZ': 3.0000000e+00,
+        'XZ': 3.0000000e+00,
+        'XYCP': 0.0000000e+00,
+        'YZCP': 0.0000000e+00,
+        'XZCP': 0.0000000e+00,
+        'XZIT': 0.0000000e+00,
+        'XZIC': 0.0000000e+00,
+        'YZIT': 0.0000000e+00,
+        'YZIC': 0.0000000e+00,
+    }
+
+    mat[2] = {
+        'XTEN': 2.0000000e+00,
+        'XCMP': -2.0000000e+00,
+        'YTEN': 2.0000000e+00,
+        'YCMP': -2.0000000e+00,
+        'ZTEN': 3.0000000e+00,
+        'ZCMP': -4.0000000e+00,
+        'XY': 1.0000000e+00,
+        'YZ': 2.0000000e+00,
+        'XZ': 2.0000000e+00,
+        'XYCP': 0.0000000e+00,
+        'YZCP': 0.0000000e+00,
+        'XZCP': 0.0000000e+00,
+        'XZIT': 0.0000000e+00,
+        'XZIC': 0.0000000e+00,
+        'YZIT': 0.0000000e+00,
+        'YZIC': 0.0000000e+00,
+    }
+
+    ans_mat = materials_stress_lim_rst.materials[1]['stress_failure_criteria']
+
+    for mat_type, known_stress_lim in mat.items():
+        ans_mat = materials_stress_lim_rst.materials[mat_type]['stress_failure_criteria']
+        for key, value in known_stress_lim.items():
+            assert pytest.approx(ans_mat[key]) == known_stress_lim[key]
 
 
 def test_materials_v150():
