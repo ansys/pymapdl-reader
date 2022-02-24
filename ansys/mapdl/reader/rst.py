@@ -19,23 +19,34 @@ from tqdm import tqdm
 
 from ansys.mapdl.reader import _binary_reader, _reader
 from ansys.mapdl.reader.mesh import Mesh
-from ansys.mapdl.reader._binary_reader import (cells_with_any_nodes,
-                                               cells_with_all_nodes,
-                                               AnsysFile,
-                                               populate_surface_element_result)
-from ansys.mapdl.reader._rst_keys import (geometry_header_keys,
-                                          element_index_table_info,
-                                          solution_data_header_keys,
-                                          solution_header_keys_dp,
-                                          result_header_keys,
-                                          boundary_condition_index_table,
-                                          DOF_REF)
+from ansys.mapdl.reader._binary_reader import (
+    cells_with_any_nodes,
+    cells_with_all_nodes,
+    AnsysFile,
+    populate_surface_element_result
+)
+from ansys.mapdl.reader._rst_keys import (
+    geometry_header_keys,
+    element_index_table_info,
+    solution_data_header_keys,
+    solution_header_keys_dp,
+    result_header_keys,
+    boundary_condition_index_table,
+    DOF_REF,
+    STR_LIM_REF,
+)
 from ansys.mapdl.reader._mp_keys import mp_keys
-from ansys.mapdl.reader.common import (read_table, parse_header,
-                                       AnsysBinary, read_standard_header,
-                                       rotate_to_global, PRINCIPAL_STRESS_TYPES,
-                                       STRESS_TYPES, STRAIN_TYPES,
-                                       THERMAL_STRAIN_TYPES)
+from ansys.mapdl.reader.common import (
+    read_table,
+    parse_header,
+    AnsysBinary,
+    read_standard_header,
+    rotate_to_global,
+    PRINCIPAL_STRESS_TYPES,
+    STRESS_TYPES,
+    STRAIN_TYPES,
+    THERMAL_STRAIN_TYPES
+)
 from ansys.mapdl.reader.misc import vtk_cell_info, break_apart_surface
 from ansys.mapdl.reader.rst_avail import AvailableResults
 from ansys.mapdl.reader import elements
@@ -353,7 +364,7 @@ class Result(AnsysBinary):
         # size of record (from fdresu.inc)
         n_mat_prop = self._geometry_header.get('nMatProp')
         for i in range(self._geometry_header['nummat']):
-            # Material Record pointers for the Material Id at I th Position 
+            # Material Record pointers for the Material Id at I th Position
             # is stored from location.
             # NOTE: somewhere between 182 and 194 this changed from:
             # 3+(I-1)*(158+1)+2 to 3+(I-1)*(158+1)+1+158
@@ -385,6 +396,24 @@ class Result(AnsysBinary):
                     else:
                         for i in range(-5, 10):
                             material[key] = read_mat_data(ptr)
+                            # print(read_mat_data(ptr))
+
+            # documentation for this is hard to follow, but it boils down to
+            # the fact that "The record includes MP pointers followed by TB
+            # pointers for a single Material ID"
+            # So, after 80, these are all TB pointers, and fcCom.inc describes
+            # maximum stresses:
+            # co      XTEN,XCMP,YTEN,YCMP,ZTEN,ZCMP,XY,YZ,XZ,XYCP,YZCP,XZCP
+            # co      XZIT,XZIC,YZIT,YZIC = Puck inclination parameters
+            # only implemented for v194 and newer
+            try:
+                ptr = mat_data_ptr[163]
+                if ptr:
+                    arr = self.read_record(self._geometry_header['ptrMAT'] + ptr)
+                    str_lim = {key: arr[index] for (index, key) in STR_LIM_REF.items()}
+                    material['stress_failure_criteria'] = str_lim
+            except:
+                pass
 
             # store by material number
             self._materials[mat_data_ptr[0]] = material
@@ -395,12 +424,12 @@ class Result(AnsysBinary):
 
         Returns
         -------
-        materials : dict
+        dict
             Dictionary of Materials.  Keys are the material numbers,
             and each material is a dictionary of the material
             properrties of that material with only the valid entries filled.
 
-        NOTES
+        Notes
         -----
         Material properties:
 
@@ -449,6 +478,52 @@ class Result(AnsysBinary):
         - MGXX : Magnetic coercive force, element x direction (Charge / (Length*Time))
         - MGYY : Magnetic coercive force, element y direction (Charge / (Length*Time))
         - MGZZ : Magnetic coercive force, element z direction (Charge / (Length*Time))
+
+        Materials may contain the key ``"stress_failure_criteria"``, which
+        contains failure criteria information for temperature-dependent stress
+        limits. This includes the following keys:
+
+        - XTEN : Allowable tensile stress or strain in the x-direction. (Must
+          be positive.)
+
+        - XCMP : Allowable compressive stress or strain in the
+          x-direction. (Defaults to negative of XTEN.)
+
+        - YTEN : Allowable tensile stress or strain in the y-direction. (Must
+          be positive.)
+
+        - YCMP : Allowable compressive stress or strain in the
+          y-direction. (Defaults to negative of YTEN.)
+
+        - ZTEN : Allowable tensile stress or strain in the z-direction. (Must
+          be positive.)
+
+        - ZCMP : Allowable compressive stress or strain in the
+          z-direction. (Defaults to negative of ZTEN.)
+
+        - XY : Allowable XY stress or shear strain. (Must be positive.)
+
+        - YZ : Allowable YZ stress or shear strain. (Must be positive.)
+
+        - XZ : Allowable XZ stress or shear strain. (Must be positive.)
+
+        - XYCP : XY coupling coefficient (Used only if Lab1 = S). Defaults to -1.0. [1]
+
+        - YZCP : YZ coupling coefficient (Used only if Lab1 = S). Defaults to -1.0. [1]
+
+        - XZCP : XZ coupling coefficient (Used only if Lab1 = S). Defaults to -1.0. [1]
+
+        - XZIT : XZ tensile inclination parameter for Puck failure index (default =
+          0.0)
+
+        - XZIC : XZ compressive inclination parameter for Puck failure index
+          (default = 0.0)
+
+        - YZIT : YZ tensile inclination parameter for Puck failure index
+          (default = 0.0)
+
+        - YZIC : YZ compressive inclination parameter for Puck failure index
+          (default = 0.0)
 
         Examples
         --------
@@ -2850,7 +2925,7 @@ class Result(AnsysBinary):
             plotter.add_key_event("q", q_callback)
             if os.name == 'nt':
                 # Adding closing window callback
-                plotter.iren.add_observer(vtk.vtkCommand.ExitEvent, 
+                plotter.iren.add_observer(vtk.vtkCommand.ExitEvent,
                                           lambda render, event: exit_callback(plotter, render, event))
 
             first_loop = True

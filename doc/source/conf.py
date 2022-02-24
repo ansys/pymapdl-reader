@@ -1,7 +1,8 @@
-from sphinx_gallery.sorting import FileNameSortKey
-import warnings
+from datetime import datetime
 import os
+import warnings
 
+from sphinx_gallery.sorting import FileNameSortKey
 import pyvista
 import numpy as np
 
@@ -66,8 +67,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PyMAPDL Legacy Reader'
-copyright = '(c) 2021 ANSYS, Inc. All rights reserved'
-author = 'ANSYS Inc.'
+copyright = f"(c) {datetime.now().year} ANSYS, Inc. All rights reserved"
+author = "ANSYS Inc."
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -136,12 +137,16 @@ sphinx_gallery_conf = {
 
 
 # -- Options for HTML output -------------------------------------------------
+html_short_title = html_title = "PyMAPDL - Legacy Reader"
 html_theme = 'pyansys_sphinx_theme'
 html_logo = os.path.join("_static", "pyansys-logo-black-cropped.png")
 html_theme_options = {
     "github_url": "https://github.com/pyansys/pymapdl-reader",
     "show_prev_next": False,
-    "logo_link": "https://readerdocs.pyansys.com/"  # navigate to the main page
+    "show_breadcrumbs": True,
+    "additional_breadcrumbs": [
+        ("PyAnsys", "https://docs.pyansys.com/"),
+    ],
 }
 
 # -- Options for HTMLHelp output ------------------------------------------
