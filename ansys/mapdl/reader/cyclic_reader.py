@@ -1722,7 +1722,7 @@ class CyclicResult(Result):
             sector_id = np.empty(grid.n_points)
             sector_id[:] = i
             sector.point_data['sector_id'] = sector_id
-            sector.rotate_z(rang * i)
+            sector.rotate_z(rang * i, inplace=True)
             vtkappend.AddInputData(sector)
 
         vtkappend.Update()
