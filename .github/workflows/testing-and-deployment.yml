@@ -263,12 +263,6 @@ jobs:
         mapdl-version: ['v21.1.1', 'v21.2.1', 'v22.1.0']
 
     steps:
-    
-      - name: Downloading artifacts
-        uses: actions/download-artifact@v2
-
-      - name: Display structure of downloaded artifact files
-        run: ls -R
 
       - name: Checkout PyMAPDL
         uses: actions/checkout@v3
@@ -276,6 +270,12 @@ jobs:
           repository: 'pyansys/pymapdl' #checking out main. Not release
 
       - name: Display structure of downloaded PyMAPDL files
+        run: ls -R
+
+      - name: Downloading artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Display structure of downloaded artifact files
         run: ls -R
 
       - name: Setup Python
