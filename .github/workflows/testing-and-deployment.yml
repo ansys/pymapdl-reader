@@ -292,9 +292,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: Python-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
+          key: Python-${{ runner.os }}-3.8-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
           restore-keys: |
-            Python-${{ runner.os }}-${{ matrix.python-version }}
+            Python-${{ runner.os }}-3.8
 
       - name: Test virtual framebuffer
         run: |
@@ -309,7 +309,7 @@ jobs:
 
       - name: Install ansys-mapdl-reader
         run: |
-          pip install ./ansys-mapdl-reader-${{ runner.os }}-${{ matrix.python-version }}/*.whl
+          pip install ./ansys-mapdl-reader-${{ runner.os }}-3.8/*.whl
           xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader); print('Installation and smoke test correct')"
 
       - name: Pull, launch, and validate MAPDL service
