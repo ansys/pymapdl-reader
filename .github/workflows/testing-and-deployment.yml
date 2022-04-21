@@ -267,12 +267,15 @@ jobs:
       - name: Downloading artifacts
         uses: actions/download-artifact@v2
 
+      - name: Display structure of downloaded artifact files
+        run: ls -R
+
       - name: Checkout PyMAPDL
         uses: actions/checkout@v3
         with:
           repository: 'pyansys/pymapdl' #checking out main. Not release
 
-      - name: Display structure of downloaded files
+      - name: Display structure of downloaded PyMAPDL files
         run: ls -R
 
       - name: Setup Python
@@ -306,7 +309,7 @@ jobs:
 
       - name: Install ansys-mapdl-reader
         run: |
-          pip install ansys-mapdl-reader-${{ runner.os }}-${{ matrix.python-version }}/*.whl
+          pip install pymapdl-reader/pymapdl-reader/ansys-mapdl-reader-${{ runner.os }}-${{ matrix.python-version }}/*.whl
           xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader); print('Installation and smoke test correct')"
 
       - name: Pull, launch, and validate MAPDL service
