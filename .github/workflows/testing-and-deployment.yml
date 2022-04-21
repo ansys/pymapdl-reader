@@ -309,7 +309,7 @@ jobs:
 
       - name: Install ansys-mapdl-reader
         run: |
-          pip install ./ansys-mapdl-reader-${{ runner.os }}-3.8/*.whl
+          pip install ansys-mapdl-reader-${{ runner.os }}-3.8/*.whl
           xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader); print('Installation and smoke test correct')"
 
       - name: Pull, launch, and validate MAPDL service
