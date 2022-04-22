@@ -401,8 +401,8 @@ _etype_map = [0, 2,  # LINK1
               0,  # UNUSED166
               0,  # UNUSED167
               5,  # SOLID168
-              2,  # TARGE169
-              3,  # TARGE170
+              0,  # TARGE169
+              0,  # TARGE170
               2,  # CONTA171
               2,  # CONTA172
               3,  # CONTA173
