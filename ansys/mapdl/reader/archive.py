@@ -5,20 +5,24 @@ import logging
 from functools import wraps
 import pathlib
 from typing import Union
+from matplotlib.backend_bases import MouseEvent
 
 import numpy as np
-from pyvista._vtk import (VTK_TETRA, VTK_QUADRATIC_TETRA, VTK_PYRAMID,
-                          VTK_QUADRATIC_PYRAMID, VTK_WEDGE,
-                          VTK_QUADRATIC_WEDGE, VTK_HEXAHEDRON,
-                          VTK_QUADRATIC_HEXAHEDRON, VTK_TRIANGLE,
-                          VTK_QUAD, VTK_QUADRATIC_TRIANGLE,
-                          VTK_QUADRATIC_QUAD)
-from pyvista import _vtk as vtk
-from pyvista._vtk import VTK9
-import pyvista as pv
+from ansys.mapdl.reader import _HAS_PYVISTA
+
+if _HAS_PYVISTA:
+    from pyvista._vtk import (VTK_TETRA, VTK_QUADRATIC_TETRA, VTK_PYRAMID,
+                            VTK_QUADRATIC_PYRAMID, VTK_WEDGE,
+                            VTK_QUADRATIC_WEDGE, VTK_HEXAHEDRON,
+                            VTK_QUADRATIC_HEXAHEDRON, VTK_TRIANGLE,
+                            VTK_QUAD, VTK_QUADRATIC_TRIANGLE,
+                            VTK_QUADRATIC_QUAD)
+    from pyvista import _vtk as vtk
+    from pyvista._vtk import VTK9
+    import pyvista as pv
 
 from ansys.mapdl.reader import _reader, _archive
-from ansys.mapdl.reader.misc import vtk_cell_info, chunks
+from ansys.mapdl.reader.misc import vtk_cell_info
 from ansys.mapdl.reader.mesh import Mesh
 from ansys.mapdl.reader.cell_quality import quality
 
@@ -340,6 +344,9 @@ def save_as_archive(filename, grid, mtype_start=1, etype_start=1,
     >>> pymapdl_reader.save_as_archive('archive.cdb', grid)
 
     """
+    if not _HAS_PYVISTA:
+        raise ModuleNotFoundError("This function requires Pyvista.")
+
     if isinstance(grid, pv.PolyData):
         grid = grid.cast_to_unstructured_grid()
 

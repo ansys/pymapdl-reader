@@ -2,7 +2,12 @@ import appdirs
 import os
 
 # Per contract with Sphinx-Gallery, this method must be available at top level
-from pyvista.utilities.sphinx_gallery import _get_sg_image_scraper
+try:
+    from pyvista.utilities.sphinx_gallery import _get_sg_image_scraper
+
+    _HAS_PYVISTA = True
+except ModuleNotFoundError:  # pragma: no cover
+    _HAS_PYVISTA = False
 
 from ansys.mapdl.reader._version import __version__
 from ansys.mapdl.reader.archive import (Archive, write_cmblock, write_nblock,
@@ -27,4 +32,5 @@ except:  # pragma: no cover
     pass
 
 # set pyvista defaults
-_configure_pyvista()
+if _HAS_PYVISTA:
+    _configure_pyvista()
