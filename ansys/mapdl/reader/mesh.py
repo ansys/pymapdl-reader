@@ -26,6 +26,50 @@ MESH200_MAP = {0: 2,  # line
                10: 4,  # hex with 8 nodes
                11: 4}  # hex with 8 nodes
 
+SHAPE_MAP = {  #from ELIST definition
+    0: '',
+    1: 'LINE',
+    2: 'PARA',
+    3: 'ARC ',
+    4: 'CARC',
+    5: '',
+    6: 'TRIA',
+    7: 'QUAD',
+    8: 'TRI6',
+    9: 'QUA8',
+    10: 'POIN',
+    11: 'CIRC',
+    12: '',
+    13: '',
+    14: 'CYLI',
+    15: 'CONE',
+    16: 'SPHE',
+    17: '',
+    18: '',
+    19: 'PILO',
+}
+# element type to VTK conversion function call map
+# 0: skip
+# 1: Point
+# 2: Line (linear or quadratic)
+# 3: Shell
+# 4: 3D Solid (Hexahedral, wedge, pyramid, tetrahedral)
+# 5: Tetrahedral
+# 6: Line (always linear)
+TARGE170_MAP = {
+    'TRI': 3,  # 3-Node Triangle
+    'QUAD': 3,  # 4-Node Quadrilateral
+    'CYLI': 0,  # Not supported (NS)  # Cylinder 
+    'CONE': 0,  # NS  # Cone
+    'TRI6': 3,  # 6-Node triangle
+    'SPHE': 0,  # NS  # Sphere
+    'PILO': 1,  # Pilot Node
+    'QUAD8': 3,  # 8-Node Quadrilateral
+    'LINE': 2,  # Line
+    'PARA': 2,  # Parabola
+    'POINT': 1  # Point
+}
+
 
 class Mesh():
     """Common class between Archive, and result mesh"""
@@ -45,6 +89,7 @@ class Mesh():
         self._cached_elements = None  # cached list of elements
         self._secnum = None  # cached section number
         self._esys = None  # cached element coordinate system
+        self._etype_id = None # cached element type id
 
         # Always set on init
         self._nnum = nnum
@@ -59,6 +104,8 @@ class Mesh():
         self._rdat = rdat
         self._rnum = rnum
         self._keyopt = keyopt
+        self._tshape = None
+        self._tshape_key = None        
 
     @property
     def _surf(self):
@@ -129,6 +176,13 @@ class Mesh():
                     # map them to the corresponding type (see elements.py)
                     mapped = MESH200_MAP[self.key_option[etype_ind][0][1]]
                     type_ref[etype_ind] = mapped
+
+                if etype == 170:  # TARGE170 specifics
+                    tshape_num = self.tshape_key[etype_ind]
+                    if tshape_num >= 19:  # weird bug when 'PILO' can be 99 instead of 19.
+                        tshape_num = 19
+                    tshape_label = SHAPE_MAP[tshape_num]
+                    type_ref[etype_ind] = TARGE170_MAP.get(tshape_label, 0)
 
         offset, celltypes, cells = _reader.ans_vtk_convert(self._elem,
                                                            self._elem_off,
@@ -607,9 +661,38 @@ class Mesh():
         """Number of nodes"""
         if not self._has_elements:
             return 0
-            
         return len(self.enum)
 
+    @property
+    def et_id(self):
+        """Element id."""
+        if self._etype_id is None:
+            etype_elem_id = self._elem_off[:-1] + 1
+            self._etype_id = self._elem[etype_elem_id]
+        return self._etype_id
+
+    @property
+    def tshape(self):
+        """Tshape of contact elements."""
+        if self._tshape is None:
+            shape_elem_id = self._elem_off[:-1] + 7
+            self._tshape = self._elem[shape_elem_id]
+        return self._tshape
+
+    @property
+    def tshape_key(self, as_array=False):
+        """Dict with the mapping between element type and element shape.
+
+        TShape is only applicable to contact elements.
+        """
+        if self._tshape_key is None:
+            self._tshape_key = np.unique(
+                np.vstack((self.et_id, self.tshape)), axis=1).T
+
+        if as_array:
+            return self._tshape_key
+        else:
+            return {elem_id: tshape for elem_id, tshape in self._tshape_key}
 
 def fix_missing_midside(cells, nodes, celltypes, offset, angles, nnum):
     """Adds missing midside nodes to cells.
