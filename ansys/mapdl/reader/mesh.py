@@ -691,8 +691,7 @@ class Mesh():
 
         if as_array:
             return self._tshape_key
-        else:
-            return {elem_id: tshape for elem_id, tshape in self._tshape_key}
+        return {elem_id: tshape for elem_id, tshape in self._tshape_key}
 
 def fix_missing_midside(cells, nodes, celltypes, offset, angles, nnum):
     """Adds missing midside nodes to cells.
