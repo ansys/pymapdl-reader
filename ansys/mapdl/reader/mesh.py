@@ -665,7 +665,7 @@ class Mesh():
 
     @property
     def et_id(self):
-        """Element id."""
+        """Element type id (ET) for each element."""
         if self._etype_id is None:
             etype_elem_id = self._elem_off[:-1] + 1
             self._etype_id = self._elem[etype_elem_id]
