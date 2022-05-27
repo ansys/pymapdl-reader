@@ -168,16 +168,20 @@ class Mesh():
         type_ref = np.empty(2 << 16, np.int32)  # 131072
         type_ref[self._ekey[:, 0]] = etype_map[self._ekey[:, 1]]
 
-        # special treatment for MESH200
         if allowable_types is None or 200 in allowable_types:
             for etype_ind, etype in self._ekey:
+
+                # MESH200
                 if etype == 200 and etype_ind in self.key_option:
                     # keyoption 1 contains various cell types
                     # map them to the corresponding type (see elements.py)
                     mapped = MESH200_MAP[self.key_option[etype_ind][0][1]]
                     type_ref[etype_ind] = mapped
 
-                if etype == 170:  # TARGE170 specifics
+                # TARGE170 specifics
+                if etype == 170:
+                    if etype_ind not in self.tshape_key:
+                        continue
                     tshape_num = self.tshape_key[etype_ind]
                     if tshape_num >= 19:  # weird bug when 'PILO' can be 99 instead of 19.
                         tshape_num = 19
