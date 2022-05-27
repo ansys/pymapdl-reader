@@ -199,6 +199,10 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         run: pytest -v tests/ --durations=0
 
+      - uses: codecov/codecov-action@v2
+        if: ${{ runner.os == 'Linux' && runner.python-version == '3.9' }}
+        name: 'Upload coverage to Codecov'
+
       - name: Upload wheel
         uses: actions/upload-artifact@v2
         with:
