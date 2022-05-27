@@ -9,7 +9,7 @@ from ansys.mapdl.reader import examples
 
 HAS_IMAGEIO = True
 try:
-    import imageio_ffmpeg
+    import imageio_ffmpeg  # noqa: F401
 except ImportError:
     HAS_IMAGEIO = False
 
@@ -25,7 +25,6 @@ skip_plotting = pytest.mark.skipif(
     not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
 )
 skip_no_shaft = pytest.mark.skipif(shaft is None, reason="Requires example file")
-
 
 
 @skip_plotting
