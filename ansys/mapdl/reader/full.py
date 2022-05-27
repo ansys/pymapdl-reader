@@ -1,47 +1,137 @@
 """
-Used fortran header file for item definitions.  See:
-.../ansys/customize/include/fdfull.inc
+Used fortran header file for item definitions.
+
+See: <ansys-path>/ansys/customize/include/fdfull.inc
 
 """
-import os
 import pathlib
-import warnings
 from typing import Union
+import warnings
 
 import numpy as np
 
 from ansys.mapdl.reader import _binary_reader
-from ansys.mapdl.reader.common import (read_table, AnsysBinary,
-                                       parse_header, two_ints_to_long,
-                                       read_standard_header)
-
+from ansys.mapdl.reader.common import (
+    AnsysBinary,
+    parse_header,
+    read_standard_header,
+    read_table,
+    two_ints_to_long,
+)
 
 FRONTAL_FULL_HEADER_KEYS = [
-    'fun04', 'neqn', 'nmrow', 'nmatrx', 'kan',
-    'wfmax', 'lenbac', 'numdof', 'jcgtrmL', 'jcgtrmH',
-    'lumpm', 'jcgeqn', 'jcgtrm', 'keyuns', 'extopt',
-    'keyse', 'sclstf', 'nxrows', 'ptrIDXl', 'ptrIDXh',
-    'ncefull', 'ncetrm', 'ptrENDl', 'ptrENDh', '0'
+    "fun04",
+    "neqn",
+    "nmrow",
+    "nmatrx",
+    "kan",
+    "wfmax",
+    "lenbac",
+    "numdof",
+    "jcgtrmL",
+    "jcgtrmH",
+    "lumpm",
+    "jcgeqn",
+    "jcgtrm",
+    "keyuns",
+    "extopt",
+    "keyse",
+    "sclstf",
+    "nxrows",
+    "ptrIDXl",
+    "ptrIDXh",
+    "ncefull",
+    "ncetrm",
+    "ptrENDl",
+    "ptrENDh",
+    "0",
 ]
 
 SYMBOLIC_FULL_HEADER_KEYS = [
-    'fun04', 'neqn', 'nmrow', 'nmatrx', 'kan',
-    'wfmax', 'lenbac', 'numdof', 'ntermKl', 'ntermKh',  # (10)
-    'lumpm', 'nmrow', 'ntermK_', 'keyuns', 'extopt',
-    'keyse', 'sclstf', 'nxrows', 'ptrSTFl', 'ptrSTFh',  # (20)
-    'ncefull', 'ntermMh', 'ptrENDl', 'ptrENDh', 'ptrIRHSl',
-    'ptrIRHSh', 'ptrMASl', 'ptrMASh', 'ptrDMPl', 'ptrDMPh',  # (30)
-    'ptrCEl', 'ptrCEh', 'nNodes', 'ntermMl', 'ntermDl',
-    'ptrDOFl', 'ptrDOFh', 'ptrRHSl', 'ptrRHSh', 'ntermDh',   # (40)
-    'ngMaxNZ', 'ptrNGPHl', 'ptrNGPHh', 'minKdiag', 'maxKdiag',
-    'minMdiag', 'maxMdiag', 'minDdiag', 'maxDdiag', 'ngTerml',  # (50)
-    'ngTermh', 'ngTermCl', 'ngTermCh', 'ptrDIAGKl', 'ptrDIAGKh',
-    'ptrDIAGMl', 'ptrDIAGMh', 'ptrDIAGCl', 'ptrDIAGCh', 'ptrSCLKl',  # (60)
-    'ptrSCLKh', 'Glbneqn', 'distKey', 'ngTermFl', 'ngTermFh',
-    'GlbnNodes', 'GlbnVars', 'GlbfAcCE', 'lcAcLen', 'GlbfCE',   # (70)
-    'ptrGmtl', 'ptrGmth', 'nceGprime', 'numA12A11', 'strctChg',
-    'ntermGl', 'ntermGh', 'ptrDensel', 'ptrDenseh', 'nVirtBCs',  # (80)
-    'ptrVrtBCl', 'ptrVrtBCh', 'ptrMRKl', 'ptrMRKh'
+    "fun04",
+    "neqn",
+    "nmrow",
+    "nmatrx",
+    "kan",
+    "wfmax",
+    "lenbac",
+    "numdof",
+    "ntermKl",
+    "ntermKh",  # (10)
+    "lumpm",
+    "nmrow",
+    "ntermK_",
+    "keyuns",
+    "extopt",
+    "keyse",
+    "sclstf",
+    "nxrows",
+    "ptrSTFl",
+    "ptrSTFh",  # (20)
+    "ncefull",
+    "ntermMh",
+    "ptrENDl",
+    "ptrENDh",
+    "ptrIRHSl",
+    "ptrIRHSh",
+    "ptrMASl",
+    "ptrMASh",
+    "ptrDMPl",
+    "ptrDMPh",  # (30)
+    "ptrCEl",
+    "ptrCEh",
+    "nNodes",
+    "ntermMl",
+    "ntermDl",
+    "ptrDOFl",
+    "ptrDOFh",
+    "ptrRHSl",
+    "ptrRHSh",
+    "ntermDh",  # (40)
+    "ngMaxNZ",
+    "ptrNGPHl",
+    "ptrNGPHh",
+    "minKdiag",
+    "maxKdiag",
+    "minMdiag",
+    "maxMdiag",
+    "minDdiag",
+    "maxDdiag",
+    "ngTerml",  # (50)
+    "ngTermh",
+    "ngTermCl",
+    "ngTermCh",
+    "ptrDIAGKl",
+    "ptrDIAGKh",
+    "ptrDIAGMl",
+    "ptrDIAGMh",
+    "ptrDIAGCl",
+    "ptrDIAGCh",
+    "ptrSCLKl",  # (60)
+    "ptrSCLKh",
+    "Glbneqn",
+    "distKey",
+    "ngTermFl",
+    "ngTermFh",
+    "GlbnNodes",
+    "GlbnVars",
+    "GlbfAcCE",
+    "lcAcLen",
+    "GlbfCE",  # (70)
+    "ptrGmtl",
+    "ptrGmth",
+    "nceGprime",
+    "numA12A11",
+    "strctChg",
+    "ntermGl",
+    "ntermGh",
+    "ptrDensel",
+    "ptrDenseh",
+    "nVirtBCs",  # (80)
+    "ptrVrtBCl",
+    "ptrVrtBCh",
+    "ptrMRKl",
+    "ptrMRKh",
 ]
 
 
@@ -93,12 +183,14 @@ class FullFile(AnsysBinary):
         self._header = parse_header(self.read_record(103), SYMBOLIC_FULL_HEADER_KEYS)
 
         # Check if lumped (item 11)
-        if self._header['lumpm']:
+        if self._header["lumpm"]:
             raise NotImplementedError("Unable to read a lumped mass matrix")
 
         # Check if arrays are unsymmetric (item 14)
-        if self._header['keyuns']:
-            raise NotImplementedError("Unable to read an unsymmetric mass/stiffness matrix")
+        if self._header["keyuns"]:
+            raise NotImplementedError(
+                "Unable to read an unsymmetric mass/stiffness matrix"
+            )
 
     @property
     def filename(self):
@@ -231,27 +323,28 @@ class FullFile(AnsysBinary):
         the node number and DOF constrained in ANSYS.
         """
         if not self.pathlib_filename.is_file():
-            raise Exception('%s not found' % self.pathlib_filename)
+            raise Exception("%s not found" % self.pathlib_filename)
 
         if as_sparse:
             try:
-                from scipy.sparse import csc_matrix, coo_matrix
+                from scipy.sparse import coo_matrix, csc_matrix
             except ImportError:
-                raise ImportError('Unable to load scipy, use ``load_km`` with '
-                                  '``as_sparse=False``')
+                raise ImportError(
+                    "Unable to load scipy, use ``load_km`` with " "``as_sparse=False``"
+                )
 
         # number of terms in stiffness matrix
-        ntermK = two_ints_to_long(self._header['ntermKl'], self._header['ntermKh'])
+        ntermK = two_ints_to_long(self._header["ntermKl"], self._header["ntermKh"])
 
-        ptrSTF = self._header['ptrSTF']  # Location of stiffness matrix
-        ptrMAS = self._header['ptrMAS']  # Location in file to mass matrix
+        ptrSTF = self._header["ptrSTF"]  # Location of stiffness matrix
+        ptrMAS = self._header["ptrMAS"]  # Location in file to mass matrix
 
         # number of terms in mass matrix
-        ntermM = two_ints_to_long(self._header['ntermMl'], self._header['ntermMh'])
-        ptrDOF = self._header['ptrDOF']  # pointer to DOF info
+        ntermM = two_ints_to_long(self._header["ntermMl"], self._header["ntermMh"])
+        ptrDOF = self._header["ptrDOF"]  # pointer to DOF info
 
         # DOF information
-        with open(self.pathlib_filename, 'rb') as f:
+        with open(self.pathlib_filename, "rb") as f:
             read_table(f, skip=True)  # standard header
             read_table(f, skip=True)  # full header
             read_table(f, skip=True)  # number of degrees of freedom
@@ -260,7 +353,7 @@ class FullFile(AnsysBinary):
             neqv = read_table(f, cython=True)
 
             # read number of degrees of freedom for each node and constant tables
-            f.seek(ptrDOF*4)
+            f.seek(ptrDOF * 4)
             ndof = read_table(f, cython=True)
             const = read_table(f, cython=True)
 
@@ -270,23 +363,19 @@ class FullFile(AnsysBinary):
 
         # Read k and m blocks (see help(ReadArray) for block description)
         if ntermK:
-            krow, kcol, kdata = _binary_reader.read_array(self.filename,
-                                                          ptrSTF,
-                                                          ntermK,
-                                                          self.neqn,
-                                                          const)
+            krow, kcol, kdata = _binary_reader.read_array(
+                self.filename, ptrSTF, ntermK, self.neqn, const
+            )
         else:
-            warnings.warn('Missing stiffness matrix')
+            warnings.warn("Missing stiffness matrix")
             kdata = None
 
         if ntermM:
-            mrow, mcol, mdata = _binary_reader.read_array(self.filename,
-                                                          ptrMAS,
-                                                          ntermM,
-                                                          self.neqn,
-                                                          const)
+            mrow, mcol, mdata = _binary_reader.read_array(
+                self.filename, ptrMAS, ntermM, self.neqn, const
+            )
         else:
-            warnings.warn('Missing mass matrix')
+            warnings.warn("Missing mass matrix")
             mdata = None
 
         # remove constrained entries
@@ -304,10 +393,10 @@ class FullFile(AnsysBinary):
                 mcol = mcol[mask]
                 mdata = mdata[mask]
 
-
         # sort nodal equivalence
-        dof_ref, index, nref, dref = _binary_reader.sort_nodal_eqlv(self.neqn,
-                                                                    neqv, ndof)
+        dof_ref, index, nref, dref = _binary_reader.sort_nodal_eqlv(
+            self.neqn, neqv, ndof
+        )
 
         # store constrained dof information
         unsort_dof_ref = np.vstack((nref, dref)).T
@@ -386,7 +475,7 @@ class FullFile(AnsysBinary):
         >>> full.neqn
         963
         """
-        return self._header['neqn']
+        return self._header["neqn"]
 
     @property
     def load_vector(self):
@@ -397,30 +486,30 @@ class FullFile(AnsysBinary):
         >>> full.load_vector
         array([0., 0., 0., ..., 0., 0., 0.])
         """
-        return self.read_record(self._header['ptrRHS'])[:self.neqn]
+        return self.read_record(self._header["ptrRHS"])[: self.neqn]
 
     def _load_km(self):
         """Loads the matrices with sorted DOF"""
         self._dof_ref, self._k, self._m = self.load_km(sort=True)
 
     def __str__(self):
-        rst_info = ['PyMAPDL-Reader : MAPDL Full File']
+        rst_info = ["PyMAPDL-Reader : MAPDL Full File"]
 
         def add_info(key, value):
-            rst_info.append('{:<25s}: {:s}'.format(key, str(value)))
+            rst_info.append("{:<25s}: {:s}".format(key, str(value)))
 
-        keys = ['title', 'subtitle']
+        keys = ["title", "subtitle"]
         for key in keys:
             value = self._standard_header[key]
             if value:
                 add_info(key.capitalize(), value)
 
-        add_info('Version', self._standard_header['verstring'])
-        add_info('Platform', self._standard_header['machine'])
-        add_info('Jobname', self._standard_header['jobname'])
-        add_info('Matrices', self._header['nmatrx'])
-        add_info('Equations', self._header['neqn'])
-        add_info('Nodes', self._header['nNodes'])
-        add_info('Degrees of Freedom', self._header['numdof'])
+        add_info("Version", self._standard_header["verstring"])
+        add_info("Platform", self._standard_header["machine"])
+        add_info("Jobname", self._standard_header["jobname"])
+        add_info("Matrices", self._header["nmatrx"])
+        add_info("Equations", self._header["neqn"])
+        add_info("Nodes", self._header["nNodes"])
+        add_info("Degrees of Freedom", self._header["numdof"])
 
-        return '\n'.join(rst_info)
+        return "\n".join(rst_info)

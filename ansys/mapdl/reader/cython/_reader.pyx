@@ -7,17 +7,31 @@
 # cython: embedsignature=True
 
 """ Cython implementation of a CDB reader """
-from libc.stdio cimport (fopen, FILE, fclose, sscanf, fscanf, fread, fseek,
-                         fgets, printf, SEEK_CUR, SEEK_END, ftell, SEEK_SET)
-from libc.stdlib cimport atoi, atof
-from libc.stdlib cimport malloc, free
-from libc.string cimport strncpy, strcmp
 from libc.stdint cimport int64_t
+from libc.stdio cimport (
+    FILE,
+    SEEK_CUR,
+    SEEK_END,
+    SEEK_SET,
+    fclose,
+    fgets,
+    fopen,
+    fread,
+    fscanf,
+    fseek,
+    ftell,
+    printf,
+    sscanf,
+)
+from libc.stdlib cimport atof, atoi, free, malloc
+from libc.string cimport strcmp, strncpy
+
 ctypedef unsigned char uint8_t
 
 import ctypes
 
 import numpy as np
+
 cimport numpy as np
 
 

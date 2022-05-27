@@ -21,7 +21,7 @@ print(rotor)
 # Note that additional keyword arguments can be passed to the plotting
 # functions of ``pymapdl-reader``.  See ``help(pyvista.plot`` for the
 # documentation on all the keyword arguments.
-rotor.plot_sectors(cpos='xy', smooth_shading=True)
+rotor.plot_sectors(cpos="xy", smooth_shading=True)
 rotor.plot()
 
 
@@ -30,16 +30,21 @@ rotor.plot()
 #
 # Note that pymapdl-reader uses 0 based cumulative indexing.  You could also
 # use the (load step, sub step) ``(4, 3)``.
-rotor.plot_nodal_displacement(20, show_displacement=True,
-                              displacement_factor=0.001,
-                              overlay_wireframe=True)  # same as (2, 4)
+rotor.plot_nodal_displacement(
+    20, show_displacement=True, displacement_factor=0.001, overlay_wireframe=True
+)  # same as (2, 4)
 
 
 ###############################################################################
 # Animate Mode 21
 # ~~~~~~~~~~~~~~~
 # Disable movie_filename and increase n_frames for a smoother plot
-rotor.animate_nodal_solution(20, loop=False, movie_filename='rotor_mode.gif',
-                             background='w', displacement_factor=0.001,
-                             add_text=False,
-                             n_frames=30)
+rotor.animate_nodal_solution(
+    20,
+    loop=False,
+    movie_filename="rotor_mode.gif",
+    background="w",
+    displacement_factor=0.001,
+    add_text=False,
+    n_frames=30,
+)

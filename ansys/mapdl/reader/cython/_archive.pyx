@@ -6,10 +6,11 @@
 # cython: nonecheck=False
 # cython: embedsignature=True
 
-from libc.stdio cimport fopen, fwrite, fclose, FILE, fdopen
 from libc.math cimport abs
+from libc.stdio cimport FILE, fclose, fdopen, fopen, fwrite
 
 import numpy as np
+
 cimport numpy as np
 
 ctypedef unsigned char uint8_t

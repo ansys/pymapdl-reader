@@ -24,13 +24,14 @@ print(stress.shape)
 
 ################################################################################
 # plot cylindrical nodal stress in the radial direction
-_ = rst.plot_cylindrical_nodal_stress(0, 'R', show_edges=True, show_axes=True)
+_ = rst.plot_cylindrical_nodal_stress(0, "R", show_edges=True, show_axes=True)
 
 ################################################################################
 # plot cylindrical nodal stress in the theta direction
-_ = rst.plot_cylindrical_nodal_stress(0, 'THETA', show_edges=True, show_axes=True,
-                                      add_text=False)
+_ = rst.plot_cylindrical_nodal_stress(
+    0, "THETA", show_edges=True, show_axes=True, add_text=False
+)
 
 ################################################################################
 # Plot cartesian stress in the "X" direction
-_ = rst.plot_nodal_stress(0, 'X', show_edges=True, show_axes=True)
+_ = rst.plot_nodal_stress(0, "X", show_edges=True, show_axes=True)

@@ -5,16 +5,17 @@
 # cython: cdivision=True
 
 import ctypes
+
 import numpy as np
 
-from libc.math cimport sqrt, fabs, sin, cos
-from libc.stdio cimport (fopen, FILE, fclose, fread, fseek, SEEK_CUR,
-                         ftell, SEEK_SET)
+from libc.math cimport cos, fabs, sin, sqrt
+from libc.stdint cimport int32_t, int64_t
+from libc.stdio cimport FILE, SEEK_CUR, SEEK_SET, fclose, fopen, fread, fseek, ftell
+from libc.stdlib cimport free, malloc
 from libc.string cimport memcpy
-from libc.stdint cimport int64_t, int32_t
-from libc.stdlib cimport malloc, free
 
 from cython.parallel import prange
+
 ctypedef unsigned char uint8
 
 
@@ -100,10 +101,12 @@ ctypedef fused float_or_double:
 
 
 ###############################################################################
+
+from cpython cimport Py_INCREF, PyObject
 from libc.stdlib cimport free
-from cpython cimport PyObject, Py_INCREF
 
 import numpy as np  # Python-level symbols of numpy
+
 cimport numpy as np  # C-level symbols of numpy
 
 # Numpy must be initialized. When using numpy from C or Cython you must

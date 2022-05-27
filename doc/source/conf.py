@@ -2,23 +2,21 @@ from datetime import datetime
 import os
 import warnings
 
-from sphinx_gallery.sorting import FileNameSortKey
 import pyvista
-import numpy as np
+from sphinx_gallery.sorting import FileNameSortKey
 
 from ansys.mapdl import reader as pymapdl_reader
 
 # -- pyvista configuration ---------------------------------------------------
 # Manage errors
-pyvista.set_error_output_file('errors.txt')
+pyvista.set_error_output_file("errors.txt")
 # Ensure that offscreen rendering is used for docs generation
 pyvista.OFF_SCREEN = True
 # Preferred plotting style for documentation
 # pyvista.set_plot_theme('document')
 pyvista.global_theme.window_size = (1024, 768)
 # Save figures in specified directory
-pyvista.FIGURE_PATH = os.path.join(
-    os.path.abspath('./images/'), 'auto-generated/')
+pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
 if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
@@ -29,7 +27,7 @@ pyvista.BUILDING_GALLERY = True
 warnings.filterwarnings(
     "ignore",
     category=UserWarning,
-    message='Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.',
+    message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.",
 )
 
 
@@ -41,32 +39,42 @@ warnings.filterwarnings(
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.napoleon',
-              'sphinx.ext.doctest',
-              'sphinx.ext.autosummary',
-              'notfound.extension',
-              'sphinx_copybutton',
-              'sphinx_gallery.gen_gallery',
-              'sphinx.ext.extlinks',
-              'sphinx.ext.coverage',
-              ]
+extensions = [
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.doctest",
+    "sphinx.ext.autosummary",
+    "notfound.extension",
+    "sphinx_copybutton",
+    "sphinx_gallery.gen_gallery",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.coverage",
+]
 
-# extensions = ['sphinx.ext.autodoc',
-#               'sphinx_gallery.gen_gallery',
-#               'sphinx.ext.napoleon']
+# Intersphinx mapping
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/dev", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "numpy": ("https://numpy.org/devdocs", None),
+    "matplotlib": ("https://matplotlib.org/stable", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "pyvista": ("https://docs.pyvista.org/", None),
+    "grpc": ("https://grpc.github.io/grpc/python/", None),
+    "pypim": ("https://pypim.docs.pyansys.com/", None),
+}
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = u'PyMAPDL Legacy Reader'
+project = "PyMAPDL Legacy Reader"
 copyright = f"(c) {datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "ANSYS Inc."
 
@@ -87,10 +95,10 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -104,41 +112,36 @@ copybutton_prompt_text = ">>> "
 # -- Sphinx Gallery Options
 
 sphinx_gallery_conf = {
-    'pypandoc': True,  # convert rst to md for ipynb
+    "pypandoc": True,  # convert rst to md for ipynb
     # path to your examples scripts
     "examples_dirs": [
         "../../examples/",
     ],
     # path where to save gallery generated examples
     "gallery_dirs": ["examples"],
-
     # Patter to search for example files
     "filename_pattern": r"\.py",
-
     # Remove the "Download all examples" button from the top level gallery
     # "download_all_examples": False,
-
     # Sort gallery example by file name instead of number of lines (default)
     "within_subsection_order": FileNameSortKey,
-
     # directory where function granular galleries are stored
     "backreferences_dir": None,
-
     # Modules for which function level galleries are created.  In
     "doc_module": "ansys.mapdl.reader",
-
-    "image_scrapers": (pymapdl_reader._get_sg_image_scraper(), 'matplotlib'),
+    "image_scrapers": (pymapdl_reader._get_sg_image_scraper(), "matplotlib"),
     "thumbnail_size": (350, 350),
-
-    'first_notebook_cell': ("%matplotlib inline\n"
-                            "from pyvista import set_plot_theme\n"
-                            "set_plot_theme('document')")
+    "first_notebook_cell": (
+        "%matplotlib inline\n"
+        "from pyvista import set_plot_theme\n"
+        "set_plot_theme('document')"
+    ),
 }
 
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyMAPDL - Legacy Reader"
-html_theme = 'pyansys_sphinx_theme'
+html_theme = "pyansys_sphinx_theme"
 html_logo = os.path.join("_static", "pyansys-logo-black-cropped.png")
 html_theme_options = {
     "github_url": "https://github.com/pyansys/pymapdl-reader",
@@ -152,7 +155,7 @@ html_theme_options = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pymapdlreaderdoc'
+htmlhelp_basename = "pymapdlreaderdoc"
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -161,15 +164,12 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
@@ -179,8 +179,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'pymapdl_reader.tex', u'PyMAPDL Legacy Reader Documentation',
-     u'ANSYS Open Source Developers', 'manual'),
+    (
+        master_doc,
+        "pymapdl_reader.tex",
+        "PyMAPDL Legacy Reader Documentation",
+        "ANSYS Open Source Developers",
+        "manual",
+    ),
 ]
 
 
@@ -189,8 +194,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pymapdl_reader', u'PyMAPDL Legacy Reader Documentation',
-     [author], 1)
+    (master_doc, "pymapdl_reader", "PyMAPDL Legacy Reader Documentation", [author], 1)
 ]
 
 
@@ -200,7 +204,13 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'pymapdl-reader', u'PyMAPDL Reader Documentation',
-     author, 'pymapdl-reader', 'PyMAPDL binary file reader.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        "pymapdl-reader",
+        "PyMAPDL Reader Documentation",
+        author,
+        "pymapdl-reader",
+        "PyMAPDL binary file reader.",
+        "Miscellaneous",
+    ),
 ]
