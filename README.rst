@@ -17,12 +17,12 @@ provided by ANSYS.
 
 The ``ansys-mapdl-reader`` module supports the following formats:
 
-  - ``*.rst`` - Structural analysis result file
-  - ``*.rth`` - Thermal analysis result file 
-  - ``*.emat`` - Element matrix data file
-  - ``*.full`` - Full stiffness-mass matrix file
-  - ``*.cdb`` or ``*.dat`` - MAPDL ASCII block archive and
-    Mechanical Workbench input files
+- ``*.rst`` - Structural analysis result file
+- ``*.rth`` - Thermal analysis result file 
+- ``*.emat`` - Element matrix data file
+- ``*.full`` - Full stiffness-mass matrix file
+- ``*.cdb`` or ``*.dat`` - MAPDL ASCII block archive and
+  Mechanical Workbench input files
 
 Please see the `PyMAPDL-Reader Documentation
 <https://readerdocs.pyansys.com>`_ for the full documentation.
@@ -99,7 +99,7 @@ object.
     grid.save('hex.vtk')
 
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/source/images/hexbeam_small.png
+.. figure:: https://github.com/pyansys/pymapdl-reader/blob/main/doc/source/images/hexbeam_small.png
    :alt: Hexahedral beam
 
 You can then load this vtk file using ``pyvista`` or another program that uses VTK.
@@ -166,7 +166,7 @@ plotted using ``VTK``.
     # Plot the displacement of Mode 0 in the x direction
     result.plot_nodal_solution(0, 'x', label='Displacement')
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/source/images/hexbeam_disp_small.png
+.. figure:: https://github.com/pyansys/pymapdl-reader/blob/main/doc/source/images/hexbeam_disp_small.png
 
 
 Results can be plotted non-interactively and screenshots saved by
@@ -202,7 +202,7 @@ displayed.
     # Display node averaged stress in x direction for result 6
     result.plot_nodal_stress(5, 'Sx')
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/source/images/beam_stress_small.png
+.. figure:: https://github.com/pyansys/pymapdl-reader/blob/main/doc/source/images/beam_stress_small.png
 
 
 Nodal stress can also be generated non-interactively with:
@@ -221,15 +221,16 @@ Mode shapes from a modal analysis can be animated using ``animate_nodal_solution
 
     result.animate_nodal_solution(0)
 
+
+.. figure:: https://github.com/pyansys/pymapdl-reader/blob/main/doc/source/images/beam_mode_shape_small.gif
+   :alt: Modal shape animation
+
 If you wish to save the animation to a file, specify the
 movie_filename and animate it with:
 
 .. code:: python
 
     result.animate_nodal_solution(0, movie_filename='/tmp/movie.mp4', cpos=cpos)
-
-
-.. figure:: https://github.com/pyansys/pymapdl-reader/raw/master/docs/source/images/beam_mode_shape_small.gif
 
 
 Reading a Full File
@@ -286,12 +287,12 @@ Developing on Windows
 This package is designed to be developed on Linux, and if you need to develop on Windows
 you will need to install your own C++ compiler. We recommend:
 
- 1. Install Visual C++
-        a. See `here <https://wiki.python.org/moin/WindowsCompilers>`_ for a list of which Python versions correspond to which Visual C++ version
-        b. Only Python <= 3.8 appears to be supported at the moment.
- 2. Install the development version of pymapdl-reader to your Python environment
-        a. Navigate to the project's top level (the same directory as this README)
-        b. run ``pip install -e .``
+1. Install Visual C++
+       a. See `here <https://wiki.python.org/moin/WindowsCompilers>`_ for a list of which Python versions correspond to which Visual C++ version
+       b. Only Python <= 3.8 appears to be supported at the moment.
+2. Install the development version of pymapdl-reader to your Python environment
+       a. Navigate to the project's top level (the same directory as this README)
+       b. run ``pip install -e .``
 
 To get the package up and running.
 
