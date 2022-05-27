@@ -180,7 +180,8 @@ class Mesh():
 
                 # TARGE170 specifics
                 if etype == 170:
-                    if etype_ind not in self.tshape_key:
+                    # edge case where missing element within the tshape_key
+                    if etype_ind not in self.tshape_key:  # pragma: no cover
                         continue
                     tshape_num = self.tshape_key[etype_ind]
                     if tshape_num >= 19:  # weird bug when 'PILO' can be 99 instead of 19.
