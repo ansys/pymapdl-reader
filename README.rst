@@ -1,11 +1,31 @@
 ======================================================
 PyMAPDL Reader - Legacy Binary and Archive File Reader
 ======================================================
-.. image:: https://badge.fury.io/py/ansys-mapdl-reader.svg
-    :target: https://badge.fury.io/py/ansys-mapdl-reader
+|pyansys| |pypi| |PyPIact| |GH-CI| |codecov| |MIT| |black|
 
-.. image:: https://github.com/pyansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml/badge.svg
+.. |pyansys| image:: https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC
+   :target: https://docs.pyansys.com/
+   :alt: PyAnsys
+
+.. |pypi| image:: https://img.shields.io/pypi/v/ansys-mapdl-reader.svg?logo=python&logoColor=white
+   :target: https://pypi.org/project/ansys-mapdl-reader/
+
+.. |PyPIact| image:: https://img.shields.io/pypi/dm/ansys-mapdl-reader.svg?label=PyPI%20downloads
+   :target: https://pypi.org/project/ansys-mapdl-reader/
+
+.. |codecov| image:: https://codecov.io/gh/pyansys/pymapdl-reader/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/pyansys/pymapdl-reader
+
+.. |GH-CI| image:: https://github.com/pyansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml/badge.svg
    :target: https://github.com/pyansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml
+
+.. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
+   :target: https://opensource.org/licenses/MIT
+
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg?style=flat
+  :target: https://github.com/psf/black
+  :alt: black
+
 
 This is the legacy module for reading in binary and ASCII files
 generated from MAPDL.
@@ -29,13 +49,13 @@ Please see the `PyMAPDL-Reader Documentation
 
 .. note::
 
-   This module will likely change or be depreciated in the future.
+   This module may be depreciated in the future.
 
    You are encouraged to use the new Data Processing Framework (DPF)
-   modules at `DPF-Core <https://github.com/pyansys/DPF-Core>`_ and
-   `DPF-Post <https://github.com/pyansys/DPF-Post>`_ as they provide a
-   modern interface to ANSYS result files using a client/server
-   interface using the same software used within ANSYS Workbench, but
+   modules at `PyDPF-Core <https://github.com/pyansys/pydpf-core>`_ and
+   `PyDPF-Post <https://github.com/pyansys/pydpf-post>`_ as they provide a
+   modern interface to Ansys result files using a client/server
+   interface using the same software used within Ansys Workbench, but
    via a Python client.
 
 
@@ -47,6 +67,7 @@ Installation through pip::
 
 You can also visit `pymapdl-reader <https://github.com/pyansys/pymapdl-reader>`_
 to download the source or releases from GitHub.
+
 
 Python 3.10 Extra Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -293,8 +314,6 @@ you will need to install your own C++ compiler. We recommend:
 2. Install the development version of pymapdl-reader to your Python environment
        a. Navigate to the project's top level (the same directory as this README)
        b. run ``pip install -e .``
-
-To get the package up and running.
 
 
 License and Acknowledgments
