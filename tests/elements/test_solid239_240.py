@@ -1,5 +1,6 @@
-import pytest
 import numpy as np
+import pytest
+
 from ansys.mapdl.reader import examples
 
 try:

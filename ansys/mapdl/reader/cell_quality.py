@@ -33,7 +33,7 @@ def quality(grid):
     """
 
     # lazy load to speed up import
-    from ansys.mapdl.reader._cellqual import cell_quality_float, cell_quality
+    from ansys.mapdl.reader._cellqual import cell_quality, cell_quality_float
 
     flip = False
     if isinstance(grid, pv.StructuredGrid):
@@ -42,7 +42,7 @@ def quality(grid):
     elif not isinstance(grid, pv.UnstructuredGrid):
         grid = pv.wrap(grid)
         if not isinstance(grid, pv.UnstructuredGrid):
-            raise TypeError('Input grid should be a pyvista or vtk UnstructuredGrid')
+            raise TypeError("Input grid should be a pyvista or vtk UnstructuredGrid")
 
     celltypes = grid.celltypes
     points = grid.points

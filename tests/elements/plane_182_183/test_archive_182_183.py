@@ -1,15 +1,16 @@
 import os
 
-import pytest
 import numpy as np
+import pytest
+
 from ansys.mapdl import reader as pymapdl_reader
 
 testfiles_path = os.path.dirname(os.path.abspath(__file__))
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def archive():
-    filename = os.path.join(testfiles_path, 'archive.cdb')
+    filename = os.path.join(testfiles_path, "archive.cdb")
     return pymapdl_reader.Archive(filename)
 
 

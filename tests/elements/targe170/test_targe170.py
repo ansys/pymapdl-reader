@@ -1,17 +1,16 @@
 import os
-import pytest
 
 import numpy as np
+import pytest
 
 from ansys.mapdl import reader as pymapdl_reader
-
 
 path = os.path.dirname(os.path.abspath(__file__))
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def rst():
-    rst_file = os.path.join(path, 'file.rst')
+    rst_file = os.path.join(path, "file.rst")
     return pymapdl_reader.read_binary(rst_file)
 
 

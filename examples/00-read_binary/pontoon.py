@@ -8,6 +8,7 @@ Visualize a shell static analysis
 """
 # download the pontoon example
 from ansys.mapdl.reader import examples
+
 pontoon = examples.download_pontoon()
 
 ###############################################################################
@@ -30,10 +31,14 @@ pontoon.plot()
 
 ###############################################################################
 # Plot the elastic strain and show exaggerated displacement
-pontoon.plot_nodal_elastic_strain(0, 'eqv', show_displacement=True,
-                                  displacement_factor=100000,
-                                  overlay_wireframe=True,
-                                  lighting=False,
-                                  add_text=False,
-                                  show_edges=True)
+pontoon.plot_nodal_elastic_strain(
+    0,
+    "eqv",
+    show_displacement=True,
+    displacement_factor=100000,
+    overlay_wireframe=True,
+    lighting=False,
+    add_text=False,
+    show_edges=True,
+)
 # Note: lighting is disabled here as it's too dark

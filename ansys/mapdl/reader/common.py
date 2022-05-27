@@ -1,28 +1,30 @@
 """Methods common to binary files"""
-import struct
-import pathlib
-from typing import Union
 from collections import Counter
+import pathlib
+import struct
+from typing import Union
 
 import numpy as np
 
 from ansys.mapdl.reader._binary_reader import c_read_record
 from ansys.mapdl.reader.errors import NoDistributedFiles
 
-STRESS_TYPES = ['X', 'Y', 'Z', 'XY', 'YZ', 'XZ']
-PRINCIPAL_STRESS_TYPES = ['S1', 'S2', 'S3', 'SINT', 'SEQV']
-STRAIN_TYPES = ['X', 'Y', 'Z', 'XY', 'YZ', 'XZ', 'EQV']
-THERMAL_STRAIN_TYPES = ['X', 'Y', 'Z', 'XY', 'YZ', 'XZ', 'EQV', 'ESWELL']
+STRESS_TYPES = ["X", "Y", "Z", "XY", "YZ", "XZ"]
+PRINCIPAL_STRESS_TYPES = ["S1", "S2", "S3", "SINT", "SEQV"]
+STRAIN_TYPES = ["X", "Y", "Z", "XY", "YZ", "XZ", "EQV"]
+THERMAL_STRAIN_TYPES = ["X", "Y", "Z", "XY", "YZ", "XZ", "EQV", "ESWELL"]
 
-ANSYS_BINARY_FILE_TYPES = {2: 'Element Matrix File',
-                           3: 'Element Save Data file',
-                           4: 'Full stiffness-mass matrix File',
-                           8: 'Substructure Matrices File',
-                           9: 'Modal Results File',
-                           10: 'Reduced Displacement File',
-                           12: 'Result File',
-                           16: 'Database File',
-                           45: 'Component Mode Synthesis Matrices (CMS) File'}
+ANSYS_BINARY_FILE_TYPES = {
+    2: "Element Matrix File",
+    3: "Element Save Data file",
+    4: "Full stiffness-mass matrix File",
+    8: "Substructure Matrices File",
+    9: "Modal Results File",
+    10: "Reduced Displacement File",
+    12: "Result File",
+    16: "Database File",
+    45: "Component Mode Synthesis Matrices (CMS) File",
+}
 
 
 # c *** standard usage of the block number (buffers) and file unit number(FUN)
@@ -63,6 +65,7 @@ ANSYS_BINARY_FILE_TYPES = {2: 'Element Matrix File',
 
 class AnsysBinary:
     """ANSYS binary file class"""
+
     filename: Union[str, pathlib.Path] = None
 
     # read only file handle
@@ -150,20 +153,23 @@ def read_binary(filename, **kwargs):
     """
     filename = pathlib.Path(filename)
     if not filename.is_file():
-        raise FileNotFoundError(f'{filename} is not a file or cannot be found')
+        raise FileNotFoundError(f"{filename} is not a file or cannot be found")
 
-    file_format = read_standard_header(filename)['file format']
+    file_format = read_standard_header(filename)["file format"]
 
     if file_format == 2:
         from ansys.mapdl.reader.emat import EmatFile
+
         return EmatFile(filename, **kwargs)
     elif file_format == 4:
         from ansys.mapdl.reader.full import FullFile
+
         return FullFile(filename, **kwargs)
     elif file_format == 12:
-        from ansys.mapdl.reader.rst import Result
         from ansys.mapdl.reader.dis_result import DistributedResult
-        read_mesh = kwargs.pop('read_mesh', True)
+        from ansys.mapdl.reader.rst import Result
+
+        read_mesh = kwargs.pop("read_mesh", True)
         result = Result(filename, read_mesh=False, **kwargs)
 
         if result._is_distributed:
@@ -174,13 +180,14 @@ def read_binary(filename, **kwargs):
                 pass
 
         # check if it's a cyclic result file
-        ignore_cyclic = kwargs.pop('ignore_cyclic', False)
+        ignore_cyclic = kwargs.pop("ignore_cyclic", False)
         if result._is_cyclic and not ignore_cyclic:
             from ansys.mapdl.reader.cyclic_reader import CyclicResult
+
             return CyclicResult(filename)
 
         if read_mesh:
-            flag_vtk_parse = kwargs.pop('flag_vtk_parse', True)
+            flag_vtk_parse = kwargs.pop("flag_vtk_parse", True)
             result._store_mesh(flag_vtk_parse)
 
         return result
@@ -190,17 +197,17 @@ def read_binary(filename, **kwargs):
     raise RuntimeError('ANSYS binary "%s" not supported' % file_type)
 
 
-def read_table(f, dtype='i', nread=None, skip=False, get_nread=True, cython=False):
+def read_table(f, dtype="i", nread=None, skip=False, get_nread=True, cython=False):
     """Read fortran style table"""
     if cython:
-        arr, bufsz = c_read_record(f.name, f.tell()//4, True)
-        f.seek(bufsz*4, 1)
+        arr, bufsz = c_read_record(f.name, f.tell() // 4, True)
+        f.seek(bufsz * 4, 1)
         return arr
 
     if get_nread:
-        n = np.fromfile(f, 'i', 1)
+        n = np.fromfile(f, "i", 1)
         if not n:
-            raise Exception('end of file')
+            raise Exception("end of file")
 
         tablesize = n[0]
         if dtype is None:  # read flags to get data type
@@ -211,18 +218,20 @@ def read_table(f, dtype='i', nread=None, skip=False, get_nread=True, cython=Fals
             # zlib_flag = flags >> 2 & 1
             sparse_flag = flags >> 3 & 1
             if sparse_flag:
-                raise NotImplementedError('Cannot read sparse results.\nPlease run with "/FCOMP,RST,0" to disable writing sparse results')
+                raise NotImplementedError(
+                    'Cannot read sparse results.\nPlease run with "/FCOMP,RST,0" to disable writing sparse results'
+                )
 
             if type_flag:
                 if prec_flag:
-                    dtype = 'short'
+                    dtype = "short"
                 else:
-                    dtype = 'i'
+                    dtype = "i"
             else:
                 if prec_flag:
-                    dtype = 'float'
+                    dtype = "float"
                 else:
-                    dtype = 'double'
+                    dtype = "double"
         else:
             f.seek(4, 1)  # skip padding
 
@@ -231,10 +240,10 @@ def read_table(f, dtype='i', nread=None, skip=False, get_nread=True, cython=Fals
         tablesize = nread
 
     if skip:
-        f.seek((tablesize + 1)*4, 1)
+        f.seek((tablesize + 1) * 4, 1)
         return tablesize
     else:
-        if dtype == 'double':
+        if dtype == "double":
             tablesize //= 2
         table = np.fromfile(f, dtype, tablesize)
     f.seek(4, 1)  # skip padding
@@ -245,24 +254,24 @@ def read_string_from_binary(f, n):
     """Read n 4 character binary strings from a file opend in binary
     mode
     """
-    string = b''
+    string = b""
     for _ in range(n):
         string += f.read(4)[::-1]
 
     try:
-        return string.decode('utf')
+        return string.decode("utf")
     except:
         return string
 
 
 def parse_header(table, keys):
-    """ parses a header from a table """
+    """parses a header from a table"""
     header = {}
     max_entry = len(table) - 1
 
     # some keys occur multiple times and refer to arrays of some sort
     counter = Counter(keys)
-    del counter['0']
+    del counter["0"]
 
     # initialize lists/arrays
     for key, count in counter.items():
@@ -273,94 +282,98 @@ def parse_header(table, keys):
         if i > max_entry:
             header[key] = 0
         else:
-            if counter[key]>1:  # multiple items in the header -> list/array
+            if counter[key] > 1:  # multiple items in the header -> list/array
                 if table[i]:  # skip zeros
                     header[key].append(table[i])
             else:
-                header[key] = table[i] 
+                header[key] = table[i]
 
     for key in keys:
-        if 'ptr' in key and key[-1] == 'h':
+        if "ptr" in key and key[-1] == "h":
             basekey = key[:-1]
-            intl = header[basekey + 'l']
-            inth = header[basekey + 'h']
+            intl = header[basekey + "l"]
+            inth = header[basekey + "h"]
             header[basekey] = two_ints_to_long(intl, inth)
 
     # remove empty entries
-    header.pop('_', None)
+    header.pop("_", None)
     return header
 
 
 def two_ints_to_long(intl, inth):
-    """ Interpert two ints as one long """
+    """Interpert two ints as one long"""
     longint = struct.pack(">I", inth) + struct.pack(">I", intl)
-    return struct.unpack('>q', longint)[0]
+    return struct.unpack(">q", longint)[0]
 
 
 def read_standard_header(filename):
-    """ Reads standard header """
-    with open(filename, 'rb') as f:
+    """Reads standard header"""
+    with open(filename, "rb") as f:
 
-        endian = '<'
-        if np.fromfile(f, dtype='<i', count=1) != 100:
+        endian = "<"
+        if np.fromfile(f, dtype="<i", count=1) != 100:
 
             # Check if big enos
             f.seek(0)
-            if np.fromfile(f, dtype='>i', count=1) == 100:
-                endian = '>'
+            if np.fromfile(f, dtype=">i", count=1) == 100:
+                endian = ">"
 
             # Otherwise, it's probably not a result file
             else:
-                raise RuntimeError('Unable to determine endian type.  ' +
-                                   'Possibly not an ANSYS binary file')
+                raise RuntimeError(
+                    "Unable to determine endian type.  "
+                    + "Possibly not an ANSYS binary file"
+                )
 
         f.seek(0)
 
         header = {}
-        header['endian'] = endian
-        header['file number'] = read_table(f, nread=1, get_nread=False)[0]
-        header['file format'] = read_table(f, nread=1, get_nread=False)[0]
+        header["endian"] = endian
+        header["file number"] = read_table(f, nread=1, get_nread=False)[0]
+        header["file format"] = read_table(f, nread=1, get_nread=False)[0]
         int_time = str(read_table(f, nread=1, get_nread=False)[0])
-        header['time'] = ':'.join([int_time[0:2], int_time[2:4], int_time[4:]])
+        header["time"] = ":".join([int_time[0:2], int_time[2:4], int_time[4:]])
         int_date = str(read_table(f, nread=1, get_nread=False)[0])
-        if int_date == '-1':
-            header['date'] = ''
+        if int_date == "-1":
+            header["date"] = ""
         else:
-            header['date'] = '/'.join([int_date[0:4], int_date[4:6], int_date[6:]])
+            header["date"] = "/".join([int_date[0:4], int_date[4:6], int_date[6:]])
 
-        unit_types = {0: 'User Defined',
-                      1: 'SI',
-                      2: 'CSG',
-                      3: 'U.S. Customary units (feet)',
-                      4: 'U.S. Customary units (inches)',
-                      5: 'MKS',
-                      6: 'MPA',
-                      7: 'uMKS'}
-        header['units'] = unit_types[read_table(f, nread=1, get_nread=False)[0]]
+        unit_types = {
+            0: "User Defined",
+            1: "SI",
+            2: "CSG",
+            3: "U.S. Customary units (feet)",
+            4: "U.S. Customary units (inches)",
+            5: "MKS",
+            6: "MPA",
+            7: "uMKS",
+        }
+        header["units"] = unit_types[read_table(f, nread=1, get_nread=False)[0]]
 
         f.seek(11 * 4)
         version = read_string_from_binary(f, 1).strip()
 
-        header['verstring'] = version
-        header['mainver'] = int(version[:2])
-        header['subver'] = int(version[-1])
+        header["verstring"] = version
+        header["mainver"] = int(version[:2])
+        header["subver"] = int(version[-1])
 
         # there's something hidden at 12
         f.seek(4, 1)
 
         # f.seek(13 * 4)
-        header['machine'] = read_string_from_binary(f, 3).strip()
-        header['jobname'] = read_string_from_binary(f, 2).strip()
-        header['product'] = read_string_from_binary(f, 2).strip()
-        header['special'] = read_string_from_binary(f, 1).strip()
-        header['username'] = read_string_from_binary(f, 3).strip()
+        header["machine"] = read_string_from_binary(f, 3).strip()
+        header["jobname"] = read_string_from_binary(f, 2).strip()
+        header["product"] = read_string_from_binary(f, 2).strip()
+        header["special"] = read_string_from_binary(f, 1).strip()
+        header["username"] = read_string_from_binary(f, 3).strip()
 
         # Items 23-25 The machine identifier in integer form (three four-character strings)
         # this contains license information
-        header['machine_identifier'] = read_string_from_binary(f, 3).strip()
+        header["machine_identifier"] = read_string_from_binary(f, 3).strip()
 
         # Item 26 The system record size
-        header['system record size'] = read_table(f, nread=1, get_nread=False)[0]
+        header["system record size"] = read_table(f, nread=1, get_nread=False)[0]
 
         # Item 27 The maximum file length
         # header['file length'] = read_table(f, nread=1, get_nread=False)[0]
@@ -369,19 +382,19 @@ def read_standard_header(filename):
         # header['the maximum record number'] = read_table(f, nread=1, get_nread=False)[0]
 
         # Items 31-38 The Jobname (eight four-character strings)
-        f.seek(32*4)
-        header['jobname2'] = read_string_from_binary(f, 8).strip()
+        f.seek(32 * 4)
+        header["jobname2"] = read_string_from_binary(f, 8).strip()
 
         # Items 41-60 The main analysis title in integer form (20 four-character strings)
-        f.seek(42*4)
-        header['title'] = read_string_from_binary(f, 20).strip()
+        f.seek(42 * 4)
+        header["title"] = read_string_from_binary(f, 20).strip()
 
         # Items 61-80 The first subtitle in integer form (20 four-character strings)
-        header['subtitle'] = read_string_from_binary(f, 20).strip()
+        header["subtitle"] = read_string_from_binary(f, 20).strip()
 
         # Item 95 The split point of the file (0 means the file will not split)
-        f.seek(96*4)
-        header['split point'] = read_table(f, nread=1, get_nread=False)[0]
+        f.seek(96 * 4)
+        header["split point"] = read_table(f, nread=1, get_nread=False)[0]
 
         # Items 97-98 LONGINT of the maximum file length (bug here)
         # ints = read_table(f, nread=2, get_nread=False)
@@ -410,16 +423,16 @@ def rotate_to_global(result, euler_angles):
     theta_xy, theta_yz, theta_zx = euler_angles
 
     if np.any(theta_xy):
-        axis_rotation(result, theta_xy, inplace=True, axis='z')
+        axis_rotation(result, theta_xy, inplace=True, axis="z")
 
     if np.any(theta_yz):
-        axis_rotation(result, theta_yz, inplace=True, axis='x')
+        axis_rotation(result, theta_yz, inplace=True, axis="x")
 
     if np.any(theta_zx):
-        axis_rotation(result, theta_zx, inplace=True, axis='y')
+        axis_rotation(result, theta_zx, inplace=True, axis="y")
 
 
-def axis_rotation(points, angle, inplace=False, deg=True, axis='z'):
+def axis_rotation(points, angle, inplace=False, deg=True, axis="z"):
     """Rotate points angle (in deg) about an axis.
 
     Parameters
@@ -441,17 +454,17 @@ def axis_rotation(points, angle, inplace=False, deg=True, axis='z'):
     if deg:
         angle *= np.pi / 180
 
-    if axis == 'x':
+    if axis == "x":
         y = points[:, 1] * np.cos(angle) - points[:, 2] * np.sin(angle)
         z = points[:, 1] * np.sin(angle) + points[:, 2] * np.cos(angle)
         points[:, 1] = y
         points[:, 2] = z
-    elif axis == 'y':
+    elif axis == "y":
         x = points[:, 0] * np.cos(angle) + points[:, 2] * np.sin(angle)
-        z = - points[:, 0] * np.sin(angle) + points[:, 2] * np.cos(angle)
+        z = -points[:, 0] * np.sin(angle) + points[:, 2] * np.cos(angle)
         points[:, 0] = x
         points[:, 2] = z
-    elif axis == 'z':
+    elif axis == "z":
         x = points[:, 0] * np.cos(angle) - points[:, 1] * np.sin(angle)
         y = points[:, 0] * np.sin(angle) + points[:, 1] * np.cos(angle)
         points[:, 0] = x

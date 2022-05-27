@@ -6,13 +6,17 @@
 # cython: nonecheck=False
 
 # cython imports
+
 from libc.math cimport sqrt
+
 ctypedef unsigned char uint8
 from libc.stdint cimport int64_t
-from cython.parallel import prange
 
+from cython.parallel import prange
 import numpy as np
+
 cimport numpy as np
+
 import ctypes
 
 
