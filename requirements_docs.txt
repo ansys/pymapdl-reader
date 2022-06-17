@@ -10,6 +10,5 @@ pytest-sphinx
 sphinx-notfound-page>=0.3.0
 sphinx-copybutton
 sphinx-gallery>=0.8.1
-pyansys_sphinx_theme
-pypandoc
+ansys_sphinx_theme
 vtk<9.1.0
