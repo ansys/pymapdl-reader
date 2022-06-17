@@ -4675,12 +4675,12 @@ class Result(AnsysBinary):
         node_components : list, optional
             Accepts either a string or a list strings of node
             components to plot.  For example:
-            ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            ``['MY_COMPONENT', 'MY_OTHER_COMPONENT']``
 
         element_components : list, optional
             Accepts either a string or a list strings of element
             components to plot.  For example:
-            ``['MY_COMPONENT', 'MY_OTHER_COMPONENT]``
+            ``['MY_COMPONENT', 'MY_OTHER_COMPONENT']``
 
         sel_type_all : bool, optional
             If node_components is specified, plots those elements
@@ -4691,7 +4691,7 @@ class Result(AnsysBinary):
             when plotting.
 
         **kwargs : keyword arguments
-            Optional keyword arguments.  See ``help(pyvista.plot)``p
+            Optional keyword arguments.  See ``help(pyvista.plot)``
 
         Examples
         --------

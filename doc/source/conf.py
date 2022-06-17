@@ -4,6 +4,7 @@ import warnings
 
 import pyvista
 from sphinx_gallery.sorting import FileNameSortKey
+from ansys_sphinx_theme import pyansys_logo_black
 
 from ansys.mapdl import reader as pymapdl_reader
 
@@ -90,7 +91,7 @@ release = version = pymapdl_reader.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -141,8 +142,8 @@ sphinx_gallery_conf = {
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyMAPDL - Legacy Reader"
-html_theme = "pyansys_sphinx_theme"
-html_logo = os.path.join("_static", "pyansys-logo-black-cropped.png")
+html_theme = "ansys_sphinx_theme"
+html_logo = pyansys_logo_black
 html_theme_options = {
     "github_url": "https://github.com/pyansys/pymapdl-reader",
     "show_prev_next": False,
