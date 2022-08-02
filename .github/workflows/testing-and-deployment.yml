@@ -230,30 +230,34 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-10.15]
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.8.0
+        uses: pypa/cibuildwheel@v2.8.1
+
+      - name: List generated wheels
+        run: |
+          ls ./wheelhouse/*
 
       # - uses: actions/upload-artifact@v3
       #   with:
       #     path: ./wheelhouse/*.whl
 
-      - name: Install on Linux / macOS
-        if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
-        run: |
-          pip install wheel
-          pip install wheelhouse/*.whl
-          pip list
+      # - name: Install on Linux / macOS
+      #   if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
+      #   run: |
+      #     pip install wheel
+      #     pip install wheelhouse/*.whl
+      #     pip list
 
-      - name: Install test requirements
-        run: pip install -r requirements_test.txt
+      # - name: Install test requirements
+      #   run: pip install -r requirements_test.txt
 
-      - name: Test without XVFB
-        run: pytest -v tests/ --durations=0
+      # - name: Test without XVFB
+      #   run: pytest -v tests/ --durations=0
 
   pymapdl_tests:
     name: PyMAPDL Unit Testing
