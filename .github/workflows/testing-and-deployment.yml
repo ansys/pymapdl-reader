@@ -211,7 +211,7 @@ jobs:
         run: xvfb-run pytest -v tests/ --durations=0
 
       - name: Test without XVFB
-        if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
+        if: ${{ runner.os == 'Windows' || runner.os == 'macOS' }}
         run: pytest -v tests/ --durations=0
 
       - uses: codecov/codecov-action@v2
