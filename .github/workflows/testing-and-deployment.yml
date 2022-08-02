@@ -196,8 +196,8 @@ jobs:
           pyvista-tools/appveyor/install_opengl.ps1
           python -c "import pyvista; print(pyvista.Report())"
 
-      - name: Install XVFB on Linux / macOS
-        if: (${{ runner.os == 'Linux' }}) || (${{ runner.os == 'macOS' }})
+      - name: Install XVFB on Linux
+        if: (${{ runner.os == 'Linux' }})
         run: |
           sudo apt update
           sudo apt-get install libgl1-mesa-glx xvfb
@@ -207,11 +207,11 @@ jobs:
         run: pip install -r requirements_test.txt
 
       - name: Test with XVFB
-        if: (${{ runner.os == 'Linux' }}) || (${{ runner.os == 'macOS' }})
+        if: (${{ runner.os == 'Linux' }})
         run: xvfb-run pytest -v tests/ --durations=0
 
       - name: Test without XVFB
-        if: ${{ runner.os == 'Windows' }}
+        if: (${{ runner.os == 'Windows' }}) || (${{ runner.os == 'macOS' }})
         run: pytest -v tests/ --durations=0
 
       - uses: codecov/codecov-action@v2
