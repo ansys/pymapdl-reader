@@ -149,6 +149,12 @@ jobs:
         if: matrix.python-version == '3.10'
         run: pip install --find-links https://wheels.pyvista.org/ vtk
 
+      - name: Build wheel on macOS
+        if: ${{ runner.os == 'macOS' }}
+        run: |
+          pip install build
+          python -m build
+
       - name: Build wheel on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
