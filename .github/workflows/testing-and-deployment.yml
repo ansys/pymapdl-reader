@@ -113,6 +113,15 @@ jobs:
           restore-keys: |
             Python-${{ runner.os }}-${{ matrix.python-version }}
 
+      - name: MacOS pip cache
+        uses: actions/cache@v3
+        if: ${{ runner.os == 'macOS' }}
+        with:
+          path: ~/Library/Caches/pip
+          key: Python-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
+          restore-keys: |
+            Python-${{ runner.os }}-${{ matrix.python-version }}
+
       - name: Window pip cache
         uses: actions/cache@v3
         if: ${{ runner.os == 'Windows' }}
@@ -151,8 +160,8 @@ jobs:
           pip install twine
           twine check dist/*
 
-      - name: Install on Linux
-        if: ${{ runner.os == 'Linux' }}
+      - name: Install on Linux / macOS
+        if: ${{ runner.os == 'Linux' }} || ${{ runner.os == 'macOS' }}
         run: |
           pip install wheel
           pip install dist/*.whl
@@ -182,7 +191,7 @@ jobs:
           python -c "import pyvista; print(pyvista.Report())"
 
       - name: Install XVFB on Linux
-        if: ${{ runner.os == 'Linux' }}
+        if: ${{ runner.os == 'Linux' }} || ${{ runner.os == 'macOS' }}
         run: |
           sudo apt update
           sudo apt-get install libgl1-mesa-glx xvfb
@@ -192,7 +201,7 @@ jobs:
         run: pip install -r requirements_test.txt
 
       - name: Test with XVFB
-        if: ${{ runner.os == 'Linux' }}
+        if: ${{ runner.os == 'Linux' }} || ${{ runner.os == 'macOS' }}
         run: xvfb-run pytest -v tests/ --durations=0
 
       - name: Test without XVFB
@@ -209,55 +218,6 @@ jobs:
           name: ${{ env.PACKAGE_NAME }}-${{ runner.os }}-${{ matrix.python-version }}
           path: dist/
           retention-days: 7
-
-  mac_build:
-    runs-on: macos-latest
-    name: Mac OS Unit Testing
-    strategy:
-      matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: MacOS pip cache
-        uses: actions/cache@v3
-        if: ${{ runner.os == 'macOS' }}
-        with:
-          path: ~/Library/Caches/pip
-          key: Python-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}-${{ matrix.extras-version }}
-          restore-keys: |
-            Python-${{ runner.os }}-${{ matrix.python-version }}
-
-      - name: Build wheels
-        uses: joerick/cibuildwheel@v2.0.1
-        env:
-          CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
-          CIBW_BUILD: cp38-macosx_x86_64
-
-      - name: Show files
-        run: ls -lh wheelhouse
-        shell: bash
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v3
-        with:
-          path: wheelhouse/*.whl
-
-      - name: Install wheel
-        run: |
-          pip install wheelhouse/*38*
-
-      - name: Test
-        run: |
-          pip install -r requirements_test.txt
-          cd tests
-          pytest -v
 
   pymapdl_tests:
     name: PyMAPDL Unit Testing
