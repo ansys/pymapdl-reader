@@ -32,9 +32,9 @@ mapdl.allsel()
 mapdl.modal_analysis(nmode=1)
 
 """
+import os
 import pathlib
 import platform
-import os
 from shutil import copy
 
 import numpy as np
@@ -44,8 +44,8 @@ from pyvista.plotting.renderer import CameraPosition
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
-from ansys.mapdl.reader.rst import Result
 from ansys.mapdl.reader.examples.downloads import _download_and_read
+from ansys.mapdl.reader.rst import Result
 
 try:
     vm33 = examples.download_verification_result(33)
@@ -58,7 +58,7 @@ except:
     vm240 = None
 
 try:
-    vm240_sparse = _download_and_read('vm240_sparse.rst')
+    vm240_sparse = _download_and_read("vm240_sparse.rst")
 except:
     vm240_sparse = None
 
@@ -68,71 +68,71 @@ try:
 except:
     pontoon = None
 
-IS_MAC = platform.system() == 'Darwin'
-skip_plotting = pytest.mark.skipif(not system_supports_plotting() or IS_MAC,
-                                   reason="Requires active X Server")
+IS_MAC = platform.system() == "Darwin"
+skip_plotting = pytest.mark.skipif(
+    not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
+)
 
 test_path = os.path.dirname(os.path.abspath(__file__))
-testfiles_path = os.path.join(test_path, 'testfiles')
+testfiles_path = os.path.join(test_path, "testfiles")
 
-is16_filename = os.path.join(testfiles_path, 'is16.rst')
-is16_known_result = os.path.join(testfiles_path, 'is16.npz')
+is16_filename = os.path.join(testfiles_path, "is16.rst")
+is16_known_result = os.path.join(testfiles_path, "is16.npz")
 if os.path.isfile(is16_filename):
     is16 = pymapdl_reader.read_binary(is16_filename)
 else:
     is16 = None
 
-temperature_rst = os.path.join(testfiles_path, 'temp_v13.rst')
-temperature_known_result = os.path.join(testfiles_path, 'temp_v13.npz')
+temperature_rst = os.path.join(testfiles_path, "temp_v13.rst")
+temperature_known_result = os.path.join(testfiles_path, "temp_v13.npz")
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def pathlib_result():
     temperature_rst_pathlib = pathlib.Path(temperature_rst)
     return Result(temperature_rst_pathlib)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def hex_pipe_corner():
-    filename = os.path.join(testfiles_path, 'rst', 'cyc_stress.rst')
+    filename = os.path.join(testfiles_path, "rst", "cyc_stress.rst")
     return pymapdl_reader.read_binary(filename)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def hex_rst():
-    filename = os.path.join(testfiles_path, 'hex_201.rst')
+    filename = os.path.join(testfiles_path, "hex_201.rst")
     return pymapdl_reader.read_binary(filename)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def volume_rst():
-    rst_file = os.path.join(testfiles_path, 'vol_test.rst')
+    rst_file = os.path.join(testfiles_path, "vol_test.rst")
     return pymapdl_reader.read_binary(rst_file)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def materials_281_rst():
-    rst_file = os.path.join(testfiles_path, 'materials', 'file.rst')
+    rst_file = os.path.join(testfiles_path, "materials", "file.rst")
     return pymapdl_reader.read_binary(rst_file)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def materials_stress_lim_rst():
-    rst_file = os.path.join(testfiles_path, 'materials', 'stress_lim.rst')
+    rst_file = os.path.join(testfiles_path, "materials", "stress_lim.rst")
     return pymapdl_reader.read_binary(rst_file)
 
 
 def test_map_flag_section_data():
     # basic 4 element SHELL181 result files
-    shell181_2020r2 = os.path.join(testfiles_path, 'shell181_2020R2.rst')
-    shell181_2021r1 = os.path.join(testfiles_path, 'shell181_2021R1.rst')
+    shell181_2020r2 = os.path.join(testfiles_path, "shell181_2020R2.rst")
+    shell181_2021r1 = os.path.join(testfiles_path, "shell181_2021R1.rst")
 
     rst_2020r2 = pymapdl_reader.read_binary(shell181_2020r2)
     rst_2021r1 = pymapdl_reader.read_binary(shell181_2021r1)
 
     for key in rst_2020r2.section_data:
-        assert np.allclose(rst_2020r2.section_data[key],
-                           rst_2021r1.section_data[key])
+        assert np.allclose(rst_2020r2.section_data[key], rst_2021r1.section_data[key])
 
 
 def test_overwrite(tmpdir):
@@ -140,7 +140,7 @@ def test_overwrite(tmpdir):
     rst = pymapdl_reader.read_binary(copy(examples.rstfile, tmp_path))
 
     # get the data
-    solution_type = 'EEL'
+    solution_type = "EEL"
     enum, esol_old, _ = rst.element_solution_data(0, solution_type)
 
     index = 10
@@ -161,14 +161,16 @@ def test_overwrite_dict(tmpdir):
     rst = pymapdl_reader.read_binary(copy(examples.rstfile, tmp_path))
 
     # get the data
-    solution_type = 'EEL'
+    solution_type = "EEL"
     enum, esol_old, _ = rst.element_solution_data(0, solution_type)
 
     indices = (10, 20)
     old_records = [esol_old[index] for index in indices]
 
-    element_data = {enum[indices[0]]: np.random.random(old_records[0].size),
-                    enum[indices[1]]: np.random.random(old_records[1].size)}
+    element_data = {
+        enum[indices[0]]: np.random.random(old_records[0].size),
+        enum[indices[1]]: np.random.random(old_records[1].size),
+    }
 
     rst.overwrite_element_solution_records(element_data, 0, solution_type)
 
@@ -182,7 +184,7 @@ def test_overwrite_dict(tmpdir):
 
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
 def test_write_tables(tmpdir):
-    filename = str(tmpdir.mkdir("tmpdir").join('vm33.txt'))
+    filename = str(tmpdir.mkdir("tmpdir").join("vm33.txt"))
     vm33.write_tables(filename)
     assert os.path.isfile(filename)
 
@@ -196,11 +198,11 @@ def test_nodal_displacement():
 
 
 def test_read_volume(volume_rst):
-    enum, edata, enode = volume_rst.element_solution_data(0, datatype='ENG')
+    enum, edata, enode = volume_rst.element_solution_data(0, datatype="ENG")
     edata = np.asarray(edata)
     volume = edata[:, 0]
 
-    enum_vtk = np.sort(volume_rst.grid.cell_data['ansys_elem_num'])
+    enum_vtk = np.sort(volume_rst.grid.cell_data["ansys_elem_num"])
     assert np.allclose(enum, enum_vtk)
     assert np.allclose(volume, 291895460.0)
 
@@ -222,13 +224,13 @@ def test_nodal_thermal_strain():
 @skip_plotting
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
 def test_plot_nodal_thermal_strain():
-    vm33.plot_nodal_thermal_strain(0, 'X', off_screen=True)
+    vm33.plot_nodal_thermal_strain(0, "X", off_screen=True)
 
 
 @skip_plotting
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
 def test_plot_nodal_thermal_strain():
-    vm33._animate_time_solution('ENS', off_screen=True)
+    vm33._animate_time_solution("ENS", off_screen=True)
 
 
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
@@ -241,7 +243,7 @@ def test_nodal_elastic_strain():
 @skip_plotting
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_plot_nodal_elastic_strain():
-    pontoon.plot_nodal_elastic_strain(0, 'X', off_screen=True)
+    pontoon.plot_nodal_elastic_strain(0, "X", off_screen=True)
 
 
 @skip_plotting
@@ -253,15 +255,17 @@ def test_plot_pontoon():
 @skip_plotting
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_plot_pontoon_nodal_displacement():
-    pontoon.plot_nodal_solution(0, show_displacement=True,
-                                overlay_wireframe=True, off_screen=True)
+    pontoon.plot_nodal_solution(
+        0, show_displacement=True, overlay_wireframe=True, off_screen=True
+    )
 
 
 @skip_plotting
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_plot_pontoon_nodal_displacement():
-    pontoon.plot_nodal_displacement(0, show_displacement=True,
-                                    overlay_wireframe=True, off_screen=True)
+    pontoon.plot_nodal_displacement(
+        0, show_displacement=True, overlay_wireframe=True, off_screen=True
+    )
 
 
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
@@ -271,13 +275,13 @@ def test_print_pontoon_components():
 
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_repr():
-    assert 'Title' in str(pontoon)
+    assert "Title" in str(pontoon)
 
 
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
 def test_available_results():
     for etype in vm33.available_results:
-        if etype in ['NSL', 'VSL', 'ASL', 'RF']:  # skip nodal records
+        if etype in ["NSL", "VSL", "ASL", "RF"]:  # skip nodal records
             continue
         _, edata, _ = vm33.element_solution_data(0, etype)
         assert edata[0] is not None
@@ -286,11 +290,12 @@ def test_available_results():
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
 def test_solution_info():
     info = vm33.solution_info(0)
-    assert 'omega_a_x' in info
+    assert "omega_a_x" in info
 
 
-@pytest.mark.skipif(vm240 is None or vm240_sparse is None,
-                    reason="Requires example files")
+@pytest.mark.skipif(
+    vm240 is None or vm240_sparse is None, reason="Requires example files"
+)
 def test_sparse_nodal_solution():
     nnum, stress = vm240.nodal_stress(0)
     sparse_nnum, sparse_stress = vm240_sparse.nodal_stress(0)
@@ -302,24 +307,26 @@ def test_sparse_nodal_solution():
 def test_is16():
     npz_rst = np.load(is16_known_result)
     nnum, data = is16.nodal_solution(0)
-    assert np.allclose(data, npz_rst['data'], atol=1E-6)
-    assert np.allclose(nnum, npz_rst['nnum'])
+    assert np.allclose(data, npz_rst["data"], atol=1e-6)
+    assert np.allclose(nnum, npz_rst["nnum"])
 
 
-@pytest.mark.skipif(not os.path.isfile(temperature_rst),
-                    reason="Requires example files")
+@pytest.mark.skipif(
+    not os.path.isfile(temperature_rst), reason="Requires example files"
+)
 def test_read_temperature():
     temp_rst = pymapdl_reader.read_binary(temperature_rst)
     nnum, temp = temp_rst.nodal_temperature(0)
 
     npz_rst = np.load(temperature_known_result)
-    assert np.allclose(nnum, npz_rst['nnum'])
-    assert np.allclose(temp, npz_rst['temp'])
+    assert np.allclose(nnum, npz_rst["nnum"])
+    assert np.allclose(temp, npz_rst["temp"])
 
 
 @skip_plotting
-@pytest.mark.skipif(not os.path.isfile(temperature_rst),
-                    reason="Requires example files")
+@pytest.mark.skipif(
+    not os.path.isfile(temperature_rst), reason="Requires example files"
+)
 def test_plot_nodal_temperature():
     temp_rst = pymapdl_reader.read_binary(temperature_rst)
     temp_rst.plot_nodal_temperature(0, off_screen=True)
@@ -327,46 +334,48 @@ def test_plot_nodal_temperature():
 
 class TestPathlibFilename:
     @skip_plotting
-    @pytest.mark.skipif(not os.path.isfile(temperature_rst),
-                        reason="Requires example files")
+    @pytest.mark.skipif(
+        not os.path.isfile(temperature_rst), reason="Requires example files"
+    )
     def test_pathlib_filename_property(self, pathlib_result):
         assert isinstance(pathlib_result.pathlib_filename, pathlib.Path)
 
     @skip_plotting
-    @pytest.mark.skipif(not os.path.isfile(temperature_rst),
-                        reason="Requires example files")
+    @pytest.mark.skipif(
+        not os.path.isfile(temperature_rst), reason="Requires example files"
+    )
     def test_filename_property_is_string(self, pathlib_result):
         assert isinstance(pathlib_result.filename, str)
 
     @skip_plotting
-    @pytest.mark.skipif(not os.path.isfile(temperature_rst),
-                        reason="Requires example files")
+    @pytest.mark.skipif(
+        not os.path.isfile(temperature_rst), reason="Requires example files"
+    )
     def test_filename_setter_pathlib(self, pathlib_result):
         with pytest.raises(AttributeError):
-            pathlib_result.filename = pathlib.Path('dummy2')
+            pathlib_result.filename = pathlib.Path("dummy2")
 
     @skip_plotting
-    @pytest.mark.skipif(not os.path.isfile(temperature_rst),
-                        reason="Requires example files")
+    @pytest.mark.skipif(
+        not os.path.isfile(temperature_rst), reason="Requires example files"
+    )
     def test_filename_setter_string(self, pathlib_result):
         with pytest.raises(AttributeError):
-            pathlib_result.filename = 'dummy2'
+            pathlib_result.filename = "dummy2"
 
 
 def test_rst_node_components(hex_rst):
-    assert 'ELEM_COMP' not in hex_rst.node_components
-    np.allclose(hex_rst.node_components['NODE_COMP'].nonzero()[0],
-                np.arange(4, 20))
+    assert "ELEM_COMP" not in hex_rst.node_components
+    np.allclose(hex_rst.node_components["NODE_COMP"].nonzero()[0], np.arange(4, 20))
 
 
 def test_rst_node_components(hex_rst):
-    assert 'NODE_COMP' not in hex_rst.element_components
-    np.allclose(hex_rst.element_components['ELEM_COMP'].nonzero()[0],
-                np.arange(4, 20))
+    assert "NODE_COMP" not in hex_rst.element_components
+    np.allclose(hex_rst.element_components["ELEM_COMP"].nonzero()[0], np.arange(4, 20))
 
 
 def test_rst_beam4_shell63():
-    filename = os.path.join(testfiles_path, 'shell63_beam4.rst')
+    filename = os.path.join(testfiles_path, "shell63_beam4.rst")
 
     # check geometry can load
     rst = pymapdl_reader.read_binary(filename)
@@ -386,9 +395,9 @@ def test_cyl_stress(hex_pipe_corner):
     # RSYS, 1
     # PRNSOL, S
     _, my_stress = hex_pipe_corner.cylindrical_nodal_stress(0)
-    ans_stress = np.load(os.path.join(testfiles_path, 'rst', 'cyc_stress.npy'))
+    ans_stress = np.load(os.path.join(testfiles_path, "rst", "cyc_stress.npy"))
 
-    assert np.allclose(my_stress[-114:], ans_stress, atol=1E-7)
+    assert np.allclose(my_stress[-114:], ans_stress, atol=1e-7)
 
 
 @skip_plotting
@@ -396,15 +405,16 @@ def test_plot_cyl_stress(hex_pipe_corner):
     with pytest.raises(ValueError):
         cpos = hex_pipe_corner.plot_cylindrical_nodal_stress(0, off_screen=True)
     with pytest.raises(ValueError):
-        cpos = hex_pipe_corner.plot_cylindrical_nodal_stress(0, comp='X',
-                                                             off_screen=True)
-    cpos = hex_pipe_corner.plot_cylindrical_nodal_stress(0, comp='R', off_screen=True)
+        cpos = hex_pipe_corner.plot_cylindrical_nodal_stress(
+            0, comp="X", off_screen=True
+        )
+    cpos = hex_pipe_corner.plot_cylindrical_nodal_stress(0, comp="R", off_screen=True)
     if cpos is not None:
         assert isinstance(cpos, CameraPosition)
 
 
 def test_reaction_forces(volume_rst):
-    known_result = os.path.join(testfiles_path, 'nodal_reaction.npy')
+    known_result = os.path.join(testfiles_path, "nodal_reaction.npy")
     nnum_known, fz_known = np.load(known_result).T
     nnum_known = nnum_known.astype(np.int32)
 
@@ -415,35 +425,37 @@ def test_reaction_forces(volume_rst):
 
     fz = rforces[dof == 3]
     # loose tolerance due to table printed from MAPDL
-    assert np.allclose(fz_known, fz, rtol=1E-4)
+    assert np.allclose(fz_known, fz, rtol=1e-4)
     assert np.allclose(nnum_known, nnum[dof == 1])
 
 
-@pytest.mark.parametrize('nnum_of_interest', [range(11, 50), 'all'])
+@pytest.mark.parametrize("nnum_of_interest", [range(11, 50), "all"])
 def test_nnum_of_interest(nnum_of_interest):
     rst = pymapdl_reader.read_binary(examples.rstfile)
-    if nnum_of_interest == 'all':
+    if nnum_of_interest == "all":
         nnum_of_interest = rst.mesh.nnum
 
-    nnum_sel, data_sel = rst._nodal_result(0, 'ENS', nnum_of_interest=nnum_of_interest)
-    nnum, data = rst._nodal_result(0, 'ENS')
+    nnum_sel, data_sel = rst._nodal_result(0, "ENS", nnum_of_interest=nnum_of_interest)
+    nnum, data = rst._nodal_result(0, "ENS")
 
     mask = np.in1d(nnum, nnum_of_interest)
     assert np.allclose(nnum[mask], nnum_sel)
     assert np.allclose(data[mask], data_sel, equal_nan=True)
 
 
-@pytest.mark.parametrize('nodes', [range(11, 50), 'NCOMP2', ('NCOMP2', 'NODE_COMP')])
+@pytest.mark.parametrize("nodes", [range(11, 50), "NCOMP2", ("NCOMP2", "NODE_COMP")])
 def test_nodes_subselection(hex_rst, nodes):
     nnum_sel, data_sel = hex_rst.nodal_solution(0, nodes=nodes)
     nnum, data = hex_rst.nodal_solution(0, nodes=nodes)
 
-    grid_nnum = hex_rst.grid.point_data['ansys_node_num']
+    grid_nnum = hex_rst.grid.point_data["ansys_node_num"]
     if isinstance(nodes, str):
         nnum_of_interest = grid_nnum[hex_rst.grid.point_data[nodes].view(bool)]
     elif isinstance(nodes, tuple):
-        mask = np.logical_or(hex_rst.grid.point_data[nodes[0]].view(bool),
-                              hex_rst.grid.point_data[nodes[1]].view(bool))
+        mask = np.logical_or(
+            hex_rst.grid.point_data[nodes[0]].view(bool),
+            hex_rst.grid.point_data[nodes[1]].view(bool),
+        )
         nnum_of_interest = grid_nnum[mask]
     else:
         nnum_of_interest = nodes
@@ -458,46 +470,46 @@ def test_materials(materials_281_rst):
     # known material results from MPLIST,ALL
     mat = {}
     mat[1] = {
-        'EX': 200000.0,
-        'NUXY': 0.3000000,
-        'ALPX': 0.1200000E-04,
-        'DENS': 0.7850000E-08,
-        'KXX': 60.50000,
-        'RSVX': 0.1700000E-03,
-        'C': 0.4340000E+09,
-        'MURX': 10000.00,
+        "EX": 200000.0,
+        "NUXY": 0.3000000,
+        "ALPX": 0.1200000e-04,
+        "DENS": 0.7850000e-08,
+        "KXX": 60.50000,
+        "RSVX": 0.1700000e-03,
+        "C": 0.4340000e09,
+        "MURX": 10000.00,
     }
 
     mat[2] = {
-        'EX': 47869.10,
-        'EY': 12099.50,
-        'EZ': 12099.50,
-        'NUXY': 0.7621539E-01,
-        'NUYZ': 0.4249800,
-        'NUXZ': 0.7621539E-01,
-        'GXY': 4118.700,
-        'GYZ': 4245.500,
-        'GXZ': 4118.700,
-        'DENS': 0.1947300E-08,
-        'PRXY': 0.3015300,
-        'PRYZ': 0.4249800,
-        'PRXZ': 0.3015300,
+        "EX": 47869.10,
+        "EY": 12099.50,
+        "EZ": 12099.50,
+        "NUXY": 0.7621539e-01,
+        "NUYZ": 0.4249800,
+        "NUXZ": 0.7621539e-01,
+        "GXY": 4118.700,
+        "GYZ": 4245.500,
+        "GXZ": 4118.700,
+        "DENS": 0.1947300e-08,
+        "PRXY": 0.3015300,
+        "PRYZ": 0.4249800,
+        "PRXZ": 0.3015300,
     }
 
     mat[3] = {
-        'EX': 38479.10,
-        'EY': 10456.20,
-        'EZ': 10456.20,
-        'NUXY': 0.8242602E-01,
-        'NUYZ': 0.4435900,
-        'NUXZ': 0.8242602E-01,
-        'GXY': 3548.900,
-        'GYZ': 3621.600,
-        'GXZ': 3548.900,
-        'DENS': 0.1877000E-08,
-        'PRXY': 0.3033300,
-        'PRYZ': 0.4435900,
-        'PRXZ': 0.3033300,
+        "EX": 38479.10,
+        "EY": 10456.20,
+        "EZ": 10456.20,
+        "NUXY": 0.8242602e-01,
+        "NUYZ": 0.4435900,
+        "NUXZ": 0.8242602e-01,
+        "GXY": 3548.900,
+        "GYZ": 3621.600,
+        "GXZ": 3548.900,
+        "DENS": 0.1877000e-08,
+        "PRXY": 0.3033300,
+        "PRYZ": 0.4435900,
+        "PRXZ": 0.3033300,
     }
 
     for mat_type, known_material in mat.items():
@@ -568,47 +580,49 @@ def test_materials_str_lim(materials_stress_lim_rst):
 
     mat = {}
     mat[1] = {
-        'XTEN': 5.0000000e-01,
-        'XCMP': -2.5000000e-01,
-        'YTEN': 5.0000000e-01,
-        'YCMP': -2.5000000e-01,
-        'ZTEN': 5.0000000e+00,
-        'ZCMP': -5.0000000e+00,
-        'XY': 5.0000000e-01,
-        'YZ': 3.0000000e+00,
-        'XZ': 3.0000000e+00,
-        'XYCP': 0.0000000e+00,
-        'YZCP': 0.0000000e+00,
-        'XZCP': 0.0000000e+00,
-        'XZIT': 0.0000000e+00,
-        'XZIC': 0.0000000e+00,
-        'YZIT': 0.0000000e+00,
-        'YZIC': 0.0000000e+00,
+        "XTEN": 5.0000000e-01,
+        "XCMP": -2.5000000e-01,
+        "YTEN": 5.0000000e-01,
+        "YCMP": -2.5000000e-01,
+        "ZTEN": 5.0000000e00,
+        "ZCMP": -5.0000000e00,
+        "XY": 5.0000000e-01,
+        "YZ": 3.0000000e00,
+        "XZ": 3.0000000e00,
+        "XYCP": 0.0000000e00,
+        "YZCP": 0.0000000e00,
+        "XZCP": 0.0000000e00,
+        "XZIT": 0.0000000e00,
+        "XZIC": 0.0000000e00,
+        "YZIT": 0.0000000e00,
+        "YZIC": 0.0000000e00,
     }
 
     mat[2] = {
-        'XTEN': 2.0000000e+00,
-        'XCMP': -2.0000000e+00,
-        'YTEN': 2.0000000e+00,
-        'YCMP': -2.0000000e+00,
-        'ZTEN': 3.0000000e+00,
-        'ZCMP': -4.0000000e+00,
-        'XY': 1.0000000e+00,
-        'YZ': 2.0000000e+00,
-        'XZ': 2.0000000e+00,
-        'XYCP': 0.0000000e+00,
-        'YZCP': 0.0000000e+00,
-        'XZCP': 0.0000000e+00,
-        'XZIT': 0.0000000e+00,
-        'XZIC': 0.0000000e+00,
-        'YZIT': 0.0000000e+00,
-        'YZIC': 0.0000000e+00,
+        "XTEN": 2.0000000e00,
+        "XCMP": -2.0000000e00,
+        "YTEN": 2.0000000e00,
+        "YCMP": -2.0000000e00,
+        "ZTEN": 3.0000000e00,
+        "ZCMP": -4.0000000e00,
+        "XY": 1.0000000e00,
+        "YZ": 2.0000000e00,
+        "XZ": 2.0000000e00,
+        "XYCP": 0.0000000e00,
+        "YZCP": 0.0000000e00,
+        "XZCP": 0.0000000e00,
+        "XZIT": 0.0000000e00,
+        "XZIC": 0.0000000e00,
+        "YZIT": 0.0000000e00,
+        "YZIC": 0.0000000e00,
     }
 
-    ans_mat = materials_stress_lim_rst.materials[1]['stress_failure_criteria']
+    ans_mat = materials_stress_lim_rst.materials[1]["stress_failure_criteria"]
 
     for mat_type, known_stress_lim in mat.items():
-        ans_mat = materials_stress_lim_rst.materials[mat_type]['stress_failure_criteria']
+        ans_mat = materials_stress_lim_rst.materials[mat_type][
+            "stress_failure_criteria"
+        ]
         for key, value in known_stress_lim.items():
             assert pytest.approx(ans_mat[key]) == known_stress_lim[key]
 
@@ -616,7 +630,7 @@ def test_materials_str_lim(materials_stress_lim_rst):
 def test_materials_v150():
     """Validate on older result files"""
     rst = pymapdl_reader.read_binary(examples.rstfile)
-    mat = {1: {'EX': 16900000.0, 'NUXY': 0.31, 'DENS': 0.00041408}}
+    mat = {1: {"EX": 16900000.0, "NUXY": 0.31, "DENS": 0.00041408}}
 
     for mat_type, known_material in mat.items():
         ans_mat = rst.materials[mat_type]

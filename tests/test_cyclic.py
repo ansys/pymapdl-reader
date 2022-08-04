@@ -11,19 +11,18 @@ from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.cyclic_reader import CyclicResult
 
-
 HAS_FFMPEG = True
 try:
-    import imageio_ffmpeg
+    import imageio_ffmpeg  # noqa: F401
 except:
     HAS_FFMPEG = False
 
 
 path = os.path.dirname(os.path.abspath(__file__))
-testfiles_path = os.path.join(path, 'testfiles')
-cyclic_testfiles_path = os.path.join(path, 'cyclic_reader')
-cys12_path = os.path.join(testfiles_path, 'cyc12')
-academic_path = os.path.join(cyclic_testfiles_path, 'academic_rotor')
+testfiles_path = os.path.join(path, "testfiles")
+cyclic_testfiles_path = os.path.join(path, "cyclic_reader")
+cys12_path = os.path.join(testfiles_path, "cyc12")
+academic_path = os.path.join(cyclic_testfiles_path, "academic_rotor")
 
 # modal result z axis
 try:
@@ -32,59 +31,62 @@ try:
 except:
     result_z = None
 
-IS_MAC = platform.system() == 'Darwin'
+IS_MAC = platform.system() == "Darwin"
 skip_plotting = pytest.mark.skipif(
     not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
-    reason="Plotting disabled for these tests"
+    reason="Plotting disabled for these tests",
 )
 
+skip_windows = pytest.mark.skipif(
+    os.name == "nt", reason="Test fails due to OSMESA on Windows"
+)
 
 # static result x axis
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def academic_rotor():
-    filename = os.path.join(academic_path, 'academic_rotor.rst')
+    filename = os.path.join(academic_path, "academic_rotor.rst")
     return CyclicResult(filename)
 
 
 # static result x axis
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def result_x():
-    filename = os.path.join(testfiles_path, 'cyc12.rst')
+    filename = os.path.join(testfiles_path, "cyc12.rst")
     return pymapdl_reader.read_binary(filename)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def cyclic_v182_z():
     # static result z axis
-    filename = os.path.join(cyclic_testfiles_path, 'cyclic_v182.rst')
+    filename = os.path.join(cyclic_testfiles_path, "cyclic_v182.rst")
     return pymapdl_reader.read_binary(filename)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def cyclic_v182_z_with_comp():
     # cyclic modal with component
-    filename = os.path.join(cyclic_testfiles_path, 'cyclic_v182_w_comp.rst')
+    filename = os.path.join(cyclic_testfiles_path, "cyclic_v182_w_comp.rst")
     return pymapdl_reader.read_binary(filename)
 
 
-@pytest.mark.parametrize("rtype", ['S', 'EPEL', 'S,PRIN'])
+@pytest.mark.parametrize("rtype", ["S", "EPEL", "S,PRIN"])
 @pytest.mark.parametrize("load_step", [1, 2, 5, 13])  # fortran indexing
 @pytest.mark.parametrize("sub_step", [1, 2])  # fortran indexing
 def test_nodal_cyclic_modal(academic_rotor, load_step, sub_step, rtype):
     rnum = (load_step, sub_step)
-    filename = 'SET%d,%d_RSYS0_%s.npz' % (rnum[0], rnum[1], rtype)
+    filename = "SET%d,%d_RSYS0_%s.npz" % (rnum[0], rnum[1], rtype)
     ans = np.load(os.path.join(academic_path, filename))
-    nnum_ans = ans['nnum']
-    stress_ans = ans['data']
+    nnum_ans = ans["nnum"]
+    stress_ans = ans["data"]
 
-    if rtype == 'S':
+    if rtype == "S":
         nnum, stress = academic_rotor.nodal_stress(rnum, full_rotor=True)
-    elif rtype == 'EPEL':
+    elif rtype == "EPEL":
         nnum, stress = academic_rotor.nodal_elastic_strain(rnum, full_rotor=True)
-    elif rtype == 'S,PRIN':
+    elif rtype == "S,PRIN":
         nnum, stress = academic_rotor.principal_nodal_stress(rnum, full_rotor=True)
     else:
-        raise ValueError('rtype %s not configured in test' % rtype)
+        raise ValueError("rtype %s not configured in test" % rtype)
 
     # ANSYS doesn't include results for all nodes (i.e. sector nodes)
     mask = np.in1d(nnum, nnum_ans)
@@ -110,16 +112,18 @@ def test_non_cyclic():
         rst = CyclicResult(examples.rstfile)
 
 
+@skip_windows
 @skip_plotting
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_plot_sectors(tmpdir):
-    filename = str(tmpdir.mkdir("tmpdir").join('tmp.png'))
+    filename = str(tmpdir.mkdir("tmpdir").join("tmp.png"))
     cpos = result_z.plot_sectors(screenshot=filename)
     if cpos is not None:
         assert isinstance(cpos, CameraPosition)
     assert os.path.isfile(filename)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_sectors_x(result_x):
     cpos = result_x.plot_sectors()
@@ -127,6 +131,7 @@ def test_plot_sectors_x(result_x):
         assert isinstance(cpos, CameraPosition)
 
 
+@skip_windows
 @skip_plotting
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_plot_z_cyc():
@@ -135,6 +140,7 @@ def test_plot_z_cyc():
         assert isinstance(cpos, CameraPosition)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_x_cyc(result_x):
     cpos = result_x.plot()
@@ -142,15 +148,16 @@ def test_plot_x_cyc(result_x):
         assert isinstance(cpos, CameraPosition)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_component_rotor(cyclic_v182_z_with_comp):
-    cyclic_v182_z_with_comp.plot_nodal_solution(0, full_rotor=False,
-                                                node_components='REFINE',
-                                                sel_type_all=False)
+    cyclic_v182_z_with_comp.plot_nodal_solution(
+        0, full_rotor=False, node_components="REFINE", sel_type_all=False
+    )
 
-    cyclic_v182_z_with_comp.plot_nodal_solution(0, full_rotor=True,
-                                                node_components='REFINE',
-                                                sel_type_all=False)
+    cyclic_v182_z_with_comp.plot_nodal_solution(
+        0, full_rotor=True, node_components="REFINE", sel_type_all=False
+    )
 
     # result_z.plot_nodal_stress(20, 'Sx', node_components='REFINE',
     #                            sel_type_all=False, off_screen=True)
@@ -180,19 +187,19 @@ def test_element_stress_v182_non_cyclic():
     ansys_element_stress = ansys_element_stress[:, 1:]
 
     """
-    ansys_result_file = os.path.join(cyclic_testfiles_path, 'cyclic_v182.rst')
+    ansys_result_file = os.path.join(cyclic_testfiles_path, "cyclic_v182.rst")
     result = pymapdl_reader.read_binary(ansys_result_file)
 
     elemnum, element_stress, enode = result.element_stress(0, False, False)
-    assert np.allclose(np.sort(elemnum), elemnum), 'elemnum must be sorted'
+    assert np.allclose(np.sort(elemnum), elemnum), "elemnum must be sorted"
 
     element_stress = np.vstack(element_stress)
     enode = np.hstack(enode)
 
     # cyclic model will only output the master sector
-    from_ansys = np.load(os.path.join(cyclic_testfiles_path, 'v182_presol.npz'))
-    assert np.allclose(from_ansys['enode'], enode)
-    assert np.allclose(from_ansys['element_stress'], element_stress)
+    from_ansys = np.load(os.path.join(cyclic_testfiles_path, "v182_presol.npz"))
+    assert np.allclose(from_ansys["enode"], enode)
+    assert np.allclose(from_ansys["element_stress"], element_stress)
 
 
 def test_nodal_stress_v182_non_cyclic():
@@ -203,28 +210,30 @@ def test_nodal_stress_v182_non_cyclic():
     ansys_nnum = array[:, 0].astype(np.int)
     ansys_stress = array[:, 1:]
     """
-    ansys_result_file = os.path.join(cyclic_testfiles_path, 'cyclic_v182.rst')
+    ansys_result_file = os.path.join(cyclic_testfiles_path, "cyclic_v182.rst")
     result = pymapdl_reader.rst.Result(ansys_result_file, ignore_cyclic=True)
     nnum, stress = result.nodal_stress(0)
 
-    from_ansys = np.load(os.path.join(cyclic_testfiles_path, 'v182_prnsol_s.npz'))
-    assert np.allclose(from_ansys['nnum'][:nnum.size], nnum)
-    assert np.allclose(from_ansys['stress'][:nnum.size], stress)
+    from_ansys = np.load(os.path.join(cyclic_testfiles_path, "v182_prnsol_s.npz"))
+    assert np.allclose(from_ansys["nnum"][: nnum.size], nnum)
+    assert np.allclose(from_ansys["stress"][: nnum.size], stress)
 
 
 def test_full_x_nodal_solution(result_x):
-    """ need to open gui to output full rotor results """
-    from_ansys = np.load(os.path.join(cyclic_testfiles_path,
-                                      'prnsol_d_cyclic_x_full_v182.npz'))
+    """need to open gui to output full rotor results"""
+    from_ansys = np.load(
+        os.path.join(cyclic_testfiles_path, "prnsol_d_cyclic_x_full_v182.npz")
+    )
 
-    ansys_nnum = from_ansys['nnum']
-    ansys_disp = from_ansys['disp']
+    ansys_nnum = from_ansys["nnum"]
+    ansys_disp = from_ansys["disp"]
 
     rnum = 0
-    nnum, disp = result_x.nodal_solution(rnum, phase=0, full_rotor=True,
-                                         as_complex=False)
+    nnum, disp = result_x.nodal_solution(
+        rnum, phase=0, full_rotor=True, as_complex=False
+    )
 
-    assert np.allclose(np.sort(nnum), nnum), 'nnum must be sorted'
+    assert np.allclose(np.sort(nnum), nnum), "nnum must be sorted"
 
     mask = np.in1d(nnum, ansys_nnum)
     n = mask.sum()
@@ -232,27 +241,28 @@ def test_full_x_nodal_solution(result_x):
     assert np.allclose(nnum[mask], ansys_nnum[:n])
     assert np.allclose(disp[:, mask], tmp)
 
-    nnum_alt, disp_alt = result_x.nodal_displacement(rnum, phase=0,
-                                                     full_rotor=True,
-                                                     as_complex=False)
+    nnum_alt, disp_alt = result_x.nodal_displacement(
+        rnum, phase=0, full_rotor=True, as_complex=False
+    )
 
     assert np.allclose(nnum_alt, nnum)
     assert np.allclose(disp_alt, disp)
 
 
 def test_full_z_nodal_solution(cyclic_v182_z):
-    """ need to open gui to output full rotor results """
-    from_ansys = np.load(os.path.join(cyclic_testfiles_path,
-                                      'prnsol_d_cyclic_z_full_v182.npz'))
+    """need to open gui to output full rotor results"""
+    from_ansys = np.load(
+        os.path.join(cyclic_testfiles_path, "prnsol_d_cyclic_z_full_v182.npz")
+    )
 
-    ansys_nnum = from_ansys['nnum']
-    ansys_disp = from_ansys['disp']
+    ansys_nnum = from_ansys["nnum"]
+    ansys_disp = from_ansys["disp"]
 
     rnum = 0
     phase = 0
-    nnum, disp = cyclic_v182_z.nodal_solution(rnum, phase,
-                                              full_rotor=True,
-                                              as_complex=False)
+    nnum, disp = cyclic_v182_z.nodal_solution(
+        rnum, phase, full_rotor=True, as_complex=False
+    )
 
     mask = np.in1d(nnum, ansys_nnum)
     n = mask.sum()
@@ -261,17 +271,19 @@ def test_full_z_nodal_solution(cyclic_v182_z):
 
 
 def test_full_z_nodal_solution_phase(cyclic_v182_z):
-    """ need to open gui to output full rotor results """
-    from_ansys = np.load(os.path.join(cyclic_testfiles_path,
-                                      'prnsol_d_cyclic_z_full_v182.npz'))
+    """need to open gui to output full rotor results"""
+    from_ansys = np.load(
+        os.path.join(cyclic_testfiles_path, "prnsol_d_cyclic_z_full_v182.npz")
+    )
 
-    ansys_nnum = from_ansys['nnum']
-    ansys_disp = from_ansys['disp']
+    ansys_nnum = from_ansys["nnum"]
+    ansys_disp = from_ansys["disp"]
 
     rnum = 0
     phase = 0
-    nnum, disp = cyclic_v182_z.nodal_solution(rnum, phase, full_rotor=True,
-                                              as_complex=True)
+    nnum, disp = cyclic_v182_z.nodal_solution(
+        rnum, phase, full_rotor=True, as_complex=True
+    )
 
     mask = np.in1d(nnum, ansys_nnum)
     n = mask.sum()
@@ -279,17 +291,19 @@ def test_full_z_nodal_solution_phase(cyclic_v182_z):
     assert np.allclose(disp[:, mask], tmp)
 
 
+@skip_windows
 @skip_plotting
 def test_full_x_nodal_solution_plot(result_x):
     result_x.plot_nodal_solution(0)
 
 
 def test_full_x_nodal_stress(result_x):
-    """ need to open gui to output full rotor results """
-    from_ansys = np.load(os.path.join(cyclic_testfiles_path,
-                                      'prnsol_s_cyclic_x_full_v182.npz'))
-    ansys_nnum = from_ansys['nnum']
-    ansys_stress = from_ansys['stress']
+    """need to open gui to output full rotor results"""
+    from_ansys = np.load(
+        os.path.join(cyclic_testfiles_path, "prnsol_s_cyclic_x_full_v182.npz")
+    )
+    ansys_nnum = from_ansys["nnum"]
+    ansys_stress = from_ansys["stress"]
 
     rnum = 0
     phase = 0
@@ -330,11 +344,12 @@ def test_harmonic_index_to_cumulative():
 
 
 def test_full_x_principal_nodal_stress(result_x):
-    """ need to open gui to output full rotor results """
-    from_ansys = np.load(os.path.join(cyclic_testfiles_path,
-                                      'prnsol_p_cyclic_x_full_v182.npz'))
-    ansys_nnum = from_ansys['nnum']
-    ansys_stress = from_ansys['stress']
+    """need to open gui to output full rotor results"""
+    from_ansys = np.load(
+        os.path.join(cyclic_testfiles_path, "prnsol_p_cyclic_x_full_v182.npz")
+    )
+    ansys_nnum = from_ansys["nnum"]
+    ansys_stress = from_ansys["stress"]
 
     rnum = 0
     phase = 0
@@ -345,25 +360,28 @@ def test_full_x_principal_nodal_stress(result_x):
     tmp = ansys_stress.reshape(stress.shape[0], n, 5)
 
     assert np.allclose(nnum[mask], ansys_nnum[:n])
-    assert np.allclose(stress[:, mask], tmp, atol=4E-3)  # too loose
+    assert np.allclose(stress[:, mask], tmp, atol=4e-3)  # too loose
 
 
+@skip_windows
 @skip_plotting
 @pytest.mark.skipif(not HAS_FFMPEG, reason="requires imageio_ffmpeg")
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_animate_nodal_solution(tmpdir):
-    temp_movie = str(tmpdir.mkdir("tmpdir").join('tmp.mp4'))
-    result_z.animate_nodal_solution(0, n_frames=20, movie_filename=temp_movie,
-                                    loop=False)
+    temp_movie = str(tmpdir.mkdir("tmpdir").join("tmp.mp4"))
+    result_z.animate_nodal_solution(
+        0, n_frames=20, movie_filename=temp_movie, loop=False
+    )
     assert os.path.isfile(temp_movie)
 
 
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_cyclic_z_harmonic_displacement():
-    from_ansys = np.load(os.path.join(cyclic_testfiles_path,
-                                      'prnsol_u_cyclic_z_full_v182_set_4_2.npz'))
-    ansys_nnum = from_ansys['nnum']
-    ansys_disp = from_ansys['disp']
+    from_ansys = np.load(
+        os.path.join(cyclic_testfiles_path, "prnsol_u_cyclic_z_full_v182_set_4_2.npz")
+    )
+    ansys_nnum = from_ansys["nnum"]
+    ansys_disp = from_ansys["disp"]
 
     unod, count = np.unique(ansys_nnum, return_counts=True)
     unod = np.setdiff1d(unod[count == result_z.n_sector], 32)
@@ -374,28 +392,31 @@ def test_cyclic_z_harmonic_displacement():
     nnum, disp = result_z.nodal_solution((4, 2), full_rotor=True)
     mask = np.in1d(nnum, ansys_nnum)
     tmp = ansys_disp.reshape(disp.shape[0], mask.sum(), 3)
-    assert np.allclose(disp[:, mask], tmp, atol=1E-5)
+    assert np.allclose(disp[:, mask], tmp, atol=1e-5)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_stress(result_x):
-    result_x.plot_nodal_stress(0, 'z')
+    result_x.plot_nodal_stress(0, "z")
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_stress(result_x):
-    result_x.plot_nodal_stress(0, 'z')
+    result_x.plot_nodal_stress(0, "z")
 
 
+@skip_windows
 @skip_plotting
 def test_plot_principal_nodal_stress(result_x):
-    result_x.plot_principal_nodal_stress(0, 'seqv')
+    result_x.plot_principal_nodal_stress(0, "seqv")
 
 
 def test_nodal_elastic_strain_cyclic(result_x):
-    from_mapdl = np.load(os.path.join(cys12_path, 'RSYS0_ROTOR_PRNSOL_EPEL.npz'))
-    nnum_ans = from_mapdl['nnum']
-    stress_ans = from_mapdl['stress']
+    from_mapdl = np.load(os.path.join(cys12_path, "RSYS0_ROTOR_PRNSOL_EPEL.npz"))
+    nnum_ans = from_mapdl["nnum"]
+    stress_ans = from_mapdl["stress"]
 
     # get EPEL
     nnum, stress = result_x.nodal_elastic_strain(0, full_rotor=True)
@@ -408,15 +429,16 @@ def test_nodal_elastic_strain_cyclic(result_x):
     assert np.allclose(stress, stress_ans)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_elastic_strain(result_x):
-    result_x.plot_nodal_elastic_strain(0, 'X')
+    result_x.plot_nodal_elastic_strain(0, "X")
 
 
 def test_nodal_temperature(result_x):
-    from_mapdl = np.load(os.path.join(cys12_path, 'RSYS0_ROTOR_PRNSOL_BFE.npz'))
-    nnum_ans = from_mapdl['nnum']
-    temp_ans = from_mapdl['temp']
+    from_mapdl = np.load(os.path.join(cys12_path, "RSYS0_ROTOR_PRNSOL_BFE.npz"))
+    nnum_ans = from_mapdl["nnum"]
+    temp_ans = from_mapdl["temp"]
 
     nnum, temp = result_x.nodal_temperature(0)
 
@@ -429,15 +451,16 @@ def test_nodal_temperature(result_x):
     assert np.allclose(temp[mask], temp_ans[:, mask], equal_nan=True)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_nodal_temperature(result_x):
     result_x.plot_nodal_temperature(0)
 
 
 def test_nodal_thermal_strain_cyclic(result_x):
-    from_mapdl = np.load(os.path.join(cys12_path, 'RSYS0_ROTOR_PRNSOL_EPTH_COMP.npz'))
-    nnum_ans = from_mapdl['nnum']
-    strain_ans = from_mapdl['strain']
+    from_mapdl = np.load(os.path.join(cys12_path, "RSYS0_ROTOR_PRNSOL_EPTH_COMP.npz"))
+    nnum_ans = from_mapdl["nnum"]
+    strain_ans = from_mapdl["strain"]
 
     nnum, strain = result_x.nodal_thermal_strain(0, full_rotor=True)
 
@@ -449,6 +472,7 @@ def test_nodal_thermal_strain_cyclic(result_x):
     assert np.allclose(strain, strain_ans)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_thermal_strain(result_x):
-    result_x.plot_nodal_thermal_strain(0, 'X')
+    result_x.plot_nodal_thermal_strain(0, "X")

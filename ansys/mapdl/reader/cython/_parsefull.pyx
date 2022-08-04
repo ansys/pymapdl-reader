@@ -6,6 +6,7 @@
 # cython: nonecheck=False
 
 import numpy as np
+
 # cimport numpy as np
 
 # Definitions from c header

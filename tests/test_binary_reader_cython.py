@@ -1,24 +1,28 @@
+import numpy as np
 import pyvista as pv
 import vtk
-import numpy as np
 
 from ansys.mapdl.reader import _binary_reader
 
 # test stress tensors from
 # Sx Sy Sz Sxy Syz Sxz
-stress = np.array([ -2.21786547,  99.05487823, -11.42874718,  -4.69416809,
-                    23.24783707,   0.4061397 ])
+stress = np.array(
+    [-2.21786547, 99.05487823, -11.42874718, -4.69416809, 23.24783707, 0.4061397]
+)
 
 # known results when rotating about a vector with angle 20 degrees
 # using apsg
-stress_rot_x = np.array([-2.21786547, 71.18732452, 16.43880463, -4.54998303,
-                         53.31763077, -1.22385347])
+stress_rot_x = np.array(
+    [-2.21786547, 71.18732452, 16.43880463, -4.54998303, 53.31763077, -1.22385347]
+)
 
-stress_rot_y = np.array([ -3.03427238,  99.05487823, -10.61234027,   3.54015345,
-                          23.45132099,  -2.64919926])
+stress_rot_y = np.array(
+    [-3.03427238, 99.05487823, -10.61234027, 3.54015345, 23.45132099, -2.64919926]
+)
 
-stress_rot_z = np.array([ 12.64614819,  84.19086457, -11.42874718, -36.1443738 ,
-                          21.9847289 ,  -7.56958209])
+stress_rot_z = np.array(
+    [12.64614819, 84.19086457, -11.42874718, -36.1443738, 21.9847289, -7.56958209]
+)
 
 
 def test_tensor_rotation_x():

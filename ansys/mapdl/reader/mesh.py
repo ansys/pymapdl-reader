@@ -1,52 +1,53 @@
-"""Module for common class between Archive, and result mesh"""
-import pyvista as pv
-from pyvista import _vtk as vtk
-from pyvista._vtk import VTK9
+"""Module for common class between Archive, and result mesh."""
 import numpy as np
+import pyvista as pv
+from pyvista._vtk import VTK9
 
-from ansys.mapdl.reader import _relaxmidside, _reader
-from ansys.mapdl.reader.misc import unique_rows
+from ansys.mapdl.reader import _reader, _relaxmidside
 from ansys.mapdl.reader.elements import ETYPE_MAP
+from ansys.mapdl.reader.misc import unique_rows
 
-
-INVALID_ALLOWABLE_TYPES = TypeError('`allowable_types` must be an array '
-                                    'of ANSYS element types from 1 and 300')
+INVALID_ALLOWABLE_TYPES = TypeError(
+    "`allowable_types` must be an array " "of ANSYS element types from 1 and 300"
+)
 
 # map MESH200 elements to a pymapdl_reader/VTK element type (see elements.py)
-MESH200_MAP = {0: 2,  # line
-               1: 2,  # line
-               2: 2,  # line
-               3: 2,  # line
-               4: 3,  # triangle
-               5: 3,  # triangle
-               6: 3,  # quadrilateral
-               7: 3,  # quadrilateral
-               8: 5,  # tetrahedron with 4 nodes
-               9: 5,  # tetrahedron with 10 nodes
-               10: 4,  # hex with 8 nodes
-               11: 4}  # hex with 8 nodes
+MESH200_MAP = {
+    0: 2,  # line
+    1: 2,  # line
+    2: 2,  # line
+    3: 2,  # line
+    4: 3,  # triangle
+    5: 3,  # triangle
+    6: 3,  # quadrilateral
+    7: 3,  # quadrilateral
+    8: 5,  # tetrahedron with 4 nodes
+    9: 5,  # tetrahedron with 10 nodes
+    10: 4,  # hex with 8 nodes
+    11: 4,
+}  # hex with 8 nodes
 
-SHAPE_MAP = {  #from ELIST definition
-    0: '',
-    1: 'LINE',
-    2: 'PARA',
-    3: 'ARC ',
-    4: 'CARC',
-    5: '',
-    6: 'TRIA',
-    7: 'QUAD',
-    8: 'TRI6',
-    9: 'QUA8',
-    10: 'POIN',
-    11: 'CIRC',
-    12: '',
-    13: '',
-    14: 'CYLI',
-    15: 'CONE',
-    16: 'SPHE',
-    17: '',
-    18: '',
-    19: 'PILO',
+SHAPE_MAP = {  # from ELIST definition
+    0: "",
+    1: "LINE",
+    2: "PARA",
+    3: "ARC ",
+    4: "CARC",
+    5: "",
+    6: "TRIA",
+    7: "QUAD",
+    8: "TRI6",
+    9: "QUA8",
+    10: "POIN",
+    11: "CIRC",
+    12: "",
+    13: "",
+    14: "CYLI",
+    15: "CONE",
+    16: "SPHE",
+    17: "",
+    18: "",
+    19: "PILO",
 }
 # element type to VTK conversion function call map
 # 0: skip
@@ -57,26 +58,36 @@ SHAPE_MAP = {  #from ELIST definition
 # 5: Tetrahedral
 # 6: Line (always linear)
 TARGE170_MAP = {
-    'TRI': 3,  # 3-Node Triangle
-    'QUAD': 3,  # 4-Node Quadrilateral
-    'CYLI': 0,  # Not supported (NS)  # Cylinder 
-    'CONE': 0,  # NS  # Cone
-    'TRI6': 3,  # 6-Node triangle
-    'SPHE': 0,  # NS  # Sphere
-    'PILO': 1,  # Pilot Node
-    'QUAD8': 3,  # 8-Node Quadrilateral
-    'LINE': 2,  # Line
-    'PARA': 2,  # Parabola
-    'POINT': 1  # Point
+    "TRI": 3,  # 3-Node Triangle
+    "QUAD": 3,  # 4-Node Quadrilateral
+    "CYLI": 0,  # Not supported (NS)  # Cylinder
+    "CONE": 0,  # NS  # Cone
+    "TRI6": 3,  # 6-Node triangle
+    "SPHE": 0,  # NS  # Sphere
+    "PILO": 1,  # Pilot Node
+    "QUAD8": 3,  # 8-Node Quadrilateral
+    "LINE": 2,  # Line
+    "PARA": 2,  # Parabola
+    "POINT": 1,  # Point
 }
 
 
-class Mesh():
+class Mesh:
     """Common class between Archive, and result mesh"""
 
-    def __init__(self, nnum=None, nodes=None, elem=None,
-                 elem_off=None, ekey=None, node_comps={},
-                 elem_comps={}, rdat=[], rnum=[], keyopt={}):
+    def __init__(
+        self,
+        nnum=None,
+        nodes=None,
+        elem=None,
+        elem_off=None,
+        ekey=None,
+        node_comps={},
+        elem_comps={},
+        rdat=[],
+        rnum=[],
+        keyopt={},
+    ):
         self._etype = None  # internal element type reference
         self._grid = None  # VTK grid
         self._surf_cache = None  # cached external surface
@@ -89,7 +100,7 @@ class Mesh():
         self._cached_elements = None  # cached list of elements
         self._secnum = None  # cached section number
         self._esys = None  # cached element coordinate system
-        self._etype_id = None # cached element type id
+        self._etype_id = None  # cached element type id
 
         # Always set on init
         self._nnum = nnum
@@ -105,7 +116,7 @@ class Mesh():
         self._rnum = rnum
         self._keyopt = keyopt
         self._tshape = None
-        self._tshape_key = None        
+        self._tshape_key = None
 
     @property
     def _surf(self):
@@ -118,7 +129,7 @@ class Mesh():
     def _has_nodes(self):
         """Returns True when has nodes"""
         # if isinstance(self._nodes, np.ndarray):
-            # return bool(self._nodes.size)
+        # return bool(self._nodes.size)
         return len(self.nodes)
 
     @property
@@ -132,8 +143,14 @@ class Mesh():
 
         return len(self._elem)
 
-    def _parse_vtk(self, allowable_types=None, force_linear=False,
-                   null_unallowed=False, fix_midside=True, additional_checking=False):
+    def _parse_vtk(
+        self,
+        allowable_types=None,
+        force_linear=False,
+        null_unallowed=False,
+        fix_midside=True,
+        additional_checking=False,
+    ):
         """Convert raw ANSYS nodes and elements to a VTK UnstructuredGrid
 
         Parameters
@@ -156,7 +173,7 @@ class Mesh():
                 raise INVALID_ALLOWABLE_TYPES
 
             if not issubclass(allowable_types.dtype.type, np.integer):
-                raise TypeError('Element types must be an integer array-like')
+                raise TypeError("Element types must be an integer array-like")
 
             if allowable_types.min() < 1 or allowable_types.max() > 300:
                 raise INVALID_ALLOWABLE_TYPES
@@ -184,24 +201,25 @@ class Mesh():
                     if etype_ind not in self.tshape_key:  # pragma: no cover
                         continue
                     tshape_num = self.tshape_key[etype_ind]
-                    if tshape_num >= 19:  # weird bug when 'PILO' can be 99 instead of 19.
+                    if (
+                        tshape_num >= 19
+                    ):  # weird bug when 'PILO' can be 99 instead of 19.
                         tshape_num = 19
                     tshape_label = SHAPE_MAP[tshape_num]
                     type_ref[etype_ind] = TARGE170_MAP.get(tshape_label, 0)
 
-        offset, celltypes, cells = _reader.ans_vtk_convert(self._elem,
-                                                           self._elem_off,
-                                                           type_ref,
-                                                           self.nnum,
-                                                           True)  # for reset_midside
+        offset, celltypes, cells = _reader.ans_vtk_convert(
+            self._elem, self._elem_off, type_ref, self.nnum, True
+        )  # for reset_midside
 
         nodes, angles, nnum = self.nodes, self.node_angles, self.nnum
 
         # fix missing midside
         if np.any(cells == -1):
             if fix_midside:
-                nodes, angles, nnum = fix_missing_midside(cells, nodes, celltypes,
-                                                          offset, angles, nnum)
+                nodes, angles, nnum = fix_missing_midside(
+                    cells, nodes, celltypes, offset, angles, nnum
+                )
             else:
                 cells[cells == -1] = 0
 
@@ -212,16 +230,15 @@ class Mesh():
         if VTK9:
             grid = pv.UnstructuredGrid(cells, celltypes, nodes, deep=True)
         else:
-            grid = pv.UnstructuredGrid(offset, cells, celltypes, nodes,
-                                       deep=True)
+            grid = pv.UnstructuredGrid(offset, cells, celltypes, nodes, deep=True)
 
         # Store original ANSYS element and node information
-        grid.point_data['ansys_node_num'] = nnum
-        grid.cell_data['ansys_elem_num'] = self.enum
-        grid.cell_data['ansys_real_constant'] = self.elem_real_constant
-        grid.cell_data['ansys_material_type'] = self.material_type
-        grid.cell_data['ansys_etype'] = self._ans_etype
-        grid.cell_data['ansys_elem_type_num'] = self.etype
+        grid.point_data["ansys_node_num"] = nnum
+        grid.cell_data["ansys_elem_num"] = self.enum
+        grid.cell_data["ansys_real_constant"] = self.elem_real_constant
+        grid.cell_data["ansys_material_type"] = self.material_type
+        grid.cell_data["ansys_etype"] = self._ans_etype
+        grid.cell_data["ansys_elem_type_num"] = self.etype
 
         # add components
         # Add element components to unstructured grid
@@ -237,7 +254,7 @@ class Mesh():
         # store node angles
         if angles is not None:
             if angles.shape[1] == 3:
-                grid.point_data['angles'] = angles
+                grid.point_data["angles"] = angles
 
         if not null_unallowed:
             grid = grid.extract_cells(grid.celltypes != 0)
@@ -250,8 +267,8 @@ class Mesh():
         # map over element types
         # Add tracker for original node numbering
         ind = np.arange(grid.n_points)
-        grid.point_data['origid'] = ind
-        grid.point_data['VTKorigID'] = ind
+        grid.point_data["origid"] = ind
+        grid.point_data["VTKorigID"] = ind
         return grid
 
     @property
@@ -603,16 +620,22 @@ class Mesh():
         return self._node_angles
 
     def __repr__(self):
-        txt = 'ANSYS Mesh\n'
-        txt += '  Number of Nodes:              %d\n' % len(self.nnum)
-        txt += '  Number of Elements:           %d\n' % len(self.enum)
-        txt += '  Number of Element Types:      %d\n' % len(self.ekey)
-        txt += '  Number of Node Components:    %d\n' % len(self.node_components)
-        txt += '  Number of Element Components: %d\n' % len(self.element_components)
+        txt = "ANSYS Mesh\n"
+        txt += "  Number of Nodes:              %d\n" % len(self.nnum)
+        txt += "  Number of Elements:           %d\n" % len(self.enum)
+        txt += "  Number of Element Types:      %d\n" % len(self.ekey)
+        txt += "  Number of Node Components:    %d\n" % len(self.node_components)
+        txt += "  Number of Element Components: %d\n" % len(self.element_components)
         return txt
 
-    def save(self, filename, binary=True, force_linear=False, allowable_types=[],
-             null_unallowed=False):
+    def save(
+        self,
+        filename,
+        binary=True,
+        force_linear=False,
+        allowable_types=[],
+        null_unallowed=False,
+    ):
         """Save the geometry as a vtk file
 
         Parameters
@@ -649,9 +672,11 @@ class Mesh():
         Binary files write much faster than ASCII and have a smaller
         file size.
         """
-        grid = self._parse_vtk(allowable_types=allowable_types,
-                               force_linear=force_linear,
-                               null_unallowed=null_unallowed)
+        grid = self._parse_vtk(
+            allowable_types=allowable_types,
+            force_linear=force_linear,
+            null_unallowed=null_unallowed,
+        )
         return grid.save(str(filename), binary=binary)
 
     @property
@@ -691,12 +716,12 @@ class Mesh():
         TShape is only applicable to contact elements.
         """
         if self._tshape_key is None:
-            self._tshape_key = np.unique(
-                np.vstack((self.et_id, self.tshape)), axis=1).T
+            self._tshape_key = np.unique(np.vstack((self.et_id, self.tshape)), axis=1).T
 
         if as_array:
             return self._tshape_key
         return {elem_id: tshape for elem_id, tshape in self._tshape_key}
+
 
 def fix_missing_midside(cells, nodes, celltypes, offset, angles, nnum):
     """Adds missing midside nodes to cells.
@@ -729,7 +754,7 @@ def fix_missing_midside(cells, nodes, celltypes, offset, angles, nnum):
     # rewrite node numbers
     cells[mask] = idx_b + nnodes
     nextra = idx_a.shape[0]  # extra unique nodes
-    nodes_new = nodes_new[:nnodes + nextra]
+    nodes_new = nodes_new[: nnodes + nextra]
     nodes_new[nnodes:] = unique_nodes
 
     if angles is not None:

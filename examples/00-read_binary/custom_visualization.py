@@ -6,10 +6,8 @@ Custom Scalar Visualization
 Display custom scalars using an existing mesh.
 
 """
-import pyvista
 import numpy as np
 
-from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 
 # Download an example shaft modal analysis result file
@@ -21,20 +19,20 @@ shaft = examples.download_shaft_modal()
 # representation of the FEM while the ``grid`` property can be through
 # of the Python visualizing property used to plot within Python.
 
-print('shaft.mesh:\n', shaft.mesh)
-print('-'*79)
-print('shaft.grid:\n', shaft.grid)
+print("shaft.mesh:\n", shaft.mesh)
+print("-" * 79)
+print("shaft.grid:\n", shaft.grid)
 
 ###############################################################################
 # Plotting
 # ~~~~~~~~
 #
-# The grid instance is a `pyvista.UnstructuredGrid` part of the
-# `pyvista` library.  This class allows for advanced plotting using
-# VTK in just a few lines of code.  For example, you can plot the
-# underlying mesh with:
+# The grid instance is a :class:`pyvista.UnstructuredGrid` part of the `pyvista
+# <https://docs.pyvista.org/>`_ library.  This class allows for advanced
+# plotting using VTK in just a few lines of code.  For example, you can plot
+# the underlying mesh with:
 
-shaft.grid.plot(color='w', smooth_shading=True)
+shaft.grid.plot(color="w", smooth_shading=True)
 
 ###############################################################################
 # Plotting Node Scalars
