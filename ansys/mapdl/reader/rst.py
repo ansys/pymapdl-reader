@@ -972,14 +972,16 @@ class Result(AnsysBinary):
         progress_bar=True,
         **kwargs,
     ):
-        """Animate nodal solution.  Assumes nodal solution is a
-        displacement array from a modal or static solution.
+        """Animate nodal solution.
+
+        Assumes nodal solution is a displacement array from a modal or static
+        solution.
 
         rnum : int or list
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
 
-        comp : str, optional
+        comp : str, default: "norm"
             Scalar component to display.  Options are ``'x'``,
             ``'y'``, ``'z'``, and ``'norm'``, and ``None``.
 
@@ -1017,12 +1019,12 @@ class Result(AnsysBinary):
             ``"gif"``.  See ``imagio.get_writer``.  A single loop of
             the mode will be recorded.
 
-        progress_bar : bool, optional
+        progress_bar : bool, default: True
             Displays a progress bar when generating a movie while
-            ``off_screen=True``.  Default is ``True``.
+            ``off_screen=True``.
 
-        kwargs : optional keyword arguments, optional
-            See ``help(pyvista.Plot)`` for additional keyword arguments.
+        kwargs : optional keyword arguments
+            See :func:`pyvista.plot` for additional keyword arguments.
 
         Examples
         --------
@@ -1042,6 +1044,10 @@ class Result(AnsysBinary):
         Animate the second result and save as a movie in the background.
 
         >>> rst.animate_nodal_solution(0, movie_filename='disp.mp4', off_screen=True)
+
+        Disable plotting within the notebook.
+
+        >>> rst.animate_nodal_solution(0, notebook=False)
 
         """
         if "nangles" in kwargs:  # pragma: no cover
@@ -2902,7 +2908,7 @@ class Result(AnsysBinary):
             ``off_screen=True``.  Default is ``True``.
 
         kwargs : keyword arguments
-            Additional keyword arguments.  See ``help(pyvista.plot)``
+            Additional keyword arguments.
 
         Returns
         -------
@@ -2973,10 +2979,10 @@ class Result(AnsysBinary):
 
         return_cpos = kwargs.pop("return_cpos", False)
         cmap = kwargs.pop("cmap", "viridis")
-        window_size = kwargs.get("window_size")
-        full_screen = kwargs.get("full_screen")
-        notebook = kwargs.get("notebook")
-        off_screen = kwargs.pop("off_screen", pv.OFF_SCREEN)
+        window_size = kwargs.pop("window_size", None)
+        full_screen = kwargs.pop("full_screen", None)
+        notebook = kwargs.pop("notebook", None)
+        off_screen = kwargs.pop("off_screen", None)
         cpos = kwargs.pop("cpos", None)
         screenshot = kwargs.pop("screenshot", None)
         interactive = kwargs.pop("interactive", True)
