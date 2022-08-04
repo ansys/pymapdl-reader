@@ -1,7 +1,31 @@
 [build-system]
+build-backend = "setuptools.build_meta"
 requires = [
-    "setuptools>=41.0.0",
-    "wheel>=0.33.0",
-    "numpy<=1.22.1",
-    "cython==0.29.24",
+    "cython>=0.29",
+    "oldest-supported-numpy",
+    "setuptools>=45.0",
+    "wheel>=0.37.0",
 ]
+
+[tool.pytest.ini_options]
+junit_family= "legacy"
+filterwarnings = [
+    "ignore::FutureWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::DeprecationWarning",
+    # bogus numpy ABI warning (see numpy/#432)
+    "ignore:.*numpy.dtype size changed.*:RuntimeWarning",
+    "ignore:.*numpy.ufunc size changed.*:RuntimeWarning",
+    "ignore:.*Distutils was imported before Setuptools*",
+]
+
+[tool.cibuildwheel]
+archs = ["auto64"]  # 64-bit only
+skip = "pp* *musllinux*"  # disable PyPy and musl-based wheels
+test-requires = "ansys-mapdl-core>=0.60.4 matplotlib pytest scipy"
+test-command = "pytest {project}/tests"
+
+[tool.cibuildwheel.macos]
+# https://cibuildwheel.readthedocs.io/en/stable/faq/#apple-silicon
+archs = ["x86_64"]  # , "universal2"
+test-skip = ["*_arm64", "*_universal2:arm64"]
