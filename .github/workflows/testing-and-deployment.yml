@@ -23,10 +23,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check_style:
-    name: Style Check
-    runs-on: ubuntu-latest
-
   stylecheck:
     name: Style Check
     runs-on: ubuntu-latest
@@ -310,7 +306,7 @@ jobs:
   
   Release:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [check_style, doc_build, build, pymapdl_tests] # , mac_build
+    needs: [stylecheck, doc_build, build, pymapdl_tests] # , mac_build
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
