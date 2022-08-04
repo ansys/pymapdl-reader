@@ -27,16 +27,19 @@ jobs:
     name: Style Check
     runs-on: ubuntu-latest
 
+  stylecheck:
+    name: Style Check
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v2.2.2
         with:
-          python-version: 3.9
-      - name: Style
-        run: |
-          pip install -r requirements_style.txt --disable-pip-version-check
-          make
+          python-version: '3.10'
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit
+        run: pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
 
   doc_build:
     name: Build Documentation
@@ -59,9 +62,7 @@ jobs:
 
       - name: Install ansys-mapdl-reader
         run: |
-          pip install build
-          python -m build --wheel
-          pip install dist/ansys*.whl --disable-pip-version-check
+          pip install -e .
           cd tests/
           xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
 
@@ -138,10 +139,6 @@ jobs:
                --rm -v `pwd`:/io \
                quay.io/pypa/manylinux2014_x86_64 \
                /io/.ci/build_wheels.sh ${{ matrix.python-version }}
-
-      - name: Install VTK on Python 3.10
-        if: matrix.python-version == '3.10'
-        run: pip install --find-links https://wheels.pyvista.org/ vtk
 
       - name: Build wheel on Windows
         if: ${{ runner.os == 'Windows' }}
