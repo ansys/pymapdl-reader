@@ -37,6 +37,9 @@ skip_plotting = pytest.mark.skipif(
     reason="Plotting disabled for these tests",
 )
 
+skip_windows = pytest.mark.skipif(
+    os.name == "nt", reason="Test fails due to OSMESA on Windows"
+)
 
 # static result x axis
 @pytest.fixture(scope="module")
@@ -109,6 +112,7 @@ def test_non_cyclic():
         rst = CyclicResult(examples.rstfile)
 
 
+@skip_windows
 @skip_plotting
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_plot_sectors(tmpdir):

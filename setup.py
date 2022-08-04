@@ -10,18 +10,6 @@ if os.name == "nt":  # windows
 elif os.name == "posix":  # linux/mac os
     extra_compile_args = ["-O3", "-w"]
 
-    # # different compiler options on Mac OS
-    # if platform.system() == "Darwin":
-    #     # Assume clang
-    #     # Note, openmp requires:
-    #     # brew install llvm libomp
-    #     #
-    #     # Might need:
-    #     # export LDFLAGS="-L/usr/local/opt/llvm/lib"
-    #     # export CPPFLAGS="-I/usr/local/opt/llvm/include"
-    #     os.environ["CC"] = "/usr/local/opt/llvm/bin/clang"
-    #     os.environ["CXX"] = "/usr/local/opt/llvm/bin/clang++"
-
 
 # Get version from version info
 __version__ = None

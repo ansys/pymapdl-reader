@@ -147,7 +147,7 @@ jobs:
           pip install twine
           twine check dist/*
 
-      - name: Install on Linux / macOS
+      - name: Install on Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
           pip install wheel
