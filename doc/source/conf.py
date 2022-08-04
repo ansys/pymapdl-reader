@@ -2,9 +2,9 @@ from datetime import datetime
 import os
 import warnings
 
+from ansys_sphinx_theme import pyansys_logo_black
 import pyvista
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import pyansys_logo_black
 
 from ansys.mapdl import reader as pymapdl_reader
 

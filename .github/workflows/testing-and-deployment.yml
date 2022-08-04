@@ -18,28 +18,31 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  check_style:
+  stylecheck:
     name: Style Check
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v2.2.2
         with:
-          python-version: 3.9
-      - name: Style
-        run: |
-          pip install -r requirements_style.txt --disable-pip-version-check
-          make
+          python-version: '3.10'
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit
+        run: pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
 
   doc_build:
     name: Build Documentation
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -55,23 +58,20 @@ jobs:
 
       - name: Install ansys-mapdl-reader
         run: |
-          pip install -r requirements_build.txt --disable-pip-version-check
-          python setup.py bdist_wheel
-          pip install dist/ansys*.whl --disable-pip-version-check
+          pip install -e .
           cd tests/
           xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
 
       - name: Build Documentation
         run: |
-          sudo apt install pandoc -qy
+          sudo apt-get install zip pandoc -qy
           pip install -r requirements_docs.txt --disable-pip-version-check
           xvfb-run make -C doc html
-          sudo apt install zip
           cd doc/build/html/
           zip ../../../${{ env.PACKAGE_NAME }}-HTML.zip ./*
 
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PACKAGE_NAME }}-Documentation
           path: |
@@ -97,7 +97,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
@@ -105,7 +105,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Linux pip cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         if: ${{ runner.os == 'Linux' }}
         with:
           path: ~/.cache/pip
@@ -114,7 +114,7 @@ jobs:
             Python-${{ runner.os }}-${{ matrix.python-version }}
 
       - name: Window pip cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         if: ${{ runner.os == 'Windows' }}
         with:
           path: ~\AppData\Local\pip\Cache
@@ -135,10 +135,6 @@ jobs:
                --rm -v `pwd`:/io \
                quay.io/pypa/manylinux2014_x86_64 \
                /io/.ci/build_wheels.sh ${{ matrix.python-version }}
-
-      - name: Install VTK on Python 3.10
-        if: matrix.python-version == '3.10'
-        run: pip install --find-links https://wheels.pyvista.org/ vtk
 
       - name: Build wheel on Windows
         if: ${{ runner.os == 'Windows' }}
@@ -167,7 +163,7 @@ jobs:
 
       - name: Get PyVista tools
         if: ${{ runner.os == 'Windows' }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: pyvista/gl-ci-helpers
           path: pyvista-tools
@@ -204,59 +200,30 @@ jobs:
         name: 'Upload coverage to Codecov'
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ runner.os }}-${{ matrix.python-version }}
           path: dist/
           retention-days: 7
 
-  # mac_build:
-  #   runs-on: macos-latest
-  #   name: Mac OS Unit Testing
-  #   strategy:
-  #     matrix:
-  #       python-version: ['3.8']
+  mac_build:
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    name: Build wheels on MacOS
+    runs-on: macos-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v1
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.8.1
 
-  #     - name: Build wheels
-  #       uses: joerick/cibuildwheel@v2.0.1
-  #       env:
-  #         CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
-  #         CIBW_BUILD: cp38-macosx_x86_64
+      - name: List generated wheels
+        run: |
+          ls ./wheelhouse/*
 
-  #     - name: Build wheels
-  #       if: startsWith(github.event.ref, 'refs/tags')
-  #       uses: joerick/cibuildwheel@v2.0.1
-  #       env:
-  #         CIBW_BEFORE_BUILD: pip install -r requirements_build.txt
-  #         CIBW_SKIP: pp* cp38-macosx_x86_64
-
-  #     - name: Show files
-  #       run: ls -lh wheelhouse
-  #       shell: bash
-
-  #     - name: Upload wheels
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         path: wheelhouse/*.whl
-
-  #     - name: Install wheel
-  #       run: |
-  #         pip install wheelhouse/*38*
-
-  #     - name: Test
-  #       run: |
-  #         pip install -r requirements_test.txt
-  #         cd tests
-  #         pytest -v
-
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
 
   pymapdl_tests:
     name: PyMAPDL Unit Testing
@@ -293,7 +260,7 @@ jobs:
           sudo apt install libgl1-mesa-glx xvfb
 
       - name: Linux pip cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: Python-${{ runner.os }}-3.8-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
@@ -340,7 +307,7 @@ jobs:
   
   Release:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [check_style, doc_build, build, pymapdl_tests] # , mac_build
+    needs: [stylecheck, doc_build, build, pymapdl_tests, mac_build]
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python

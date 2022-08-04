@@ -37,6 +37,9 @@ skip_plotting = pytest.mark.skipif(
     reason="Plotting disabled for these tests",
 )
 
+skip_windows = pytest.mark.skipif(
+    os.name == "nt", reason="Test fails due to OSMESA on Windows"
+)
 
 # static result x axis
 @pytest.fixture(scope="module")
@@ -109,6 +112,7 @@ def test_non_cyclic():
         rst = CyclicResult(examples.rstfile)
 
 
+@skip_windows
 @skip_plotting
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_plot_sectors(tmpdir):
@@ -119,6 +123,7 @@ def test_plot_sectors(tmpdir):
     assert os.path.isfile(filename)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_sectors_x(result_x):
     cpos = result_x.plot_sectors()
@@ -126,6 +131,7 @@ def test_plot_sectors_x(result_x):
         assert isinstance(cpos, CameraPosition)
 
 
+@skip_windows
 @skip_plotting
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_plot_z_cyc():
@@ -134,6 +140,7 @@ def test_plot_z_cyc():
         assert isinstance(cpos, CameraPosition)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_x_cyc(result_x):
     cpos = result_x.plot()
@@ -141,6 +148,7 @@ def test_plot_x_cyc(result_x):
         assert isinstance(cpos, CameraPosition)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_component_rotor(cyclic_v182_z_with_comp):
     cyclic_v182_z_with_comp.plot_nodal_solution(
@@ -283,6 +291,7 @@ def test_full_z_nodal_solution_phase(cyclic_v182_z):
     assert np.allclose(disp[:, mask], tmp)
 
 
+@skip_windows
 @skip_plotting
 def test_full_x_nodal_solution_plot(result_x):
     result_x.plot_nodal_solution(0)
@@ -354,6 +363,7 @@ def test_full_x_principal_nodal_stress(result_x):
     assert np.allclose(stress[:, mask], tmp, atol=4e-3)  # too loose
 
 
+@skip_windows
 @skip_plotting
 @pytest.mark.skipif(not HAS_FFMPEG, reason="requires imageio_ffmpeg")
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
@@ -385,16 +395,19 @@ def test_cyclic_z_harmonic_displacement():
     assert np.allclose(disp[:, mask], tmp, atol=1e-5)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_stress(result_x):
     result_x.plot_nodal_stress(0, "z")
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_stress(result_x):
     result_x.plot_nodal_stress(0, "z")
 
 
+@skip_windows
 @skip_plotting
 def test_plot_principal_nodal_stress(result_x):
     result_x.plot_principal_nodal_stress(0, "seqv")
@@ -416,6 +429,7 @@ def test_nodal_elastic_strain_cyclic(result_x):
     assert np.allclose(stress, stress_ans)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_elastic_strain(result_x):
     result_x.plot_nodal_elastic_strain(0, "X")
@@ -437,6 +451,7 @@ def test_nodal_temperature(result_x):
     assert np.allclose(temp[mask], temp_ans[:, mask], equal_nan=True)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_nodal_temperature(result_x):
     result_x.plot_nodal_temperature(0)
@@ -457,6 +472,7 @@ def test_nodal_thermal_strain_cyclic(result_x):
     assert np.allclose(strain, strain_ans)
 
 
+@skip_windows
 @skip_plotting
 def test_plot_nodal_thermal_strain(result_x):
     result_x.plot_nodal_thermal_strain(0, "X")

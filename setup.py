@@ -1,86 +1,14 @@
 """Installation file for ansys-mapdl-reader"""
 from io import open as io_open
 import os
-import platform
-import re
-import struct
-import subprocess
-import sys
 
 import numpy as np
 from setuptools import Extension, setup
-from setuptools.command.build_ext import build_ext as _build_ext
 
-
-# Facilities to install properly on Mac using clang
-def is_clang(bin):
-    proc = subprocess.Popen([bin, "-v"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = proc.communicate()
-    output = str(b"\n".join([stdout, stderr]).decode("ascii", "ignore"))
-    return not re.search(r"clang", output) is None
-
-
-class build_ext(_build_ext):
-    """build class that includes numpy directory"""
-
-    def build_extensions(self):
-        if os.name != "nt":
-            binary = self.compiler.compiler[0]
-            if is_clang(binary):
-                for e in self.extensions:
-                    e.extra_compile_args.append("-stdlib=libc++")
-
-                    if platform.system() == "Darwin":
-                        # get the minor version
-                        mac_version, _, _ = platform.mac_ver()
-                        minor = [int(n) for n in mac_version.split(".")][1]
-
-                        # libstdc++ is deprecated in recent versions of XCode
-                        if minor >= 9:
-                            e.extra_compile_args.append("-mmacosx-version-min=10.9")
-                            e.extra_compile_args.append("-stdlib=libc++")
-                            e.extra_link_args.append("-mmacosx-version-min=10.9")
-                            e.extra_link_args.append("-stdlib=libc++")
-                        else:
-                            e.extra_compile_args.append("-mmacosx-version-min=10.7")
-                            e.extra_link_args.append("-mmacosx-version-min=10.7")
-
-        _build_ext.build_extensions(self)
-
-
-def compiler_name():
-    """Check compiler and assign compile arguments accordingly"""
-    import distutils.ccompiler
-    import re
-
-    comp = distutils.ccompiler.get_default_compiler()
-    getnext = False
-
-    for a in sys.argv[2:]:
-        if getnext:
-            comp = a
-            getnext = False
-            continue
-        # separated by space
-        if a == "--compiler" or re.search("^-[a-z]*c$", a):
-            getnext = True
-            continue
-        # without space
-        m = re.search("^--compiler=(.+)", a)
-        if m is None:
-            m = re.search("^-[a-z]*c(.+)", a)
-            if m:
-                comp = m.group(1)
-
-    return comp
-
-
-# Assign arguments based on compiler
-compiler = compiler_name()
-if compiler == "unix":
-    cmp_arg = ["-O3", "-w"]
-else:
-    cmp_arg = ["/Ox", "-w"]
+if os.name == "nt":  # windows
+    extra_compile_args = ["/openmp", "/O2", "/w", "/GS"]
+elif os.name == "posix":  # linux/mac os
+    extra_compile_args = ["-O3", "-w"]
 
 
 # Get version from version info
@@ -91,27 +19,6 @@ with io_open(version_file, mode="r") as fd:
     # execute file from raw string
     exec(fd.read())
 
-install_requires = [
-    "numpy>=1.16.0",
-    "pyvista>=0.32.0",
-    "appdirs>=1.4.0",
-    "matplotlib>=3.0.0",
-    "tqdm>=4.45.0",
-]
-
-# perform python version checking
-# this is necessary to avoid the new pip package checking as vtk does
-# not support Python 32-bit as of 17 June 2021.
-is64 = struct.calcsize("P") * 8 == 64
-if not is64:
-    try:
-        import vtk  # noqa: F401
-    except ImportError:
-        raise RuntimeError(
-            "\n\n``ansys-mapdl-reader`` requires 64-bit Python due to vtk.\n"
-            "Please check the version of Python installed at\n"
-            "%s" % sys.executable
-        )
 
 setup(
     name="ansys-mapdl-reader",
@@ -137,7 +44,7 @@ setup(
     ],
     url="https://github.com/pyansys/pymapdl-reader",
     # Build cython modules
-    cmdclass={"build_ext": build_ext},
+    # cmdclass={"build_ext": build_ext},
     include_dirs=[np.get_include()],
     ext_modules=[
         Extension(
@@ -146,7 +53,7 @@ setup(
                 "ansys/mapdl/reader/cython/_archive.pyx",
                 "ansys/mapdl/reader/cython/archive.c",
             ],
-            extra_compile_args=cmp_arg,
+            extra_compile_args=extra_compile_args,
             language="c",
         ),
         Extension(
@@ -156,19 +63,19 @@ setup(
                 "ansys/mapdl/reader/cython/reader.c",
                 "ansys/mapdl/reader/cython/vtk_support.c",
             ],
-            extra_compile_args=cmp_arg,
+            extra_compile_args=extra_compile_args,
             language="c",
         ),
         Extension(
             "ansys.mapdl.reader._relaxmidside",
             ["ansys/mapdl/reader/cython/_relaxmidside.pyx"],
-            extra_compile_args=cmp_arg,
+            extra_compile_args=extra_compile_args,
             language="c",
         ),
         Extension(
             "ansys.mapdl.reader._cellqual",
             ["ansys/mapdl/reader/cython/_cellqual.pyx"],
-            extra_compile_args=cmp_arg,
+            extra_compile_args=extra_compile_args,
             language="c",
         ),
         Extension(
@@ -177,7 +84,7 @@ setup(
                 "ansys/mapdl/reader/cython/_binary_reader.pyx",
                 "ansys/mapdl/reader/cython/binary_reader.cpp",
             ],
-            extra_compile_args=cmp_arg,
+            extra_compile_args=extra_compile_args,
             language="c++",
         ),
     ],
@@ -193,5 +100,11 @@ setup(
             "sector.cdb",
         ]
     },
-    install_requires=install_requires,
+    install_requires=[
+        "numpy>=1.16.0",
+        "pyvista>=0.32.0",
+        "appdirs>=1.4.0",
+        "matplotlib>=3.0.0",
+        "tqdm>=4.45.0",
+    ],
 )
