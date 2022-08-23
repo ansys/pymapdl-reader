@@ -393,7 +393,7 @@ class Result(AnsysBinary):
                 prop_ = np.vstack((temps_, values_))
                 for each in range(prop_.shape[1]-1, -1, -1):
                     # checking that two records are empty starting from the end.
-                    if temps_[each] == 0 and values_[each] == 0 and temps_[each-1] == 0 and values_[each-1]==0:
+                    if temps_[each] == 0 and values_[each] == 0 and temps_[each-1] == 0 and values_[each-1] == 0:
                         continue # they are zero, so we keep going.
                     else:
                         # found a non-zero report
@@ -401,7 +401,7 @@ class Result(AnsysBinary):
 
                 prop_ = prop_[:, :each]
                 prop_[1, :] = prop_[1, ::-1]
-                return prop_               
+                return prop_
 
         mat_table = self.read_record(self._geometry_header["ptrMAT"])
         if mat_table[0] != -101:  # pragma: no cover
@@ -441,9 +441,7 @@ class Result(AnsysBinary):
                         self._cfile._seekg(fs)
                         material[key] = np.fromstring(self._cfile._read(8))[0]
                     else:
-                        for i in range(-5, 10):
-                            material[key] = read_mat_data(ptr)
-                            # print(read_mat_data(ptr))
+                        material[key] = read_mat_data(ptr)
 
             # documentation for this is hard to follow, but it boils down to
             # the fact that "The record includes MP pointers followed by TB
