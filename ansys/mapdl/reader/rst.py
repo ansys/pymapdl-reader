@@ -388,13 +388,18 @@ class Result(AnsysBinary):
             else:
                 # We need to account for 0 at the temp and properties.
                 temps_ = arr[:sz]
-                values_ = arr[-1:-1*(sz+1):-1]
+                values_ = arr[-1 : -1 * (sz + 1) : -1]
 
                 prop_ = np.vstack((temps_, values_))
-                for each in range(prop_.shape[1]-1, -1, -1):
+                for each in range(prop_.shape[1] - 1, -1, -1):
                     # checking that two records are empty starting from the end.
-                    if temps_[each] == 0 and values_[each] == 0 and temps_[each-1] == 0 and values_[each-1] == 0:
-                        continue # they are zero, so we keep going.
+                    if (
+                        temps_[each] == 0
+                        and values_[each] == 0
+                        and temps_[each - 1] == 0
+                        and values_[each - 1] == 0
+                    ):
+                        continue  # they are zero, so we keep going.
                     else:
                         # found a non-zero report
                         break
