@@ -636,3 +636,18 @@ def test_materials_v150():
         ans_mat = rst.materials[mat_type]
         for key, value in known_material.items():
             assert pytest.approx(ans_mat[key]) == known_material[key]
+
+
+def test_temperature_dependent_properties():
+    path_rth = os.path.join(testfiles_path, "temp_dependent_results.rth")
+    rst = pymapdl_reader.read_binary(path_rth)
+    mats = rst.materials
+    kxx = mats[1]["KXX"]
+    expected_value = np.array(
+        [[-100.0, 0.0, 100.0, 200.0], [114.0, 144.0, 165.0, 175.0]]
+    )
+
+    assert kxx is not None
+    assert isinstance(kxx, np.ndarray)
+    assert kxx.size > 0
+    assert np.allclose(kxx, expected_value)
