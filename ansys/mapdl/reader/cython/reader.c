@@ -1,13 +1,9 @@
+#include <errno.h>
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <math.h>
-
-// necessary for ubuntu build on azure
-#ifdef __linux__
-  #include <stdint.h>
-#endif
 
 //=============================================================================
 // Fast string to integer convert to ANSYS formatted integers 
