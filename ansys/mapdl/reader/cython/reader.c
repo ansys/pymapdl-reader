@@ -220,7 +220,7 @@ static inline double ans_strtod2(char *raw, int fltsz){
 //     Number of nodes read.
 //=============================================================================
 int read_nblock(char *raw, int *nnum, double *nodes, int nnodes, int* intsz,
-		int fltsz, int64_t *n){
+		int fltsz, int64_t* n){
 
   // set to start of the NBLOCK
   raw += n[0];
