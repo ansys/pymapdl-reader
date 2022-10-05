@@ -22,6 +22,8 @@ from pyvista._vtk import (
     VTK_WEDGE,
 )
 
+VTK_VOXEL = 11
+
 from ansys.mapdl.reader import _archive, _reader
 from ansys.mapdl.reader.cell_quality import quality
 from ansys.mapdl.reader.mesh import Mesh
@@ -287,16 +289,17 @@ def save_as_archive(
 
     This function supports the following element types:
 
-        - ``vtk.VTK_TETRA``
-        - ``vtk.VTK_QUADRATIC_TETRA``
-        - ``vtk.VTK_PYRAMID``
-        - ``vtk.VTK_QUADRATIC_PYRAMID``
-        - ``vtk.VTK_WEDGE``
-        - ``vtk.VTK_QUADRATIC_WEDGE``
         - ``vtk.VTK_HEXAHEDRON``
+        - ``vtk.VTK_PYRAMID``
         - ``vtk.VTK_QUADRATIC_HEXAHEDRON``
-        - ``vtk.VTK_TRIANGLE``
+        - ``vtk.VTK_QUADRATIC_PYRAMID``
+        - ``vtk.VTK_QUADRATIC_TETRA``
+        - ``vtk.VTK_QUADRATIC_WEDGE``
         - ``vtk.VTK_QUAD``
+        - ``vtk.VTK_TETRA``
+        - ``vtk.VTK_TRIANGLE``
+        - ``vtk.VTK_VOXEL``
+        - ``vtk.VTK_WEDGE``
 
     Will automatically renumber nodes and elements if the FEM does not
     contain ANSYS node or element numbers.  Node numbers are stored as
@@ -308,10 +311,9 @@ def save_as_archive(
     filename : str, pathlib.Path
        Filename to write archive file.
 
-    grid : vtk.UnstructuredGrid
-        VTK UnstructuredGrid to convert to an APDL archive file.
-        PolyData will automatically be converted to an unstructured
-        mesh.
+    grid : pyvista.DataSet
+        Any :class:`pyvista.DataSet` that can be cast to a
+        :class:`pyvista.UnstructuredGrid`.
 
     mtype_start : int, optional
         Material number to assign to elements.  Can be set manually by
@@ -377,7 +379,7 @@ def save_as_archive(
     >>> pymapdl_reader.save_as_archive('archive.cdb', grid)
 
     """
-    if isinstance(grid, pv.PolyData):
+    if hasattr(grid, "cast_to_unstructured_grid"):
         grid = grid.cast_to_unstructured_grid()
 
     if not isinstance(grid, vtk.vtkUnstructuredGrid):
@@ -387,6 +389,7 @@ def save_as_archive(
     if include_solid_elements:
         allowable.extend(
             [
+                VTK_VOXEL,
                 VTK_TETRA,
                 VTK_QUADRATIC_TETRA,
                 VTK_PYRAMID,
@@ -405,6 +408,15 @@ def save_as_archive(
 
     # extract allowable cell types
     mask = np.in1d(grid.celltypes, allowable)
+    if not mask.any():
+        ucelltypes = np.unique(grid.celltypes)
+        allowable.sort()
+        raise RuntimeError(
+            f"`grid` contains no allowable cell types. Contains types {ucelltypes} "
+            f"and only {allowable} are allowed.\n\n"
+            "See https://vtk.org/doc/nightly/html/vtkCellType_8h_source.html "
+            "for more details."
+        )
     grid = grid.extract_cells(mask)
 
     header = "/PREP7\n"
@@ -539,6 +551,7 @@ def save_as_archive(
 
         etype = np.empty(grid.number_of_cells, np.int32)
         etype_185 = etype_start + 2
+        etype[grid.celltypes == VTK_VOXEL] = etype_185
         etype[grid.celltypes == VTK_TETRA] = etype_185
         etype[grid.celltypes == VTK_HEXAHEDRON] = etype_185
         etype[grid.celltypes == VTK_WEDGE] = etype_185
