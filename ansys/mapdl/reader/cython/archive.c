@@ -11,6 +11,7 @@
 #define VTK_TRIANGLE 5
 #define VTK_QUAD 9
 #define VTK_TETRA 10
+#define VTK_VOXEL 11
 #define VTK_HEXAHEDRON 12
 #define VTK_WEDGE 13
 #define VTK_PYRAMID 14
@@ -245,6 +246,18 @@ int write_eblock(FILE *file,
               nodenum[cells[c + 4]],  // 5,  N (duplicate of M)
               nodenum[cells[c + 4]],  // 6,  O (duplicate of M)
               nodenum[cells[c + 4]]); // 7,  P (duplicate of M)
+      break;
+    case VTK_VOXEL:
+      // note the flipped order for nodes (K, L) and (O, P)
+      fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n",
+              nodenum[cells[c + 0]],  // 0, I
+              nodenum[cells[c + 1]],  // 1, J
+              nodenum[cells[c + 3]],  // 2, K
+              nodenum[cells[c + 2]],  // 3, L
+              nodenum[cells[c + 4]],  // 4, M
+              nodenum[cells[c + 5]],  // 5, N
+              nodenum[cells[c + 7]],  // 6, O
+              nodenum[cells[c + 6]]); // 7, P
       break;
     case VTK_HEXAHEDRON:
       fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n",
