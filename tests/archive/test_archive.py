@@ -195,6 +195,17 @@ def test_writehex(tmpdir, hex_archive):
         )
 
 
+def test_write_voxel(tmpdir):
+    filename = str(tmpdir.join("tmp.cdb"))
+    grid = pv.UniformGrid(dims=(10, 10, 10))
+    pymapdl_reader.save_as_archive(filename, grid)
+
+    archive = pymapdl_reader.Archive(filename)
+    assert np.allclose(archive.grid.points, grid.points)
+    assert np.allclose(archive.grid.point_data["ansys_node_num"], range(1, 1001))
+    assert archive.grid.n_cells, grid.n_cells
+
+
 def test_writesector(tmpdir):
     archive = pymapdl_reader.Archive(examples.sector_archive_file)
     filename = str(tmpdir.mkdir("tmpdir").join("tmp.cdb"))
