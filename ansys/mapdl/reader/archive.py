@@ -123,13 +123,17 @@ class Archive(Mesh):
         null_unallowed=False,
         verbose=False,
         name="",
+        read_eblock=False,
     ):
         """Initializes an instance of the archive class."""
         self._read_parameters = read_parameters
         self._filename = pathlib.Path(filename)
         self._name = name
         self._raw = _reader.read(
-            self.filename, read_parameters=read_parameters, debug=verbose
+            self.filename,
+            read_parameters=read_parameters,
+            debug=verbose,
+            read_eblock=read_eblock,
         )
         super().__init__(
             self._raw["nnum"],
