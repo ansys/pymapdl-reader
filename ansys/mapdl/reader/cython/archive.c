@@ -104,7 +104,7 @@ int write_eblock(FILE *file,
 
   // Write header
   fprintf(file, "EBLOCK,19,SOLID,%10d,%10d\n", elem_id[n_elem - 1], n_elem);
-  fprintf(file, "(19i10)\n");
+  fprintf(file, "(19i8)\n");
 
   int c;  // position within offset array
   for (int i=0; i<n_elem; i++){
@@ -116,7 +116,7 @@ int write_eblock(FILE *file,
     }
 
     // Write cell info
-    fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d",
+    fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d",
             mtype[i],          // Field 1: material reference number
             etype[i],          // Field 2: element type number
             rcon[i],           // Field 3: real constant reference number
@@ -133,7 +133,7 @@ int write_eblock(FILE *file,
     switch (celltypes[i]){
     case VTK_QUADRATIC_TETRA:
       if (typenum[i] == 187){
-        fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d\n%10d%10d\n",
+        fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n%8d%8d\n",
                 nodenum[cells[c + 0]],
                 nodenum[cells[c + 1]],
                 nodenum[cells[c + 2]],
@@ -145,7 +145,7 @@ int write_eblock(FILE *file,
                 nodenum[cells[c + 8]],
                 nodenum[cells[c + 9]]);
       } else {
-        fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d\n%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d\n",
+        fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d\n",
                 nodenum[cells[c + 0]],  // 0,  I
                 nodenum[cells[c + 1]],  // 1,  J
                 nodenum[cells[c + 2]],  // 2,  K
@@ -169,7 +169,7 @@ int write_eblock(FILE *file,
       }
       break;
       case VTK_TETRA: // point
-        fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d\n",
+        fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n",
                 nodenum[cells[c + 0]],  // 0,  I
                 nodenum[cells[c + 1]],  // 1,  J
                 nodenum[cells[c + 2]],  // 2,  K
@@ -180,7 +180,7 @@ int write_eblock(FILE *file,
                 nodenum[cells[c + 3]]); // 7,  P (duplicate of M)
         break;
       case VTK_WEDGE:
-        fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d\n",
+        fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n",
                 nodenum[cells[c + 2]],  // 0,  I
                 nodenum[cells[c + 1]],  // 1,  J
                 nodenum[cells[c + 0]],  // 2,  K
@@ -191,7 +191,7 @@ int write_eblock(FILE *file,
                 nodenum[cells[c + 3]]); // 7,  P (duplicate of O)
         break;
     case VTK_QUADRATIC_WEDGE:
-      fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d\n%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d\n",
+      fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d\n",
               nodenum[cells[c + 2]],  // 0,  I
               nodenum[cells[c + 1]],  // 1,  J
               nodenum[cells[c + 0]],  // 2,  K
@@ -214,7 +214,7 @@ int write_eblock(FILE *file,
               nodenum[cells[c + 12]]);// 19, B (duplicate of A)
       break;
     case VTK_QUADRATIC_PYRAMID:
-      fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d\n%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d\n",
+      fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d\n",
               nodenum[cells[c + 0]],  // 0,  I
               nodenum[cells[c + 1]],  // 1,  J
               nodenum[cells[c + 2]],  // 2,  K
@@ -237,7 +237,7 @@ int write_eblock(FILE *file,
               nodenum[cells[c + 12]]);// 19, B (duplicate of A)
       break;
     case VTK_PYRAMID:
-      fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d\n",
+      fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n",
               nodenum[cells[c + 0]],  // 0,  I
               nodenum[cells[c + 1]],  // 1,  J
               nodenum[cells[c + 2]],  // 2,  K
@@ -260,7 +260,7 @@ int write_eblock(FILE *file,
               nodenum[cells[c + 6]]); // 7, P
       break;
     case VTK_HEXAHEDRON:
-      fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d\n",
+      fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n",
               nodenum[cells[c + 0]],
               nodenum[cells[c + 1]],
               nodenum[cells[c + 2]],
@@ -271,7 +271,7 @@ int write_eblock(FILE *file,
               nodenum[cells[c + 7]]);
       break;
     case VTK_QUADRATIC_HEXAHEDRON:
-      fprintf(file, "%10d%10d%10d%10d%10d%10d%10d%10d\n%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d\n",
+      fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d\n",
               nodenum[cells[c + 0]],
               nodenum[cells[c + 1]],
               nodenum[cells[c + 2]],
@@ -294,14 +294,14 @@ int write_eblock(FILE *file,
               nodenum[cells[c + 19]]);
       break;
     case VTK_TRIANGLE:
-      fprintf(file, "%10d%10d%10d%10d\n",
+      fprintf(file, "%8d%8d%8d%8d\n",
               nodenum[cells[c + 0]],  // 0,  I
               nodenum[cells[c + 1]],  // 1,  J
               nodenum[cells[c + 2]],  // 2,  K
               nodenum[cells[c + 2]]); // 3,  L (duplicate of K)
       break;
     case VTK_QUAD:
-      fprintf(file, "%10d%10d%10d%10d\n",
+      fprintf(file, "%8d%8d%8d%8d\n",
               nodenum[cells[c + 0]],  // 0,  I
               nodenum[cells[c + 1]],  // 1,  J
               nodenum[cells[c + 2]],  // 2,  K

@@ -78,6 +78,9 @@ class Archive(Mesh):
     name : str, optional
         Internally used parameter used to have a custom ``__repr__``.
 
+    read_eblock : bool, default: True
+        Read the element block.
+
     Examples
     --------
     >>> from ansys.mapdl import reader as pymapdl_reader
@@ -125,7 +128,7 @@ class Archive(Mesh):
         null_unallowed=False,
         verbose=False,
         name="",
-        read_eblock=False,
+        read_eblock=True,
     ):
         """Initializes an instance of the archive class."""
         self._read_parameters = read_parameters
