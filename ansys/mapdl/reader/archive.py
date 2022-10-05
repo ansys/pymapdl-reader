@@ -281,9 +281,11 @@ def save_as_archive(
     include_surface_elements=True,
     include_solid_elements=True,
     include_components=True,
+    exclude_missing=False,
 ):
-    """Writes FEM as an ANSYS APDL archive file.  This function
-    supports the following element types:
+    """Writes FEM as an ANSYS APDL archive file.
+
+    This function supports the following element types:
 
         - ``vtk.VTK_TETRA``
         - ``vtk.VTK_QUADRATIC_TETRA``
@@ -298,8 +300,8 @@ def save_as_archive(
 
     Will automatically renumber nodes and elements if the FEM does not
     contain ANSYS node or element numbers.  Node numbers are stored as
-    a point array "ansys_node_num", and cell numbers are stored as
-    cell array "ansys_elem_num".
+    a point array ``"ansys_node_num"``, and cell numbers are stored as
+    cell array ``"ansys_elem_num"``.
 
     Parameters
     ----------
@@ -359,9 +361,15 @@ def save_as_archive(
         Writes note components to file.  Node components must be
         stored within the unstructured grid as uint8 or bool arrays.
 
+    exclude_missing : bool, default: False
+        When ``allow_missing=True``, write ``0`` instead of renumbering
+        nodes. This allows you to exclude midside nodes for certain element
+        types (e.g. ``SOLID186``). Missing midside nodes are identified as
+        ``-1`` in the ``"ansys_node_num"`` array.
+
     Examples
     --------
-    Write a VTK of pyvista UnstructuredGrid to archive.cdb
+    Write a ``pyvista.UnstructuredGrid`` to ``"archive.cdb"``.
 
     >>> from ansys.mapdl import reader as pymapdl_reader
     >>> from pyvista import examples
@@ -408,20 +416,27 @@ def save_as_archive(
         log.info("No ANSYS node numbers set in input. Adding default range")
         nodenum = np.arange(1, grid.number_of_points + 1, dtype=np.int32)
 
-    if np.any(nodenum == -1):
+    missing_mask = nodenum == -1
+    if np.any(missing_mask):
         if not allow_missing:
             raise Exception('Missing node numbers.  Exiting due "allow_missing=False"')
-        start_num = nodenum.max() + 1
-        if nnum_start > start_num:
-            start_num = nnum_start
-        nadd = np.sum(nodenum == -1)
-        end_num = start_num + nadd
-        log.info(
-            "FEM missing some node numbers.  Adding node numbering " "from %d to %d",
-            start_num,
-            end_num,
-        )
-        nodenum[nodenum == -1] = np.arange(start_num, end_num, dtype=np.int32)
+        elif exclude_missing:
+            log.info("Excluding missing nodes from archive file.")
+            nodenum = nodenum.copy()
+            nodenum[missing_mask] = 0
+        else:
+            start_num = nodenum.max() + 1
+            if nnum_start > start_num:
+                start_num = nnum_start
+            nadd = np.sum(nodenum == -1)
+            end_num = start_num + nadd
+            log.info(
+                "FEM missing some node numbers.  Adding node numbering "
+                "from %d to %d",
+                start_num,
+                end_num,
+            )
+            nodenum[missing_mask] = np.arange(start_num, end_num, dtype=np.int32)
 
     # element block
     ncells = grid.number_of_cells
@@ -431,8 +446,9 @@ def save_as_archive(
         if not allow_missing:
             raise Exception('Missing node numbers.  Exiting due "allow_missing=False"')
         log.info(
-            "No ANSYS element numbers set in input.  "
-            + "Adding default range starting from %d" % enum_start
+            "No ANSYS element numbers set in input. "
+            "Adding default range starting from %d",
+            enum_start,
         )
         enum = np.arange(1, ncells + 1, dtype=np.int32)
 
@@ -449,8 +465,9 @@ def save_as_archive(
         nadd = np.sum(enum == -1)
         end_num = start_num + nadd
         log.info(
-            "FEM missing some cell numbers.  Adding numbering "
-            + "from %d to %d" % (start_num, end_num)
+            "FEM missing some cell numbers.  Adding numbering " "from %d to %d",
+            start_num,
+            end_num,
         )
         enum[enum == -1] = np.arange(start_num, end_num, dtype=np.int32)
 
@@ -460,7 +477,7 @@ def save_as_archive(
     else:
         log.info(
             "No ANSYS element numbers set in input.  "
-            + "Adding default range starting from %d",
+            "Adding default range starting from %d",
             mtype_start,
         )
         mtype = np.arange(1, ncells + 1, dtype=np.int32)
@@ -558,13 +575,33 @@ def save_as_archive(
     elem_nnodes[typenum == 186] = 20
     elem_nnodes[typenum == 187] = 10
 
+    if not reset_etype:
+        unsup = np.setdiff1d(typenum, [181, 185, 186, 187])
+        if unsup.any():
+            raise RuntimeError(
+                f"Unsupported element types {unsup}. Either set ``reset_etype=True``"
+                " or remove (or relabel) the unsupported element types."
+            )
+
+    # edge case where element types are unsupported
+
     # write the EBLOCK
     with open(str(filename), mode) as f:
         f.write(header)
 
     if not isinstance(filename, str):
         filename = str(filename)
-    write_nblock(filename, nodenum, grid.points, mode="a")
+
+    if exclude_missing:
+        log.info("Excluding missing nodes from archive file.")
+        write_nblock(
+            filename,
+            nodenum[~missing_mask],
+            grid.points[~missing_mask],
+            mode="a",
+        )
+    else:
+        write_nblock(filename, nodenum, grid.points, mode="a")
 
     # write remainder of eblock
     cells, offset = vtk_cell_info(grid, shift_offset=False)
@@ -625,8 +662,7 @@ def write_nblock(filename, node_id, pos, angles=None, mode="w"):
     if angles is not None:
         assert angles.ndim == 2 and angles.shape[1] == 3, "Invalid angle array"
 
-    if node_id.dtype != np.int32:
-        node_id = node_id.astype(np.int32)
+    node_id = node_id.astype(np.int32, copy=False)
 
     # node array must be sorted
     # note, this is sort check is most suited for pre-sorted arrays
@@ -638,8 +674,7 @@ def write_nblock(filename, node_id, pos, angles=None, mode="w"):
 
     if angles is not None:
         if pos.dtype == np.float32:
-            if angles.dtype != pos.dtype:
-                angles = angles.astype(pos.dtype)
+            angles = angles.astype(pos.dtype, copy=False)
             _archive.py_write_nblock_float(
                 filename, node_id, node_id[-1], pos, angles, mode
             )
