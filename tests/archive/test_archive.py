@@ -160,6 +160,21 @@ def test_missing_midside():
     assert not np.any(archive.grid.celltypes == VTK_TETRA)
 
 
+def test_missing_midside_write(tmpdir):
+    allowable_types = [45, 95, 185, 186, 92, 187]
+    archive_file = os.path.join(TESTFILES_PATH, "mixed_missing_midside.cdb")
+    archive = pymapdl_reader.Archive(archive_file, allowable_types=allowable_types)
+
+    filename = str(tmpdir.join("tmp.cdb"))
+    with pytest.raises(RuntimeError, match="Unsupported element types"):
+        pymapdl_reader.save_as_archive(filename, archive.grid, exclude_missing=True)
+
+    pymapdl_reader.save_as_archive(
+        filename, archive.grid, exclude_missing=True, reset_etype=True
+    )
+    archive_new = pymapdl_reader.Archive(filename)
+
+
 def test_writehex(tmpdir, hex_archive):
     filename = str(tmpdir.mkdir("tmpdir").join("tmp.cdb"))
     pymapdl_reader.save_as_archive(filename, hex_archive.grid)
@@ -178,6 +193,17 @@ def test_writehex(tmpdir, hex_archive):
             hex_archive.element_components[element_component],
             archive_new.element_components[element_component],
         )
+
+
+def test_write_voxel(tmpdir):
+    filename = str(tmpdir.join("tmp.cdb"))
+    grid = pv.UniformGrid(dims=(10, 10, 10))
+    pymapdl_reader.save_as_archive(filename, grid)
+
+    archive = pymapdl_reader.Archive(filename)
+    assert np.allclose(archive.grid.points, grid.points)
+    assert np.allclose(archive.grid.point_data["ansys_node_num"], range(1, 1001))
+    assert archive.grid.n_cells, grid.n_cells
 
 
 def test_writesector(tmpdir):

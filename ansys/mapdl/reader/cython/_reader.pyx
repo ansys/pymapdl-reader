@@ -48,8 +48,8 @@ def safe_int(value):
 
 cdef extern from "reader.h":
     int read_nblock_from_nwrite(char*, int*, double*, int)
-    int read_nblock(char*, int*, double*, int, int*, int, int*)
-    int read_eblock(char*, int*, int*, int, int, int*)
+    int read_nblock(char*, int*, double*, int, int*, int, int64_t*)
+    int read_eblock(char*, int*, int*, int, int, int64_t*)
     int write_array_ascii(const char*, const double*, int);
 
 
@@ -58,13 +58,13 @@ cdef extern from 'vtk_support.h':
     const int*, int64_t*, int64_t*, uint8_t*, const int)
 
 
-cdef int myfgets(char *outstr, char *instr, int *n, int fsize):
+cdef int myfgets(char *outstr, char *instr, int64_t *n, int64_t fsize):
     """Copies a single line from instr to outstr starting from position n """
     
     cdef int k = n[0]
     
     # Search line at a maximum of 10000 characters
-    cdef int i, c
+    cdef int64_t i, c
     c = n[0]
     for i in range(1000):
         # check if end of file
@@ -89,7 +89,7 @@ cdef int myfgets(char *outstr, char *instr, int *n, int fsize):
     return 1
 
 
-def py_read_eblock(char *raw, int n, char *line, int fsize):
+def py_read_eblock(char *raw, int64_t n, char *line, int64_t fsize):
     """Read the eblock
 
     The format of the element "block" is as follows for the SOLID format:
@@ -144,7 +144,7 @@ additional node numbers if there are more than eight.
     return elem_sz, elem, elem_off
 
 
-def read(filename, read_parameters=False, debug=False):
+def read(filename, read_parameters=False, debug=False, read_eblock=True):
     """Read blocked ansys archive file."""
     badstr = 'Badly formatted cdb file'
     filename_byte_string = filename.encode("UTF-8")
@@ -159,15 +159,15 @@ def read(filename, read_parameters=False, debug=False):
 
     # Load entire file to memory
     fseek(cfile, 0, SEEK_END)
-    cdef int fsize = ftell(cfile)
+    cdef int64_t fsize = ftell(cfile)
     fseek(cfile, 0, SEEK_SET)
     cdef char *raw = < char * >malloc(fsize*sizeof(char))
     fread(raw, 1, fsize, cfile)
     fclose(cfile)
-    
+
     # File counter
     cdef int tmpval, start_pos
-    cdef int n = 0
+    cdef int64_t n = 0
     
     # Define variables
     cdef size_t l = 0
@@ -205,13 +205,15 @@ def read(filename, read_parameters=False, debug=False):
     # keyopt
     keyopt = {}
 
-    # Read data up to and including start of NBLOCK
     while 1:
         if myfgets(line, raw, &n, fsize):
             break
 
         # Record element types
         if 'E' == line[0] or 'e' == line[0]:
+            if debug:
+                print('Hit "E"')
+
             if b'ET,' == line[:3] or b'et,' == line[:3]:
                 if debug:
                     print('reading ET')
@@ -226,7 +228,7 @@ def read(filename, read_parameters=False, debug=False):
                         print('Invalid "ET" command %s' % line.decode())
                     continue
 
-            elif b'EBLOCK,' == line[:7] or b'eblock,' == line[:7]:
+            elif b'EBLOCK,' == line[:7] or b'eblock,' == line[:7] and read_eblock:
                 if eblock_read:
                     # Sometimes, DAT files contain two EBLOCKs.  Read
                     # only the first block.
@@ -244,6 +246,9 @@ def read(filename, read_parameters=False, debug=False):
                         print('finished')
 
         elif b'K' == line[0] or b'k' == line[0]:
+            if debug:
+                print('Hit "K"')
+
             if b'KEYOP' in line or b'keyop' in line:
                 if debug:
                     print('reading KEYOP')
@@ -262,6 +267,9 @@ def read(filename, read_parameters=False, debug=False):
                     keyopt[key_num] = [entry[1:]]
 
         elif 'R' == line[0] or 'r' == line[0]:
+            if debug:
+                print('Hit "R"')
+
             if b'RLBLOCK' in line or b'rlblock' in line:
                 if debug:
                     print('reading RLBLOCK')
@@ -349,6 +357,9 @@ def read(filename, read_parameters=False, debug=False):
                     rdat.append(rcon)
 
         elif 'N' == line[0] or 'n' == line[0]:
+            if debug:
+                print('Hit "N"')
+
             # if line contains the start of the node block
             if line[:6] == b'NBLOCK' or line[:6] == b'nblock':
                 if nodes_read:
@@ -380,43 +391,13 @@ def read(filename, read_parameters=False, debug=False):
                     nodes = nodes[:nnodes]
                     nnum = nnum[:nnodes]
 
-                # # verify at the end of the block
-                # if nnodes_read != nnodes:
-                #     nnodes = nnodes_read
-                #     nodes = nodes[:nnodes]
-                #     nnum = nnum[:nnodes]
-                # else:
-                #     if myfgets(line, raw, &n, fsize):
-                #         raise RuntimeError('Unable to read nblock format line or '
-                #                            'at end of file.')
-
-                #     bl_end = line.decode().replace(' ', '')
-                #     if 'LOC' not in bl_end or b'-1' == bl_end[:2]:
-                #         if debug:
-                #             print('Unable to find the end of the NBLOCK')
-                #         # need to reread the number of nodes
-                #         n = start_pos
-                #         if myfgets(line, raw, &n, fsize): raise Exception(badstr)
-                #         nnodes = 0
-                #         while True:
-                #             if myfgets(line, raw, &n, fsize): raise Exception(badstr)
-                #             bl_end = line.decode().replace(' ', '')
-                #             if 'LOC' not in bl_end or b'-1' == bl_end[:2]:
-                #                 break
-                #             nnodes += 1
-
-                #         # reread nodes
-                #         n = start_pos
-                #         if myfgets(line, raw, &n, fsize): raise Exception(badstr)
-                #         d_size, f_size, nfld, nexp = node_block_format(line)
-                #         nnum = np.empty(nnodes, dtype=ctypes.c_int)
-                #         nodes = np.zeros((nnodes, 6))
-
-                #         n = read_nblock(raw, &nnum[0], &nodes[0, 0], nnodes,
-                #                         &d_size[0], f_size, &n)
-
+                if debug:
+                    print('Read', nnodes_read, 'nodes')
 
         elif 'C' == line[0] or 'c' == line[0]:
+            if debug:
+                print('Hit "C"')
+
             if line[:8] == b'CMBLOCK,' or line[:8] == b'cmblock,':  # component block
                 if debug:
                     print('reading CMBLOCK')
@@ -463,6 +444,9 @@ def read(filename, read_parameters=False, debug=False):
                     elem_comps[comname] = component_interperter(component)
 
         elif '*' == line[0] and read_parameters:  # maybe *DIM
+            if debug:
+                print('Hit "*"')
+
             if b'DIM' in line:
                 items = line.decode().split(',')
                 if len(items) < 3:
@@ -495,6 +479,10 @@ def read(filename, read_parameters=False, debug=False):
 
     # if the node block was not read for some reason
     if not nodes_read:
+        # Free cached archive file
+        if debug:
+            print('Did not read nodes block. Rereading from start.')
+
         n = 0
         while 1:
             if myfgets(line, raw, &n, fsize):
@@ -516,6 +504,8 @@ def read(filename, read_parameters=False, debug=False):
                                     &d_size[0], f_size, &n)
 
     # Free cached archive file
+    if debug:
+        print('Freeing memory')
     free(raw)
 
     # assemble global element block
@@ -523,6 +513,9 @@ def read(filename, read_parameters=False, debug=False):
         elem = np.empty(0, dtype=ctypes.c_int)
         elem_off = np.empty(0, dtype=ctypes.c_int)
         elem_sz = 0
+
+    if debug:
+        print('Returning arrays')
 
     return {'rnum': np.asarray(rnum),
             'rdat': rdat,
