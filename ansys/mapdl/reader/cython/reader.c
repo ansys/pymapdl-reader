@@ -1,9 +1,9 @@
+#include <errno.h>
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <math.h>
-
 
 //=============================================================================
 // Fast string to integer convert to ANSYS formatted integers 
@@ -216,11 +216,11 @@ static inline double ans_strtod2(char *raw, int fltsz){
 //     Number of nodes read.
 //=============================================================================
 int read_nblock(char *raw, int *nnum, double *nodes, int nnodes, int* intsz,
-		int fltsz, int *n){
+		int fltsz, int64_t* n){
 
   // set to start of the NBLOCK
   raw += n[0];
-  int len_orig = strlen(raw);
+  int64_t len_orig = strlen(raw);
   int i, j, i_val, eol;
 
   for (i=0; i<nnodes; i++){
@@ -265,11 +265,8 @@ int read_nblock(char *raw, int *nnum, double *nodes, int nnodes, int* intsz,
   }
 
   // return file position
-  /* int fpos = len_orig - strlen(raw) + n[0]; */
-  /* return fpos; */
   n[0] += len_orig - strlen(raw);
   return i;
-
 }
 
 
@@ -356,12 +353,12 @@ int read_nblock_from_nwrite(const char* filename, int *nnum, double *nodes,
  * pos : Position of the start of the EBLOCK.
  * ==========================================================================*/
 int read_eblock(char *raw, int *elem_off, int *elem, int nelem, int intsz,
-		int *pos){
+		int64_t *pos){
   int i, j, nnode;
 
   // set to start of the EBLOCK
   raw += pos[0];
-  int len_orig = strlen(raw);
+  int64_t len_orig = strlen(raw);
   int c = 0;  // position in elem array
 
   // Loop through elements
