@@ -102,12 +102,6 @@ jobs:
           cache: 'pip'
           cache-dependency-path: 'requirements/*.txt'
 
-      # Docker layer caching.
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        if: runner.os == 'Linux'
-        # Ignore the failure of a step and avoid terminating the job.
-        continue-on-error: true
-
       - name: Build ManyLinux wheel
         if: ${{ runner.os == 'Linux' }}
         run: |
