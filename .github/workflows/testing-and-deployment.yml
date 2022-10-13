@@ -27,9 +27,9 @@ jobs:
     name: Style Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2.2.2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
       - name: Install pre-commit
@@ -45,30 +45,26 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: "3.10"
 
-      - name: Install XVFB
-        run: |
-          sudo apt update
-          sudo apt-get install libgl1-mesa-glx xvfb
-          pip install pyvista
-          xvfb-run python -c "import pyvista; print(pyvista.Report())"
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@v1
 
       - name: Install ansys-mapdl-reader
         run: |
           pip install -e .
           cd tests/
-          xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
+          python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
 
       - name: Build Documentation
         run: |
           sudo apt-get install zip pandoc -qy
-          pip install -r requirements_docs.txt --disable-pip-version-check
-          xvfb-run make -C doc html
+          pip install -r requirements/requirements_docs.txt --disable-pip-version-check
+          make -C doc html
           cd doc/build/html/
-          zip ../../../${{ env.PACKAGE_NAME }}-HTML.zip ./*
+          zip -r ../../../${{ env.PACKAGE_NAME }}-HTML.zip ./*
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -80,13 +76,13 @@ jobs:
           retention-days: 7
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@v4
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: doc/build/html
-          CLEAN: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: doc/build/html
+          clean: true
 
   build:
     name: Build and Test
@@ -100,33 +96,11 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Linux pip cache
-        uses: actions/cache@v3
-        if: ${{ runner.os == 'Linux' }}
-        with:
-          path: ~/.cache/pip
-          key: Python-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
-          restore-keys: |
-            Python-${{ runner.os }}-${{ matrix.python-version }}
-
-      - name: Window pip cache
-        uses: actions/cache@v3
-        if: ${{ runner.os == 'Windows' }}
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key: Python-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_*.txt') }}
-          restore-keys: |
-            Python-${{ runner.os }}-${{ matrix.python-version }}
-
-      # Docker layer caching.
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        if: runner.os == 'Linux'
-        # Ignore the failure of a step and avoid terminating the job.
-        continue-on-error: true
+          cache: 'pip'
+          cache-dependency-path: 'requirements/*.txt'
 
       - name: Build ManyLinux wheel
         if: ${{ runner.os == 'Linux' }}
@@ -161,38 +135,13 @@ jobs:
           pip install (get-item .\dist\*.whl)
           pip list
 
-      - name: Get PyVista tools
-        if: ${{ runner.os == 'Windows' }}
-        uses: actions/checkout@v3
-        with:
-          repository: pyvista/gl-ci-helpers
-          path: pyvista-tools
-
-      - name: Install OpenGL on Windows
-        if: ${{ runner.os == 'Windows' }}
-        shell: pwsh
-        run: |
-          Set-StrictMode -Version Latest
-          $ErrorActionPreference = "Stop"
-          pyvista-tools/appveyor/install_opengl.ps1
-          python -c "import pyvista; print(pyvista.Report())"
-
-      - name: Install XVFB on Linux
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          sudo apt update
-          sudo apt-get install libgl1-mesa-glx xvfb
-          xvfb-run python -c "import pyvista; print(pyvista.Report())"
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@v1
 
       - name: Install test requirements
-        run: pip install -r requirements_test.txt
+        run: pip install -r requirements/requirements_test.txt
 
-      - name: Test with XVFB
-        if: ${{ runner.os == 'Linux' }}
-        run: xvfb-run pytest -v tests/ --durations=0
-
-      - name: Test without XVFB
-        if: ${{ runner.os == 'Windows' }}
+      - name: Test
         run: pytest -v tests/ --durations=0
 
       - uses: codecov/codecov-action@v2
