@@ -76,7 +76,7 @@ jobs:
           retention-days: 7
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@4.4.1
+        uses: JamesIves/github-pages-deploy-action@v4
         if: startsWith(github.ref, 'refs/tags/')
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -100,7 +100,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: '/requirements/*.txt'
+          cache-dependency-path: 'requirements/*.txt'
 
       # Docker layer caching.
       - uses: satackey/action-docker-layer-caching@v0.0.11
