@@ -118,6 +118,12 @@ class CyclicResult(Result):
             self._is_repeated_mode = np.array([False])
             return
 
+        # should not have repeated modes at harmonic index of 0 or N/2
+        self._is_repeated_mode[self._resultheader["hindex"] == 0] = False
+        self._is_repeated_mode[
+            self._resultheader["hindex"] == self.n_sector // 2
+        ] = False
+
         self._repeated_index = np.empty(self._is_repeated_mode.size, np.int)
         self._repeated_index[:] = -1
         if np.any(self._is_repeated_mode):
