@@ -64,7 +64,7 @@ jobs:
           pip install -r requirements/requirements_docs.txt --disable-pip-version-check
           make -C doc html
           cd doc/build/html/
-          zip ../../../${{ env.PACKAGE_NAME }}-HTML.zip ./*
+          zip -r ../../../${{ env.PACKAGE_NAME }}-HTML.zip ./*
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -77,6 +77,7 @@ jobs:
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
