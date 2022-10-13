@@ -193,7 +193,7 @@ jobs:
   #       run: ls -R
 
   #     - name: Downloading artifacts
-  #       uses: actions/download-artifact@v2
+  #       uses: actions/download-artifact@v3
 
   #     - name: Display structure of downloaded artifact files
   #       run: ls -R
@@ -265,7 +265,7 @@ jobs:
           python-version: 3.9
 
       # this downloads all artifacts
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
 
       - name: Display structure of downloaded files
         run: ls -R
