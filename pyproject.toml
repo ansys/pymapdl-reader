@@ -20,7 +20,6 @@ filterwarnings = [
 ]
 
 [tool.cibuildwheel]
-select = "cp3{7,8,9,10}-*"
 archs = ["auto64"]  # 64-bit only
 skip = "pp* *musllinux*"  # disable PyPy and musl-based wheels
 test-requires = "ansys-mapdl-core>=0.60.4 matplotlib pytest scipy"
@@ -29,4 +28,4 @@ test-command = "pytest {project}/tests"
 [tool.cibuildwheel.macos]
 # https://cibuildwheel.readthedocs.io/en/stable/faq/#apple-silicon
 archs = ["x86_64", "universal2"]
-test-skip = ["*_arm64", "*_universal2:arm64"]
+test-skip = ["*_arm64", "*_universal2:arm64", "*cp311*"]
