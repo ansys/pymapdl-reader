@@ -49,24 +49,20 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install XVFB
-        run: |
-          sudo apt update
-          sudo apt-get install libgl1-mesa-glx xvfb
-          pip install pyvista
-          xvfb-run python -c "import pyvista; print(pyvista.Report())"
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@v1
 
       - name: Install ansys-mapdl-reader
         run: |
           pip install -e .
           cd tests/
-          xvfb-run python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
+          python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
 
       - name: Build Documentation
         run: |
           sudo apt-get install zip pandoc -qy
-          pip install -r requirements_docs.txt --disable-pip-version-check
-          xvfb-run make -C doc html
+          pip install -r requirements/requirements_docs.txt --disable-pip-version-check
+          make -C doc html
           cd doc/build/html/
           zip ../../../${{ env.PACKAGE_NAME }}-HTML.zip ./*
 
@@ -161,38 +157,13 @@ jobs:
           pip install (get-item .\dist\*.whl)
           pip list
 
-      - name: Get PyVista tools
-        if: ${{ runner.os == 'Windows' }}
-        uses: actions/checkout@v3
-        with:
-          repository: pyvista/gl-ci-helpers
-          path: pyvista-tools
-
-      - name: Install OpenGL on Windows
-        if: ${{ runner.os == 'Windows' }}
-        shell: pwsh
-        run: |
-          Set-StrictMode -Version Latest
-          $ErrorActionPreference = "Stop"
-          pyvista-tools/appveyor/install_opengl.ps1
-          python -c "import pyvista; print(pyvista.Report())"
-
-      - name: Install XVFB on Linux
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          sudo apt update
-          sudo apt-get install libgl1-mesa-glx xvfb
-          xvfb-run python -c "import pyvista; print(pyvista.Report())"
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@v1
 
       - name: Install test requirements
-        run: pip install -r requirements_test.txt
+        run: pip install -r requirements/requirements_test.txt
 
-      - name: Test with XVFB
-        if: ${{ runner.os == 'Linux' }}
-        run: xvfb-run pytest -v tests/ --durations=0
-
-      - name: Test without XVFB
-        if: ${{ runner.os == 'Windows' }}
+      - name: Test
         run: pytest -v tests/ --durations=0
 
       - uses: codecov/codecov-action@v2
