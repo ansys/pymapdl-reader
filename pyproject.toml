@@ -20,6 +20,7 @@ filterwarnings = [
 ]
 
 [tool.cibuildwheel]
+select = "cp3{7,8,9,10}-*"
 archs = ["auto64"]  # 64-bit only
 skip = "pp* *musllinux*"  # disable PyPy and musl-based wheels
 test-requires = "ansys-mapdl-core>=0.60.4 matplotlib pytest scipy"

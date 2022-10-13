@@ -156,7 +156,6 @@ jobs:
           retention-days: 7
 
   mac_build:
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     name: Build wheels on MacOS
     runs-on: macos-latest
 
