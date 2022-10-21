@@ -110,6 +110,12 @@ class CyclicResult(Result):
         mask_b = np.isclose(self.time_values, np.roll(self.time_values, -1))
         self._is_repeated_mode = np.logical_or(mask_a, mask_b)
 
+        # should not have repeated modes at harmonic index of 0 or N/2
+        self._is_repeated_mode[self._resultheader["hindex"] == 0] = False
+        self._is_repeated_mode[
+            self._resultheader["hindex"] == self.n_sector // 2
+        ] = False
+
         # edge case for single pair of repeated modes
         if self._is_repeated_mode.size == 2 and self._is_repeated_mode.all():
             self._repeated_index = np.array([1, 0])
@@ -117,12 +123,6 @@ class CyclicResult(Result):
         elif self._is_repeated_mode.size == 1:  # edge case single result
             self._is_repeated_mode = np.array([False])
             return
-
-        # should not have repeated modes at harmonic index of 0 or N/2
-        self._is_repeated_mode[self._resultheader["hindex"] == 0] = False
-        self._is_repeated_mode[
-            self._resultheader["hindex"] == self.n_sector // 2
-        ] = False
 
         self._repeated_index = np.empty(self._is_repeated_mode.size, np.int)
         self._repeated_index[:] = -1
