@@ -274,6 +274,7 @@ jobs:
         run: |
           pip install twine
           twine upload --skip-existing ./**/*.whl
+          twine upload --skip-existing ./**/*.tar.gz
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
@@ -282,6 +283,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
+            ./**/*.tar.gz
             ./**/*.whl
             ./**/*.zip
             ./**/*.pdf
