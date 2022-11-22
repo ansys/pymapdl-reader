@@ -106,10 +106,25 @@ def test_nodal_cyclic_modal(academic_rotor, load_step, sub_step, rtype):
     # np.abs(pdiff).max()
     # this number is small (aprox 0.0002%)
 
+    # verify we can get complex results
+    nnum, stress = academic_rotor.principal_nodal_stress(
+        rnum,
+        as_complex=False,
+    )
+    nnum_com, stress_com = academic_rotor.principal_nodal_stress(
+        rnum,
+        as_complex=True,
+    )
+    assert np.allclose(np.real(stress_com), stress)
+    assert np.allclose(nnum, nnum_com)
+
+    with pytest.raises(ValueError, match="cannot both be True"):
+        academic_rotor.principal_nodal_stress(rnum, as_complex=True, full_rotor=True)
+
 
 def test_non_cyclic():
     with pytest.raises(TypeError):
-        rst = CyclicResult(examples.rstfile)
+        CyclicResult(examples.rstfile)
 
 
 @skip_windows

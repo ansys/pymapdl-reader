@@ -278,8 +278,7 @@ class CyclicResult(Result):
         result_expanded *= cjang.reshape(-1, 1, 1)
         if as_complex:
             return result_expanded
-        else:
-            return np.real(result_expanded)
+        return np.real(result_expanded)
 
     def _expand_cyclic_modal_tensor(
         self, result, result_r, hindex, phase, as_complex, full_rotor, stress=True
@@ -1083,7 +1082,7 @@ class CyclicResult(Result):
         equivalent stress.
         """
         if as_complex and full_rotor:
-            raise ValueError("complex and full_rotor cannot both be True")
+            raise ValueError("`complex` and `full_rotor` cannot both be True")
 
         # get component stress
         nnum, stress = self.nodal_stress(rnum, phase, as_complex, full_rotor)
@@ -1093,6 +1092,11 @@ class CyclicResult(Result):
             stress_r = np.imag(stress)
             stress = np.real(stress)
 
+            if not stress.flags["C_CONTIGUOUS"]:
+                stress = np.ascontiguousarray(stress)
+            if not stress_r.flags["C_CONTIGUOUS"]:
+                stress_r = np.ascontiguousarray(stress_r)
+
             pstress, isnan = _binary_reader.compute_principal_stress(stress)
             pstress[isnan] = np.nan
             pstress_r, isnan = _binary_reader.compute_principal_stress(stress_r)
@@ -1100,7 +1104,7 @@ class CyclicResult(Result):
 
             return nnum, pstress + 1j * pstress_r
 
-        elif full_rotor:
+        if full_rotor:
             # compute principle stress for each sector
             pstress = np.empty((self.n_sector, stress.shape[1], 5), np.float64)
             for i in range(stress.shape[0]):
@@ -1108,10 +1112,9 @@ class CyclicResult(Result):
                 pstress[i, isnan] = np.nan
             return nnum, pstress
 
-        else:
-            pstress, isnan = _binary_reader.compute_principal_stress(stress)
-            pstress[isnan] = np.nan
-            return nnum, pstress
+        pstress, isnan = _binary_reader.compute_principal_stress(stress)
+        pstress[isnan] = np.nan
+        return nnum, pstress
 
     def plot_nodal_solution(
         self,
@@ -1139,7 +1142,7 @@ class CyclicResult(Result):
 
         comp : str, optional
             Display component to display.  Options are 'x', 'y', 'z',
-            and 'norm', corresponding to the x directin, y direction,
+            and 'norm', corresponding to the x direction, y direction,
             z direction, and the normalized direction:
             ``(x**2 + y**2 + z**2)**0.5``
 
