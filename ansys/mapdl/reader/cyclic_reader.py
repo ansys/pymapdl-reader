@@ -278,8 +278,7 @@ class CyclicResult(Result):
         result_expanded *= cjang.reshape(-1, 1, 1)
         if as_complex:
             return result_expanded
-        else:
-            return np.real(result_expanded)
+        return np.real(result_expanded)
 
     def _expand_cyclic_modal_tensor(
         self, result, result_r, hindex, phase, as_complex, full_rotor, stress=True

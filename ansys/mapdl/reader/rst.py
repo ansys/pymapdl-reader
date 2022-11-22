@@ -1359,7 +1359,7 @@ class Result(AnsysBinary):
         Examples
         --------
         Return the nodal solution (in this case, displacement) for the
-        first result of ``"file.rst"``
+        first result of ``"file.rst"``.
 
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
