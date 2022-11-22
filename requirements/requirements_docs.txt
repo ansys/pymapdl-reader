@@ -1,9 +1,9 @@
 Sphinx==5.3.0
-ansys-sphinx-theme==0.6.1
+ansys-sphinx-theme==0.7.1
 notfound==1.0.2
-pypandoc==1.9
-pyvista==0.36.1
-sphinx-copybutton==0.5.0
+pypandoc==1.10
+pyvista==0.37.0
+sphinx-copybutton==0.5.1
 sphinx-gallery==0.11.1
 sphinx-notfound-page==0.8.3
 vtk==9.2.2
