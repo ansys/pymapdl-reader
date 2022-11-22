@@ -559,7 +559,7 @@ will return which modes are available:
     Available modes: [0 1 2 3 4 5 6 7 8 9]
 
 Results from a cyclic analysis require additional post processing to
-be interperted correctly.  Mode shapes are stored within the result
+be interpreted correctly.  Mode shapes are stored within the result
 file as unprocessed parts of the real and imaginary parts of a modal
 solution.  ``ansys-mapdl-reader`` combines these values into a single
 complex array and then returns the real result of that array.

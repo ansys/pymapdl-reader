@@ -1143,7 +1143,7 @@ class CyclicResult(Result):
 
         comp : str, optional
             Display component to display.  Options are 'x', 'y', 'z',
-            and 'norm', corresponding to the x directin, y direction,
+            and 'norm', corresponding to the x direction, y direction,
             z direction, and the normalized direction:
             ``(x**2 + y**2 + z**2)**0.5``
 

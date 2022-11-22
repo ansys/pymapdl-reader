@@ -301,7 +301,7 @@ def parse_header(table, keys):
 
 
 def two_ints_to_long(intl, inth):
-    """Interpert two ints as one long"""
+    """Interpret two ints as one long"""
     longint = struct.pack(">I", inth) + struct.pack(">I", intl)
     return struct.unpack(">q", longint)[0]
 
