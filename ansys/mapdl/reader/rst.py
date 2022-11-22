@@ -609,7 +609,7 @@ class Result(AnsysBinary):
                 table = self.read_record(ptr_sec + offset)
                 self._section_data[int(table[0])] = table[1:]
 
-        # it might be possible to interpert the section data...
+        # it might be possible to interpret the section data...
         # sec[3] # total thickness
         # sec[4] # number of layers (?)
         # sec[5] # total integration points (?)
@@ -1358,8 +1358,8 @@ class Result(AnsysBinary):
 
         Examples
         --------
-        Return the nodal soltuion (in this case, displacement) for the
-        first result of ``"file.rst"``
+        Return the nodal solution (in this case, displacement) for the
+        first result of ``"file.rst"``.
 
         >>> from ansys.mapdl import reader as pymapdl_reader
         >>> rst = pymapdl_reader.read_binary('file.rst')
