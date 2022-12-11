@@ -1872,7 +1872,7 @@ class CyclicResult(Result):
         full_screen = kwargs.pop("full_screen", False)
         screenshot = kwargs.pop("screenshot", None)
         text_color = kwargs.pop("text_color", None)
-        kwargs.setdefault("cmap", "viridis")
+        kwargs.setdefault("cmap", "jet")
         if scalars is not None:
             kwargs.setdefault("rng", [np.nanmin(scalars), np.nanmax(scalars)])
 

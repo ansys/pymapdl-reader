@@ -200,7 +200,7 @@ def solve_km():
         scalars=n,
         stitle="Normalized\nDisplacement",
         flip_scalars=True,
-        cmap="viridis",
+        cmap="jet",
     )
     # Update the coordinates by adding the mode shape to the grid
     pl.update_coordinates(grid.points + disp / 80, render=False)

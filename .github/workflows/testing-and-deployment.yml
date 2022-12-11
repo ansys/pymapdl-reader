@@ -58,9 +58,13 @@ jobs:
           cd tests/
           python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
 
+      - name: Install OS packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install zip pandoc -qy
+
       - name: Build Documentation
         run: |
-          sudo apt-get install zip pandoc -qy
           pip install -r requirements/requirements_docs.txt --disable-pip-version-check
           make -C doc html
           cd doc/build/html/
@@ -260,7 +264,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
 

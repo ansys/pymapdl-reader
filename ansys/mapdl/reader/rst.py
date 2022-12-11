@@ -2999,7 +2999,7 @@ class Result(AnsysBinary):
             rng = kwargs.pop("rng", None)
 
         return_cpos = kwargs.pop("return_cpos", False)
-        cmap = kwargs.pop("cmap", "viridis")
+        cmap = kwargs.pop("cmap", "jet")
         window_size = kwargs.pop("window_size", None)
         full_screen = kwargs.pop("full_screen", None)
         notebook = kwargs.pop("notebook", None)
@@ -3243,7 +3243,7 @@ class Result(AnsysBinary):
             scalars[i] = scalars[i][ind]
 
         rng = kwargs.pop("rng", [np.min(scalars), np.max(scalars)])
-        cmap = kwargs.pop("cmap", "viridis")
+        cmap = kwargs.pop("cmap", "jet")
         window_size = kwargs.pop("window_size", [1024, 768])
         full_screen = kwargs.pop("full_screen", False)
         notebook = kwargs.pop("notebook", False)
