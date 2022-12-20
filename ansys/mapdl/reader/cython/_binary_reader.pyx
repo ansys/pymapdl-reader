@@ -1403,7 +1403,7 @@ def tensor_arbitrary(double [:, ::1] stress, double [:, :] trans):
         stress[i, 4] = r5
         stress[i, 5] = r6
 
-    return np.asarray(isnan, np.bool)
+    return np.asarray(isnan, np.bool_)
 
 
 def tensor_strain_arbitrary(double [:, ::1] stress, double [:, :] trans):
@@ -1476,7 +1476,7 @@ def tensor_strain_arbitrary(double [:, ::1] stress, double [:, :] trans):
         stress[i, 4] = r5*2
         stress[i, 5] = r6*2
 
-    return np.asarray(isnan, np.bool)
+    return np.asarray(isnan, np.bool_)
 
 
 def tensor_rotate_z(double [:, :] stress, float theta_z):
@@ -1518,7 +1518,7 @@ def tensor_rotate_z(double [:, :] stress, float theta_z):
         stress[i, 4] = c*s_yz + s*s_xz
         stress[i, 5] = c*s_xz - s*s_yz
 
-    return np.asarray(isnan, dtype=np.bool)
+    return np.asarray(isnan, dtype=np.bool_)
 
 
 def compute_principal_stress(double [:, ::1] stress):
@@ -1615,7 +1615,7 @@ def compute_principal_stress(double [:, ::1] stress):
 
         pstress[i, 4] = sqrt(0.5*(c1**2 + c2**2 + c3**2))
 
-    return np.asarray(pstress), np.asarray(isnan, np.bool)
+    return np.asarray(pstress), np.asarray(isnan, np.bool_)
 
 
 def affline_transform(float_or_double [:, ::1] points, float_or_double [:, ::1] t):
@@ -1669,7 +1669,7 @@ def cells_with_all_nodes(index_type [::1] offset, index_type [::1] cells,
                 if point_mask[cells[j]] != 1:
                     cell_mask[i] = 0
 
-    return np.asarray(cell_mask, dtype=np.bool)
+    return np.asarray(cell_mask, dtype=np.bool_)
 
 
 def cells_with_any_nodes(index_type [::1] offset, index_type [::1] cells,
@@ -1693,7 +1693,7 @@ def cells_with_any_nodes(index_type [::1] offset, index_type [::1] cells,
                     cell_mask[i] = 1
                     break
 
-    return np.asarray(cell_mask, dtype=np.bool)
+    return np.asarray(cell_mask, dtype=np.bool_)
 
 
 def midside_mask(uint8 [::1] celltypes, index_type [::1] cells,
@@ -1746,7 +1746,7 @@ def midside_mask(uint8 [::1] celltypes, index_type [::1] cells,
                 mask[cells[j]] = 1
 
     # return as a bool array without copying
-    return np.asarray(mask).view(np.bool)
+    return np.asarray(mask).view(np.bool_)
 
 
 def euler_cart_to_cyl(double [:, ::1] stress, double [::1] angles):
