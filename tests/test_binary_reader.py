@@ -182,7 +182,7 @@ def test_prnsol_u(mapdl, cyclic_modal, rset):
     mapdl.set(*rset)
     # verify cyclic displacements
     array = mapdl.prnsol("u").to_array()
-    ansys_nnum = array[:, 0].astype(np.int)
+    ansys_nnum = array[:, 0].astype(np.int_)
     ansys_disp = array[:, 1:-1]
 
     nnum, disp = mapdl.result.nodal_solution(rset)
@@ -207,7 +207,7 @@ def test_presol_s(mapdl, cyclic_modal, rset):
 
     # parse ansys result
     array = mapdl.presol("S").to_array()
-    ansys_enode = array[:, 0].astype(np.int)
+    ansys_enode = array[:, 0].astype(np.int_)
     ansys_element_stress = array[:, 1:]
 
     arr_sz = element_stress.shape[0]
@@ -222,7 +222,7 @@ def test_prnsol_s(mapdl, cyclic_modal, rset):
 
     # verify cyclic displacements
     array = mapdl.prnsol("s").to_array()
-    ansys_nnum = array[:, 0].astype(np.int)
+    ansys_nnum = array[:, 0].astype(np.int_)
     ansys_stress = array[:, 1:]
 
     nnum, stress = mapdl.result.nodal_stress(rset)
@@ -244,7 +244,7 @@ def test_prnsol_prin(mapdl, cyclic_modal, rset):
 
     # verify principal stress
     array = mapdl.prnsol("prin").to_array()
-    ansys_nnum = array[:, 0].astype(np.int)
+    ansys_nnum = array[:, 0].astype(np.int_)
     ansys_stress = array[:, 1:]
 
     nnum, stress = mapdl.result.principal_nodal_stress(rset)

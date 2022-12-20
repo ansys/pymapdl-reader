@@ -296,10 +296,10 @@ class FullFile(AnsysBinary):
             Sort these values by node number and DOF by enabling the
             sort parameter.
 
-        k : (n x n) np.float or scipy.csc array
+        k : (n x n) np.float_ or scipy.csc array
             Stiffness array
 
-        m : (n x n) np.float or scipy.csc array
+        m : (n x n) np.float_ or scipy.csc array
             Mass array
 
         Examples

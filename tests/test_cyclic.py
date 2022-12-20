@@ -96,7 +96,7 @@ def test_nodal_cyclic_modal(academic_rotor, load_step, sub_step, rtype):
 
     # ANSYS will not average across geometric discontinuities, pymapdl_reader
     # always does.  These 10 nodes are along the blade/sector interface
-    dmask = np.ones(stress[0].shape[0], np.bool)
+    dmask = np.ones(stress[0].shape[0], np.bool_)
     dmask[[99, 111, 115, 116, 117, 135, 142, 146, 147, 148]] = False
 
     # large atol due to the float32 encoding of the stress
@@ -198,7 +198,7 @@ def test_element_stress_v182_non_cyclic():
         if len(line) == 201:
             ansys_element_stress.append(line)
     ansys_element_stress = np.genfromtxt(ansys_element_stress)
-    ansys_enode = ansys_element_stress[:, 0].astype(np.int)
+    ansys_enode = ansys_element_stress[:, 0].astype(np.int_)
     ansys_element_stress = ansys_element_stress[:, 1:]
 
     """
@@ -222,7 +222,7 @@ def test_nodal_stress_v182_non_cyclic():
     Generated with:
     msg = ansys.Prnsol('s').splitlines()
     array = np.genfromtxt(msg[9:])
-    ansys_nnum = array[:, 0].astype(np.int)
+    ansys_nnum = array[:, 0].astype(np.int_)
     ansys_stress = array[:, 1:]
     """
     ansys_result_file = os.path.join(cyclic_testfiles_path, "cyclic_v182.rst")
