@@ -646,15 +646,15 @@ def save_as_archive(
             # write node components
             for node_key in grid.point_data:
                 arr = grid.point_data[node_key]
-                if arr.dtype in [np.uint8, np.bool]:
-                    items = nodenum[arr.view(np.bool)]
+                if arr.dtype in [np.uint8, np.bool_]:
+                    items = nodenum[arr.view(np.bool_)]
                     write_cmblock(fid, items, node_key, "NODE")
 
             # write element components
             for node_key in grid.cell_data:
                 arr = grid.cell_data[node_key]
-                if arr.dtype in [np.uint8, np.bool]:
-                    items = enum[arr.view(np.bool)]
+                if arr.dtype in [np.uint8, np.bool_]:
+                    items = enum[arr.view(np.bool_)]
                     write_cmblock(fid, items, node_key, "ELEMENT")
 
 

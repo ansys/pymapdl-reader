@@ -907,7 +907,7 @@ class Result(AnsysBinary):
         if isinstance(node_components, str):
             node_components = [node_components]
 
-        mask = np.zeros(grid.n_points, np.bool)
+        mask = np.zeros(grid.n_points, np.bool_)
         for component in node_components:
             component = component.upper()
             if component not in grid.point_data:
@@ -915,7 +915,7 @@ class Result(AnsysBinary):
                     "Result file does not contain node " + 'component "%s"' % component
                 )
 
-            mask += grid.point_data[component].view(np.bool)
+            mask += grid.point_data[component].view(np.bool_)
 
         # need to extract the mesh
         cells, offset = vtk_cell_info(grid)
@@ -954,7 +954,7 @@ class Result(AnsysBinary):
         if isinstance(element_components, str):
             element_components = [element_components]
 
-        cell_mask = np.zeros(grid.n_cells, np.bool)
+        cell_mask = np.zeros(grid.n_cells, np.bool_)
         for component in element_components:
             component = component.upper()
             if component not in grid.cell_data:
@@ -962,7 +962,7 @@ class Result(AnsysBinary):
                     "Result file does not contain element "
                     + 'component "%s"' % component
                 )
-            cell_mask += grid.cell_data[component].view(np.bool)
+            cell_mask += grid.cell_data[component].view(np.bool_)
 
         if not cell_mask.any():
             raise RuntimeError("Empty component")

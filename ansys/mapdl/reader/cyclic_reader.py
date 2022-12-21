@@ -124,7 +124,7 @@ class CyclicResult(Result):
             self._is_repeated_mode = np.array([False])
             return
 
-        self._repeated_index = np.empty(self._is_repeated_mode.size, np.int)
+        self._repeated_index = np.empty(self._is_repeated_mode.size, np.int_)
         self._repeated_index[:] = -1
         if np.any(self._is_repeated_mode):
             self._repeated_index[mask_a] = np.nonzero(mask_b)[0]

@@ -1057,7 +1057,7 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
         print '# Node {:d}'.format(j)
         print 'for j in range(3):'
         endtxt = ''
-        k = pre_j[4*j].astype(np.int)
+        k = pre_j[4*j].astype(np.int_)
         for i in np.nonzero(k)[0].tolist():
             if k[i] == -1:
                 endtxt += ' + pts[ind{:d}, j]'.format(i)
@@ -1071,7 +1071,7 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
         
         for m in range(1, 4):
             txt = 'e{:d}[j] ='.format(m - 1)
-            k = pre_j[4*j + m].astype(np.int)
+            k = pre_j[4*j + m].astype(np.int_)
             for i in np.nonzero(k)[0].tolist():
                 if k[i] == 1:
                     txt += ' + pts[ind{:d}, j]'.format(i)
@@ -2894,7 +2894,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                     [0, 4],# 16
                     [1, 5],# 17
                     [2, 6],# 18
-                    [3, 7]], np.int)# 19
+                    [3, 7]], np.int_)# 19
     
     midpt = (edgept[idx[:, 0]] + edgept[idx[:, 1]])/2
     
