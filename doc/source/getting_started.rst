@@ -1,5 +1,6 @@
-Installation
-------------
+Getting started
+---------------
+
 Installation is simply::
 
    pip install ansys-mapdl-reader
