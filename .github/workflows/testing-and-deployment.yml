@@ -31,7 +31,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install pre-commit
         run: pip install pre-commit
       - name: Run pre-commit
@@ -93,7 +93,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -169,7 +169,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.11.3
         with:
-            python-version: 3.7 - 3.10
+            python-version: 3.7 - 3.11
 
       - name: List generated wheels
         run: |
@@ -267,7 +267,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: '3.11'
 
       # this downloads all artifacts
       - uses: actions/download-artifact@v3
