@@ -110,8 +110,7 @@ class CyclicResult(Result):
         mask_b = np.isclose(self.time_values, np.roll(self.time_values, -1))
         self._is_repeated_mode = np.logical_or(mask_a, mask_b)
 
-        # should not have repeated modes at harmonic index of 0 or N/2
-        self._is_repeated_mode[self._resultheader["hindex"] == 0] = False
+        # should not have repeated modes at harmonic index N/2
         self._is_repeated_mode[
             self._resultheader["hindex"] == self.n_sector // 2
         ] = False
@@ -131,8 +130,7 @@ class CyclicResult(Result):
             self._repeated_index[mask_b] = np.nonzero(mask_a)[0]
 
     def nodal_solution(self, rnum, phase=0, full_rotor=False, as_complex=False):
-        """Returns the DOF solution for each node in the global
-        cartesian coordinate system.
+        """Return the DOF solution for each node in the global cartesian coordinate system.
 
         Parameters
         ----------
