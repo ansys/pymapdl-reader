@@ -350,7 +350,7 @@ _etype_map = [
     0,  # UNUSED113
     0,  # UNUSED114
     3,  # INTER115
-    3,  # FLUID116
+    2,  # FLUID116
     4,  # EDGE117
     3,  # HF118
     5,  # HF119
