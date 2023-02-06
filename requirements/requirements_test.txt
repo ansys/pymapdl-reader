@@ -1,5 +1,7 @@
 ansys-mapdl-core>=0.60.4
-matplotlib
-pytest
-pytest-cov
-scipy
+matplotlib==3.6.3
+pytest==7.2.1
+pytest-cov==4.0.0
+scipy==1.10.0
+ipywidgets==8.0.4
+trame==2.2.6
