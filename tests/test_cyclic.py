@@ -41,6 +41,7 @@ skip_windows = pytest.mark.skipif(
     os.name == "nt", reason="Test fails due to OSMESA on Windows"
 )
 
+
 # static result x axis
 @pytest.fixture(scope="module")
 def academic_rotor():

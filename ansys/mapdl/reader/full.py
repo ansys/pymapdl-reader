@@ -428,7 +428,6 @@ class FullFile(AnsysBinary):
 
         # output as a sparse matrix
         if as_sparse:
-
             if kdata is not None:
                 k = coo_matrix((self.neqn,) * 2)
                 k.data = kdata  # data has to be set first
