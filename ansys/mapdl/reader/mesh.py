@@ -187,7 +187,6 @@ class Mesh:
 
         if allowable_types is None or 200 in allowable_types:
             for etype_ind, etype in self._ekey:
-
                 # MESH200
                 if etype == 200 and etype_ind in self.key_option:
                     # keyoption 1 contains various cell types

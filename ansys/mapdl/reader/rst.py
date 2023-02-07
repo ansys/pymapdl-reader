@@ -3103,7 +3103,6 @@ class Result(AnsysBinary):
             first_loop = True
             cached_normals = [None for _ in range(n_frames)]
             while self._animating:
-
                 for j, angle in enumerate(np.linspace(0, np.pi * 2, n_frames + 1)[:-1]):
                     mag_adj = np.sin(angle)
                     if scalars is not None:

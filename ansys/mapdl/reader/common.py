@@ -309,10 +309,8 @@ def two_ints_to_long(intl, inth):
 def read_standard_header(filename):
     """Reads standard header"""
     with open(filename, "rb") as f:
-
         endian = "<"
         if np.fromfile(f, dtype="<i", count=1) != 100:
-
             # Check if big enos
             f.seek(0)
             if np.fromfile(f, dtype=">i", count=1) == 100:
