@@ -61,7 +61,7 @@ def access_bit(data, num):
 
 EMAIL_ME = """Please raise an issue at:
 https://github.com/pyansys/pymapdl-reader/issues
-Or email the developer at alexander.kaszynski@ansys.com
+Or email the PyAnsys support team at pyansys.support@ansys.com
 """
 np.seterr(divide="ignore", invalid="ignore")
 
@@ -3021,7 +3021,8 @@ class Result(AnsysBinary):
             plotter.add_axes()
 
         # set background
-        plotter.background_color = kwargs.pop("background", None)
+        theme = DefaultTheme()
+        theme.background = kwargs.pop("background", None)
 
         # remove extra keyword args
         kwargs.pop("node_components", None)
@@ -3041,7 +3042,7 @@ class Result(AnsysBinary):
 
         # NAN/missing data are white
         # plotter.renderers[0].SetUseDepthPeeling(1)  # <-- for transparency issues
-        plotter.mapper.GetLookupTable().SetNanColor(1, 1, 1, 1)
+        theme.SetNanColor = [1, 1, 1, 1]
 
         if cpos:
             plotter.camera_position = cpos
@@ -3263,7 +3264,8 @@ class Result(AnsysBinary):
             plotter.add_axes()
 
         # set background
-        plotter.background_color = kwargs.pop("background", None)
+        theme = DefaultTheme()
+        theme.background = kwargs.pop("background", None)
 
         # remove extra keyword args
         kwargs.pop("node_components", None)
@@ -3278,13 +3280,12 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            theme = DefaultTheme()
             theme.color = text_color
             pv.global_theme.load_theme(theme)
 
         # NAN/missing data are white
         # plotter.renderers[0].SetUseDepthPeeling(1)  # <-- for transparency issues
-        plotter.mapper.GetLookupTable().SetNanColor(1, 1, 1, 1)
+        theme.SetNanColor = [1, 1, 1, 1]
 
         if cpos:
             plotter.camera_position = cpos
