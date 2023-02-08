@@ -8,6 +8,10 @@
 *.o
 *.cache
 
+# virtual environment
+venv/
+.venv/
+
 # OS generated files #
 ######################
 .fuse_hidden*
@@ -66,3 +70,6 @@ examples/.local
 
 # docker
 docker/mapdl/v211
+
+# Visual studio code local settings
+.vscode/
