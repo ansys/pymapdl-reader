@@ -15,6 +15,7 @@ import warnings
 import numpy as np
 import pyvista as pv
 from pyvista import _vtk as vtk
+from pyvista.themes import DefaultTheme
 from tqdm import tqdm
 
 from ansys.mapdl.reader import _binary_reader, _reader, elements
@@ -3034,10 +3035,9 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            text_color = pv.parse_color(text_color)
-            plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
-            plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
-            plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
+            theme = DefaultTheme()
+            theme.color = text_color
+            pv.global_theme.load_theme(theme)
 
         # NAN/missing data are white
         # plotter.renderers[0].SetUseDepthPeeling(1)  # <-- for transparency issues
@@ -3278,10 +3278,9 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            text_color = pv.parse_color(text_color)
-            plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
-            plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
-            plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
+            theme = DefaultTheme()
+            theme.color = text_color
+            pv.global_theme.load_theme(theme)
 
         # NAN/missing data are white
         # plotter.renderers[0].SetUseDepthPeeling(1)  # <-- for transparency issues
