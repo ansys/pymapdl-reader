@@ -3121,12 +3121,8 @@ class Result(AnsysBinary):
                             copied_mesh.point_data["Normals"][:] = cached_normals[j]
 
                     if add_text:
-                        # 2 maps to vtk.vtkCornerAnnotation.UpperLeft
-                        plotter.textActor.SetText(
-                            2,
-                            "%s\nPhase %.1f Degrees"
-                            % (result_text, (angle * 180 / np.pi)),
-                        )
+                        phase = angle * 180 / np.pi
+                        plotter.add_text(f"{result_text} \nPhase {phase} Degrees")
 
                     # at max supported framerate
                     plotter.update(1, force_redraw=True)
@@ -3334,8 +3330,7 @@ class Result(AnsysBinary):
                 copied_mesh.active_scalars[:] = data
 
                 if text is not None:
-                    # 2 maps to vtk.vtkCornerAnnotation.UpperLeft
-                    plotter.textActor.SetText(2, text[i])
+                    plotter.add_text(text[i])
 
                 # at max supported framerate
                 plotter.update(1, force_redraw=True)
