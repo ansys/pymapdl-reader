@@ -3042,7 +3042,7 @@ class Result(AnsysBinary):
 
         # NAN/missing data are white
         # plotter.renderers[0].SetUseDepthPeeling(1)  # <-- for transparency issues
-        theme.SetNanColor = [1, 1, 1, 1]
+        theme.nan_color = [1, 1, 1, 1]
 
         if cpos:
             plotter.camera_position = cpos
@@ -3285,7 +3285,7 @@ class Result(AnsysBinary):
 
         # NAN/missing data are white
         # plotter.renderers[0].SetUseDepthPeeling(1)  # <-- for transparency issues
-        theme.SetNanColor = [1, 1, 1, 1]
+        theme.nan_color = [1, 1, 1, 1]
 
         if cpos:
             plotter.camera_position = cpos
