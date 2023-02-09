@@ -262,6 +262,18 @@ def test_plot_pontoon_nodal_displacement():
 
 @skip_plotting
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
+def test_plot_pontoon_nodal_displacement_with_text_color():
+    pontoon.plot_nodal_solution(
+        0,
+        show_displacement=True,
+        overlay_wireframe=True,
+        off_screen=True,
+        text_color="k",
+    )
+
+
+@skip_plotting
+@pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_plot_pontoon_nodal_displacement():
     pontoon.plot_nodal_displacement(
         0, show_displacement=True, overlay_wireframe=True, off_screen=True

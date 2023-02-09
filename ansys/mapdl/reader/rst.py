@@ -15,6 +15,7 @@ import warnings
 import numpy as np
 import pyvista as pv
 from pyvista import _vtk as vtk
+from pyvista.themes import DefaultTheme
 from tqdm import tqdm
 
 from ansys.mapdl.reader import _binary_reader, _reader, elements
@@ -60,7 +61,7 @@ def access_bit(data, num):
 
 EMAIL_ME = """Please raise an issue at:
 https://github.com/pyansys/pymapdl-reader/issues
-Or email the developer at alexander.kaszynski@ansys.com
+Or email the PyAnsys support team at pyansys.support@ansys.com
 """
 np.seterr(divide="ignore", invalid="ignore")
 
@@ -3020,7 +3021,8 @@ class Result(AnsysBinary):
             plotter.add_axes()
 
         # set background
-        plotter.background_color = kwargs.pop("background", None)
+        theme = DefaultTheme()
+        theme.background = kwargs.pop("background", None)
 
         # remove extra keyword args
         kwargs.pop("node_components", None)
@@ -3034,14 +3036,13 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            text_color = pv.parse_color(text_color)
-            plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
-            plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
-            plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
+            theme = DefaultTheme()
+            theme.color = text_color
+            pv.global_theme.load_theme(theme)
 
         # NAN/missing data are white
         # plotter.renderers[0].SetUseDepthPeeling(1)  # <-- for transparency issues
-        plotter.mapper.GetLookupTable().SetNanColor(1, 1, 1, 1)
+        theme.nan_color = [1, 1, 1, 1]
 
         if cpos:
             plotter.camera_position = cpos
@@ -3103,7 +3104,6 @@ class Result(AnsysBinary):
             first_loop = True
             cached_normals = [None for _ in range(n_frames)]
             while self._animating:
-
                 for j, angle in enumerate(np.linspace(0, np.pi * 2, n_frames + 1)[:-1]):
                     mag_adj = np.sin(angle)
                     if scalars is not None:
@@ -3121,12 +3121,8 @@ class Result(AnsysBinary):
                             copied_mesh.point_data["Normals"][:] = cached_normals[j]
 
                     if add_text:
-                        # 2 maps to vtk.vtkCornerAnnotation.UpperLeft
-                        plotter.textActor.SetText(
-                            2,
-                            "%s\nPhase %.1f Degrees"
-                            % (result_text, (angle * 180 / np.pi)),
-                        )
+                        phase = angle * 180 / np.pi
+                        plotter.add_text(f"{result_text} \nPhase {phase} Degrees")
 
                     # at max supported framerate
                     plotter.update(1, force_redraw=True)
@@ -3264,7 +3260,8 @@ class Result(AnsysBinary):
             plotter.add_axes()
 
         # set background
-        plotter.background_color = kwargs.pop("background", None)
+        theme = DefaultTheme()
+        theme.background = kwargs.pop("background", None)
 
         # remove extra keyword args
         kwargs.pop("node_components", None)
@@ -3279,14 +3276,12 @@ class Result(AnsysBinary):
 
         # set scalar bar text colors
         if text_color:
-            text_color = pv.parse_color(text_color)
-            plotter.scalar_bar.GetLabelTextProperty().SetColor(text_color)
-            plotter.scalar_bar.GetAnnotationTextProperty().SetColor(text_color)
-            plotter.scalar_bar.GetTitleTextProperty().SetColor(text_color)
+            theme.color = text_color
+            pv.global_theme.load_theme(theme)
 
         # NAN/missing data are white
         # plotter.renderers[0].SetUseDepthPeeling(1)  # <-- for transparency issues
-        plotter.mapper.GetLookupTable().SetNanColor(1, 1, 1, 1)
+        theme.nan_color = [1, 1, 1, 1]
 
         if cpos:
             plotter.camera_position = cpos
@@ -3335,8 +3330,7 @@ class Result(AnsysBinary):
                 copied_mesh.active_scalars[:] = data
 
                 if text is not None:
-                    # 2 maps to vtk.vtkCornerAnnotation.UpperLeft
-                    plotter.textActor.SetText(2, text[i])
+                    plotter.add_text(text[i])
 
                 # at max supported framerate
                 plotter.update(1, force_redraw=True)

@@ -642,7 +642,6 @@ def save_as_archive(
 
     if include_components:
         with open(filename, "a") as fid:
-
             # write node components
             for node_key in grid.point_data:
                 arr = grid.point_data[node_key]
