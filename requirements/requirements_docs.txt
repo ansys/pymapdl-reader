@@ -1,4 +1,4 @@
-Sphinx<6
+Sphinx<7
 ansys-sphinx-theme==0.9.4
 notfound==1.0.2
 pypandoc==1.10
