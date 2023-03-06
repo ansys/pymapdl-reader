@@ -60,8 +60,9 @@ def access_bit(data, num):
 
 
 EMAIL_ME = """Please raise an issue at:
+
 https://github.com/pyansys/pymapdl-reader/issues
-Or email the PyAnsys support team at pyansys.support@ansys.com
+
 """
 np.seterr(divide="ignore", invalid="ignore")
 
@@ -151,7 +152,6 @@ class Result(AnsysBinary):
         self._sidx_elem = np.argsort(self._resultheader["eeqv"])
 
         # Store node numbering in ANSYS
-        self._neqv = self._resultheader["neqv"]
         self._eeqv = self._resultheader["eeqv"]  # unsorted
 
         # cache geometry header
@@ -711,7 +711,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plots the nodal solution.
@@ -1460,8 +1460,7 @@ class Result(AnsysBinary):
     def _nodal_solution_result(
         self, rnum, solution_type, in_nodal_coord_sys=False, nodes=None
     ):
-        """Returns the DOF solution for each node in the global
-        cartesian coordinate system or nodal coordinate system.
+        """Return the DOF solution for each node in the global coordinate system.
 
         Parameters
         ----------
@@ -1509,8 +1508,7 @@ class Result(AnsysBinary):
         # check if nodal solution exists
         if not self.available_results[solution_type]:
             raise AttributeError(
-                'Result file is missing "%s"'
-                % self.available_results.description[solution_type]
+                f'Result file is missing "{self.available_results.description[solution_type]}"'
             )
 
         # result pointer
@@ -1560,14 +1558,20 @@ class Result(AnsysBinary):
             new_sidx = np.argsort(unsort_nnum)
             nnum = unsort_nnum[new_sidx]
             result = result[new_sidx]
+
+            # Convert result to the global coordinate system
+            if not in_nodal_coord_sys:
+                euler_angles = self._mesh.node_angles[new_sidx].T
+                rotate_to_global(result, euler_angles)
+
         else:
             nnum = self._neqv[self._sidx]
             result = result.take(self._sidx, 0)
 
-        # Convert result to the global coordinate system
-        if not in_nodal_coord_sys:
-            euler_angles = self._mesh.node_angles[self._insolution].T
-            rotate_to_global(result, euler_angles)
+            # Convert result to the global coordinate system
+            if not in_nodal_coord_sys:
+                euler_angles = self._mesh.node_angles[self._insolution].T
+                rotate_to_global(result, euler_angles)
 
         # check for invalid values (mapdl writes invalid values as 2*100)
         result[result == 2**100] = 0
@@ -3923,6 +3927,11 @@ class Result(AnsysBinary):
         idx = (table - dof) // numdof
         nnum = self._resultheader["neqv"][idx]
         return rforces, nnum, dof
+
+    @property
+    def _neqv(self):
+        """Return the nodal equivalence array."""
+        return self._resultheader["neqv"]
 
     def plot_element_result(
         self, rnum, result_type, item_index, in_element_coord_sys=False, **kwargs

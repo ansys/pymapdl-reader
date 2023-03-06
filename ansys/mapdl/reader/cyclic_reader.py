@@ -515,8 +515,15 @@ class CyclicResult(Result):
 
         # full result may or may not contain the duplicate sector
         if self._has_duplicate_sector:
-            result = full_result[self._mas_ind]
-            nnum = nnum[self._mas_ind]
+            if nnum.size < self._mas_ind.size:
+                # node numbers of the master sector
+                nnum_mas = self._neqv[self._mas_ind]
+                mask = np.in1d(nnum, nnum_mas)
+                nnum = nnum[mask]
+                result = full_result[mask]
+            else:
+                result = full_result[self._mas_ind]
+                nnum = nnum[self._mas_ind]
         else:
             result = full_result
 
@@ -1181,7 +1188,6 @@ class CyclicResult(Result):
         >>> result.plot_nodal_solution(0)
 
         """
-
         # Load result from file
         if not full_rotor:
             return super().plot_nodal_solution(
@@ -1203,17 +1209,17 @@ class CyclicResult(Result):
         label = "Cyclic Rotor\nDisplacement"
         if comp == "x":
             scalars = result[:, :, 0]
-            title = "X {:s}\n".format(label)
+            title = f"X {label}\n"
         elif comp == "y":
             scalars = result[:, :, 1]
-            title = "Y {:s}\n".format(label)
+            title = f"Y {label}\n"
         elif comp == "z":
             scalars = result[:, :, 2]
-            title = "Z {:s}\n".format(label)
+            title = f"Z {label}\n"
         else:
             # Normalize displacement
-            scalars = (result * result).sum(2) ** 0.5
-            title = "Normalized\n%s\n" % label
+            scalars = np.linalg.norm(result, axis=-1)
+            title = f"Normalized\n{label}\n"
 
         kwargs.setdefault("scalar_bar_args", {"title": title})
         kwargs["node_components"] = node_components
@@ -1807,7 +1813,7 @@ class CyclicResult(Result):
         element_components=None,
         sel_type_all=True,
         phase=None,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot point scalars on active mesh.
