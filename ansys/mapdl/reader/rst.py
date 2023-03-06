@@ -3760,7 +3760,8 @@ class Result(AnsysBinary):
             # replace values in nodstr
             is_solid = elements.SOLID_ELEMENTS[self.mesh.ekey[:, 1]]
             is_solid += self.mesh.ekey[:, 1] == 41  # must include SHELL41
-            nodstr[1:][is_solid] = self._nodfor[1:][is_solid]
+            ind = self.mesh.ekey[:, 0]
+            nodstr[ind][is_solid] = self._nodfor[ind][is_solid]
 
         # call cython to extract and assemble the data
         cells, offset = vtk_cell_info(grid)
