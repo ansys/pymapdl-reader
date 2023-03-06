@@ -1813,7 +1813,7 @@ class CyclicResult(Result):
         element_components=None,
         sel_type_all=True,
         phase=None,
-        treat_nan_as_zero=False,
+        treat_nan_as_zero=True,
         **kwargs,
     ):
         """Plot point scalars on active mesh.

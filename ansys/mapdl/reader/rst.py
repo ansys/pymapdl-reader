@@ -62,7 +62,6 @@ def access_bit(data, num):
 EMAIL_ME = """Please raise an issue at:
 
 https://github.com/pyansys/pymapdl-reader/issues
-
 """
 np.seterr(divide="ignore", invalid="ignore")
 
@@ -711,7 +710,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=False,
+        treat_nan_as_zero=True,
         **kwargs,
     ):
         """Plots the nodal solution.
