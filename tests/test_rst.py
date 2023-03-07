@@ -319,6 +319,11 @@ def test_sparse_nodal_solution():
 def test_is16():
     npz_rst = np.load(is16_known_result)
     nnum, data = is16.nodal_solution(0)
+    # remove NAN data
+    mask = ~np.isnan(data[:, 0])
+    nnum = nnum[mask]
+    data = data[mask]
+
     assert np.allclose(data, npz_rst["data"], atol=1e-6)
     assert np.allclose(nnum, npz_rst["nnum"])
 
@@ -458,7 +463,7 @@ def test_nnum_of_interest(nnum_of_interest):
 @pytest.mark.parametrize("nodes", [range(11, 50), "NCOMP2", ("NCOMP2", "NODE_COMP")])
 def test_nodes_subselection(hex_rst, nodes):
     nnum_sel, data_sel = hex_rst.nodal_solution(0, nodes=nodes)
-    nnum, data = hex_rst.nodal_solution(0, nodes=nodes)
+    nnum, data = hex_rst.nodal_solution(0)
 
     grid_nnum = hex_rst.grid.point_data["ansys_node_num"]
     if isinstance(nodes, str):
@@ -472,10 +477,10 @@ def test_nodes_subselection(hex_rst, nodes):
     else:
         nnum_of_interest = nodes
 
-    mask = np.in1d(nnum, nnum_of_interest)
+    mask = ~np.isnan(data_sel[:, 0])
 
-    assert np.allclose(nnum[mask], nnum_sel)
-    assert np.allclose(data[mask], data_sel, equal_nan=True)
+    assert np.allclose(nnum[mask], nnum_sel[mask])
+    assert np.allclose(data[mask], data_sel[mask], equal_nan=True)
 
 
 def test_materials(materials_281_rst):

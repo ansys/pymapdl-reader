@@ -665,7 +665,7 @@ class CyclicResult(Result):
         sel_type_all=True,
         add_text=True,
         overlay_wireframe=False,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal thermal strain.
@@ -819,7 +819,7 @@ class CyclicResult(Result):
         sel_type_all=True,
         add_text=True,
         overlay_wireframe=False,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal elastic strain.
@@ -966,7 +966,7 @@ class CyclicResult(Result):
         sel_type_all=True,
         add_text=True,
         overlay_wireframe=False,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal plastic strain.
@@ -1134,7 +1134,7 @@ class CyclicResult(Result):
         overlay_wireframe=False,
         add_text=True,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot the nodal solution (generally displacement).
@@ -1249,7 +1249,7 @@ class CyclicResult(Result):
         overlay_wireframe=False,
         add_text=True,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal stress of a given component
@@ -1359,7 +1359,7 @@ class CyclicResult(Result):
         sel_type_all=True,
         add_text=True,
         overlay_wireframe=False,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot the nodal principal stress.
@@ -1507,7 +1507,7 @@ class CyclicResult(Result):
         add_text=True,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot the nodal temperature.
@@ -1813,7 +1813,7 @@ class CyclicResult(Result):
         element_components=None,
         sel_type_all=True,
         phase=None,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot point scalars on active mesh.

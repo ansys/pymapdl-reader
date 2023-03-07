@@ -710,7 +710,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plots the nodal solution.
@@ -1589,22 +1589,34 @@ class Result(AnsysBinary):
                     mask = np.zeros(self.grid.n_points, bool)
                     for node_component in nodes:
                         if node_component not in self.grid.point_data:
-                            raise ValueError(f"Invalid node component {nodes}")
+                            raise ValueError(f"Invalid node component '{nodes}'.")
                         mask = np.logical_or(
                             mask, self.grid.point_data[node_component].view(bool)
                         )
                 else:
                     raise TypeError(
-                        f"Invalid type for {nodes}.  Expected Sequence of " "str or int"
+                        f"Invalid type for {nodes}. Expected Sequence of str or int."
                     )
             else:
                 raise TypeError(
-                    f"Invalid type for {nodes}.  Expected Sequence of " "str or int"
+                    f"Invalid type for {nodes}. Expected Sequence of str or int."
                 )
 
             # mask is for global nodes, need for potentially subselectd nodes
             submask = np.in1d(nnum, self.grid.point_data["ansys_node_num"][mask])
             nnum, result = nnum[submask], result[submask]
+
+        # always return the full array
+        if nnum.size < self._neqv.size:
+            # repopulate full array
+            nnum_full = self._neqv[self._sidx]
+            mask = np.in1d(nnum_full, nnum, assume_unique=True)
+            result_full = np.empty(
+                (nnum_full.size, result.shape[1]), dtype=result.dtype
+            )
+            result_full[:] = np.nan
+            result_full[mask] = result
+            return nnum_full, result_full
 
         return nnum, result
 
@@ -1613,7 +1625,7 @@ class Result(AnsysBinary):
         """wraps plot_nodal_solution"""
         if self._is_thermal:
             raise AttributeError(
-                "Thermal solution does not contain nodal " "displacement results"
+                "Thermal solution does not contain nodal displacement results."
             )
         return self.nodal_solution(*args, **kwargs)
 
@@ -2772,7 +2784,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot the principal stress.
@@ -2893,7 +2905,7 @@ class Result(AnsysBinary):
         element_components=None,
         sel_type_all=True,
         movie_filename=None,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         progress_bar=True,
         **kwargs,
     ):
@@ -3378,7 +3390,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plots the stresses at each node in the solution.
@@ -4310,7 +4322,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal_stress in the cylindrical coordinate system.
@@ -4401,7 +4413,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal temperature
@@ -4536,7 +4548,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal component thermal strains.
@@ -4676,7 +4688,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal elastic strain.
@@ -4811,7 +4823,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal component plastic strain.
@@ -4895,7 +4907,7 @@ class Result(AnsysBinary):
         node_components=None,
         element_components=None,
         sel_type_all=True,
-        treat_nan_as_zero=True,
+        treat_nan_as_zero=False,
         **kwargs,
     ):
         """Plot nodal result"""
