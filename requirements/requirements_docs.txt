@@ -4,6 +4,6 @@ notfound==1.0.2
 pypandoc==1.11
 pyvista==0.38.3
 sphinx-copybutton==0.5.1
-sphinx-gallery==0.11.1
+sphinx-gallery==0.12.2
 sphinx-notfound-page==0.8.3
 vtk==9.2.6
