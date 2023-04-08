@@ -99,8 +99,7 @@ int write_eblock(FILE *file,
                  const int64_t *offset,    // VTK offset array
                  const int64_t *cells,     // VTK cells array
                  const int *typenum,       // ANSYS type number (e.g. 187 for SOLID187)
-                 const int *nodenum,       // ANSYS node numbering
-                 const int vtk9){          // connectivity array is VTK9 format
+                 const int *nodenum){      // ANSYS node numbering
 
   // Write header
   fprintf(file, "EBLOCK,19,SOLID,%10d,%10d\n", elem_id[n_elem - 1], n_elem);
@@ -109,11 +108,7 @@ int write_eblock(FILE *file,
   int c;  // position within offset array
   for (int i=0; i<n_elem; i++){
     // Position within offset array
-    if (vtk9){
-      c = offset[i];
-    } else {
-      c = offset[i] + 1;
-    }
+    c = offset[i];
 
     // Write cell info
     fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d",
