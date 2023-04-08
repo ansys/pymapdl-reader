@@ -17,7 +17,7 @@ pydocstyle:
 	@pydocstyle ansys.mapdl.reader
 
 doctest-modules:
-	@echo "Runnnig module doctesting"
+	@echo "Running module doctesting"
 	pytest -v --doctest-modules ansys.mapdl.reader
 
 coverage:
