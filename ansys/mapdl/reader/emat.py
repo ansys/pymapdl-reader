@@ -239,7 +239,7 @@ c                                   stkey  - stiffness matrix key
 c                                            = 0 - matrix not present
 c                                            = 1 - matrix present
 c                                   mkey   - mass matrix key
-c                                            = 0 - matirx not present
+c                                            = 0 - matrix not present
 c                                            = 1 - matrix present
 c                                   dkey   - damping matrix key
 c                                            = 0 - matrix not present
@@ -429,7 +429,7 @@ class EmatFile(object):
             1 - matrix present
 
         mkey - mass matrix key
-            0 - matirx not present
+            0 - matrix not present
             1 - matrix present
 
         dkey - damping matrix key
