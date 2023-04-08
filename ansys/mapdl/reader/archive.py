@@ -9,7 +9,6 @@ import numpy as np
 import pyvista as pv
 from pyvista import _vtk as vtk
 from pyvista._vtk import (
-    VTK9,
     VTK_HEXAHEDRON,
     VTK_PYRAMID,
     VTK_QUAD,
@@ -832,6 +831,5 @@ def _write_eblock(
         celltypes,
         typenum,
         nodenum,
-        VTK9,
         mode=mode,
     )

@@ -1,7 +1,6 @@
 """Module for common class between Archive, and result mesh."""
 import numpy as np
 import pyvista as pv
-from pyvista._vtk import VTK9
 
 from ansys.mapdl.reader import _reader, _relaxmidside
 from ansys.mapdl.reader.elements import ETYPE_MAP
@@ -226,10 +225,7 @@ class Mesh:
             cells[cells < 0] = 0
             # cells[cells >= nodes.shape[0]] = 0  # fails when n_nodes < 20
 
-        if VTK9:
-            grid = pv.UnstructuredGrid(cells, celltypes, nodes, deep=True)
-        else:
-            grid = pv.UnstructuredGrid(offset, cells, celltypes, nodes, deep=True)
+        grid = pv.UnstructuredGrid(cells, celltypes, nodes, deep=True)
 
         # Store original ANSYS element and node information
         grid.point_data["ansys_node_num"] = nnum

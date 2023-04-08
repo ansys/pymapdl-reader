@@ -6,7 +6,6 @@ import pytest
 import pyvista as pv
 from pyvista import examples as pyvista_examples
 from pyvista._vtk import (
-    VTK9,
     VTK_HEXAHEDRON,
     VTK_PYRAMID,
     VTK_QUADRATIC_HEXAHEDRON,
@@ -197,7 +196,7 @@ def test_writehex(tmpdir, hex_archive):
 
 def test_write_voxel(tmpdir):
     filename = str(tmpdir.join("tmp.cdb"))
-    grid = pv.UniformGrid(dims=(10, 10, 10))
+    grid = pv.UniformGrid(dimensions=(10, 10, 10))
     pymapdl_reader.save_as_archive(filename, grid)
 
     archive = pymapdl_reader.Archive(filename)
@@ -502,7 +501,6 @@ def test_cython_write_eblock(hex_archive, tmpdir):
         hex_archive.grid.celltypes,
         typenum,
         nodenum,
-        VTK9,
     )
 
 

@@ -111,7 +111,6 @@ def py_write_eblock(filename,
                     uint8_t [::1] celltypes,
                     int [::1] typenum,
                     int [::1] nodenum,
-                    vtk9,
                     mode='w'):
     cdef FILE* cfile = fopen(filename.encode(), mode.encode())
     write_eblock(cfile,
@@ -125,18 +124,18 @@ def py_write_eblock(filename,
                  &offset[0],
                  &cells[0],
                  &typenum[0],
-                 &nodenum[0],
-                 int(vtk9))
+                 &nodenum[0])
     fclose(cfile)
 
 
 def cmblock_items_from_array(int [::1] array):
-    """Given a list of items, convert to a ANSYS formatted CMBLOCK.  For example
-    1, 2, 3, 4, 8
+    """Given a list of items, convert to a ANSYS formatted CMBLOCK.
+
+    For example ``1, 2, 3, 4, 8``
 
     will be converted to
 
-    1, -4, 8
+    ``1, -4, 8``
 
     Where the -4 indicates all the items between 1 and -4.
     """
