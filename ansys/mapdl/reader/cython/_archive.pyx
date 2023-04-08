@@ -24,7 +24,7 @@ cdef extern from 'archive.h' nogil:
                            const float*, int)
     int write_eblock(FILE*, const int, const int*, const int*, const int*,
                      const int*, const int*, const uint8_t*, const int64_t*,
-                     const int64_t*, const int*, const int*, const int);
+                     const int64_t*, const int*, const int*);
 
 
 cdef extern from "stdio.h":
