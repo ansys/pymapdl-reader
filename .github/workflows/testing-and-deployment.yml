@@ -36,7 +36,7 @@ jobs:
           python-version: "3.10"
 
       - name: Setup headless display
-        uses: pyvista/setup-headless-display-action@v1
+        uses: pyvista/setup-headless-display-action@v2
 
       - name: Install ansys-mapdl-reader
         run: |
@@ -126,7 +126,7 @@ jobs:
           pip list
 
       - name: Setup headless display
-        uses: pyvista/setup-headless-display-action@v1
+        uses: pyvista/setup-headless-display-action@v2
 
       - name: Install test requirements
         run: pip install -r requirements/requirements_test.txt
