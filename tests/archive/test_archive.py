@@ -197,7 +197,7 @@ def test_writehex(tmpdir, hex_archive):
 
 def test_write_voxel(tmpdir):
     filename = str(tmpdir.join("tmp.cdb"))
-    grid = pv.UniformGrid(dims=(10, 10, 10))
+    grid = pv.UniformGrid(dimensions=(10, 10, 10))
     pymapdl_reader.save_as_archive(filename, grid)
 
     archive = pymapdl_reader.Archive(filename)
