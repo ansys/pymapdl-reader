@@ -500,23 +500,23 @@ int ans_to_vtk(const int nelem, const int *elem, const int *elem_off,
         /* General quadratic quadrangle */
         add_quad(build_offset, &elem[off], true);
 
-      } else if ( nnode_elem == 5) {
+      } else if ( nnode_elem == 5 ) {
          // For shell/plane elements with one extra node.
          // Check element SURF 152, with KEYOPT 5,1.
          add_quad(build_offset, &elem[off], false);
       
-      } else if ( nnode_elem == 10) {
+      } else if ( nnode_elem == 10 ) {
          // For quadratic shell/plane elements with two extra nodes.
          // Check element TARGET170.
          add_quad(build_offset, &elem[off], true);
 
-      } else {  
+      } else {
         // Any other case. (We should not reach this point)
         // Asuming quad.
 
         // printf(" The type could not be identified. Check vtk_support.c file");
         // printf("Number of elements is %d\n" , nnode_elem);
-        is_quad = nnode_elem > 5
+        is_quad = nnode_elem > 5;
         add_quad(build_offset, &elem[off], is_quad);
       }
       break;
