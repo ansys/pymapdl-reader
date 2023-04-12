@@ -476,19 +476,48 @@ int ans_to_vtk(const int nelem, const int *elem, const int *elem_off,
       add_line(build_offset, &elem[off], nnode_elem);
       break;
     case 3:  // shell
-      /* printf("Adding shell\n"); */
-      /* printf("nnode_elem %d: \n", nnode_elem); */
       if (nnode_elem == 3){
-	/* printf(" subtype tri\n"); */
-	add_tri(build_offset, &elem[off], false);
-      } else if (elem[off + 2] == elem[off + 3]){
-	/* printf(" subtype tri\n"); */
-	is_quad = nnode_elem > 4;
-  	add_tri(build_offset, &elem[off], is_quad);
-      } else {  // is quadrilateral
-	/* printf(" subtype quad\n"); */
-	is_quad = nnode_elem > 5;
-  	add_quad(build_offset, &elem[off], is_quad);
+        /*General triangular elements*/
+        add_tri(build_offset, &elem[off], false);
+
+      } else if (nnode_elem == 4 && elem[off + 2] == elem[off + 3]){
+        /* Degenerated linear quad elements */
+        add_tri(build_offset, &elem[off], false);
+
+      } else if (nnode_elem == 4) {
+        /* General linear quadrangle */
+        add_quad(build_offset, &elem[off], false);
+
+      } else if ( nnode_elem == 6 ) {
+        /* Quadratic tri elements */
+        add_tri(build_offset, &elem[off], true);
+
+      } else if ( nnode_elem == 8 &&  elem[off + 2] == elem[off + 3] ) {
+        /* Degenerated quadratic quadrangle elements */
+        add_tri(build_offset, &elem[off], true);
+
+      } else if ( nnode_elem == 8 ) {
+        /* General quadratic quadrangle */
+        add_quad(build_offset, &elem[off], true);
+
+      } else if ( nnode_elem == 5 ) {
+         // For shell/plane elements with one extra node.
+         // Check element SURF 152, with KEYOPT 5,1.
+         add_quad(build_offset, &elem[off], false);
+      
+      } else if ( nnode_elem == 10 ) {
+         // For quadratic shell/plane elements with two extra nodes.
+         // Check element TARGET170.
+         add_quad(build_offset, &elem[off], true);
+
+      } else {
+        // Any other case. (We should not reach this point)
+        // Assuming quad.
+
+        // printf(" The type could not be identified. Check vtk_support.c file");
+        // printf("Number of elements is %d\n" , nnode_elem);
+        is_quad = nnode_elem > 5;
+        add_quad(build_offset, &elem[off], is_quad);
       }
       break;
     case 4: // solid
