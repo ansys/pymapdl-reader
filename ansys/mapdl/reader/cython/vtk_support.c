@@ -512,7 +512,7 @@ int ans_to_vtk(const int nelem, const int *elem, const int *elem_off,
 
       } else {
         // Any other case. (We should not reach this point)
-        // Asuming quad.
+        // Assuming quad.
 
         // printf(" The type could not be identified. Check vtk_support.c file");
         // printf("Number of elements is %d\n" , nnode_elem);
