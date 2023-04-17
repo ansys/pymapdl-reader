@@ -27,7 +27,7 @@ Posting Issues
 Use the `PyMAPDL-Reader Issues <https://github.com/pyansys/pymapdl-reader/issues>`_ 
 page to submit questions, report bugs, and request new features.
 
-To reach the project support team, email `pyansys.support@ansys.com <pyansys.support@ansys.com>`_.
+To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 Viewing PyMAPDL-Reader Documentation
 ------------------------------------
