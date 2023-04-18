@@ -1,8 +1,8 @@
 .. _ref_contributing:
 
-============
-Contributing
-============
+==========
+Contribute
+==========
 Overall guidance on contributing to a PyAnsys library appears in the
 `Contributing <https://dev.docs.pyansys.com/overview/contributing.html>`_ topic
 in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
@@ -27,7 +27,7 @@ Posting Issues
 Use the `PyMAPDL-Reader Issues <https://github.com/pyansys/pymapdl-reader/issues>`_ 
 page to submit questions, report bugs, and request new features.
 
-To reach the project support team, email `pyansys.support@ansys.com <pyansys.support@ansys.com>`_.
+To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 Viewing PyMAPDL-Reader Documentation
 ------------------------------------

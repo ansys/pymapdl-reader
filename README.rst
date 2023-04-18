@@ -58,7 +58,7 @@ Please see the `PyMAPDL-Reader Documentation
    modules at `PyDPF-Core <https://github.com/pyansys/pydpf-core>`_ and
    `PyDPF-Post <https://github.com/pyansys/pydpf-post>`_ as they provide a
    modern interface to Ansys result files using a client/server
-   interface using the same software used within Ansys Workbench, but
+   interface using the same software used within Ansys Mechanical, but
    via a Python client.
 
 
@@ -70,22 +70,6 @@ Installation through pip::
 
 You can also visit `pymapdl-reader <https://github.com/pyansys/pymapdl-reader>`_
 to download the source or releases from GitHub.
-
-
-Python 3.10 Extra Instructions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PyMAPDL-Reader requires the `VTK library <https://vtk.org/>`_ which, at the
-moment, is not available for Python 3.10 in `their official channel
-<https://pypi.org/project/vtk/>`_.
-
-If you wish to install PyMAPDL-Reader in Python 3.10, you can still do it by
-using the unofficial VTK wheel from PyVista using ``--find-links``. This tells ``pip`` to look for vtk at `wheels.pyvista.org <https://wheels.pyvista.org/>`_. Use this with::
-
-    pip install ansys-mapdl-reader --find-links https://wheels.pyvista.org/
-
-Please visit `Unofficial VTK Wheels for Python 3.10
-<https://github.com/pyvista/pyvista/discussions/2064>`_ for further details.
 
 
 Examples
@@ -313,7 +297,6 @@ you will need to install your own C++ compiler. We recommend:
 
 1. Install Visual C++
        a. See `here <https://wiki.python.org/moin/WindowsCompilers>`_ for a list of which Python versions correspond to which Visual C++ version
-       b. Only Python <= 3.8 appears to be supported at the moment.
 2. Install the development version of pymapdl-reader to your Python environment
        a. Navigate to the project's top level (the same directory as this README)
        b. run ``pip install -e .``
@@ -321,4 +304,4 @@ you will need to install your own C++ compiler. We recommend:
 
 License and Acknowledgments
 ---------------------------
-The ``ansys-mapdl-reader`` module is licensed under the MIT license.
+The ``ansys-mapdl-reader`` library is licensed under the MIT license.

@@ -6,7 +6,6 @@ import tempfile
 
 import numpy as np
 import pyvista
-from pyvista._vtk import VTK9
 from pyvista.utilities.errors import GPUInfo
 import scooby
 
@@ -16,15 +15,15 @@ def vtk_cell_info(grid, force_int64=True, shift_offset=True):
 
     Parameters
     ----------
-    force_int64 : bool, optional
-        Force output arrays to be uint64
+    force_int64 : bool, default: True
+        Force output arrays to be uint64.
 
-    shift_offset : bool, optional
-        Shift the offset by -1 when VTK9
+    shift_offset : bool, default: True
+        Shift the offset by -1.
 
     Notes
     -----
-    VTKv9 changed the connectivity and offset arrays:
+    VTK v9 and greater changed the connectivity and offset arrays:
 
     Topology:
     ---------
@@ -44,14 +43,11 @@ def vtk_cell_info(grid, force_int64=True, shift_offset=True):
     Connectivity: {3, 0, 1, 2, 3, 5, 7, 2, 4, 3, 4, 6, 7, 2, 5, 8}
 
     """
-    if VTK9:
-        cells = grid.cell_connectivity
-        if shift_offset:
-            offset = grid.offset - 1
-        else:
-            offset = grid.offset
+    cells = grid.cell_connectivity
+    if shift_offset:
+        offset = grid.offset - 1
     else:
-        cells, offset = grid.cells, grid.offset
+        offset = grid.offset
 
     if force_int64:
         if cells.dtype != np.int64:
