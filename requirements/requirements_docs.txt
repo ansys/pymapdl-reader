@@ -1,5 +1,5 @@
 Sphinx<6
-ansys-sphinx-theme==0.9.7
+ansys-sphinx-theme==0.9.8
 notfound==1.0.2
 pypandoc==1.11
 pyvista==0.38.5
