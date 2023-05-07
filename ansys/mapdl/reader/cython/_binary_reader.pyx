@@ -367,7 +367,7 @@ cdef np.ndarray wrap_array(void* c_ptr, int size, int type_flag, int prec_flag):
     ndarray = np.array(array_wrapper, copy=False)
 
     # Assign our object to the 'base' of the ndarray object
-    ndarray.base = <PyObject*> array_wrapper
+    np.PyArray_SetBaseObject(ndarray, array_wrapper)
 
     # Increment the reference count, as the above assignment was done in
     # C, and Python does not know that there is this additional reference
