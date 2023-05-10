@@ -90,7 +90,7 @@ object.
     filename = examples.hexarchivefile
     
     # Read ansys archive file
-    archive = pyansys.Archive(filename)
+    archive = pymapdl_reader.Archive(filename)
     
     # Print raw data from cdb
     for key in archive.raw:
@@ -135,7 +135,7 @@ from ANSYS.
     rstfile = examples.rstfile
     
     # Create result object by loading the result file
-    result = pyansys.read_binary(rstfile)
+    result = pymapdl_reader.read_binary(rstfile)
     
     # Beam natural frequencies
     freqs = result.time_values
@@ -253,7 +253,7 @@ the above example.
     from scipy import sparse
     
     # load the full file
-    fobj = pyansys.FullReader('file.full')
+    fobj = pymapdl_reader.FullReader('file.full')
     dofref, k, m = fobj.load_km()  # returns upper triangle only
 
     # make k, m full, symmetric matrices
