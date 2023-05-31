@@ -21,12 +21,8 @@ from . import _archive
 
 # Setup data directory
 USER_DATA_PATH = appdirs.user_data_dir(appname="ansys_mapdl_reader", appauthor="Ansys")
-if not os.path.exists(USER_DATA_PATH):  # pragma: no cover
-    os.makedirs(USER_DATA_PATH)
 
 EXAMPLES_PATH = os.path.join(USER_DATA_PATH, "examples")
-if not os.path.exists(EXAMPLES_PATH):  # pragma: no cover
-    os.makedirs(EXAMPLES_PATH)
 
 # set pyvista defaults
 _configure_pyvista()
