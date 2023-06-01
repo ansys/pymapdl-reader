@@ -1,5 +1,5 @@
 Sphinx<8
-ansys-sphinx-theme==0.9.8
+ansys-sphinx-theme==0.9.9
 imageio==2.30.0
 notfound==1.0.2
 pypandoc==1.11
