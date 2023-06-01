@@ -32,6 +32,9 @@ def _get_file_url(filename):
 
 
 def _retrieve_file(url, filename):
+    if not os.path.exists(pymapdl_reader.EXAMPLES_PATH):
+        os.makedirs(pymapdl_reader.EXAMPLES_PATH)
+
     # First check if file has already been downloaded
     local_path = os.path.join(pymapdl_reader.EXAMPLES_PATH, os.path.basename(filename))
     local_path_no_zip = local_path.replace(".zip", "")
