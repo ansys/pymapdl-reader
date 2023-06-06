@@ -12,7 +12,7 @@ import numpy as np
 # Definitions from c header
 cdef extern from "parsefull.h":
     int return_fheader(char*, int*)
-    
+
     void read_full(int*, int*, int*, int*, int*, double*, int*, int*, double*,
                    int*, char*, int*, int);
 
@@ -22,25 +22,25 @@ def return_header(filename):
     # Convert python string to char array
     cdef bytes py_bytes = filename.encode()
     cdef char* c_filename = py_bytes
-    
+
     # Read header
     cdef int [::1] fheader = np.empty(101, np.int32)
     return_fheader(c_filename, &fheader[0])
-    
+
     return np.asarray(fheader)
-    
-    
+
+
 def load_km(filename, is_sorted):
-    """Reads an ANSYS full file and returns indices to construct symmetric, real, 
+    """Reads an ANSYS full file and returns indices to construct symmetric, real,
     and sparse mass and stiffness matrices
     """
     # convert to int
     cdef int sort = is_sorted
-    
+
     # Convert python string to char array
     cdef bytes py_bytes = filename.encode()
     cdef char* c_filename = py_bytes
-    
+
     # Read header
     cdef int [::1] fheader = np.empty(101, np.int32)
     cdef int rst = return_fheader(c_filename, &fheader[0])
@@ -89,7 +89,7 @@ def load_km(filename, is_sorted):
     nfree = numdat[0]
     kentry = numdat[1]
     mentry = numdat[2]
-    
+
     # Resort degree of freedom references if sorted
     cdef int i, sind
     cdef int[::1] nref_sort = np.empty(nfree, np.int32)
@@ -103,17 +103,17 @@ def load_km(filename, is_sorted):
         # Return sorted arrays to python
         return (np.asarray(nref_sort),
                 np.asarray(dref_sort),
-                np.asarray(krows)[:kentry], 
+                np.asarray(krows)[:kentry],
                 np.asarray(kcols)[:kentry],
                 np.asarray(kdata)[:kentry],
                 np.asarray(mrows)[:mentry],
                 np.asarray(mcols)[:mentry],
-                np.asarray(mdata)[:mentry])            
+                np.asarray(mdata)[:mentry])
     else:
         # Return unsorted arrays to python
         return (np.asarray(nref)[:nfree],
                 np.asarray(dref)[:nfree],
-                np.asarray(krows)[:kentry], 
+                np.asarray(krows)[:kentry],
                 np.asarray(kcols)[:kentry],
                 np.asarray(kdata)[:kentry],
                 np.asarray(mrows)[:mentry],

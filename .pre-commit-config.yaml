@@ -38,7 +38,7 @@ repos:
   - id: clang-format
     files: |
       (?x)^(
-        femorph/cython/[^_].*\.c.*
+        ansys/mapdl/reader/cython/[^_].*\.c.*
       )$
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -46,8 +46,9 @@ repos:
   hooks:
   - id: check-merge-conflict
   - id: debug-statements
+  - id: trailing-whitespace
+    exclude: '.*\.(cdb|rst|dat)$'
 
-# this validates our github workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
   rev: 0.23.1
   hooks:

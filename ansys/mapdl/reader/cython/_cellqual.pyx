@@ -110,12 +110,12 @@ cdef inline void tet_relax_mid(int64_t [::1] cells, int c, double [:, ::1] pts,
                               double rfac) nogil:
     """
     Resets the midside nodes of the tetrahedral starting at index c
-    
+
     relaxation factor rfac
-    
+
     midedge nodes between
     (0,1), (1,2), (2,0), (0,3), (1,3), and (2,3)
-    
+
     """
     cdef int ind0 = cells[c + 0]
     cdef int ind1 = cells[c + 1]
@@ -140,7 +140,7 @@ cdef inline void tet_relax_mid(int64_t [::1] cells, int c, double [:, ::1] pts,
 cdef inline void pyr_relax_mid(int64_t [::1] cells, int c, double [:, ::1] pts,
                               double rfac) nogil:
     """
-    
+
     5 (0, 1)
     6 (1, 2)
     7 (2, 3)
@@ -149,7 +149,7 @@ cdef inline void pyr_relax_mid(int64_t [::1] cells, int c, double [:, ::1] pts,
     10(1, 4)
     11(2, 4)
     12(3, 4)
-    
+
     """
     cdef int ind0 = cells[c + 0]
     cdef int ind1 = cells[c + 1]
@@ -181,7 +181,7 @@ cdef inline void pyr_relax_mid(int64_t [::1] cells, int c, double [:, ::1] pts,
 cdef inline void weg_relax_mid(int64_t [::1] cells, int c, double [:, ::1] pts,
                               double rfac) nogil:
     """
-    
+
     6  (0,1)
     7  (1,2)
     8  (2,0)
@@ -207,7 +207,7 @@ cdef inline void weg_relax_mid(int64_t [::1] cells, int c, double [:, ::1] pts,
     cdef int ind12= cells[c + 12]
     cdef int ind13= cells[c + 13]
     cdef int ind14= cells[c + 14]
-    
+
     cdef int j
 
     for j in range(3):
@@ -226,7 +226,7 @@ cdef inline void hex_relax_mid(int64_t [::1] cells, int c, double [:, ::1] pts,
                               double rfac) nogil:
 
     """
-    
+
     8  (0,1)
     9  (1,2)
     10 (2,3)
@@ -239,9 +239,9 @@ cdef inline void hex_relax_mid(int64_t [::1] cells, int c, double [:, ::1] pts,
     17 (1,5)
     18 (2,6)
     19 (3,7)
-    
+
     """
-    
+
     cdef int ind0 = cells[c + 0]
     cdef int ind1 = cells[c + 1]
     cdef int ind2 = cells[c + 2]
@@ -373,7 +373,7 @@ tet_dual_ind[3][2] = 3
 
 # ============================================================================
 # Linear shape checking functions
-# Tetrahedral edges  
+# Tetrahedral edges
 cdef int [4][3] tet_edges
 tet_edges[0][0] = 1
 tet_edges[0][1] = 2
@@ -436,7 +436,7 @@ weg_edges[5][0] = 3
 weg_edges[5][1] = 4
 weg_edges[5][2] = 2
 
-# populate hex edges  
+# populate hex edges
 cdef int [8][3] hex_edges
 hex_edges[0][0] = 1
 hex_edges[0][1] = 3
@@ -487,34 +487,34 @@ cdef inline double repair_weg(double [8][3] temp_fpos,
         temp_face_cent[0][j] = (cell_points[0][j] +
                                 cell_points[1][j] +
                                 cell_points[2][j])*div_fac
-    
+
     # Face 2: (1, 2, 5, 4)
     for j in range(3):
         temp_face_cent[1][j] = (cell_points[0][j] +
                                 cell_points[1][j] +
                                 cell_points[4][j] +
                                 cell_points[3][j])*0.25
-    
+
     # Face 3: (2, 3, 6, 5)
     for j in range(3):
         temp_face_cent[2][j] = (cell_points[1][j] +
                                 cell_points[2][j] +
                                 cell_points[5][j] +
                                 cell_points[4][j])*0.25
-    
+
     # Face 4: (3, 1, 4, 6)
     for j in range(3):
         temp_face_cent[3][j] = (cell_points[2][j] +
                                 cell_points[0][j] +
                                 cell_points[3][j] +
                                 cell_points[5][j])*0.25
-    
+
     # Face 5: (4, 6, 5)
     for j in range(3):
         temp_face_cent[4][j] = (cell_points[3][j] +
                                 cell_points[5][j] +
                                 cell_points[4][j])*div_fac
-    
+
     #==========================================================================
     # Dual Element
     #==========================================================================
@@ -524,7 +524,7 @@ cdef inline double repair_weg(double [8][3] temp_fpos,
         # Compute means
         for j in range(3):
             temp_dual_cent[i][j] = (1 - TAU_WEG)*temp_face_cent[weg_dual_ind[i][0]][j] + \
-                                        TAU_WEG*(temp_face_cent[weg_dual_ind[i][1]][j] + 
+                                        TAU_WEG*(temp_face_cent[weg_dual_ind[i][1]][j] +
                                                  temp_face_cent[weg_dual_ind[i][2]][j])*0.5
 
     #### Compute normal vector extending from the dual faces ####
@@ -532,10 +532,10 @@ cdef inline double repair_weg(double [8][3] temp_fpos,
     for i in range(6):
         vector_sub(temp_face_cent[weg_dual_ind[i][2]], temp_face_cent[weg_dual_ind[i][0]], e0)
         vector_sub(temp_face_cent[weg_dual_ind[i][1]], temp_face_cent[weg_dual_ind[i][0]], e1)
-    
+
         # Perform cross product to get dual element face normal vector
         cross(e0, e1, temp_norm[i])
-    
+
         # Scale normals
         normscale = 2.0/sqrt(vector_norm(temp_norm[i]))
 
@@ -587,34 +587,34 @@ cdef inline float repair_weg_float(float [8][3] temp_fpos,
         temp_face_cent[0][j] = (cell_points[0][j] +
                                 cell_points[1][j] +
                                 cell_points[2][j])*div_fac
-    
+
     # Face 2: (1, 2, 5, 4)
     for j in range(3):
         temp_face_cent[1][j] = (cell_points[0][j] +
                                 cell_points[1][j] +
                                 cell_points[4][j] +
                                 cell_points[3][j])*0.25
-    
+
     # Face 3: (2, 3, 6, 5)
     for j in range(3):
         temp_face_cent[2][j] = (cell_points[1][j] +
                                 cell_points[2][j] +
                                 cell_points[5][j] +
                                 cell_points[4][j])*0.25
-    
+
     # Face 4: (3, 1, 4, 6)
     for j in range(3):
         temp_face_cent[3][j] = (cell_points[2][j] +
                                 cell_points[0][j] +
                                 cell_points[3][j] +
                                 cell_points[5][j])*0.25
-    
+
     # Face 5: (4, 6, 5)
     for j in range(3):
         temp_face_cent[4][j] = (cell_points[3][j] +
                                 cell_points[5][j] +
                                 cell_points[4][j])*div_fac
-    
+
     #==========================================================================
     # Dual Element
     #==========================================================================
@@ -624,7 +624,7 @@ cdef inline float repair_weg_float(float [8][3] temp_fpos,
         # Compute means
         for j in range(3):
             temp_dual_cent[i][j] = (1 - TAU_WEG)*temp_face_cent[weg_dual_ind[i][0]][j] + \
-                                        TAU_WEG*(temp_face_cent[weg_dual_ind[i][1]][j] + 
+                                        TAU_WEG*(temp_face_cent[weg_dual_ind[i][1]][j] +
                                                  temp_face_cent[weg_dual_ind[i][2]][j])*0.5
 
     #### Compute normal vector extending from the dual faces ####
@@ -632,10 +632,10 @@ cdef inline float repair_weg_float(float [8][3] temp_fpos,
     for i in range(6):
         vector_sub_float(temp_face_cent[weg_dual_ind[i][2]], temp_face_cent[weg_dual_ind[i][0]], e0)
         vector_sub_float(temp_face_cent[weg_dual_ind[i][1]], temp_face_cent[weg_dual_ind[i][0]], e1)
-    
+
         # Perform cross product to get dual element face normal vector
         cross_float(e0, e1, temp_norm[i])
-    
+
         # Scale normals
         normscale = 2.0/sqrt(vector_norm_float(temp_norm[i]))
 
@@ -673,8 +673,8 @@ cdef inline float repair_weg_float(float [8][3] temp_fpos,
 
 cdef inline double tet_lin_qual(int64_t [::1] cells, int c, double [:, ::1] pts) nogil:
     """ Returns minimum scaled jacobian of a tetrahedral cell's edge nodes """
-    
-    cdef int indS, ind0, ind1, ind2    
+
+    cdef int indS, ind0, ind1, ind2
     cdef double [3] e0
     cdef double [3] e1
     cdef double [3] e2
@@ -682,34 +682,34 @@ cdef inline double tet_lin_qual(int64_t [::1] cells, int c, double [:, ::1] pts)
     cdef int i, j
     cdef double normjac, tnorm
     cdef double jac = 1.1
-    
+
     for i in range(4):
         indS = cells[c + i]
         ind0 = cells[c + tet_edges[i][0]]
         ind1 = cells[c + tet_edges[i][1]]
         ind2 = cells[c + tet_edges[i][2]]
-        
+
         for j in range(3):
             e0[j] = pts[ind0, j] - pts[indS, j]
             e1[j] = pts[ind1, j] - pts[indS, j]
             e2[j] = pts[ind2, j] - pts[indS, j]
-           
+
         # normalize the determinant of the jacobian
-        tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+        tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
         normjac = triple_product(e1, e2, e0)/tnorm
 
         # Track minimum jacobian
         if normjac < jac:
             jac = normjac
-            
+
     return jac*1.414213562373095
 
 
 cdef inline float tet_lin_qual_float(int64_t [::1] cells, int c,
                                       float [:, ::1] pts) nogil:
     """ Returns minimum scaled jacobian of a tetrahedral cell's edge nodes """
-    
-    cdef int indS, ind0, ind1, ind2    
+
+    cdef int indS, ind0, ind1, ind2
     cdef float [3] e0
     cdef float [3] e1
     cdef float [3] e2
@@ -717,35 +717,35 @@ cdef inline float tet_lin_qual_float(int64_t [::1] cells, int c,
     cdef int i, j
     cdef float normjac, tnorm
     cdef float jac = 1.1
-    
+
     for i in range(4):
         indS = cells[c + i]
         ind0 = cells[c + tet_edges[i][0]]
         ind1 = cells[c + tet_edges[i][1]]
         ind2 = cells[c + tet_edges[i][2]]
-        
+
         for j in range(3):
             e0[j] = pts[ind0, j] - pts[indS, j]
             e1[j] = pts[ind1, j] - pts[indS, j]
             e2[j] = pts[ind2, j] - pts[indS, j]
-           
+
         # normalize the determinant of the jacobian
-        tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+        tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
         normjac = triple_product_float(e1, e2, e0)/tnorm
 
         # Track minimum jacobian
         if normjac < jac:
             jac = normjac
-            
+
     return jac*1.414213562373095
 
 
 cdef inline double pyr_lin_qual(int64_t [::1] cells, int c,
                              double [:, ::1] pts) nogil:
     """ Returns minimum scaled jacobian of a pyramid cell's edge nodes  """
-        
-    cdef int indS, ind0, ind1, ind2    
-        
+
+    cdef int indS, ind0, ind1, ind2
+
     cdef double [3] e0
     cdef double [3] e1
     cdef double [3] e2
@@ -753,40 +753,40 @@ cdef inline double pyr_lin_qual(int64_t [::1] cells, int c,
     cdef int i, j
     cdef double normjac, tnorm
     cdef double jac = 1.1
-    
+
     for i in range(4):
         indS = cells[c + i]
         ind0 = cells[c + pyr_edges[i][0]]
         ind1 = cells[c + pyr_edges[i][1]]
         ind2 = cells[c + pyr_edges[i][2]]
-        
+
         for j in range(3):
             e0[j] = pts[ind0, j] - pts[indS, j]
             e1[j] = pts[ind1, j] - pts[indS, j]
             e2[j] = pts[ind2, j] - pts[indS, j]
-           
+
         # normalize the determinant of the jacobian
-        tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+        tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
         normjac = triple_product(e1, e2, e0)/tnorm
 
         # Track minimum jacobian
         if normjac < jac:
             jac = normjac
-            
+
     return jac*1.14
 
 
 cdef inline float pyr_lin_qual_float(int64_t [::1] cells, int c,
                                      float [:, ::1] pts) nogil:
     """ Returns minimum scaled jacobian of a pyramid cell's edge nodes  """
-    cdef int indS, ind0, ind1, ind2    
+    cdef int indS, ind0, ind1, ind2
     cdef float [3] e0
     cdef float [3] e1
     cdef float [3] e2
     cdef int i, j
     cdef float normjac, tnorm
     cdef float jac = 1.1
-    
+
     for i in range(4):
         indS = cells[c + i]
         ind0 = cells[c + pyr_edges[i][0]]
@@ -811,9 +811,9 @@ cdef inline float pyr_lin_qual_float(int64_t [::1] cells, int c,
 cdef inline double weg_lin_qual(int64_t [::1] cells, int c,
                              double [:, ::1] pts) nogil:
     """ Returns minimum scaled jacobian of a wedge cell's edge nodes  """
-        
-    cdef int indS, ind0, ind1, ind2    
-        
+
+    cdef int indS, ind0, ind1, ind2
+
     cdef double [3] e0
     cdef double [3] e1
     cdef double [3] e2
@@ -821,20 +821,20 @@ cdef inline double weg_lin_qual(int64_t [::1] cells, int c,
     cdef int i, j
     cdef double normjac, tnorm
     cdef double jac = 1.1
-    
+
     for i in range(6):
         indS = cells[c + i]
         ind0 = cells[c + weg_edges[i][0]]
         ind1 = cells[c + weg_edges[i][1]]
         ind2 = cells[c + weg_edges[i][2]]
-        
+
         for j in range(3):
             e0[j] = pts[ind0, j] - pts[indS, j]
             e1[j] = pts[ind1, j] - pts[indS, j]
             e2[j] = pts[ind2, j] - pts[indS, j]
-           
+
         # normalize the determinant of the jacobian
-        tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+        tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
         normjac = triple_product(e1, e2, e0)/tnorm
 
         # Track minimum jacobian
@@ -847,27 +847,27 @@ cdef inline double weg_lin_qual(int64_t [::1] cells, int c,
 cdef inline float weg_lin_qual_float(int64_t [::1] cells, int c,
                                      float [:, ::1] pts) nogil:
     """ Returns minimum scaled jacobian of a wedge cell's edge nodes  """
-    cdef int indS, ind0, ind1, ind2    
+    cdef int indS, ind0, ind1, ind2
     cdef float [3] e0
     cdef float [3] e1
     cdef float [3] e2
     cdef int i, j
     cdef float normjac, tnorm
     cdef float jac = 1.1
-    
+
     for i in range(6):
         indS = cells[c + i]
         ind0 = cells[c + weg_edges[i][0]]
         ind1 = cells[c + weg_edges[i][1]]
         ind2 = cells[c + weg_edges[i][2]]
-        
+
         for j in range(3):
             e0[j] = pts[ind0, j] - pts[indS, j]
             e1[j] = pts[ind1, j] - pts[indS, j]
             e2[j] = pts[ind2, j] - pts[indS, j]
-           
+
         # normalize the determinant of the jacobian
-        tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+        tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
         normjac = triple_product_float(e1, e2, e0)/tnorm
 
         # Track minimum jacobian
@@ -879,8 +879,8 @@ cdef inline float weg_lin_qual_float(int64_t [::1] cells, int c,
 
 cdef inline double hex_lin_qual(int64_t [::1] cells, int c, double [:, ::1] pts) nogil:
     """ Returns minimum scaled jacobian of a hexahedrals cell's edge nodes  """
-    cdef int indS, ind0, ind1, ind2    
-        
+    cdef int indS, ind0, ind1, ind2
+
     cdef double [3] e0
     cdef double [3] e1
     cdef double [3] e2
@@ -888,13 +888,13 @@ cdef inline double hex_lin_qual(int64_t [::1] cells, int c, double [:, ::1] pts)
     cdef int i, j
     cdef double normjac, tnorm
     cdef double jac = 1.1
-    
+
     for i in range(8):
         indS = cells[c + i]
         ind0 = cells[c + hex_edges[i][0]]
         ind1 = cells[c + hex_edges[i][1]]
         ind2 = cells[c + hex_edges[i][2]]
-        
+
         for j in range(3):
             e0[j] = pts[ind0, j] - pts[indS, j]
             e1[j] = pts[ind1, j] - pts[indS, j]
@@ -914,8 +914,8 @@ cdef inline double hex_lin_qual(int64_t [::1] cells, int c, double [:, ::1] pts)
 cdef inline float hex_lin_qual_float(int64_t [::1] cells, int c,
                                       float [:, ::1] pts) nogil:
     """ Returns minimum scaled jacobian of a hexahedrals cell's edge nodes  """
-    cdef int indS, ind0, ind1, ind2    
-        
+    cdef int indS, ind0, ind1, ind2
+
     cdef float [3] e0
     cdef float [3] e1
     cdef float [3] e2
@@ -923,13 +923,13 @@ cdef inline float hex_lin_qual_float(int64_t [::1] cells, int c,
     cdef int i, j
     cdef float normjac, tnorm
     cdef float jac = 1.1
-    
+
     for i in range(8):
         indS = cells[c + i]
         ind0 = cells[c + hex_edges[i][0]]
         ind1 = cells[c + hex_edges[i][1]]
         ind2 = cells[c + hex_edges[i][2]]
-        
+
         for j in range(3):
             e0[j] = pts[ind0, j] - pts[indS, j]
             e1[j] = pts[ind1, j] - pts[indS, j]
@@ -957,7 +957,7 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
 
     import numpy as np
     import sympy
-    
+
     isopts = np.array([[1, 0, 0, 0], # edge node 0
               [0, 1, 0, 0], # edge node 1
               [0, 0, 1, 0], # edge node 2
@@ -968,9 +968,9 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
               [0.5, 0, 0, 0.5], # midside node 7 (between 0 and 3)
               [0, 0.5, 0, 0.5], # midside node 8 (between 1 and 3)
               [0, 0, 0.5, 0.5]]) # midside node 9 (between 2 and 3)
-    
+
     zeta0, zeta1, zeta2, zeta3 = sympy.symbols('zeta0, zeta1, zeta2, zeta3')
-    
+
     shape_functions = [zeta0*(2*zeta0 - 1), # edge node 0
                        zeta1*(2*zeta1 - 1), # edge node 1
                        zeta2*(2*zeta2 - 1), # edge node 2
@@ -992,8 +992,8 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
     for i in range(nfun):
         for j in range(nvar):
              nprime[j, i] = sympy.diff(shape_functions[i], variables[j])
-    
-    
+
+
     # This is the N_prime functions with the isopts subbed into them
     pre_j = np.empty((nfun*nvar, nfun))
     for i in range(nfun):
@@ -1003,23 +1003,23 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
                                                           (zeta1, isopts[i, 1]),
                                                           (zeta2, isopts[i, 2]),
                                                           (zeta3, isopts[i, 3])])
-    
+
     subtract first row to get square system for each jacobian
-    
+
     for example, for edge node 0 the pre_j is:
     N 0  1  2  3  4  5  6  7  8  9
     [ 3  0  0  0  0  0  0  0  0  0] # N/dzeta0
     [ 0 -1  0  0  4  0  0  0  0  0] # N/dzeta1
     [ 0  0 -1  0  0  0  4  0  0  0] # N/dzeta2
     [ 0  0  0 -1  0  0  0  4  0  0] # N/dzeta3
-    
+
     # vectors to form jacobian are
     e0 = 4*Node4 - Node1 - 3*Node0
     e1 = 4*Node6 - Node2 - 3*Node0
     e2 = 4*Node7 - Node3 - 3*Node0
-    
-    
-    
+
+
+
     # example imperfect tetrahedral
     pts = np.array([[ 8.54211689,  0.3652738 ,  3.41738048],
                     [ 8.47148386,  0.36139067,  3.43469913],
@@ -1030,15 +1030,15 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
                     [ 8.52434853,  0.37927608,  3.42764442],
                     [ 8.51203386,  0.38771899,  3.3855228 ],
                     [ 8.47671735,  0.38577743,  3.39418213],
-                    [ 8.4942655 ,  0.40172127,  3.39578674]])    
-    
+                    [ 8.4942655 ,  0.40172127,  3.39578674]])
+
     # Programmatically this was difficult as the first column always had to be
     # subtracted and it made it difficult to program in consistent edge indices.
     # Found it best just to print out the indices
     e0 = np.empty(3)
     e1 = np.empty(3)
     e2 = np.empty(3)
-    
+
     ind0 = 0
     ind1 = 1
     ind2 = 2
@@ -1049,7 +1049,7 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
     ind7 = 7
     ind8 = 8
     ind9 = 9
-    
+
     #==============================================================================
     # FOLLOWING CODE PRINTED
     #==============================================================================
@@ -1067,8 +1067,8 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
                 endtxt += ' + {:d}*pts[ind{:d}, j]'.format(k[i], i)
             elif k[i] > 0:
                 endtxt += ' - {:d}*pts[ind{:d}, j]'.format(k[i], i)
-        
-        
+
+
         for m in range(1, 4):
             txt = 'e{:d}[j] ='.format(m - 1)
             k = pre_j[4*j + m].astype(np.int_)
@@ -1082,17 +1082,17 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
                 elif k[i] < 0:
                     txt += ' - {:d}*pts[ind{:d}, j]'.format(k[i], i)
             print '    ' + txt + endtxt
-        print 
+        print
 
     """
-    
+
     cdef double [3] e0
     cdef double [3] e1
     cdef double [3] e2
 
     cdef int j
     cdef double normjac, tnorm
-    
+
     cdef int ind0 = cells[c + 0]
     cdef int ind1 = cells[c + 1]
     cdef int ind2 = cells[c + 2]
@@ -1111,7 +1111,7 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
         e2[j] = 4*pts[ind7, j] - pts[ind3, j] - 3*pts[ind0, j]
 
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
 
     # Store this as minimum jacobian so far
     cdef double jac = triple_product(e1, e2, e0)/tnorm
@@ -1123,21 +1123,21 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
         e2[j] = 4*pts[ind8, j] - pts[ind3, j] - 4*pts[ind4, j] + pts[ind0, j]
 
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-              
+
     ######################### Edge node 2 #########################
     for j in range(3):
         e0[j] = 4*pts[ind5, j] - pts[ind1, j] - 4*pts[ind6, j] + pts[ind0, j]
         e1[j] = 3*pts[ind2, j]                - 4*pts[ind6, j] + pts[ind0, j]
         e2[j] = 4*pts[ind9, j] - pts[ind3, j] - 4*pts[ind6, j] + pts[ind0, j]
-        
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
@@ -1149,85 +1149,85 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
         e0[j] = 4*pts[ind8, j] - pts[ind1, j] - 4*pts[ind7, j] + pts[ind0, j]
         e1[j] = 4*pts[ind9, j] - pts[ind2, j] - 4*pts[ind7, j] + pts[ind0, j]
         e2[j] = 3*pts[ind3, j] - 4*pts[ind7, j] + pts[ind0, j]
-        
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 4 #########################
     for j in range(3):
         e0[j] = + pts[ind1, j] + 2*pts[ind4, j] - pts[ind0, j] - 2*pts[ind4, j]
         e1[j] = - pts[ind2, j] + 2*pts[ind5, j] + 2*pts[ind6, j] - pts[ind0, j] - 2*pts[ind4, j]
         e2[j] = - pts[ind3, j] + 2*pts[ind7, j] + 2*pts[ind8, j] - pts[ind0, j] - 2*pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     ######################### Midside node 5 #########################
     for j in range(3):
         e0[j] = + pts[ind1, j] + 2*pts[ind5, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind6, j]
         e1[j] = + pts[ind2, j] + 2*pts[ind5, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind6, j]
         e2[j] = - pts[ind3, j] + 2*pts[ind8, j] + 2*pts[ind9, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind6, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 6 #########################
     for j in range(3):
         e0[j] = - pts[ind1, j] + 2*pts[ind4, j] + 2*pts[ind5, j] - pts[ind0, j] - 2*pts[ind6, j]
         e1[j] = + pts[ind2, j] + 2*pts[ind6, j] - pts[ind0, j] - 2*pts[ind6, j]
         e2[j] = - pts[ind3, j] + 2*pts[ind7, j] + 2*pts[ind9, j] - pts[ind0, j] - 2*pts[ind6, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 7 #########################
     for j in range(3):
         e0[j] = - pts[ind1, j] + 2*pts[ind4, j] + 2*pts[ind8, j] - pts[ind0, j] - 2*pts[ind7, j]
         e1[j] = - pts[ind2, j] + 2*pts[ind6, j] + 2*pts[ind9, j] - pts[ind0, j] - 2*pts[ind7, j]
         e2[j] = + pts[ind3, j] + 2*pts[ind7, j] - pts[ind0, j] - 2*pts[ind7, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 8 #########################
     for j in range(3):
         e0[j] = + pts[ind1, j] + 2*pts[ind8, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind7, j]
         e1[j] = - pts[ind2, j] + 2*pts[ind5, j] + 2*pts[ind9, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind7, j]
         e2[j] = + pts[ind3, j] + 2*pts[ind8, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind7, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 9 #########################
     for j in range(3):
         e0[j] = - pts[ind1, j] + 2*pts[ind5, j] + 2*pts[ind8, j] + pts[ind0, j] - 2*pts[ind6, j] - 2*pts[ind7, j]
@@ -1235,13 +1235,13 @@ cdef inline double tet_quad_qual(int64_t [::1] cells, int c,
         e2[j] = + pts[ind3, j] + 2*pts[ind9, j] + pts[ind0, j] - 2*pts[ind6, j] - 2*pts[ind7, j]
 
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))            
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # adjust jacobian
     # return jac*1.414213562373095
     return jac
@@ -1255,7 +1255,7 @@ cdef inline float tet_quad_qual_float(int64_t [::1] cells, int c,
 
     cdef int j
     cdef float normjac, tnorm
-    
+
     cdef int ind0 = cells[c + 0]
     cdef int ind1 = cells[c + 1]
     cdef int ind2 = cells[c + 2]
@@ -1274,7 +1274,7 @@ cdef inline float tet_quad_qual_float(int64_t [::1] cells, int c,
         e2[j] = 4*pts[ind7, j] - pts[ind3, j] - 3*pts[ind0, j]
 
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
 
     # Store this as minimum jacobian so far
     cdef float jac = triple_product_float(e1, e2, e0)/tnorm
@@ -1286,21 +1286,21 @@ cdef inline float tet_quad_qual_float(int64_t [::1] cells, int c,
         e2[j] = 4*pts[ind8, j] - pts[ind3, j] - 4*pts[ind4, j] + pts[ind0, j]
 
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-              
+
     ######################### Edge node 2 #########################
     for j in range(3):
         e0[j] = 4*pts[ind5, j] - pts[ind1, j] - 4*pts[ind6, j] + pts[ind0, j]
         e1[j] = 3*pts[ind2, j]                - 4*pts[ind6, j] + pts[ind0, j]
         e2[j] = 4*pts[ind9, j] - pts[ind3, j] - 4*pts[ind6, j] + pts[ind0, j]
-        
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
@@ -1312,85 +1312,85 @@ cdef inline float tet_quad_qual_float(int64_t [::1] cells, int c,
         e0[j] = 4*pts[ind8, j] - pts[ind1, j] - 4*pts[ind7, j] + pts[ind0, j]
         e1[j] = 4*pts[ind9, j] - pts[ind2, j] - 4*pts[ind7, j] + pts[ind0, j]
         e2[j] = 3*pts[ind3, j] - 4*pts[ind7, j] + pts[ind0, j]
-        
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 4 #########################
     for j in range(3):
         e0[j] = + pts[ind1, j] + 2*pts[ind4, j] - pts[ind0, j] - 2*pts[ind4, j]
         e1[j] = - pts[ind2, j] + 2*pts[ind5, j] + 2*pts[ind6, j] - pts[ind0, j] - 2*pts[ind4, j]
         e2[j] = - pts[ind3, j] + 2*pts[ind7, j] + 2*pts[ind8, j] - pts[ind0, j] - 2*pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     ######################### Midside node 5 #########################
     for j in range(3):
         e0[j] = + pts[ind1, j] + 2*pts[ind5, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind6, j]
         e1[j] = + pts[ind2, j] + 2*pts[ind5, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind6, j]
         e2[j] = - pts[ind3, j] + 2*pts[ind8, j] + 2*pts[ind9, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind6, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 6 #########################
     for j in range(3):
         e0[j] = - pts[ind1, j] + 2*pts[ind4, j] + 2*pts[ind5, j] - pts[ind0, j] - 2*pts[ind6, j]
         e1[j] = + pts[ind2, j] + 2*pts[ind6, j] - pts[ind0, j] - 2*pts[ind6, j]
         e2[j] = - pts[ind3, j] + 2*pts[ind7, j] + 2*pts[ind9, j] - pts[ind0, j] - 2*pts[ind6, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 7 #########################
     for j in range(3):
         e0[j] = - pts[ind1, j] + 2*pts[ind4, j] + 2*pts[ind8, j] - pts[ind0, j] - 2*pts[ind7, j]
         e1[j] = - pts[ind2, j] + 2*pts[ind6, j] + 2*pts[ind9, j] - pts[ind0, j] - 2*pts[ind7, j]
         e2[j] = + pts[ind3, j] + 2*pts[ind7, j] - pts[ind0, j] - 2*pts[ind7, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 8 #########################
     for j in range(3):
         e0[j] = + pts[ind1, j] + 2*pts[ind8, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind7, j]
         e1[j] = - pts[ind2, j] + 2*pts[ind5, j] + 2*pts[ind9, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind7, j]
         e2[j] = + pts[ind3, j] + 2*pts[ind8, j] + pts[ind0, j] - 2*pts[ind4, j] - 2*pts[ind7, j]
-    
+
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-               
+
     ######################### Midside node 9 #########################
     for j in range(3):
         e0[j] = - pts[ind1, j] + 2*pts[ind5, j] + 2*pts[ind8, j] + pts[ind0, j] - 2*pts[ind6, j] - 2*pts[ind7, j]
@@ -1398,13 +1398,13 @@ cdef inline float tet_quad_qual_float(int64_t [::1] cells, int c,
         e2[j] = + pts[ind3, j] + 2*pts[ind9, j] + pts[ind0, j] - 2*pts[ind6, j] - 2*pts[ind7, j]
 
     # normalize the determinant of the jacobian
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))            
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
 
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # adjust jacobian
     return jac*1.414213562373095
 
@@ -1414,38 +1414,38 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
     """
     Shape function checking code generated by printing the following code using
     the quadradic hexahedral indices in hex_quad_qual and replacing them with:
-    
+
     # Map wedge indices to hexahedral indices
     # ANSYS   [I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, A, B]
     pyr_map = [0, 1, 2, 3, 4, 4, 4, 4, 5, 6, 7, 8, 4, 4, 4, 4, 9,10,11,12]
     for i in range(len(pyr_map)):
         hex_quad_edges[hex_quad_edges == i] = pyr_map[i]
-    
+
     for i in range(4):
         print '# Node {:d}'.format(i)
         print 'for j in range(3):'
         print '    e0[j]  = 4*pts[ind{:d}, j] - pts[ind{:d}, j] - 3*pts[ind{:d}, j]'.format(hex_quad_edges[i][1][0], hex_quad_edges[i][0][0], i)
         print '    e1[j]  = 4*pts[ind{:d}, j] - pts[ind{:d}, j] - 3*pts[ind{:d}, j]'.format(hex_quad_edges[i][1][1], hex_quad_edges[i][0][1], i)
         print '    e2[j]  = 4*pts[ind{:d}, j] - pts[ind{:d}, j] - 3*pts[ind{:d}, j]'.format(hex_quad_edges[i][1][2], hex_quad_edges[i][0][2], i)
-        print 
+        print
         print '# normalize the determinant of the jacobian'
-        print 'tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))' 
+        print 'tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))'
         print 'normjac = triple_product(e1, e2, e0)/tnorm'
-        print 
+        print
         print '# Track minimum jacobian'
         print 'if normjac < jac:'
         print '    jac = normjac'
-        print 
+        print
         print 'print normjac'
-        
-    
+
+
     # midside nodes along x moving edges
     for i in [8, 9, 10, 11, 16, 17, 18, 19]:
         print '# Node {:d}'.format(i)
         print 'for j in range(3):'
         print '    e0[j] = pts[ind{:d}, j] - pts[ind{:d}, j]'.format(hex_quad_edges[i][0][0], hex_quad_edges[i][0][1])
         print
-        
+
         print '    e1[j] = 2*pts[ind{:d}, j] + \\'.format(hex_quad_edges[i][1][0])
         print '         2*pts[ind{:d}, j] - \\'.format(hex_quad_edges[i][1][1])
         print '           pts[ind{:d}, j] - \\'.format(hex_quad_edges[i][1][2])
@@ -1463,25 +1463,25 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
         print '           pts[ind{:d}, j] - \\'.format(hex_quad_edges[i][2][5])
         print '           pts[ind{:d}, j] + \\'.format(hex_quad_edges[i][2][6])
         print '           pts[ind{:d}, j]'.format(hex_quad_edges[i][2][7])
-        print 
+        print
         print '# normalize the determinant of the jacobian'
-        print 'tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))' 
+        print 'tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))'
         print 'normjac = triple_product(e1, e2, e0)/tnorm'
-        print 
+        print
         print '# Track minimum jacobian'
         print 'if normjac < jac:'
         print '    jac = normjac'
-        print 
-        print 'print normjac'    
-    
-    
+        print
+        print 'print normjac'
+
+
     """
 
     cdef double [3] e0
     cdef double [3] e1
     cdef double [3] e2
 
-    cdef int i, j    
+    cdef int i, j
     cdef double normjac, tnorm
 
     cdef int ind0 = cells[c + 0]
@@ -1497,64 +1497,64 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
     cdef int ind10 = cells[c + 10]
     cdef int ind11 = cells[c + 11]
     cdef int ind12 = cells[c + 12]
-    
+
     # Node 0
     for j in range(3):
         e0[j]  = 4*pts[ind5, j] - pts[ind1, j] - 3*pts[ind0, j]
         e1[j]  = 4*pts[ind8, j] - pts[ind3, j] - 3*pts[ind0, j]
         e2[j]  = 4*pts[ind9, j] - pts[ind4, j] - 3*pts[ind0, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     cdef double jac = triple_product(e1, e2, e0)/tnorm
-    
-    
+
+
     # Node 1
     for j in range(3):
         e0[j]  = 4*pts[ind6, j] - pts[ind2, j] - 3*pts[ind1, j]
         e1[j]  = 4*pts[ind5, j] - pts[ind0, j] - 3*pts[ind1, j]
         e2[j]  = 4*pts[ind10, j] - pts[ind4, j] - 3*pts[ind1, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 2
     for j in range(3):
         e0[j]  = 4*pts[ind7, j] - pts[ind3, j] - 3*pts[ind2, j]
         e1[j]  = 4*pts[ind6, j] - pts[ind1, j] - 3*pts[ind2, j]
         e2[j]  = 4*pts[ind11, j] - pts[ind4, j] - 3*pts[ind2, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 3
     for j in range(3):
         e0[j]  = 4*pts[ind8, j] - pts[ind0, j] - 3*pts[ind3, j]
         e1[j]  = 4*pts[ind7, j] - pts[ind2, j] - 3*pts[ind3, j]
         e2[j]  = 4*pts[ind12, j] - pts[ind4, j] - 3*pts[ind3, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 8
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
              2*pts[ind8, j] - \
                pts[ind0, j] - \
@@ -1563,7 +1563,7 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind5, j] + \
                pts[ind7, j]
-    
+
         e2[j] = 2*pts[ind9, j] + \
              2*pts[ind10, j] - \
                pts[ind0, j] - \
@@ -1572,19 +1572,19 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind5, j] + \
                pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 9
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind1, j]
-    
+
         e1[j] = 2*pts[ind5, j] + \
              2*pts[ind7, j] - \
                pts[ind0, j] - \
@@ -1593,7 +1593,7 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind6, j] + \
                pts[ind8, j]
-    
+
         e2[j] = 2*pts[ind10, j] + \
              2*pts[ind11, j] - \
                pts[ind1, j] - \
@@ -1602,19 +1602,19 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind6, j] + \
                pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 10
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind2, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
              2*pts[ind8, j] - \
                pts[ind0, j] - \
@@ -1623,7 +1623,7 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind7, j] + \
                pts[ind5, j]
-    
+
         e2[j] = 2*pts[ind11, j] + \
              2*pts[ind12, j] - \
                pts[ind2, j] - \
@@ -1632,19 +1632,19 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind7, j] + \
                pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 11
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
              2*pts[ind12, j] - \
                pts[ind0, j] - \
@@ -1653,7 +1653,7 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind8, j] + \
                pts[ind4, j]
-    
+
         e2[j] = 2*pts[ind5, j] + \
              2*pts[ind7, j] - \
                pts[ind0, j] - \
@@ -1662,19 +1662,19 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind8, j] + \
                pts[ind6, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 16
     for j in range(3):
         e0[j] = pts[ind0, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind8, j] + \
              2*pts[ind4, j] - \
                pts[ind0, j] - \
@@ -1683,7 +1683,7 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind9, j] + \
                pts[ind12, j]
-    
+
         e2[j] = 2*pts[ind5, j] + \
              2*pts[ind4, j] - \
                pts[ind0, j] - \
@@ -1692,20 +1692,20 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind9, j] + \
                pts[ind10, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
-    
+
+
     # Node 17
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind5, j] + \
              2*pts[ind4, j] - \
                pts[ind0, j] - \
@@ -1714,7 +1714,7 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind10, j] + \
                pts[ind9, j]
-    
+
         e2[j] = 2*pts[ind6, j] + \
              2*pts[ind4, j] - \
                pts[ind1, j] - \
@@ -1723,20 +1723,20 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind10, j] + \
                pts[ind11, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
-    
+
+
     # Node 18
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
              2*pts[ind4, j] - \
                pts[ind1, j] - \
@@ -1745,7 +1745,7 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind11, j] + \
                pts[ind10, j]
-    
+
         e2[j] = 2*pts[ind7, j] + \
              2*pts[ind4, j] - \
                pts[ind2, j] - \
@@ -1754,19 +1754,19 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind11, j] + \
                pts[ind12, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 19
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind7, j] + \
              2*pts[ind4, j] - \
                pts[ind2, j] - \
@@ -1775,7 +1775,7 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind12, j] + \
                pts[ind11, j]
-    
+
         e2[j] = 2*pts[ind8, j] + \
              2*pts[ind4, j] - \
                pts[ind0, j] - \
@@ -1784,11 +1784,11 @@ cdef inline double pyr_quad_qual(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind12, j] + \
                pts[ind9, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
@@ -1802,7 +1802,7 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
     cdef float [3] e1
     cdef float [3] e2
 
-    cdef int i, j    
+    cdef int i, j
     cdef float normjac, tnorm
 
     cdef int ind0 = cells[c + 0]
@@ -1818,64 +1818,64 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
     cdef int ind10 = cells[c + 10]
     cdef int ind11 = cells[c + 11]
     cdef int ind12 = cells[c + 12]
-    
+
     # Node 0
     for j in range(3):
         e0[j]  = 4*pts[ind5, j] - pts[ind1, j] - 3*pts[ind0, j]
         e1[j]  = 4*pts[ind8, j] - pts[ind3, j] - 3*pts[ind0, j]
         e2[j]  = 4*pts[ind9, j] - pts[ind4, j] - 3*pts[ind0, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     cdef float jac = triple_product_float(e1, e2, e0)/tnorm
-    
-    
+
+
     # Node 1
     for j in range(3):
         e0[j]  = 4*pts[ind6, j] - pts[ind2, j] - 3*pts[ind1, j]
         e1[j]  = 4*pts[ind5, j] - pts[ind0, j] - 3*pts[ind1, j]
         e2[j]  = 4*pts[ind10, j] - pts[ind4, j] - 3*pts[ind1, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 2
     for j in range(3):
         e0[j]  = 4*pts[ind7, j] - pts[ind3, j] - 3*pts[ind2, j]
         e1[j]  = 4*pts[ind6, j] - pts[ind1, j] - 3*pts[ind2, j]
         e2[j]  = 4*pts[ind11, j] - pts[ind4, j] - 3*pts[ind2, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 3
     for j in range(3):
         e0[j]  = 4*pts[ind8, j] - pts[ind0, j] - 3*pts[ind3, j]
         e1[j]  = 4*pts[ind7, j] - pts[ind2, j] - 3*pts[ind3, j]
         e2[j]  = 4*pts[ind12, j] - pts[ind4, j] - 3*pts[ind3, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 8
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
              2*pts[ind8, j] - \
                pts[ind0, j] - \
@@ -1884,7 +1884,7 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind5, j] + \
                pts[ind7, j]
-    
+
         e2[j] = 2*pts[ind9, j] + \
              2*pts[ind10, j] - \
                pts[ind0, j] - \
@@ -1893,19 +1893,19 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind5, j] + \
                pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 9
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind1, j]
-    
+
         e1[j] = 2*pts[ind5, j] + \
              2*pts[ind7, j] - \
                pts[ind0, j] - \
@@ -1914,7 +1914,7 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind6, j] + \
                pts[ind8, j]
-    
+
         e2[j] = 2*pts[ind10, j] + \
              2*pts[ind11, j] - \
                pts[ind1, j] - \
@@ -1923,19 +1923,19 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind6, j] + \
                pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 10
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind2, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
              2*pts[ind8, j] - \
                pts[ind0, j] - \
@@ -1944,7 +1944,7 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind7, j] + \
                pts[ind5, j]
-    
+
         e2[j] = 2*pts[ind11, j] + \
              2*pts[ind12, j] - \
                pts[ind2, j] - \
@@ -1953,19 +1953,19 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind7, j] + \
                pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 11
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
              2*pts[ind12, j] - \
                pts[ind0, j] - \
@@ -1974,7 +1974,7 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind8, j] + \
                pts[ind4, j]
-    
+
         e2[j] = 2*pts[ind5, j] + \
              2*pts[ind7, j] - \
                pts[ind0, j] - \
@@ -1983,19 +1983,19 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind8, j] + \
                pts[ind6, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 16
     for j in range(3):
         e0[j] = pts[ind0, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind8, j] + \
              2*pts[ind4, j] - \
                pts[ind0, j] - \
@@ -2004,7 +2004,7 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind9, j] + \
                pts[ind12, j]
-    
+
         e2[j] = 2*pts[ind5, j] + \
              2*pts[ind4, j] - \
                pts[ind0, j] - \
@@ -2013,20 +2013,20 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind9, j] + \
                pts[ind10, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
-    
+
+
     # Node 17
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind5, j] + \
              2*pts[ind4, j] - \
                pts[ind0, j] - \
@@ -2035,7 +2035,7 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind10, j] + \
                pts[ind9, j]
-    
+
         e2[j] = 2*pts[ind6, j] + \
              2*pts[ind4, j] - \
                pts[ind1, j] - \
@@ -2044,20 +2044,20 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind10, j] + \
                pts[ind11, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
-    
+
+
     # Node 18
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
              2*pts[ind4, j] - \
                pts[ind1, j] - \
@@ -2066,7 +2066,7 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind11, j] + \
                pts[ind10, j]
-    
+
         e2[j] = 2*pts[ind7, j] + \
              2*pts[ind4, j] - \
                pts[ind2, j] - \
@@ -2075,19 +2075,19 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind11, j] + \
                pts[ind12, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 19
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind7, j] + \
              2*pts[ind4, j] - \
                pts[ind2, j] - \
@@ -2096,7 +2096,7 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind12, j] + \
                pts[ind11, j]
-    
+
         e2[j] = 2*pts[ind8, j] + \
              2*pts[ind4, j] - \
                pts[ind0, j] - \
@@ -2105,11 +2105,11 @@ cdef inline float pyr_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind4, j] - \
                pts[ind12, j] + \
                pts[ind9, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
@@ -2126,9 +2126,9 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
     cdef double [3] e1
     cdef double [3] e2
 
-    cdef int i, j    
+    cdef int i, j
     cdef double normjac, tnorm
-    
+
     cdef int ind0 = cells[c + 0]
     cdef int ind1 = cells[c + 1]
     cdef int ind2 = cells[c + 2]
@@ -2144,14 +2144,14 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
     cdef int ind12 = cells[c + 12]
     cdef int ind13 = cells[c + 13]
     cdef int ind14 = cells[c + 14]
-    
+
     # Node 0
     for j in range(3):
         e0[j] = 4*pts[ind6, j] - pts[ind1, j] - 3*pts[ind0, j]
         e1[j] = 4*pts[ind8, j] - pts[ind2, j] - 3*pts[ind0, j]
         e2[j] = 4*pts[ind12, j] - pts[ind3, j] - 3*pts[ind0, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
 
     # Store current minimum jacobian
     cdef double jac = -triple_product(e1, e2, e0)/tnorm
@@ -2162,73 +2162,73 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
         e1[j] = 4*pts[ind6, j] - pts[ind0, j] - 3*pts[ind1, j]
         e2[j] = 4*pts[ind13, j] - pts[ind4, j] - 3*pts[ind1, j]
 
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 2
     # Since node 3 doesn't exist, special treatment for node 2
     for j in range(3):
         e0[j] = 4*pts[ind8, j] - pts[ind0, j] - 3*pts[ind2, j]
         e1[j] = 4*pts[ind7, j] - pts[ind1, j] - 3*pts[ind2, j]
         e2[j] = 4*pts[ind14, j] - pts[ind5, j] - 3*pts[ind2, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
-    
+
+
     # Node 4
     for j in range(3):
         e0[j] = 4*pts[ind11, j] - pts[ind5, j] - 3*pts[ind3, j]
         e1[j] = 4*pts[ind9, j] - pts[ind4, j] - 3*pts[ind3, j]
         e2[j] = 4*pts[ind12, j] - pts[ind0, j] - 3*pts[ind3, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
-    
+
+
     # Node 5
     for j in range(3):
         e0[j] = 4*pts[ind9, j] - pts[ind3, j] - 3*pts[ind4, j]
         e1[j] = 4*pts[ind10, j] - pts[ind5, j] - 3*pts[ind4, j]
         e2[j] = 4*pts[ind13, j] - pts[ind1, j] - 3*pts[ind4, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 6
     # Since node 3 doesn't exist, special treatment for node 2
     for j in range(3):
         e0[j] = 4*pts[ind10, j] - pts[ind4, j] - 3*pts[ind5, j]
         e1[j] = 4*pts[ind11, j] - pts[ind3, j] - 3*pts[ind5, j]
         e2[j] = 4*pts[ind14, j] - pts[ind2, j] - 3*pts[ind5, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 8
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind7, j] + \
                 2*pts[ind8, j] - \
                   pts[ind0, j] - \
@@ -2237,7 +2237,7 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind2, j] - \
                   pts[ind6, j] + \
                   pts[ind2, j]
-    
+
         e2[j] = 2*pts[ind12, j] + \
                 2*pts[ind13, j] - \
                   pts[ind0, j] - \
@@ -2246,18 +2246,18 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind4, j] - \
                   pts[ind6, j] + \
                   pts[ind9, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 9
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind1, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
                 2*pts[ind2, j] - \
                   pts[ind0, j] - \
@@ -2266,7 +2266,7 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind2, j] - \
                   pts[ind7, j] + \
                   pts[ind8, j]
-    
+
         e2[j] = 2*pts[ind13, j] + \
                 2*pts[ind14, j] - \
                   pts[ind1, j] - \
@@ -2275,18 +2275,18 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind7, j] + \
                   pts[ind10, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 11
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind12, j] + \
                 2*pts[ind14, j] - \
                   pts[ind0, j] - \
@@ -2295,7 +2295,7 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind8, j] + \
                   pts[ind11, j]
-    
+
         e2[j] = 2*pts[ind6, j] + \
                 2*pts[ind2, j] - \
                   pts[ind0, j] - \
@@ -2304,18 +2304,18 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind2, j] - \
                   pts[ind8, j] + \
                   pts[ind7, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 12
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind10, j] + \
                 2*pts[ind11, j] - \
                   pts[ind3, j] - \
@@ -2324,7 +2324,7 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind9, j] + \
                   pts[ind5, j]
-    
+
         e2[j] = 2*pts[ind12, j] + \
                 2*pts[ind13, j] - \
                   pts[ind0, j] - \
@@ -2333,18 +2333,18 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind4, j] - \
                   pts[ind9, j] + \
                   pts[ind6, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 13
     for j in range(3):
         e0[j] = pts[ind4, j] - pts[ind5, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
                 2*pts[ind5, j] - \
                   pts[ind3, j] - \
@@ -2353,7 +2353,7 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind10, j] + \
                   pts[ind11, j]
-    
+
         e2[j] = 2*pts[ind13, j] + \
                 2*pts[ind14, j] - \
                   pts[ind1, j] - \
@@ -2362,18 +2362,18 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind10, j] + \
                   pts[ind7, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 15
     for j in range(3):
         e0[j] = pts[ind5, j] - pts[ind3, j]
-    
+
         e1[j] = 2*pts[ind5, j] + \
                 2*pts[ind9, j] - \
                   pts[ind3, j] - \
@@ -2382,7 +2382,7 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind11, j] + \
                   pts[ind10, j]
-    
+
         e2[j] = 2*pts[ind12, j] + \
                 2*pts[ind14, j] - \
                   pts[ind0, j] - \
@@ -2391,18 +2391,18 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind11, j] + \
                   pts[ind8, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 16
     for j in range(3):
         e0[j] = pts[ind0, j] - pts[ind3, j]
-    
+
         e1[j] = 2*pts[ind8, j] + \
                 2*pts[ind11, j] - \
                   pts[ind0, j] - \
@@ -2411,7 +2411,7 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind12, j] + \
                   pts[ind14, j]
-    
+
         e2[j] = 2*pts[ind6, j] + \
                 2*pts[ind9, j] - \
                   pts[ind0, j] - \
@@ -2420,18 +2420,18 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind4, j] - \
                   pts[ind12, j] + \
                   pts[ind13, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 17
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
                 2*pts[ind9, j] - \
                   pts[ind0, j] - \
@@ -2440,7 +2440,7 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind4, j] - \
                   pts[ind13, j] + \
                   pts[ind12, j]
-    
+
         e2[j] = 2*pts[ind7, j] + \
                 2*pts[ind10, j] - \
                   pts[ind1, j] - \
@@ -2449,19 +2449,19 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind13, j] + \
                   pts[ind14, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Special treatment for midside node 14 (combine responses from 18 and 19 on hex)
     # Node 17
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind5, j]
-    
+
         e1[j] = 2*pts[ind7, j] + \
                 2*pts[ind10, j] - \
                   pts[ind1, j] - \
@@ -2470,7 +2470,7 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind14, j] + \
                   pts[ind13, j]
-    
+
         e2[j] = 2*pts[ind8, j] + \
                 2*pts[ind11, j] - \
                   pts[ind0, j] - \
@@ -2479,14 +2479,14 @@ cdef inline double weg_quad_qual(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind14, j] + \
                   pts[ind12, j]
-    
-    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))   
+
+    tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = -triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     return jac*1.154
 
 
@@ -2499,9 +2499,9 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
     cdef float [3] e1
     cdef float [3] e2
 
-    cdef int i, j    
+    cdef int i, j
     cdef float normjac, tnorm
-    
+
     cdef int ind0 = cells[c + 0]
     cdef int ind1 = cells[c + 1]
     cdef int ind2 = cells[c + 2]
@@ -2517,14 +2517,14 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
     cdef int ind12 = cells[c + 12]
     cdef int ind13 = cells[c + 13]
     cdef int ind14 = cells[c + 14]
-    
+
     # Node 0
     for j in range(3):
         e0[j] = 4*pts[ind6, j] - pts[ind1, j] - 3*pts[ind0, j]
         e1[j] = 4*pts[ind8, j] - pts[ind2, j] - 3*pts[ind0, j]
         e2[j] = 4*pts[ind12, j] - pts[ind3, j] - 3*pts[ind0, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
 
     # Store current minimum jacobian
     cdef float jac = -triple_product_float(e1, e2, e0)/tnorm
@@ -2535,73 +2535,73 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
         e1[j] = 4*pts[ind6, j] - pts[ind0, j] - 3*pts[ind1, j]
         e2[j] = 4*pts[ind13, j] - pts[ind4, j] - 3*pts[ind1, j]
 
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 2
     # Since node 3 doesn't exist, special treatment for node 2
     for j in range(3):
         e0[j] = 4*pts[ind8, j] - pts[ind0, j] - 3*pts[ind2, j]
         e1[j] = 4*pts[ind7, j] - pts[ind1, j] - 3*pts[ind2, j]
         e2[j] = 4*pts[ind14, j] - pts[ind5, j] - 3*pts[ind2, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
-    
+
+
     # Node 4
     for j in range(3):
         e0[j] = 4*pts[ind11, j] - pts[ind5, j] - 3*pts[ind3, j]
         e1[j] = 4*pts[ind9, j] - pts[ind4, j] - 3*pts[ind3, j]
         e2[j] = 4*pts[ind12, j] - pts[ind0, j] - 3*pts[ind3, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
-    
+
+
     # Node 5
     for j in range(3):
         e0[j] = 4*pts[ind9, j] - pts[ind3, j] - 3*pts[ind4, j]
         e1[j] = 4*pts[ind10, j] - pts[ind5, j] - 3*pts[ind4, j]
         e2[j] = 4*pts[ind13, j] - pts[ind1, j] - 3*pts[ind4, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 6
     # Since node 3 doesn't exist, special treatment for node 2
     for j in range(3):
         e0[j] = 4*pts[ind10, j] - pts[ind4, j] - 3*pts[ind5, j]
         e1[j] = 4*pts[ind11, j] - pts[ind3, j] - 3*pts[ind5, j]
         e2[j] = 4*pts[ind14, j] - pts[ind2, j] - 3*pts[ind5, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 8
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind7, j] + \
                 2*pts[ind8, j] - \
                   pts[ind0, j] - \
@@ -2610,7 +2610,7 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind2, j] - \
                   pts[ind6, j] + \
                   pts[ind2, j]
-    
+
         e2[j] = 2*pts[ind12, j] + \
                 2*pts[ind13, j] - \
                   pts[ind0, j] - \
@@ -2619,18 +2619,18 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind4, j] - \
                   pts[ind6, j] + \
                   pts[ind9, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 9
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind1, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
                 2*pts[ind2, j] - \
                   pts[ind0, j] - \
@@ -2639,7 +2639,7 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind2, j] - \
                   pts[ind7, j] + \
                   pts[ind8, j]
-    
+
         e2[j] = 2*pts[ind13, j] + \
                 2*pts[ind14, j] - \
                   pts[ind1, j] - \
@@ -2648,18 +2648,18 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind7, j] + \
                   pts[ind10, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 11
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind12, j] + \
                 2*pts[ind14, j] - \
                   pts[ind0, j] - \
@@ -2668,7 +2668,7 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind8, j] + \
                   pts[ind11, j]
-    
+
         e2[j] = 2*pts[ind6, j] + \
                 2*pts[ind2, j] - \
                   pts[ind0, j] - \
@@ -2677,18 +2677,18 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind2, j] - \
                   pts[ind8, j] + \
                   pts[ind7, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 12
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind10, j] + \
                 2*pts[ind11, j] - \
                   pts[ind3, j] - \
@@ -2697,7 +2697,7 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind9, j] + \
                   pts[ind5, j]
-    
+
         e2[j] = 2*pts[ind12, j] + \
                 2*pts[ind13, j] - \
                   pts[ind0, j] - \
@@ -2706,18 +2706,18 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind4, j] - \
                   pts[ind9, j] + \
                   pts[ind6, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 13
     for j in range(3):
         e0[j] = pts[ind4, j] - pts[ind5, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
                 2*pts[ind5, j] - \
                   pts[ind3, j] - \
@@ -2726,7 +2726,7 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind10, j] + \
                   pts[ind11, j]
-    
+
         e2[j] = 2*pts[ind13, j] + \
                 2*pts[ind14, j] - \
                   pts[ind1, j] - \
@@ -2735,18 +2735,18 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind10, j] + \
                   pts[ind7, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 15
     for j in range(3):
         e0[j] = pts[ind5, j] - pts[ind3, j]
-    
+
         e1[j] = 2*pts[ind5, j] + \
                 2*pts[ind9, j] - \
                   pts[ind3, j] - \
@@ -2755,7 +2755,7 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind11, j] + \
                   pts[ind10, j]
-    
+
         e2[j] = 2*pts[ind12, j] + \
                 2*pts[ind14, j] - \
                   pts[ind0, j] - \
@@ -2764,18 +2764,18 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind11, j] + \
                   pts[ind8, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 16
     for j in range(3):
         e0[j] = pts[ind0, j] - pts[ind3, j]
-    
+
         e1[j] = 2*pts[ind8, j] + \
                 2*pts[ind11, j] - \
                   pts[ind0, j] - \
@@ -2784,7 +2784,7 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind12, j] + \
                   pts[ind14, j]
-    
+
         e2[j] = 2*pts[ind6, j] + \
                 2*pts[ind9, j] - \
                   pts[ind0, j] - \
@@ -2793,18 +2793,18 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind4, j] - \
                   pts[ind12, j] + \
                   pts[ind13, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 17
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind6, j] + \
                 2*pts[ind9, j] - \
                   pts[ind0, j] - \
@@ -2813,7 +2813,7 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind4, j] - \
                   pts[ind13, j] + \
                   pts[ind12, j]
-    
+
         e2[j] = 2*pts[ind7, j] + \
                 2*pts[ind10, j] - \
                   pts[ind1, j] - \
@@ -2822,19 +2822,19 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind13, j] + \
                   pts[ind14, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Special treatment for midside node 14 (combine responses from 18 and 19 on hex)
     # Node 17
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind5, j]
-    
+
         e1[j] = 2*pts[ind7, j] + \
                 2*pts[ind10, j] - \
                   pts[ind1, j] - \
@@ -2843,7 +2843,7 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind14, j] + \
                   pts[ind13, j]
-    
+
         e2[j] = 2*pts[ind8, j] + \
                 2*pts[ind11, j] - \
                   pts[ind0, j] - \
@@ -2852,14 +2852,14 @@ cdef inline float weg_quad_qual_float(int64_t [::1] cells, int c,
                   pts[ind5, j] - \
                   pts[ind14, j] + \
                   pts[ind12, j]
-    
-    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))   
+
+    tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = -triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     return jac*1.154
 
 
@@ -2868,11 +2868,11 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     """
     Quadradic shape functions derived and then printed in pre-index form using
     the following code:
-    
+
     import sympy
     import numpy as np
 
-    # idea node locations for quadradic hexahedral    
+    # idea node locations for quadradic hexahedral
     edgept = np.array([[-1, -1, -1],
                        [ 1, -1, -1],
                        [ 1,  1, -1],
@@ -2881,8 +2881,8 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                        [ 1, -1,  1],
                        [ 1,  1,  1],
                        [-1,  1,  1]])
-    
-    # midside node indices             
+
+    # midside node indices
     idx = np.array([[0, 1], # 8
                     [1, 2],# 9
                     [2, 3],# 10
@@ -2895,14 +2895,14 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                     [1, 5],# 17
                     [2, 6],# 18
                     [3, 7]], np.int_)# 19
-    
+
     midpt = (edgept[idx[:, 0]] + edgept[idx[:, 1]])/2
-    
+
     isopts = np.empty((20, 3))
     isopts[:8] = edgept
     isopts[8:] = midpt
-    
-                       
+
+
     # Shape function evaluated at sampling locations
     u = np.empty((20, 20))
     for i in range(20):
@@ -2914,8 +2914,8 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                 zi**2*eta, zi*eta**2, eta**2*zeta, eta*zeta**2, zeta**2*zi,
                 zeta*zi**2, zi*eta*zeta,
                 zi**2*eta*zeta, zi*eta**2*zeta, zi*eta*zeta**2]
-    
-    
+
+
     zi, eta, zeta = sympy.symbols('zi eta zeta', real=True)
     shp = [1,
           zi,
@@ -2937,9 +2937,9 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
           eta*zeta*zi**2,
           eta**2*zeta*zi,
           eta*zeta**2*zi]
-    
+
     shape_functions = np.array(np.matrix(shp)*np.matrix(np.linalg.inv(u))).ravel()
-    
+
     # Take the differential of each shape function evaluated at the
     # integration point with respect to the natural shape coordinate
     # system.
@@ -2948,8 +2948,8 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     for i in range(20):
         for j in range(3):
              nprime[j, i] = sympy.diff(shape_functions[i], variables[j])
-    
-    
+
+
     # This is the N_prime functions with the isopts subbed into them
     pre_j = np.empty((60, 20))
     for i in range(20):
@@ -2958,7 +2958,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                 pre_j[i*3 + j, k] = nprime[j, k].subs([(zi,   isopts[i, 0]),
                                                        (eta,  isopts[i, 1]),
                                                        (zeta, isopts[i, 2])])
-                                                       
+
 
     hex_quad_edges = np.empty((20, 3, 8), np.int32)
     hex_quad_edges[0][0][0] = 1
@@ -2967,61 +2967,61 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[0][1][0] = 8
     hex_quad_edges[0][1][1] = 11
     hex_quad_edges[0][1][2] = 16
-    
+
     hex_quad_edges[1][0][0] = 2
     hex_quad_edges[1][0][1] = 0
     hex_quad_edges[1][0][2] = 5
     hex_quad_edges[1][1][0] = 9
     hex_quad_edges[1][1][1] = 8
     hex_quad_edges[1][1][2] = 17
-    
+
     hex_quad_edges[2][0][0] = 3
     hex_quad_edges[2][0][1] = 1
     hex_quad_edges[2][0][2] = 6
     hex_quad_edges[2][1][0] = 10
     hex_quad_edges[2][1][1] = 9
     hex_quad_edges[2][1][2] = 18
-    
+
     hex_quad_edges[3][0][0] = 0
     hex_quad_edges[3][0][1] = 2
     hex_quad_edges[3][0][2] = 7
     hex_quad_edges[3][1][0] = 11
     hex_quad_edges[3][1][1] = 10
     hex_quad_edges[3][1][2] = 19
-    
+
     hex_quad_edges[4][0][0] = 7
     hex_quad_edges[4][0][1] = 5
     hex_quad_edges[4][0][2] = 0
     hex_quad_edges[4][1][0] = 15
     hex_quad_edges[4][1][1] = 12
     hex_quad_edges[4][1][2] = 16
-    
+
     hex_quad_edges[5][0][0] = 4
     hex_quad_edges[5][0][1] = 6
     hex_quad_edges[5][0][2] = 1
     hex_quad_edges[5][1][0] = 12
     hex_quad_edges[5][1][1] = 13
     hex_quad_edges[5][1][2] = 17
-    
+
     hex_quad_edges[6][0][0] = 5
     hex_quad_edges[6][0][1] = 7
     hex_quad_edges[6][0][2] = 2
     hex_quad_edges[6][1][0] = 13
     hex_quad_edges[6][1][1] = 14
     hex_quad_edges[6][1][2] = 18
-    
+
     hex_quad_edges[7][0][0] = 6
     hex_quad_edges[7][0][1] = 4
     hex_quad_edges[7][0][2] = 3
     hex_quad_edges[7][1][0] = 14
     hex_quad_edges[7][1][1] = 15
     hex_quad_edges[7][1][2] = 19
-        
-    
+
+
     # Node 8 (between edges 0 and 1)
     hex_quad_edges[8][0][0] = 1
     hex_quad_edges[8][0][1] = 0
-    
+
     hex_quad_edges[8][1][0] = 9
     hex_quad_edges[8][1][1] = 11
     hex_quad_edges[8][1][2] = 0
@@ -3030,7 +3030,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[8][1][5] = 3
     hex_quad_edges[8][1][6] = 8
     hex_quad_edges[8][1][7] = 10
-    
+
     hex_quad_edges[8][2][0] = 16
     hex_quad_edges[8][2][1] = 17
     hex_quad_edges[8][2][2] = 0
@@ -3039,8 +3039,8 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[8][2][5] = 5
     hex_quad_edges[8][2][6] = 8
     hex_quad_edges[8][2][7] = 12
-    
-    
+
+
     # Node 9 (between edges 1 and 2)
     hex_quad_edges[9][1][0] = 8
     hex_quad_edges[9][1][1] = 10
@@ -3050,10 +3050,10 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[9][1][5] = 3
     hex_quad_edges[9][1][6] = 9
     hex_quad_edges[9][1][7] = 11
-    
+
     hex_quad_edges[9][0][0] = 2
     hex_quad_edges[9][0][1] = 1
-    
+
     hex_quad_edges[9][2][0] = 17
     hex_quad_edges[9][2][1] = 18
     hex_quad_edges[9][2][2] = 1
@@ -3062,12 +3062,12 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[9][2][5] = 6
     hex_quad_edges[9][2][6] = 9
     hex_quad_edges[9][2][7] = 13
-    
-    
+
+
     # Node 10 (between edges 2 and 3)
     hex_quad_edges[10][0][0] = 3
     hex_quad_edges[10][0][1] = 2
-    
+
     hex_quad_edges[10][1][0] = 9
     hex_quad_edges[10][1][1] = 11
     hex_quad_edges[10][1][2] = 0
@@ -3076,7 +3076,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[10][1][5] = 3
     hex_quad_edges[10][1][6] = 10
     hex_quad_edges[10][1][7] = 8
-    
+
     hex_quad_edges[10][2][0] = 18
     hex_quad_edges[10][2][1] = 19
     hex_quad_edges[10][2][2] = 2
@@ -3085,13 +3085,13 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[10][2][5] = 7
     hex_quad_edges[10][2][6] = 10
     hex_quad_edges[10][2][7] = 14
-    
-    
-    
+
+
+
     # Node 11 (between edge nodes 0 and 3)
     hex_quad_edges[11][0][0] = 3
     hex_quad_edges[11][0][1] = 0
-    
+
     hex_quad_edges[11][1][0] = 16
     hex_quad_edges[11][1][1] = 19
     hex_quad_edges[11][1][2] = 0
@@ -3100,7 +3100,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[11][1][5] = 7
     hex_quad_edges[11][1][6] = 11
     hex_quad_edges[11][1][7] = 15
-    
+
     hex_quad_edges[11][2][0] = 8
     hex_quad_edges[11][2][1] = 10
     hex_quad_edges[11][2][2] = 0
@@ -3109,12 +3109,12 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[11][2][5] = 3
     hex_quad_edges[11][2][6] = 11
     hex_quad_edges[11][2][7] = 9
-    
-    
+
+
     # Node 12 (between edges 3 and 0)
     hex_quad_edges[12][0][0] = 4
     hex_quad_edges[12][0][1] = 5
-    
+
     hex_quad_edges[12][1][0] = 13
     hex_quad_edges[12][1][1] = 15
     hex_quad_edges[12][1][2] = 4
@@ -3123,7 +3123,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[12][1][5] = 7
     hex_quad_edges[12][1][6] = 12
     hex_quad_edges[12][1][7] = 14
-    
+
     hex_quad_edges[12][2][0] = 16
     hex_quad_edges[12][2][1] = 17
     hex_quad_edges[12][2][2] = 0
@@ -3132,8 +3132,8 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[12][2][5] = 5
     hex_quad_edges[12][2][6] = 12
     hex_quad_edges[12][2][7] = 8
-    
-    
+
+
     # Node 13 (between edges 1 and 2)
     hex_quad_edges[13][1][0] = 12
     hex_quad_edges[13][1][1] = 14
@@ -3143,10 +3143,10 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[13][1][5] = 7
     hex_quad_edges[13][1][6] = 13
     hex_quad_edges[13][1][7] = 15
-    
+
     hex_quad_edges[13][0][0] = 5
     hex_quad_edges[13][0][1] = 6
-    
+
     hex_quad_edges[13][2][0] = 17
     hex_quad_edges[13][2][1] = 18
     hex_quad_edges[13][2][2] = 1
@@ -3155,12 +3155,12 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[13][2][5] = 6
     hex_quad_edges[13][2][6] = 13
     hex_quad_edges[13][2][7] = 9
-    
-    
+
+
     # Node 14 (between edges 2 and 3)
     hex_quad_edges[14][0][0] = 6
     hex_quad_edges[14][0][1] = 7
-    
+
     hex_quad_edges[14][1][0] = 13
     hex_quad_edges[14][1][1] = 15
     hex_quad_edges[14][1][2] = 4
@@ -3169,7 +3169,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[14][1][5] = 7
     hex_quad_edges[14][1][6] = 14
     hex_quad_edges[14][1][7] = 12
-    
+
     hex_quad_edges[14][2][0] = 18
     hex_quad_edges[14][2][1] = 19
     hex_quad_edges[14][2][2] = 2
@@ -3178,8 +3178,8 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[14][2][5] = 7
     hex_quad_edges[14][2][6] = 14
     hex_quad_edges[14][2][7] = 10
-    
-    
+
+
     # Node 15 (between edges 1 and 2)
     hex_quad_edges[15][1][0] = 14
     hex_quad_edges[15][1][1] = 12
@@ -3189,10 +3189,10 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[15][1][5] = 7
     hex_quad_edges[15][1][6] = 15
     hex_quad_edges[15][1][7] = 13
-    
+
     hex_quad_edges[15][0][0] = 7
     hex_quad_edges[15][0][1] = 4
-    
+
     hex_quad_edges[15][2][0] = 16
     hex_quad_edges[15][2][1] = 19
     hex_quad_edges[15][2][2] = 0
@@ -3201,11 +3201,11 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[15][2][5] = 7
     hex_quad_edges[15][2][6] = 15
     hex_quad_edges[15][2][7] = 11
-    
+
     # Node 16 (between edges 4 and 0)
     hex_quad_edges[16][0][0] = 0
     hex_quad_edges[16][0][1] = 4
-    
+
     hex_quad_edges[16][1][0] = 11
     hex_quad_edges[16][1][1] = 15
     hex_quad_edges[16][1][2] = 0
@@ -3214,7 +3214,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[16][1][5] = 7
     hex_quad_edges[16][1][6] = 16
     hex_quad_edges[16][1][7] = 19
-    
+
     hex_quad_edges[16][2][0] = 8
     hex_quad_edges[16][2][1] = 12
     hex_quad_edges[16][2][2] = 0
@@ -3223,12 +3223,12 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[16][2][5] = 5
     hex_quad_edges[16][2][6] = 16
     hex_quad_edges[16][2][7] = 17
-    
-    
+
+
     # Node 17 (between edges 4 and 0)
     hex_quad_edges[17][0][0] = 1
     hex_quad_edges[17][0][1] = 5
-    
+
     hex_quad_edges[17][1][0] = 8
     hex_quad_edges[17][1][1] = 12
     hex_quad_edges[17][1][2] = 0
@@ -3237,7 +3237,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[17][1][5] = 5
     hex_quad_edges[17][1][6] = 17
     hex_quad_edges[17][1][7] = 16
-    
+
     hex_quad_edges[17][2][0] = 9
     hex_quad_edges[17][2][1] = 13
     hex_quad_edges[17][2][2] = 1
@@ -3246,12 +3246,12 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[17][2][5] = 6
     hex_quad_edges[17][2][6] = 17
     hex_quad_edges[17][2][7] = 18
-    
-    
+
+
     # Node 18 (between edges 4 and 0)
     hex_quad_edges[18][0][0] = 2
     hex_quad_edges[18][0][1] = 6
-    
+
     hex_quad_edges[18][1][0] = 9
     hex_quad_edges[18][1][1] = 13
     hex_quad_edges[18][1][2] = 1
@@ -3260,7 +3260,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[18][1][5] = 6
     hex_quad_edges[18][1][6] = 18
     hex_quad_edges[18][1][7] = 17
-    
+
     hex_quad_edges[18][2][0] = 10
     hex_quad_edges[18][2][1] = 14
     hex_quad_edges[18][2][2] = 2
@@ -3269,12 +3269,12 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[18][2][5] = 7
     hex_quad_edges[18][2][6] = 18
     hex_quad_edges[18][2][7] = 19
-    
-    
+
+
     # Node 19 (between edges 4 and 0)
     hex_quad_edges[19][0][0] = 3
     hex_quad_edges[19][0][1] = 7
-    
+
     hex_quad_edges[19][1][0] = 10
     hex_quad_edges[19][1][1] = 14
     hex_quad_edges[19][1][2] = 2
@@ -3283,7 +3283,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[19][1][5] = 7
     hex_quad_edges[19][1][6] = 19
     hex_quad_edges[19][1][7] = 18
-    
+
     hex_quad_edges[19][2][0] = 11
     hex_quad_edges[19][2][1] = 15
     hex_quad_edges[19][2][2] = 0
@@ -3292,38 +3292,38 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     hex_quad_edges[19][2][5] = 7
     hex_quad_edges[19][2][6] = 19
     hex_quad_edges[19][2][7] = 16
-    
-    
-    
+
+
+
     for i in range(20):
         print 'cdef int ind{:d} = cells[c + {:d}]'.format(i, i)
-    
-    
-    
+
+
+
     for i in range(8):
         print '# Node {:d}'.format(i)
         print 'for j in range(3):'
         print '    e0[j]  = 4*pts[ind{:d}, j] - pts[ind{:d}, j] - 3*pts[ind{:d}, j]'.format(hex_quad_edges[i][1][0], hex_quad_edges[i][0][0], i)
         print '    e1[j]  = 4*pts[ind{:d}, j] - pts[ind{:d}, j] - 3*pts[ind{:d}, j]'.format(hex_quad_edges[i][1][1], hex_quad_edges[i][0][1], i)
         print '    e2[j]  = 4*pts[ind{:d}, j] - pts[ind{:d}, j] - 3*pts[ind{:d}, j]'.format(hex_quad_edges[i][1][2], hex_quad_edges[i][0][2], i)
-        print 
+        print
         print '# normalize the determinant of the jacobian'
-        print 'tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))' 
+        print 'tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))'
         print 'normjac = triple_product(e1, e2, e0)/tnorm'
-        print 
+        print
         print '# Track minimum jacobian'
         print 'if normjac < jac:'
         print '    jac = normjac'
-        print 
-    
-    
+        print
+
+
     # midside nodes along x moving edges
     for i in range(8, 20):
         print '# Node {:d}'.format(i)
         print 'for j in range(3):'
         print '    e0[j] = pts[ind{:d}, j] - pts[ind{:d}, j]'.format(hex_quad_edges[i][0][0], hex_quad_edges[i][0][1])
         print
-        
+
         print '    e1[j] = 2*pts[ind{:d}, j] + \\'.format(hex_quad_edges[i][1][0])
         print '         2*pts[ind{:d}, j] - \\'.format(hex_quad_edges[i][1][1])
         print '           pts[ind{:d}, j] - \\'.format(hex_quad_edges[i][1][2])
@@ -3341,16 +3341,16 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
         print '           pts[ind{:d}, j] - \\'.format(hex_quad_edges[i][2][5])
         print '           pts[ind{:d}, j] + \\'.format(hex_quad_edges[i][2][6])
         print '           pts[ind{:d}, j]'.format(hex_quad_edges[i][2][7])
-        print 
+        print
         print '# normalize the determinant of the jacobian'
-        print 'tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))' 
+        print 'tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))'
         print 'normjac = triple_product(e1, e2, e0)/tnorm'
-        print 
+        print
         print '# Track minimum jacobian'
         print 'if normjac < jac:'
         print '    jac = normjac'
-        print 
-    
+        print
+
     """
 
     cdef double jac = 1.1
@@ -3359,9 +3359,9 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     cdef double [3] e1
     cdef double [3] e2
 
-    cdef int i, j    
+    cdef int i, j
     cdef double normjac, tnorm
-    
+
     # Store cell indices
     cdef int ind0 = cells[c + 0]
     cdef int ind1 = cells[c + 1]
@@ -3383,123 +3383,123 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
     cdef int ind17 = cells[c + 17]
     cdef int ind18 = cells[c + 18]
     cdef int ind19 = cells[c + 19]
-    
+
     # Node 0
     for j in range(3):
         e0[j]  = 4*pts[ind8, j] - pts[ind1, j] - 3*pts[ind0, j]
         e1[j]  = 4*pts[ind11, j] - pts[ind3, j] - 3*pts[ind0, j]
         e2[j]  = 4*pts[ind16, j] - pts[ind4, j] - 3*pts[ind0, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 1
     for j in range(3):
         e0[j]  = 4*pts[ind9, j] - pts[ind2, j] - 3*pts[ind1, j]
         e1[j]  = 4*pts[ind8, j] - pts[ind0, j] - 3*pts[ind1, j]
         e2[j]  = 4*pts[ind17, j] - pts[ind5, j] - 3*pts[ind1, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 2
     for j in range(3):
         e0[j]  = 4*pts[ind10, j] - pts[ind3, j] - 3*pts[ind2, j]
         e1[j]  = 4*pts[ind9, j] - pts[ind1, j] - 3*pts[ind2, j]
         e2[j]  = 4*pts[ind18, j] - pts[ind6, j] - 3*pts[ind2, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 3
     for j in range(3):
         e0[j]  = 4*pts[ind11, j] - pts[ind0, j] - 3*pts[ind3, j]
         e1[j]  = 4*pts[ind10, j] - pts[ind2, j] - 3*pts[ind3, j]
         e2[j]  = 4*pts[ind19, j] - pts[ind7, j] - 3*pts[ind3, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 4
     for j in range(3):
         e0[j]  = 4*pts[ind15, j] - pts[ind7, j] - 3*pts[ind4, j]
         e1[j]  = 4*pts[ind12, j] - pts[ind5, j] - 3*pts[ind4, j]
         e2[j]  = 4*pts[ind16, j] - pts[ind0, j] - 3*pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 5
     for j in range(3):
         e0[j]  = 4*pts[ind12, j] - pts[ind4, j] - 3*pts[ind5, j]
         e1[j]  = 4*pts[ind13, j] - pts[ind6, j] - 3*pts[ind5, j]
         e2[j]  = 4*pts[ind17, j] - pts[ind1, j] - 3*pts[ind5, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 6
     for j in range(3):
         e0[j]  = 4*pts[ind13, j] - pts[ind5, j] - 3*pts[ind6, j]
         e1[j]  = 4*pts[ind14, j] - pts[ind7, j] - 3*pts[ind6, j]
         e2[j]  = 4*pts[ind18, j] - pts[ind2, j] - 3*pts[ind6, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 7
     for j in range(3):
         e0[j]  = 4*pts[ind14, j] - pts[ind6, j] - 3*pts[ind7, j]
         e1[j]  = 4*pts[ind15, j] - pts[ind4, j] - 3*pts[ind7, j]
         e2[j]  = 4*pts[ind19, j] - pts[ind3, j] - 3*pts[ind7, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 8
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
              2*pts[ind11, j] - \
                pts[ind0, j] - \
@@ -3508,7 +3508,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind8, j] + \
                pts[ind10, j]
-    
+
         e2[j] = 2*pts[ind16, j] + \
              2*pts[ind17, j] - \
                pts[ind0, j] - \
@@ -3517,19 +3517,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind5, j] - \
                pts[ind8, j] + \
                pts[ind12, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 9
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind1, j]
-    
+
         e1[j] = 2*pts[ind8, j] + \
              2*pts[ind10, j] - \
                pts[ind0, j] - \
@@ -3538,7 +3538,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind9, j] + \
                pts[ind11, j]
-    
+
         e2[j] = 2*pts[ind17, j] + \
              2*pts[ind18, j] - \
                pts[ind1, j] - \
@@ -3547,19 +3547,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind6, j] - \
                pts[ind9, j] + \
                pts[ind13, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 10
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind2, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
              2*pts[ind11, j] - \
                pts[ind0, j] - \
@@ -3568,7 +3568,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind10, j] + \
                pts[ind8, j]
-    
+
         e2[j] = 2*pts[ind18, j] + \
              2*pts[ind19, j] - \
                pts[ind2, j] - \
@@ -3577,19 +3577,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind10, j] + \
                pts[ind14, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 11
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind16, j] + \
              2*pts[ind19, j] - \
                pts[ind0, j] - \
@@ -3598,7 +3598,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind11, j] + \
                pts[ind15, j]
-    
+
         e2[j] = 2*pts[ind8, j] + \
              2*pts[ind10, j] - \
                pts[ind0, j] - \
@@ -3607,19 +3607,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind11, j] + \
                pts[ind9, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 12
     for j in range(3):
         e0[j] = pts[ind4, j] - pts[ind5, j]
-    
+
         e1[j] = 2*pts[ind13, j] + \
              2*pts[ind15, j] - \
                pts[ind4, j] - \
@@ -3628,7 +3628,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind12, j] + \
                pts[ind14, j]
-    
+
         e2[j] = 2*pts[ind16, j] + \
              2*pts[ind17, j] - \
                pts[ind0, j] - \
@@ -3637,19 +3637,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind5, j] - \
                pts[ind12, j] + \
                pts[ind8, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 13
     for j in range(3):
         e0[j] = pts[ind5, j] - pts[ind6, j]
-    
+
         e1[j] = 2*pts[ind12, j] + \
              2*pts[ind14, j] - \
                pts[ind4, j] - \
@@ -3658,7 +3658,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind13, j] + \
                pts[ind15, j]
-    
+
         e2[j] = 2*pts[ind17, j] + \
              2*pts[ind18, j] - \
                pts[ind1, j] - \
@@ -3667,19 +3667,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind6, j] - \
                pts[ind13, j] + \
                pts[ind9, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 14
     for j in range(3):
         e0[j] = pts[ind6, j] - pts[ind7, j]
-    
+
         e1[j] = 2*pts[ind13, j] + \
              2*pts[ind15, j] - \
                pts[ind4, j] - \
@@ -3688,7 +3688,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind14, j] + \
                pts[ind12, j]
-    
+
         e2[j] = 2*pts[ind18, j] + \
              2*pts[ind19, j] - \
                pts[ind2, j] - \
@@ -3697,19 +3697,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind14, j] + \
                pts[ind10, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 15
     for j in range(3):
         e0[j] = pts[ind7, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind14, j] + \
              2*pts[ind12, j] - \
                pts[ind4, j] - \
@@ -3718,7 +3718,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind15, j] + \
                pts[ind13, j]
-    
+
         e2[j] = 2*pts[ind16, j] + \
              2*pts[ind19, j] - \
                pts[ind0, j] - \
@@ -3727,19 +3727,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind15, j] + \
                pts[ind11, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 16
     for j in range(3):
         e0[j] = pts[ind0, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind11, j] + \
              2*pts[ind15, j] - \
                pts[ind0, j] - \
@@ -3748,7 +3748,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind16, j] + \
                pts[ind19, j]
-    
+
         e2[j] = 2*pts[ind8, j] + \
              2*pts[ind12, j] - \
                pts[ind0, j] - \
@@ -3757,19 +3757,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind5, j] - \
                pts[ind16, j] + \
                pts[ind17, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 17
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind5, j]
-    
+
         e1[j] = 2*pts[ind8, j] + \
              2*pts[ind12, j] - \
                pts[ind0, j] - \
@@ -3778,7 +3778,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind5, j] - \
                pts[ind17, j] + \
                pts[ind16, j]
-    
+
         e2[j] = 2*pts[ind9, j] + \
              2*pts[ind13, j] - \
                pts[ind1, j] - \
@@ -3787,19 +3787,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind6, j] - \
                pts[ind17, j] + \
                pts[ind18, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 18
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind6, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
              2*pts[ind13, j] - \
                pts[ind1, j] - \
@@ -3808,7 +3808,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind6, j] - \
                pts[ind18, j] + \
                pts[ind17, j]
-    
+
         e2[j] = 2*pts[ind10, j] + \
              2*pts[ind14, j] - \
                pts[ind2, j] - \
@@ -3817,19 +3817,19 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind18, j] + \
                pts[ind19, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 19
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind7, j]
-    
+
         e1[j] = 2*pts[ind10, j] + \
              2*pts[ind14, j] - \
                pts[ind2, j] - \
@@ -3838,7 +3838,7 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind19, j] + \
                pts[ind18, j]
-    
+
         e2[j] = 2*pts[ind11, j] + \
              2*pts[ind15, j] - \
                pts[ind0, j] - \
@@ -3847,15 +3847,15 @@ cdef inline double hex_quad_qual(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind19, j] + \
                pts[ind16, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm(e0)*vector_norm(e1)*vector_norm(e2))
     normjac = triple_product(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     return jac
 
 
@@ -3865,9 +3865,9 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
     cdef float [3] e0
     cdef float [3] e1
     cdef float [3] e2
-    cdef int i, j    
+    cdef int i, j
     cdef float normjac, tnorm
-    
+
     # Store cell indices
     cdef int ind0 = cells[c + 0]
     cdef int ind1 = cells[c + 1]
@@ -3889,123 +3889,123 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
     cdef int ind17 = cells[c + 17]
     cdef int ind18 = cells[c + 18]
     cdef int ind19 = cells[c + 19]
-    
+
     # Node 0
     for j in range(3):
         e0[j]  = 4*pts[ind8, j] - pts[ind1, j] - 3*pts[ind0, j]
         e1[j]  = 4*pts[ind11, j] - pts[ind3, j] - 3*pts[ind0, j]
         e2[j]  = 4*pts[ind16, j] - pts[ind4, j] - 3*pts[ind0, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 1
     for j in range(3):
         e0[j]  = 4*pts[ind9, j] - pts[ind2, j] - 3*pts[ind1, j]
         e1[j]  = 4*pts[ind8, j] - pts[ind0, j] - 3*pts[ind1, j]
         e2[j]  = 4*pts[ind17, j] - pts[ind5, j] - 3*pts[ind1, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 2
     for j in range(3):
         e0[j]  = 4*pts[ind10, j] - pts[ind3, j] - 3*pts[ind2, j]
         e1[j]  = 4*pts[ind9, j] - pts[ind1, j] - 3*pts[ind2, j]
         e2[j]  = 4*pts[ind18, j] - pts[ind6, j] - 3*pts[ind2, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 3
     for j in range(3):
         e0[j]  = 4*pts[ind11, j] - pts[ind0, j] - 3*pts[ind3, j]
         e1[j]  = 4*pts[ind10, j] - pts[ind2, j] - 3*pts[ind3, j]
         e2[j]  = 4*pts[ind19, j] - pts[ind7, j] - 3*pts[ind3, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 4
     for j in range(3):
         e0[j]  = 4*pts[ind15, j] - pts[ind7, j] - 3*pts[ind4, j]
         e1[j]  = 4*pts[ind12, j] - pts[ind5, j] - 3*pts[ind4, j]
         e2[j]  = 4*pts[ind16, j] - pts[ind0, j] - 3*pts[ind4, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 5
     for j in range(3):
         e0[j]  = 4*pts[ind12, j] - pts[ind4, j] - 3*pts[ind5, j]
         e1[j]  = 4*pts[ind13, j] - pts[ind6, j] - 3*pts[ind5, j]
         e2[j]  = 4*pts[ind17, j] - pts[ind1, j] - 3*pts[ind5, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 6
     for j in range(3):
         e0[j]  = 4*pts[ind13, j] - pts[ind5, j] - 3*pts[ind6, j]
         e1[j]  = 4*pts[ind14, j] - pts[ind7, j] - 3*pts[ind6, j]
         e2[j]  = 4*pts[ind18, j] - pts[ind2, j] - 3*pts[ind6, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 7
     for j in range(3):
         e0[j]  = 4*pts[ind14, j] - pts[ind6, j] - 3*pts[ind7, j]
         e1[j]  = 4*pts[ind15, j] - pts[ind4, j] - 3*pts[ind7, j]
         e2[j]  = 4*pts[ind19, j] - pts[ind3, j] - 3*pts[ind7, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 8
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
              2*pts[ind11, j] - \
                pts[ind0, j] - \
@@ -4014,7 +4014,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind8, j] + \
                pts[ind10, j]
-    
+
         e2[j] = 2*pts[ind16, j] + \
              2*pts[ind17, j] - \
                pts[ind0, j] - \
@@ -4023,19 +4023,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind5, j] - \
                pts[ind8, j] + \
                pts[ind12, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 9
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind1, j]
-    
+
         e1[j] = 2*pts[ind8, j] + \
              2*pts[ind10, j] - \
                pts[ind0, j] - \
@@ -4044,7 +4044,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind9, j] + \
                pts[ind11, j]
-    
+
         e2[j] = 2*pts[ind17, j] + \
              2*pts[ind18, j] - \
                pts[ind1, j] - \
@@ -4053,19 +4053,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind6, j] - \
                pts[ind9, j] + \
                pts[ind13, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 10
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind2, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
              2*pts[ind11, j] - \
                pts[ind0, j] - \
@@ -4074,7 +4074,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind10, j] + \
                pts[ind8, j]
-    
+
         e2[j] = 2*pts[ind18, j] + \
              2*pts[ind19, j] - \
                pts[ind2, j] - \
@@ -4083,19 +4083,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind10, j] + \
                pts[ind14, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 11
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind0, j]
-    
+
         e1[j] = 2*pts[ind16, j] + \
              2*pts[ind19, j] - \
                pts[ind0, j] - \
@@ -4104,7 +4104,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind11, j] + \
                pts[ind15, j]
-    
+
         e2[j] = 2*pts[ind8, j] + \
              2*pts[ind10, j] - \
                pts[ind0, j] - \
@@ -4113,19 +4113,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind3, j] - \
                pts[ind11, j] + \
                pts[ind9, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 12
     for j in range(3):
         e0[j] = pts[ind4, j] - pts[ind5, j]
-    
+
         e1[j] = 2*pts[ind13, j] + \
              2*pts[ind15, j] - \
                pts[ind4, j] - \
@@ -4134,7 +4134,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind12, j] + \
                pts[ind14, j]
-    
+
         e2[j] = 2*pts[ind16, j] + \
              2*pts[ind17, j] - \
                pts[ind0, j] - \
@@ -4143,19 +4143,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind5, j] - \
                pts[ind12, j] + \
                pts[ind8, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 13
     for j in range(3):
         e0[j] = pts[ind5, j] - pts[ind6, j]
-    
+
         e1[j] = 2*pts[ind12, j] + \
              2*pts[ind14, j] - \
                pts[ind4, j] - \
@@ -4164,7 +4164,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind13, j] + \
                pts[ind15, j]
-    
+
         e2[j] = 2*pts[ind17, j] + \
              2*pts[ind18, j] - \
                pts[ind1, j] - \
@@ -4173,19 +4173,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind6, j] - \
                pts[ind13, j] + \
                pts[ind9, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 14
     for j in range(3):
         e0[j] = pts[ind6, j] - pts[ind7, j]
-    
+
         e1[j] = 2*pts[ind13, j] + \
              2*pts[ind15, j] - \
                pts[ind4, j] - \
@@ -4194,7 +4194,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind14, j] + \
                pts[ind12, j]
-    
+
         e2[j] = 2*pts[ind18, j] + \
              2*pts[ind19, j] - \
                pts[ind2, j] - \
@@ -4203,19 +4203,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind14, j] + \
                pts[ind10, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 15
     for j in range(3):
         e0[j] = pts[ind7, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind14, j] + \
              2*pts[ind12, j] - \
                pts[ind4, j] - \
@@ -4224,7 +4224,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind15, j] + \
                pts[ind13, j]
-    
+
         e2[j] = 2*pts[ind16, j] + \
              2*pts[ind19, j] - \
                pts[ind0, j] - \
@@ -4233,19 +4233,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind15, j] + \
                pts[ind11, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 16
     for j in range(3):
         e0[j] = pts[ind0, j] - pts[ind4, j]
-    
+
         e1[j] = 2*pts[ind11, j] + \
              2*pts[ind15, j] - \
                pts[ind0, j] - \
@@ -4254,7 +4254,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind16, j] + \
                pts[ind19, j]
-    
+
         e2[j] = 2*pts[ind8, j] + \
              2*pts[ind12, j] - \
                pts[ind0, j] - \
@@ -4263,19 +4263,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind5, j] - \
                pts[ind16, j] + \
                pts[ind17, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 17
     for j in range(3):
         e0[j] = pts[ind1, j] - pts[ind5, j]
-    
+
         e1[j] = 2*pts[ind8, j] + \
              2*pts[ind12, j] - \
                pts[ind0, j] - \
@@ -4284,7 +4284,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind5, j] - \
                pts[ind17, j] + \
                pts[ind16, j]
-    
+
         e2[j] = 2*pts[ind9, j] + \
              2*pts[ind13, j] - \
                pts[ind1, j] - \
@@ -4293,19 +4293,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind6, j] - \
                pts[ind17, j] + \
                pts[ind18, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 18
     for j in range(3):
         e0[j] = pts[ind2, j] - pts[ind6, j]
-    
+
         e1[j] = 2*pts[ind9, j] + \
              2*pts[ind13, j] - \
                pts[ind1, j] - \
@@ -4314,7 +4314,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind6, j] - \
                pts[ind18, j] + \
                pts[ind17, j]
-    
+
         e2[j] = 2*pts[ind10, j] + \
              2*pts[ind14, j] - \
                pts[ind2, j] - \
@@ -4323,19 +4323,19 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind18, j] + \
                pts[ind19, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     # Node 19
     for j in range(3):
         e0[j] = pts[ind3, j] - pts[ind7, j]
-    
+
         e1[j] = 2*pts[ind10, j] + \
              2*pts[ind14, j] - \
                pts[ind2, j] - \
@@ -4344,7 +4344,7 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind19, j] + \
                pts[ind18, j]
-    
+
         e2[j] = 2*pts[ind11, j] + \
              2*pts[ind15, j] - \
                pts[ind0, j] - \
@@ -4353,15 +4353,15 @@ cdef inline float hex_quad_qual_float(int64_t [::1] cells, int c,
                pts[ind7, j] - \
                pts[ind19, j] + \
                pts[ind16, j]
-    
+
     # normalize the determinant of the jacobian
     tnorm = (vector_norm_float(e0)*vector_norm_float(e1)*vector_norm_float(e2))
     normjac = triple_product_float(e1, e2, e0)/tnorm
-    
+
     # Track minimum jacobian
     if normjac < jac:
         jac = normjac
-    
+
     return jac
 
 
@@ -4373,12 +4373,12 @@ cdef inline double volume_weg(double [8][3] cell_points) nogil:
     vector_sub(cell_points[1], cell_points[2], e1)
     vector_sub(cell_points[2], cell_points[4], e2)
     cdef double volume = triple_product(e0, e1, e2)
-    
+
     vector_sub(cell_points[0], cell_points[4], e0)
     vector_sub(cell_points[4], cell_points[2], e1)
     vector_sub(cell_points[2], cell_points[5], e2)
     volume += triple_product(e0, e1, e2)
-    
+
     vector_sub(cell_points[4], cell_points[5], e1)
     vector_sub(cell_points[5], cell_points[3], e2)
     volume += triple_product(e0, e1, e2)
@@ -4393,12 +4393,12 @@ cdef inline float volume_weg_float(float [8][3] cell_points) nogil:
     vector_sub_float(cell_points[1], cell_points[2], e1)
     vector_sub_float(cell_points[2], cell_points[4], e2)
     cdef float volume = triple_product_float(e0, e1, e2)
-    
+
     vector_sub_float(cell_points[0], cell_points[4], e0)
     vector_sub_float(cell_points[4], cell_points[2], e1)
     vector_sub_float(cell_points[2], cell_points[5], e2)
     volume += triple_product_float(e0, e1, e2)
-    
+
     vector_sub_float(cell_points[4], cell_points[5], e1)
     vector_sub_float(cell_points[5], cell_points[3], e2)
     volume += triple_product_float(e0, e1, e2)
@@ -4479,10 +4479,10 @@ cdef inline float volume_hex_float(float [8][3] points) nogil:
 
 def cell_quality(int64_t [::1] cells, int64_t [::1] offset,
                  uint8 [::1] celltypes, double [:, ::1] pts, int as_linear=0):
-    """    
+    """
     Returns the minimum scaled jacobian for each cell given a cell array from
     a vtk unstructured grid.  Accounts for midside nodes.
-    
+
     Parameters
     ----------
     cells : int64_t [::1]
@@ -4502,7 +4502,7 @@ def cell_quality(int64_t [::1] cells, int64_t [::1] offset,
     -------
     quality : np.ndarray
         Minimum scaled jacobian for each valid cell.
-    
+
     Notes
     -----
     Checks the quality of the following cell types:
@@ -4569,7 +4569,7 @@ def cell_quality(int64_t [::1] cells, int64_t [::1] offset,
 
 def cell_quality_float(int64_t [::1] cells, int64_t [::1] offset,
                        uint8 [::1] celltypes, float [:, ::1] pts, int as_linear=0):
-    """    
+    """
     Returns the minimum scaled jacobian for each cell given a cell
     array from a vtk unstructured grid.  Accounts for midside nodes.
 
@@ -4592,7 +4592,7 @@ def cell_quality_float(int64_t [::1] cells, int64_t [::1] offset,
     -------
     quality : np.ndarray
         Minimum scaled jacobian for each valid cell.
-    
+
     Notes
     -----
     Checks the quality of the following cell types:
