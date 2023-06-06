@@ -32,6 +32,15 @@ repos:
 #     additional_dependencies: [toml]
 #     exclude: "tests/"
 
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: v14.0.6
+  hooks:
+  - id: clang-format
+    files: |
+      (?x)^(
+        femorph/cython/[^_].*\.c.*
+      )$
+
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.4.0
   hooks:

@@ -321,6 +321,27 @@ void add_tri(bool build_offset, const int *elem, bool quad){
   return;
 }
 
+void add_tri_missing_midside(bool build_offset, const int *elem, const int n_mid){
+  add_cell(build_offset, 6, VTK_QUADRATIC_TRIANGLE);
+
+  int i;
+  int elem_indices[] = {4, 5, 7};
+
+  // edge nodes
+  vtk_data.cells[vtk_data.loc++] = vtk_data.nref[elem[0]];
+  vtk_data.cells[vtk_data.loc++] = vtk_data.nref[elem[1]];
+  vtk_data.cells[vtk_data.loc++] = vtk_data.nref[elem[2]];
+
+  // add midside nodes and populate any missing midside with -1
+  for (i = 0; i < n_mid && i < 3; i++) {
+    vtk_data.cells[vtk_data.loc++] = vtk_data.nref[elem[elem_indices[i]]];
+  }
+  for (i=3; i>n_mid; i--){
+    vtk_data.cells[vtk_data.loc++] = -1;
+  }
+
+  return;
+}
 
 static inline void add_line(bool build_offset, const int *elem, int nnode){
   bool is_quad;
@@ -511,13 +532,24 @@ int ans_to_vtk(const int nelem, const int *elem, const int *elem_off,
          add_quad(build_offset, &elem[off], true);
 
       } else {
-        // Any other case. (We should not reach this point)
-        // Assuming quad.
-
-        // printf(" The type could not be identified. Check vtk_support.c file");
-        // printf("Number of elements is %d\n" , nnode_elem);
+        // Any other case. Possible when missing midside nodes.
         is_quad = nnode_elem > 5;
-        add_quad(build_offset, &elem[off], is_quad);
+
+        // Check degenerate triangle
+        if (elem[off + 2] == elem[off + 3]) {
+          if (is_quad){
+            add_tri_missing_midside(build_offset, &elem[off], 3 - (8 - nnode_elem));
+          } else {
+            add_tri(build_offset, &elem[off], false);
+          }
+        } else {
+          // printf(" The type could not be identified. Check vtk_support.c file");
+          // printf("Number of elements is %d\n" , nnode_elem);
+
+          // Assume quad
+          add_quad(build_offset, &elem[off], is_quad);
+        }
+
       }
       break;
     case 4: // solid
