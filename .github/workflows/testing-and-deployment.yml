@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -156,7 +156,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.13.0
         with:
-            python-version: 3.7 - 3.11
+            python-version: 3.8 - 3.11
 
       - name: List generated wheels
         run: |
@@ -245,7 +245,7 @@ jobs:
   #     - name: Display MAPDL Logs
   #       if: always()
   #       run: cat log.txt
-  
+
   Release:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     needs: [doc_build, build, mac_build]
@@ -274,6 +274,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          generate_release_notes: true
           files: |
             ./**/*.whl
             ./**/*.zip

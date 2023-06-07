@@ -49,7 +49,7 @@ def py_write_nblock(filename, const int [::1] node_id, int max_node_id,
         Double array of node coordinates
 
     angles : np.ndarray, optional
-        
+
 
     """
     # attach the stream to the python file
@@ -84,7 +84,7 @@ def py_write_nblock_float(filename, const int [::1] node_id, int max_node_id,
         Double array of node coordinates
 
     angles : np.ndarray, optional
-    
+
     """
     # attach the stream to the python file
     cdef FILE* cfile = fopen(filename.encode(), mode.encode())
