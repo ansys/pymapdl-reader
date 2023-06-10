@@ -11,11 +11,12 @@ from libc.stdint cimport int32_t, int64_t
 
 # VTK celltypes
 ctypedef unsigned char uint8
-cdef uint8 VTK_QUADRATIC_QUAD = 23
 cdef uint8 VTK_HEXAHEDRON = 12
 cdef uint8 VTK_PYRAMID = 14
 cdef uint8 VTK_TETRA = 10
 cdef uint8 VTK_WEDGE = 13
+cdef uint8 VTK_QUADRATIC_TRIANGLE = 22
+cdef uint8 VTK_QUADRATIC_QUAD = 23
 cdef uint8 VTK_QUADRATIC_HEXAHEDRON = 25
 cdef uint8 VTK_QUADRATIC_PYRAMID = 27
 cdef uint8 VTK_QUADRATIC_TETRA = 24
@@ -25,16 +26,44 @@ cdef uint8 VTK_QUADRATIC_WEDGE = 26
 #==============================================================================
 # Quadratic element relaxation functions
 #==============================================================================
+cdef inline void relax_mid_tri(int64_t [::1] cellarr, int c, double [:, ::1] pts,
+                               double rfac):
+    """
+    Resets the midside nodes of the quadratic quad starting at index c.
+
+    relaxation factor rfac
+
+    The ordering of the three points defining the cell is point ids (0-2,3-5)
+    where id #3 is the midedge node between points (0,1); id #4 is the midedge
+    node between points (1,2); and id #5 is the midedge node between points
+    (2,0).
+
+    """
+    cdef int ind0 = cellarr[c + 0]
+    cdef int ind1 = cellarr[c + 1]
+    cdef int ind2 = cellarr[c + 2]
+    cdef int ind3 = cellarr[c + 3]
+    cdef int ind4 = cellarr[c + 4]
+    cdef int ind5 = cellarr[c + 5]
+
+    cdef int j
+
+    for j in range(3):
+        pts[ind3, j] = pts[ind3, j]*(1 - rfac) + (pts[ind0, j] + pts[ind1, j])*0.5*rfac
+        pts[ind4, j] = pts[ind4, j]*(1 - rfac) + (pts[ind1, j] + pts[ind2, j])*0.5*rfac
+        pts[ind5, j] = pts[ind5, j]*(1 - rfac) + (pts[ind2, j] + pts[ind0, j])*0.5*rfac
+
+
 cdef inline void relax_mid_quad(int64_t [::1] cellarr, int c, double [:, ::1] pts,
                                 double rfac):
     """
     Resets the midside nodes of the quadratic quad starting at index c.
-    
+
     relaxation factor rfac
-    
+
     midedge nodes between
     (0,1), (1,2), (1,2), (0,3)
-    
+
     """
     cdef int ind0 = cellarr[c + 0]
     cdef int ind1 = cellarr[c + 1]
@@ -58,14 +87,14 @@ cdef inline void relax_mid_tet(int64_t [::1] cellarr, int c, double [:, ::1] pts
                                double rfac):
     """
     Resets the midside nodes of the tetrahedral starting at index c
-    
+
     relaxation factor rfac
-    
+
     midedge nodes between
     (0,1), (1,2), (2,0), (0,3), (1,3), and (2,3)
-    
+
     """
-    
+
     cdef int ind0 = cellarr[c + 0]
     cdef int ind1 = cellarr[c + 1]
     cdef int ind2 = cellarr[c + 2]
@@ -91,7 +120,7 @@ cdef inline void relax_mid_tet(int64_t [::1] cellarr, int c, double [:, ::1] pts
 cdef inline void relax_mid_pyr(int64_t [::1] cellarr, int c, double [:, ::1] pts,
                                double rfac):
     """
-    
+
     5 (0, 1)
     6 (1, 2)
     7 (2, 3)
@@ -100,7 +129,7 @@ cdef inline void relax_mid_pyr(int64_t [::1] cellarr, int c, double [:, ::1] pts
     10(1, 4)
     11(2, 4)
     12(3, 4)
-    
+
     """
 
     cdef int ind0 = cellarr[c + 0]
@@ -133,7 +162,7 @@ cdef inline void relax_mid_pyr(int64_t [::1] cellarr, int c, double [:, ::1] pts
 cdef inline void relax_mid_weg(int64_t [::1] cellarr, int c, double [:, ::1] pts,
                                double rfac):
     """
-    
+
     6  (0,1)
     7  (1,2)
     8  (2,0)
@@ -159,7 +188,7 @@ cdef inline void relax_mid_weg(int64_t [::1] cellarr, int c, double [:, ::1] pts
     cdef int ind12= cellarr[c + 12]
     cdef int ind13= cellarr[c + 13]
     cdef int ind14= cellarr[c + 14]
-    
+
     cdef int j
 
     for j in range(3):
@@ -178,7 +207,7 @@ cdef inline void relax_mid_hex(int64_t [::1] cellarr, int c, double [:, ::1] pts
                                double rfac):
 
     """
-    
+
     8  (0,1)
     9  (1,2)
     10 (2,3)
@@ -191,9 +220,9 @@ cdef inline void relax_mid_hex(int64_t [::1] cellarr, int c, double [:, ::1] pts
     17 (1,5)
     18 (2,6)
     19 (3,7)
-    
+
     """
-    
+
     cdef int ind0 = cellarr[c + 0]
     cdef int ind1 = cellarr[c + 1]
     cdef int ind2 = cellarr[c + 2]
@@ -234,7 +263,7 @@ cdef inline void relax_mid_hex(int64_t [::1] cellarr, int c, double [:, ::1] pts
 
 def reset_midside(int64_t [::1] cellarr, uint8 [::1] celltypes,
                   int64_t [::1] offset, double [:, ::1] pts):
-    """Resets positions of midside nodes to directly between edge nodes.    
+    """Resets positions of midside nodes to directly between edge nodes.
 
     Parameters
     ----------
@@ -246,22 +275,23 @@ def reset_midside(int64_t [::1] cellarr, uint8 [::1] celltypes,
 
     pts : double [:, ::1]
         3D double point array.
-    
+
     """
-    cdef int c, i
+    cdef int i
     cdef int ncells = offset.size
     cdef uint8 celltype
 
     for i in range(ncells):
         celltype = celltypes[i]
-        c = offset[i] + 1
+        if celltype == VTK_QUADRATIC_TRIANGLE:
+            relax_mid_tri(cellarr, offset[i] + 1, pts, 1)
         if celltype == VTK_QUADRATIC_QUAD:
-            relax_mid_quad(cellarr, c, pts, 1)
-        if celltype == VTK_QUADRATIC_TETRA:
-            relax_mid_tet(cellarr, c, pts, 1)
+            relax_mid_quad(cellarr, offset[i] + 1, pts, 1)
+        elif celltype == VTK_QUADRATIC_TETRA:
+            relax_mid_tet(cellarr, offset[i] + 1, pts, 1)
         elif celltype == VTK_QUADRATIC_PYRAMID:
-            relax_mid_pyr(cellarr, c, pts, 1)
+            relax_mid_pyr(cellarr, offset[i] + 1, pts, 1)
         elif celltype == VTK_QUADRATIC_WEDGE:
-            relax_mid_weg(cellarr, c, pts, 1)
-        elif celltype == VTK_QUADRATIC_HEXAHEDRON:   
-            relax_mid_hex(cellarr, c, pts, 1)    
+            relax_mid_weg(cellarr, offset[i] + 1, pts, 1)
+        elif celltype == VTK_QUADRATIC_HEXAHEDRON:
+            relax_mid_hex(cellarr, offset[i] + 1, pts, 1)

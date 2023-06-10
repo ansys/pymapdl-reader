@@ -60,9 +60,9 @@ cdef extern from 'vtk_support.h':
 
 cdef int myfgets(char *outstr, char *instr, int64_t *n, int64_t fsize):
     """Copies a single line from instr to outstr starting from position n """
-    
+
     cdef int k = n[0]
-    
+
     # Search line at a maximum of 10000 characters
     cdef int64_t i, c
     c = n[0]
@@ -70,7 +70,7 @@ cdef int myfgets(char *outstr, char *instr, int64_t *n, int64_t fsize):
         # check if end of file
         if c > fsize:
             return 1
-            
+
         # Add null character if at end of line
         if instr[c] == '\r':
             n[0] += i + 2
@@ -80,11 +80,11 @@ cdef int myfgets(char *outstr, char *instr, int64_t *n, int64_t fsize):
             n[0] += i + 1
             outstr[i] = '\0'
             return 0
-            
+
         # Otherwise, store data to output string
         outstr[i] = instr[c]
         c += 1
-        
+
     # Line exceeds 1000 char (unlikely with ANSYS CDB formatting)
     return 1
 
@@ -168,7 +168,7 @@ def read(filename, read_parameters=False, debug=False, read_eblock=True):
     # File counter
     cdef int tmpval, start_pos
     cdef int64_t n = 0
-    
+
     # Define variables
     cdef size_t l = 0
     cdef ssize_t read
@@ -179,7 +179,7 @@ def read(filename, read_parameters=False, debug=False, read_eblock=True):
     # Size temp char array
     cdef char line[1000]
     cdef char tempstr[100]
-    
+
     # Get element types
     elem_type = []
     rnum = []
@@ -274,7 +274,7 @@ def read(filename, read_parameters=False, debug=False, read_eblock=True):
                 if debug:
                     print('reading RLBLOCK')
 
-                    
+
                 # The RLBLOCK command defines a real constant
                 # set. The real constant sets follow each set,
                 # starting with
@@ -326,10 +326,10 @@ def read(filename, read_parameters=False, debug=False, read_eblock=True):
                         for i in range(6):
                             rcon.append(float(line[16 + 16*i:32 + 16*i]))
                             ncon -= 1
-                            
+
                         # advance line
                         if myfgets(line, raw, &n, fsize): raise Exception(badstr)
-                        
+
                         # read next line
                         while True:
                             if ncon > 7:
@@ -338,22 +338,22 @@ def read(filename, read_parameters=False, debug=False, read_eblock=True):
                                     ncon -= 1
                                 # advance
                                 if myfgets(line, raw, &n, fsize): raise Exception(badstr)
-                                
+
                             else:
                                 for i in range(ncon):
-                                    try: 
-                                        rcon.append(float(line[16*i:16 + 16*i]))  
+                                    try:
+                                        rcon.append(float(line[16*i:16 + 16*i]))
                                     # account for empty 0 values
                                     except:
                                         rcon.append(0.0)
-                                    
+
                                 break
-                            
+
                     # If only one in constant data
                     else:
                         for i in range(ncon):
-                            rcon.append(float(line[16 + 16*i:32 + 16*i]))   
-            
+                            rcon.append(float(line[16 + 16*i:32 + 16*i]))
+
                     rdat.append(rcon)
 
         elif 'N' == line[0] or 'n' == line[0]:
@@ -373,7 +373,7 @@ def read(filename, read_parameters=False, debug=False, read_eblock=True):
                 nodes_read = True
                 # Get size of NBLOCK
                 nnodes = int(line[line.rfind(b',') + 1:])
-                # this value may be wrong... 
+                # this value may be wrong...
 
                 # Get format of NBLOCK
                 if myfgets(line, raw, &n, fsize):
@@ -549,7 +549,7 @@ def node_block_format(string):
     nexp = 2  # default when missing
     nfields = 6
     f_size = 21
-    c = 0 
+    c = 0
     for field in fields:
         if 'i' in field:
             items = field.split('i')
@@ -582,7 +582,7 @@ def component_interperter(component):
             f_new.append(component[i])
         else: # otherwise, append list
             f_new.append(range(abs(component[i - 1]) + 1, abs(component[i]) + 1))
-    
+
     return np.hstack(f_new).astype(ctypes.c_int)
 
 
