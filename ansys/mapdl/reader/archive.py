@@ -7,19 +7,7 @@ import pathlib
 
 import numpy as np
 import pyvista as pv
-from pyvista import _vtk as vtk
-from pyvista._vtk import (
-    VTK_HEXAHEDRON,
-    VTK_PYRAMID,
-    VTK_QUAD,
-    VTK_QUADRATIC_HEXAHEDRON,
-    VTK_QUADRATIC_PYRAMID,
-    VTK_QUADRATIC_TETRA,
-    VTK_QUADRATIC_WEDGE,
-    VTK_TETRA,
-    VTK_TRIANGLE,
-    VTK_WEDGE,
-)
+from pyvista import CellType
 
 VTK_VOXEL = 11
 
@@ -217,7 +205,7 @@ class Archive(Mesh):
 
     @property
     def grid(self):
-        """``vtk.UnstructuredGrid`` of the archive file.
+        """Return a ``pyvista.UnstructuredGrid`` of the archive file.
 
         Examples
         --------
@@ -258,7 +246,7 @@ class Archive(Mesh):
         """
         if self._grid is None:  # pragma: no cover
             raise AttributeError(
-                "Archive must be parsed as a vtk grid.\n" "Set `parse_vtk=True`"
+                "Archive must be parsed as a vtk grid.\nSet `parse_vtk=True`"
             )
         return quality(self._grid)
 
@@ -388,27 +376,29 @@ def save_as_archive(
     if hasattr(grid, "cast_to_unstructured_grid"):
         grid = grid.cast_to_unstructured_grid()
 
-    if not isinstance(grid, vtk.vtkUnstructuredGrid):
-        raise TypeError("``grid`` argument must be an UnstructuredGrid")
+    if not isinstance(grid, pv.UnstructuredGrid):
+        raise TypeError(
+            f"``grid`` argument must be an UnstructuredGrid, not {type(grid)}"
+        )
 
     allowable = []
     if include_solid_elements:
         allowable.extend(
             [
-                VTK_VOXEL,
-                VTK_TETRA,
-                VTK_QUADRATIC_TETRA,
-                VTK_PYRAMID,
-                VTK_QUADRATIC_PYRAMID,
-                VTK_WEDGE,
-                VTK_QUADRATIC_WEDGE,
-                VTK_HEXAHEDRON,
-                VTK_QUADRATIC_HEXAHEDRON,
+                CellType.VOXEL,
+                CellType.TETRA,
+                CellType.QUADRATIC_TETRA,
+                CellType.PYRAMID,
+                CellType.QUADRATIC_PYRAMID,
+                CellType.WEDGE,
+                CellType.QUADRATIC_WEDGE,
+                CellType.HEXAHEDRON,
+                CellType.QUADRATIC_HEXAHEDRON,
             ]
         )
 
     if include_surface_elements:
-        allowable.extend([VTK_TRIANGLE, VTK_QUAD])
+        allowable.extend([CellType.TRIANGLE, CellType.QUAD])
         # VTK_QUADRATIC_TRIANGLE,
         # VTK_QUADRATIC_QUAD
 
@@ -555,26 +545,39 @@ def save_as_archive(
             + "Adding default range starting from %d" % etype_start
         )
 
-        etype = np.empty(grid.number_of_cells, np.int32)
-        etype_185 = etype_start + 2
-        etype[grid.celltypes == VTK_VOXEL] = etype_185
-        etype[grid.celltypes == VTK_TETRA] = etype_185
-        etype[grid.celltypes == VTK_HEXAHEDRON] = etype_185
-        etype[grid.celltypes == VTK_WEDGE] = etype_185
-        etype[grid.celltypes == VTK_PYRAMID] = etype_185
+        etype = np.empty(grid.n_cells, np.int32)
 
+        # VTK to SOLID186 mapping
+        # TETRA delegated to SOLID187
         etype_186 = etype_start
-        etype[grid.celltypes == VTK_QUADRATIC_HEXAHEDRON] = etype_186
-        etype[grid.celltypes == VTK_QUADRATIC_WEDGE] = etype_186
-        etype[grid.celltypes == VTK_QUADRATIC_PYRAMID] = etype_186
+        etype_186_types = [
+            CellType.QUADRATIC_HEXAHEDRON,
+            CellType.QUADRATIC_WEDGE,
+            CellType.QUADRATIC_PYRAMID,
+        ]
+        etype[np.isin(grid.celltypes, etype_186_types)] = etype_186
 
         etype_187 = etype_start + 1
-        etype[grid.celltypes == VTK_QUADRATIC_TETRA] = etype_187
+        etype[grid.celltypes == CellType.QUADRATIC_TETRA] = etype_187
+
+        # VTK to SOLID185 mapping
+        etype_185 = etype_start + 2
+        etype_185_types = [
+            CellType.VOXEL,
+            CellType.TETRA,
+            CellType.HEXAHEDRON,
+            CellType.WEDGE,
+            CellType.PYRAMID,
+        ]
+        etype[np.isin(grid.celltypes, etype_185_types)] = etype_185
 
         # Surface elements
         etype_181 = etype_start + 3
-        etype[grid.celltypes == VTK_TRIANGLE] = etype_181
-        etype[grid.celltypes == VTK_QUAD] = etype_181
+        etype_181_types = [
+            CellType.TRIANGLE,
+            CellType.QUAD,
+        ]
+        etype[np.isin(grid.celltypes, etype_181_types)] = etype_181
 
         typenum = np.empty_like(etype)
         typenum[etype == etype_185] = 185
@@ -582,10 +585,10 @@ def save_as_archive(
         typenum[etype == etype_187] = 187
         typenum[etype == etype_181] = 181
 
-        header += "ET, %d, 185\n" % etype_185
-        header += "ET, %d, 186\n" % etype_186
-        header += "ET, %d, 187\n" % etype_187
-        header += "ET, %d, 181\n" % etype_181
+        header += f"ET,{etype_185},185\n"
+        header += f"ET,{etype_186},186\n"
+        header += f"ET,{etype_187},187\n"
+        header += f"ET,{etype_181},181\n"
 
     # number of nodes written per element
     elem_nnodes = np.empty(etype.size, np.int32)

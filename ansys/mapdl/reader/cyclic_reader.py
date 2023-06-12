@@ -3,7 +3,9 @@ from functools import wraps
 
 import numpy as np
 import pyvista as pv
-from pyvista._vtk import vtkAppendFilter, vtkMatrix4x4, vtkTransform
+from vtkmodules.vtkCommonMath import vtkMatrix4x4
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersCore import vtkAppendFilter
 
 from ansys.mapdl.reader import _binary_reader
 from ansys.mapdl.reader.common import (
