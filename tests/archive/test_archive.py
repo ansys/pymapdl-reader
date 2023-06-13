@@ -181,7 +181,10 @@ def test_writehex(tmpdir, hex_archive):
     pymapdl_reader.save_as_archive(filename, hex_archive.grid)
     archive_new = pymapdl_reader.Archive(filename)
     assert np.allclose(hex_archive.grid.points, archive_new.grid.points)
-    assert np.allclose(hex_archive.grid.cells, archive_new.grid.cells)
+    assert np.allclose(
+        hex_archive.grid.cell_connectivity,
+        archive_new.grid.cell_connectivity,
+    )
 
     for node_component in hex_archive.node_components:
         assert np.allclose(
@@ -481,7 +484,9 @@ def test_cython_write_eblock(hex_archive, tmpdir):
     nodenum = hex_archive.nnum
 
     cells, offset = pymapdl_reader.misc.vtk_cell_info(
-        hex_archive.grid, shift_offset=False
+        hex_archive.grid,
+        force_int64=False,
+        shift_offset=False,
     )
     _archive.py_write_eblock(
         filename,
@@ -490,8 +495,8 @@ def test_cython_write_eblock(hex_archive, tmpdir):
         hex_archive.material_type,
         np.ones(hex_archive.n_elem, np.int32),
         elem_nnodes,
-        cells,
-        offset,
+        cells.astype(np.int32, copy=False),
+        offset.astype(np.int32, copy=False),
         hex_archive.grid.celltypes,
         typenum,
         nodenum,

@@ -626,7 +626,7 @@ def save_as_archive(
         write_nblock(filename, nodenum, grid.points, mode="a")
 
     # write remainder of eblock
-    cells, offset = vtk_cell_info(grid, force_int64=False, shift_offset=True)
+    cells, offset = vtk_cell_info(grid, force_int64=False, shift_offset=False)
     _write_eblock(
         filename,
         enum,
