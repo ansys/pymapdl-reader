@@ -422,7 +422,7 @@ def save_as_archive(
         nodenum = grid.point_data["ansys_node_num"]
     else:
         log.info("No ANSYS node numbers set in input. Adding default range")
-        nodenum = np.arange(1, grid.number_of_points + 1, dtype=np.int32)
+        nodenum = np.arange(1, grid.n_points + 1, dtype=np.int32)
 
     missing_mask = nodenum == -1
     if np.any(missing_mask):
@@ -447,12 +447,12 @@ def save_as_archive(
             nodenum[missing_mask] = np.arange(start_num, end_num, dtype=np.int32)
 
     # element block
-    ncells = grid.number_of_cells
+    ncells = grid.n_cells
     if "ansys_elem_num" in grid.cell_data:
         enum = grid.cell_data["ansys_elem_num"]
     else:
         if not allow_missing:
-            raise Exception('Missing node numbers.  Exiting due "allow_missing=False"')
+            raise Exception('Missing node numbers. Exiting due "allow_missing=False"')
         log.info(
             "No ANSYS element numbers set in input. "
             "Adding default range starting from %d",
@@ -473,7 +473,7 @@ def save_as_archive(
         nadd = np.sum(enum == -1)
         end_num = start_num + nadd
         log.info(
-            "FEM missing some cell numbers.  Adding numbering " "from %d to %d",
+            "FEM missing some cell numbers.  Adding numbering from %d to %d",
             start_num,
             end_num,
         )
@@ -626,7 +626,7 @@ def save_as_archive(
         write_nblock(filename, nodenum, grid.points, mode="a")
 
     # write remainder of eblock
-    cells, offset = vtk_cell_info(grid, shift_offset=False)
+    cells, offset = vtk_cell_info(grid, force_int64=False, shift_offset=True)
     _write_eblock(
         filename,
         enum,
@@ -801,26 +801,16 @@ def _write_eblock(
 ):
     """Write EBLOCK to disk"""
     # perform type checking here
-    if elem_id.dtype != np.int32:
-        elem_id = elem_id.astype(np.int32)
-    if etype.dtype != np.int32:
-        etype = etype.astype(np.int32)
-    if mtype.dtype != np.int32:
-        mtype = mtype.astype(np.int32)
-    if rcon.dtype != np.int32:
-        rcon = rcon.astype(np.int32)
-    if elem_nnodes.dtype != np.int32:
-        elem_nnodes = elem_nnodes.astype(np.int32)
-    if cells.dtype != np.int64:
-        cells = cells.astype(np.int64)
-    if offset.dtype != np.int64:
-        offset = offset.astype(np.int64)
-    if celltypes.dtype != np.uint8:
-        celltypes = celltypes.astype(np.uint8)
-    if typenum.dtype != np.int32:
-        typenum = typenum.astype(np.int32)
-    if nodenum.dtype != np.int32:
-        nodenum = nodenum.astype(np.int32)
+    elem_id = elem_id.astype(np.int32, copy=False)
+    etype = etype.astype(np.int32, copy=False)
+    mtype = mtype.astype(np.int32, copy=False)
+    rcon = rcon.astype(np.int32, copy=False)
+    elem_nnodes = elem_nnodes.astype(np.int32, copy=False)
+    cells = cells.astype(np.int32, copy=False)
+    offset = offset.astype(np.int32, copy=False)
+    celltypes = celltypes.astype(np.uint8, copy=False)
+    typenum = typenum.astype(np.int32, copy=False)
+    nodenum = nodenum.astype(np.int32, copy=False)
 
     _archive.py_write_eblock(
         filename,
