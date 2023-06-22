@@ -7,19 +7,7 @@ import pathlib
 
 import numpy as np
 import pyvista as pv
-from pyvista import _vtk as vtk
-from pyvista._vtk import (
-    VTK_HEXAHEDRON,
-    VTK_PYRAMID,
-    VTK_QUAD,
-    VTK_QUADRATIC_HEXAHEDRON,
-    VTK_QUADRATIC_PYRAMID,
-    VTK_QUADRATIC_TETRA,
-    VTK_QUADRATIC_WEDGE,
-    VTK_TETRA,
-    VTK_TRIANGLE,
-    VTK_WEDGE,
-)
+from pyvista import CellType
 
 VTK_VOXEL = 11
 
@@ -217,7 +205,7 @@ class Archive(Mesh):
 
     @property
     def grid(self):
-        """``vtk.UnstructuredGrid`` of the archive file.
+        """Return a ``pyvista.UnstructuredGrid`` of the archive file.
 
         Examples
         --------
@@ -258,7 +246,7 @@ class Archive(Mesh):
         """
         if self._grid is None:  # pragma: no cover
             raise AttributeError(
-                "Archive must be parsed as a vtk grid.\n" "Set `parse_vtk=True`"
+                "Archive must be parsed as a vtk grid.\nSet `parse_vtk=True`"
             )
         return quality(self._grid)
 
@@ -388,27 +376,29 @@ def save_as_archive(
     if hasattr(grid, "cast_to_unstructured_grid"):
         grid = grid.cast_to_unstructured_grid()
 
-    if not isinstance(grid, vtk.vtkUnstructuredGrid):
-        raise TypeError("``grid`` argument must be an UnstructuredGrid")
+    if not isinstance(grid, pv.UnstructuredGrid):
+        raise TypeError(
+            f"``grid`` argument must be an UnstructuredGrid, not {type(grid)}"
+        )
 
     allowable = []
     if include_solid_elements:
         allowable.extend(
             [
-                VTK_VOXEL,
-                VTK_TETRA,
-                VTK_QUADRATIC_TETRA,
-                VTK_PYRAMID,
-                VTK_QUADRATIC_PYRAMID,
-                VTK_WEDGE,
-                VTK_QUADRATIC_WEDGE,
-                VTK_HEXAHEDRON,
-                VTK_QUADRATIC_HEXAHEDRON,
+                CellType.VOXEL,
+                CellType.TETRA,
+                CellType.QUADRATIC_TETRA,
+                CellType.PYRAMID,
+                CellType.QUADRATIC_PYRAMID,
+                CellType.WEDGE,
+                CellType.QUADRATIC_WEDGE,
+                CellType.HEXAHEDRON,
+                CellType.QUADRATIC_HEXAHEDRON,
             ]
         )
 
     if include_surface_elements:
-        allowable.extend([VTK_TRIANGLE, VTK_QUAD])
+        allowable.extend([CellType.TRIANGLE, CellType.QUAD])
         # VTK_QUADRATIC_TRIANGLE,
         # VTK_QUADRATIC_QUAD
 
@@ -432,7 +422,7 @@ def save_as_archive(
         nodenum = grid.point_data["ansys_node_num"]
     else:
         log.info("No ANSYS node numbers set in input. Adding default range")
-        nodenum = np.arange(1, grid.number_of_points + 1, dtype=np.int32)
+        nodenum = np.arange(1, grid.n_points + 1, dtype=np.int32)
 
     missing_mask = nodenum == -1
     if np.any(missing_mask):
@@ -457,12 +447,12 @@ def save_as_archive(
             nodenum[missing_mask] = np.arange(start_num, end_num, dtype=np.int32)
 
     # element block
-    ncells = grid.number_of_cells
+    ncells = grid.n_cells
     if "ansys_elem_num" in grid.cell_data:
         enum = grid.cell_data["ansys_elem_num"]
     else:
         if not allow_missing:
-            raise Exception('Missing node numbers.  Exiting due "allow_missing=False"')
+            raise Exception('Missing node numbers. Exiting due "allow_missing=False"')
         log.info(
             "No ANSYS element numbers set in input. "
             "Adding default range starting from %d",
@@ -483,7 +473,7 @@ def save_as_archive(
         nadd = np.sum(enum == -1)
         end_num = start_num + nadd
         log.info(
-            "FEM missing some cell numbers.  Adding numbering " "from %d to %d",
+            "FEM missing some cell numbers.  Adding numbering from %d to %d",
             start_num,
             end_num,
         )
@@ -555,26 +545,39 @@ def save_as_archive(
             + "Adding default range starting from %d" % etype_start
         )
 
-        etype = np.empty(grid.number_of_cells, np.int32)
-        etype_185 = etype_start + 2
-        etype[grid.celltypes == VTK_VOXEL] = etype_185
-        etype[grid.celltypes == VTK_TETRA] = etype_185
-        etype[grid.celltypes == VTK_HEXAHEDRON] = etype_185
-        etype[grid.celltypes == VTK_WEDGE] = etype_185
-        etype[grid.celltypes == VTK_PYRAMID] = etype_185
+        etype = np.empty(grid.n_cells, np.int32)
 
+        # VTK to SOLID186 mapping
+        # TETRA delegated to SOLID187
         etype_186 = etype_start
-        etype[grid.celltypes == VTK_QUADRATIC_HEXAHEDRON] = etype_186
-        etype[grid.celltypes == VTK_QUADRATIC_WEDGE] = etype_186
-        etype[grid.celltypes == VTK_QUADRATIC_PYRAMID] = etype_186
+        etype_186_types = [
+            CellType.QUADRATIC_HEXAHEDRON,
+            CellType.QUADRATIC_WEDGE,
+            CellType.QUADRATIC_PYRAMID,
+        ]
+        etype[np.isin(grid.celltypes, etype_186_types)] = etype_186
 
         etype_187 = etype_start + 1
-        etype[grid.celltypes == VTK_QUADRATIC_TETRA] = etype_187
+        etype[grid.celltypes == CellType.QUADRATIC_TETRA] = etype_187
+
+        # VTK to SOLID185 mapping
+        etype_185 = etype_start + 2
+        etype_185_types = [
+            CellType.VOXEL,
+            CellType.TETRA,
+            CellType.HEXAHEDRON,
+            CellType.WEDGE,
+            CellType.PYRAMID,
+        ]
+        etype[np.isin(grid.celltypes, etype_185_types)] = etype_185
 
         # Surface elements
         etype_181 = etype_start + 3
-        etype[grid.celltypes == VTK_TRIANGLE] = etype_181
-        etype[grid.celltypes == VTK_QUAD] = etype_181
+        etype_181_types = [
+            CellType.TRIANGLE,
+            CellType.QUAD,
+        ]
+        etype[np.isin(grid.celltypes, etype_181_types)] = etype_181
 
         typenum = np.empty_like(etype)
         typenum[etype == etype_185] = 185
@@ -582,10 +585,10 @@ def save_as_archive(
         typenum[etype == etype_187] = 187
         typenum[etype == etype_181] = 181
 
-        header += "ET, %d, 185\n" % etype_185
-        header += "ET, %d, 186\n" % etype_186
-        header += "ET, %d, 187\n" % etype_187
-        header += "ET, %d, 181\n" % etype_181
+        header += f"ET,{etype_185},185\n"
+        header += f"ET,{etype_186},186\n"
+        header += f"ET,{etype_187},187\n"
+        header += f"ET,{etype_181},181\n"
 
     # number of nodes written per element
     elem_nnodes = np.empty(etype.size, np.int32)
@@ -623,7 +626,7 @@ def save_as_archive(
         write_nblock(filename, nodenum, grid.points, mode="a")
 
     # write remainder of eblock
-    cells, offset = vtk_cell_info(grid, shift_offset=False)
+    cells, offset = vtk_cell_info(grid, force_int64=False, shift_offset=False)
     _write_eblock(
         filename,
         enum,
@@ -798,26 +801,16 @@ def _write_eblock(
 ):
     """Write EBLOCK to disk"""
     # perform type checking here
-    if elem_id.dtype != np.int32:
-        elem_id = elem_id.astype(np.int32)
-    if etype.dtype != np.int32:
-        etype = etype.astype(np.int32)
-    if mtype.dtype != np.int32:
-        mtype = mtype.astype(np.int32)
-    if rcon.dtype != np.int32:
-        rcon = rcon.astype(np.int32)
-    if elem_nnodes.dtype != np.int32:
-        elem_nnodes = elem_nnodes.astype(np.int32)
-    if cells.dtype != np.int64:
-        cells = cells.astype(np.int64)
-    if offset.dtype != np.int64:
-        offset = offset.astype(np.int64)
-    if celltypes.dtype != np.uint8:
-        celltypes = celltypes.astype(np.uint8)
-    if typenum.dtype != np.int32:
-        typenum = typenum.astype(np.int32)
-    if nodenum.dtype != np.int32:
-        nodenum = nodenum.astype(np.int32)
+    elem_id = elem_id.astype(np.int32, copy=False)
+    etype = etype.astype(np.int32, copy=False)
+    mtype = mtype.astype(np.int32, copy=False)
+    rcon = rcon.astype(np.int32, copy=False)
+    elem_nnodes = elem_nnodes.astype(np.int32, copy=False)
+    cells = cells.astype(np.int32, copy=False)
+    offset = offset.astype(np.int32, copy=False)
+    celltypes = celltypes.astype(np.uint8, copy=False)
+    typenum = typenum.astype(np.int32, copy=False)
+    nodenum = nodenum.astype(np.int32, copy=False)
 
     _archive.py_write_eblock(
         filename,
