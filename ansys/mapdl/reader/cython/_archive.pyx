@@ -14,8 +14,6 @@ import numpy as np
 cimport numpy as np
 
 ctypedef unsigned char uint8_t
-from libc.stdint cimport int64_t
-
 
 cdef extern from 'archive.h' nogil:
     int write_nblock(FILE*, const int, const int, const int*, const double*,
@@ -23,8 +21,8 @@ cdef extern from 'archive.h' nogil:
     int write_nblock_float(FILE*, const int, const int, const int*, const float*,
                            const float*, int)
     int write_eblock(FILE*, const int, const int*, const int*, const int*,
-                     const int*, const int*, const uint8_t*, const int64_t*,
-                     const int64_t*, const int*, const int*);
+                     const int*, const int*, const uint8_t*, const int*,
+                     const int*, const int*, const int*);
 
 
 cdef extern from "stdio.h":
@@ -100,31 +98,34 @@ def py_write_nblock_float(filename, const int [::1] node_id, int max_node_id,
     fclose(cfile)
 
 
-def py_write_eblock(filename,
-                    const int [::1] elem_id,
-                    const int [::1] etype,
-                    const int [::1] mtype,
-                    const int [::1] rcon,
-                    const int [::1] elem_nnodes,
-                    const int64_t [::1] cells,
-                    const int64_t [::1] offset,
-                    const uint8_t [::1] celltypes,
-                    const int [::1] typenum,
-                    const int [::1] nodenum,
-                    mode='w'):
+def py_write_eblock(
+    filename,
+    const int [::1] elem_id,
+    const int [::1] etype,
+    const int [::1] mtype,
+    const int [::1] rcon,
+    const int [::1] elem_nnodes,
+    const int [::1] cells,
+    const int [::1] offset,
+    const uint8_t [::1] celltypes,
+    const int [::1] typenum,
+    const int [::1] nodenum,
+    mode='w'):
     cdef FILE* cfile = fopen(filename.encode(), mode.encode())
-    write_eblock(cfile,
-                 celltypes.size,
-                 &elem_id[0],
-                 &etype[0],
-                 &mtype[0],
-                 &rcon[0],
-                 &elem_nnodes[0],
-                 &celltypes[0],
-                 &offset[0],
-                 &cells[0],
-                 &typenum[0],
-                 &nodenum[0])
+    write_eblock(
+        cfile,
+        celltypes.size,
+        &elem_id[0],
+        &etype[0],
+        &mtype[0],
+        &rcon[0],
+        &elem_nnodes[0],
+        &celltypes[0],
+        &offset[0],
+        &cells[0],
+        &typenum[0],
+        &nodenum[0]
+    )
     fclose(cfile)
 
 

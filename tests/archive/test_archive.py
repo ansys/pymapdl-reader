@@ -4,22 +4,24 @@ import pathlib
 import numpy as np
 import pytest
 import pyvista as pv
+from pyvista import CellType
 from pyvista import examples as pyvista_examples
-from pyvista._vtk import (
-    VTK_HEXAHEDRON,
-    VTK_PYRAMID,
-    VTK_QUADRATIC_HEXAHEDRON,
-    VTK_QUADRATIC_PYRAMID,
-    VTK_QUADRATIC_TETRA,
-    VTK_QUADRATIC_WEDGE,
-    VTK_TETRA,
-    VTK_WEDGE,
-)
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import _archive, archive, examples
 
-LINEAR_CELL_TYPES = [VTK_TETRA, VTK_PYRAMID, VTK_WEDGE, VTK_HEXAHEDRON]
+LINEAR_CELL_TYPES = [
+    CellType.TETRA,
+    CellType.PYRAMID,
+    CellType.WEDGE,
+    CellType.HEXAHEDRON,
+]
+QUADRATIC_CELL_TYPES = [
+    CellType.QUADRATIC_TETRA,
+    CellType.QUADRATIC_PYRAMID,
+    CellType.QUADRATIC_WEDGE,
+    CellType.QUADRATIC_HEXAHEDRON,
+]
 
 TEST_PATH = os.path.dirname(os.path.abspath(__file__))
 TESTFILES_PATH = os.path.join(TEST_PATH, "test_data")
@@ -156,7 +158,7 @@ def test_missing_midside():
     archive = pymapdl_reader.Archive(archive_file, allowable_types=allowable_types)
 
     assert (archive.quality > 0.0).all()
-    assert not np.any(archive.grid.celltypes == VTK_TETRA)
+    assert not np.any(archive.grid.celltypes == CellType.TETRA)
 
 
 def test_missing_midside_write(tmpdir):
@@ -179,7 +181,10 @@ def test_writehex(tmpdir, hex_archive):
     pymapdl_reader.save_as_archive(filename, hex_archive.grid)
     archive_new = pymapdl_reader.Archive(filename)
     assert np.allclose(hex_archive.grid.points, archive_new.grid.points)
-    assert np.allclose(hex_archive.grid.cells, archive_new.grid.cells)
+    assert np.allclose(
+        hex_archive.grid.cell_connectivity,
+        archive_new.grid.cell_connectivity,
+    )
 
     for node_component in hex_archive.node_components:
         assert np.allclose(
@@ -321,15 +326,7 @@ def test_read_complex_archive_linear(all_solid_cells_archive_linear):
     assert np.all(all_solid_cells_archive_linear.quality > 0.0)
 
 
-@pytest.mark.parametrize(
-    "celltype",
-    [
-        VTK_QUADRATIC_TETRA,
-        VTK_QUADRATIC_PYRAMID,
-        VTK_QUADRATIC_WEDGE,
-        VTK_QUADRATIC_HEXAHEDRON,
-    ],
-)
+@pytest.mark.parametrize("celltype", QUADRATIC_CELL_TYPES)
 def test_write_quad_complex_archive(tmpdir, celltype, all_solid_cells_archive):
     grid = all_solid_cells_archive.grid
     mask = grid.celltypes == celltype
@@ -487,7 +484,9 @@ def test_cython_write_eblock(hex_archive, tmpdir):
     nodenum = hex_archive.nnum
 
     cells, offset = pymapdl_reader.misc.vtk_cell_info(
-        hex_archive.grid, shift_offset=False
+        hex_archive.grid,
+        force_int64=False,
+        shift_offset=False,
     )
     _archive.py_write_eblock(
         filename,
@@ -496,8 +495,8 @@ def test_cython_write_eblock(hex_archive, tmpdir):
         hex_archive.material_type,
         np.ones(hex_archive.n_elem, np.int32),
         elem_nnodes,
-        cells,
-        offset,
+        cells.astype(np.int32, copy=False),
+        offset.astype(np.int32, copy=False),
         hex_archive.grid.celltypes,
         typenum,
         nodenum,

@@ -8,7 +8,7 @@ from typing import Union
 
 import numpy as np
 import pyvista as pv
-from pyvista._vtk import vtkAppendFilter
+from vtkmodules.vtkFiltersCore import vtkAppendFilter
 
 from ansys.mapdl.reader._binary_reader import read_nodal_values_dist
 from ansys.mapdl.reader._rst_keys import element_index_table_info

@@ -91,8 +91,8 @@ int write_eblock(
     const int *rcon,          // real constant ID array
     const int *elem_nnodes,   // number of nodes per element
     const uint8_t *celltypes, // VTK celltypes array
-    const int64_t *offset,    // VTK offset array
-    const int64_t *cells,     // VTK cells array
+    const int *offset,        // VTK offset array
+    const int *cells,         // VTK cell connectivity array
     const int *typenum,       // ANSYS type number (e.g. 187 for SOLID187)
     const int *nodenum) {     // ANSYS node numbering
 
@@ -102,7 +102,6 @@ int write_eblock(
 
   int c; // position within offset array
   for (int i = 0; i < n_elem; i++) {
-    // Position within offset array
     c = offset[i];
 
     // Write cell info
@@ -124,12 +123,18 @@ int write_eblock(
     case VTK_QUADRATIC_TETRA:
       if (typenum[i] == 187) {
         fprintf(file, "%8d%8d%8d%8d%8d%8d%8d%8d\n%8d%8d\n",
-                nodenum[cells[c + 0]], nodenum[cells[c + 1]],
-                nodenum[cells[c + 2]], nodenum[cells[c + 3]],
-                nodenum[cells[c + 4]], nodenum[cells[c + 5]],
-                nodenum[cells[c + 6]], nodenum[cells[c + 7]],
-                nodenum[cells[c + 8]], nodenum[cells[c + 9]]);
+                nodenum[cells[c + 0]],  // 0, I
+                nodenum[cells[c + 1]],  // 1, J
+                nodenum[cells[c + 2]],  // 2, K
+                nodenum[cells[c + 3]],  // 3, L
+                nodenum[cells[c + 4]],  // 4, M
+                nodenum[cells[c + 5]],  // 5, N
+                nodenum[cells[c + 6]],  // 6, O
+                nodenum[cells[c + 7]],  // 7, P
+                nodenum[cells[c + 8]],  // 8, Q
+                nodenum[cells[c + 9]]); // 9, R
       } else {
+        // Using SOLID186-like format
         fprintf(
             file,
             "%8d%8d%8d%8d%8d%8d%8d%8d\n%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d%8d\n",

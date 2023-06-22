@@ -11,5 +11,5 @@ int write_nblock(FILE*, const int, const int, const int*, const double*,
 int write_nblock_float(FILE*, const int, const int, const int*, const float*,
                        const float*, int);
 int write_eblock(FILE*, const int, const int*, const int*, const int*,
-                 const int*, const int*, const uint8_t*, const int64_t*,
-                 const int64_t*, const int*, const int*);
+                 const int*, const int*, const uint8_t*, const int*,
+                 const int*, const int*, const int*);
