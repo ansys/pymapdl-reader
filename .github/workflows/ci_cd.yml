@@ -40,11 +40,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: "Install Git and checkout project"
+        uses: actions/checkout@v3
+
+      - name: "Setup Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+      
+      - name: "Install ansys-mapdl-reader"
+        run: |
+          pip install --upgrade pip
+          pip install .[doc]
+  
       - name: "Run Ansys documentation building action"
         uses: ansys/actions/doc-build@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: -j auto
+          checkout: false
+          skip-install: true
 
 
   build-test:
