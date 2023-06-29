@@ -1,9 +1,9 @@
 """Module to read ANSYS ASCII block formatted CDB files."""
+from functools import wraps
 import io
 import logging
 import os
 import pathlib
-from functools import wraps
 
 import numpy as np
 import pyvista as pv

@@ -10,8 +10,7 @@ import numpy as np
 
 from libc.math cimport cos, fabs, sin, sqrt
 from libc.stdint cimport int32_t, int64_t
-from libc.stdio cimport (FILE, SEEK_CUR, SEEK_SET, fclose, fopen, fread, fseek,
-                         ftell)
+from libc.stdio cimport FILE, SEEK_CUR, SEEK_SET, fclose, fopen, fread, fseek, ftell
 from libc.stdlib cimport free, malloc
 from libc.string cimport memcpy
 
