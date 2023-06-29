@@ -5,15 +5,19 @@ See: <ansys-path>/ansys/customize/include/fdfull.inc
 
 """
 import pathlib
-import warnings
 from typing import Union
+import warnings
 
 import numpy as np
 
 from ansys.mapdl.reader import _binary_reader
-from ansys.mapdl.reader.common import (AnsysBinary, parse_header,
-                                       read_standard_header, read_table,
-                                       two_ints_to_long)
+from ansys.mapdl.reader.common import (
+    AnsysBinary,
+    parse_header,
+    read_standard_header,
+    read_table,
+    two_ints_to_long,
+)
 
 FRONTAL_FULL_HEADER_KEYS = [
     "fun04",

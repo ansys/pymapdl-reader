@@ -8,9 +8,13 @@ from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkAppendFilter
 
 from ansys.mapdl.reader import _binary_reader
-from ansys.mapdl.reader.common import (PRINCIPAL_STRESS_TYPES, STRAIN_TYPES,
-                                       STRESS_TYPES, THERMAL_STRAIN_TYPES,
-                                       axis_rotation)
+from ansys.mapdl.reader.common import (
+    PRINCIPAL_STRESS_TYPES,
+    STRAIN_TYPES,
+    STRESS_TYPES,
+    THERMAL_STRAIN_TYPES,
+    axis_rotation,
+)
 from ansys.mapdl.reader.rst import Result, check_comp
 
 np.seterr(divide="ignore", invalid="ignore")

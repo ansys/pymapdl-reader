@@ -1,6 +1,6 @@
 """Installation file for ansys-mapdl-reader"""
-import os
 from io import open as io_open
+import os
 
 import numpy as np
 from setuptools import Extension, setup
