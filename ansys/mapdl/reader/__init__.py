@@ -3,21 +3,11 @@ import os
 import appdirs
 
 # Per contract with Sphinx-Gallery, this method must be available at top level
-from pyvista.utilities.sphinx_gallery import _get_sg_image_scraper
-
-from ansys.mapdl.reader import examples
-from ansys.mapdl.reader._version import __version__
-from ansys.mapdl.reader.archive import (
-    Archive,
-    save_as_archive,
-    write_cmblock,
-    write_nblock,
-)
-from ansys.mapdl.reader.cell_quality import quality
-from ansys.mapdl.reader.common import read_binary
-from ansys.mapdl.reader.misc import Report, _configure_pyvista
-
-from . import _archive
+from ansys.mapdl.reader.misc import _configure_pyvista
+try:
+    import importlib.metadata as importlib_metadata
+except ModuleNotFoundError:
+    import importlib_metadata
 
 # Setup data directory
 USER_DATA_PATH = appdirs.user_data_dir(appname="ansys_mapdl_reader", appauthor="Ansys")
@@ -26,3 +16,6 @@ EXAMPLES_PATH = os.path.join(USER_DATA_PATH, "examples")
 
 # set pyvista defaults
 _configure_pyvista()
+
+__version__ = importlib_metadata.version(__name__.replace(".", "-"))
+"""ansys-mapdl-reader version."""

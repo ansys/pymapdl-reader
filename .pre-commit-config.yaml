@@ -1,18 +1,24 @@
+fail_fast: True
+
 repos:
-- repo: https://github.com/psf/black
-  rev: 23.3.0
-  hooks:
-  - id: black
 
 - repo: https://github.com/pycqa/isort
   rev: 5.12.0
   hooks:
   - id: isort
-    args: [
-    "--profile", "black",
-    "--force-sort-within-sections",
-    "--skip-glob", "*__init__.py",
-    ]
+
+- repo: https://github.com/psf/black
+  rev: 23.3.0  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
+  hooks:
+  - id: black
+    args:
+      - --line-length=88
+
+- repo: https://github.com/adamchainz/blacken-docs
+  rev: 1.14.0
+  hooks:
+  - id: blacken-docs
+    additional_dependencies: [black==23.3.0]
 
 - repo: https://github.com/PyCQA/flake8
   rev: 6.0.0
@@ -23,32 +29,16 @@ repos:
   rev: v2.2.5
   hooks:
   - id: codespell
-
-# add this eventually
-# - repo: https://github.com/pycqa/pydocstyle
-#   rev: 6.1.1
-#   hooks:
-#   - id: pydocstyle
-#     additional_dependencies: [toml]
-#     exclude: "tests/"
-
-- repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v16.0.6
-  hooks:
-  - id: clang-format
-    files: |
-      (?x)^(
-        ansys/mapdl/reader/cython/[^_].*\.c.*
-      )$
+    args: ["--toml", "pyproject.toml"]
+    additional_dependencies: ["tomli"]
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.4.0
   hooks:
   - id: check-merge-conflict
   - id: debug-statements
-  - id: trailing-whitespace
-    exclude: '.*\.(cdb|rst|dat)$'
 
+# this validates our github workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
   rev: 0.23.2
   hooks:
