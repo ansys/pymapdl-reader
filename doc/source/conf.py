@@ -13,6 +13,12 @@ switcher_version = get_version_match(__version__)
 
 from ansys.mapdl import reader as pymapdl_reader
 
+REPOSITORY_NAME = "pymapdl-reader"
+USERNAME = "ansys"
+BRANCH = "main"
+DOC_PATH = "doc/source"
+
+
 # -- pyvista configuration ---------------------------------------------------
 # Manage errors
 pyvista.set_error_output_file("errors.txt")
@@ -156,6 +162,13 @@ html_theme_options = {
         "version_match": switcher_version,
     },
     "check_switcher": False,
+}
+html_context = {
+    "display_github": True,  # Integrate GitHub
+    "github_user": USERNAME,
+    "github_repo": REPOSITORY_NAME,
+    "github_version": BRANCH,
+    "doc_path": DOC_PATH,
 }
 
 # -- Options for HTMLHelp output ------------------------------------------
