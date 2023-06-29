@@ -1,10 +1,10 @@
 """Installation file for ansys-mapdl-reader"""
-from io import open as io_open
 import os
-from ansys.mapdl.reader import __version__
 
 import numpy as np
 from setuptools import Extension, setup
+
+from ansys.mapdl.reader import __version__
 
 if os.name == "nt":  # windows
     extra_compile_args = ["/openmp", "/O2", "/w", "/GS"]
