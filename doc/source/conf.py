@@ -155,6 +155,7 @@ html_theme_options = {
         "json_url": f"https://{cname}/versions.json",
         "version_match": switcher_version,
     },
+    "check_switcher": False,
 }
 
 # -- Options for HTMLHelp output ------------------------------------------
