@@ -58,14 +58,14 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: "Install Git and checkout project"
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
 
       - name: Build ManyLinux wheel
         if: ${{ runner.os == 'Linux' }}
@@ -104,7 +104,8 @@ jobs:
         uses: pyvista/setup-headless-display-action@v2
 
       - name: Install test requirements
-        run: pip install -r requirements/requirements_test.txt
+        run: |
+          pip install [tests]
 
       - name: Test
         run: pytest -v tests/ --durations=0

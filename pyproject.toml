@@ -7,6 +7,61 @@ requires = [
     "wheel>=0.37.0",
 ]
 
+[project]
+# Check https://flit.readthedocs.io/en/latest/pyproject_toml.html for all available sections
+name = "ansys-mapdl-reader"
+version = "0.53.dev0"
+description = "Legacy binary interface to MAPDL binary files."
+readme = "README.rst"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Ansys, Inc.", email = "pyansys.maintainers@ansys.com"},
+]
+maintainers = [
+    {name = "PyAnsys developers", email = "pyansys.maintainers@ansys.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+[project.optional-dependencies]
+tests= [
+    "ansys-mapdl-core>=0.60.4",
+    "matplotlib>=3.5.3",
+    "pytest==7.4.0",
+    "pytest-cov==4.1.0",
+    "scipy>=1.7.3",
+]
+doc = [
+    "Sphinx==7.0.1",
+    "ansys-sphinx-theme==0.9.9",
+    "imageio==2.31.1",
+    "notfound==1.0.2",
+    "pypandoc==1.11",
+    "pyvista==0.39.1",
+    "sphinx-copybutton==0.5.2",
+    "sphinx-gallery==0.13.0",
+    "sphinx-notfound-page==0.8.3",
+    "vtk==9.2.6",
+]
+
+[tool.flit.module]
+name = "ansys.mapdl.reader"
+
+[project.urls]
+Source = "https://github.com/ansys/pymapdl-reader"
+
 [tool.pytest.ini_options]
 junit_family= "legacy"
 filterwarnings = [
@@ -15,6 +70,8 @@ filterwarnings = [
     "ignore:.*numpy.ufunc size changed.*:RuntimeWarning",
     "ignore:.*Distutils was imported before Setuptools*",
 ]
+
+testpaths = "tests"
 
 [tool.cibuildwheel]
 archs = ["auto64"]  # 64-bit only
