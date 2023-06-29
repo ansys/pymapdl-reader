@@ -1,9 +1,9 @@
-from datetime import datetime
 import os
 import warnings
+from datetime import datetime
 
-from ansys_sphinx_theme import get_version_match, pyansys_logo_black
 import pyvista
+from ansys_sphinx_theme import get_version_match, pyansys_logo_black
 from sphinx_gallery.sorting import FileNameSortKey
 
 from ansys.mapdl.reader import __version__

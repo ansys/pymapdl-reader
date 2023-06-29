@@ -1,9 +1,9 @@
 """Handle result files from a distributed MAPDL analysis"""
-from functools import wraps
 import glob
-from inspect import currentframe
 import os
 import pathlib
+from functools import wraps
+from inspect import currentframe
 from typing import Union
 
 import numpy as np

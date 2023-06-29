@@ -8,21 +8,8 @@
 
 """ Cython implementation of a CDB reader """
 from libc.stdint cimport int64_t
-from libc.stdio cimport (
-    FILE,
-    SEEK_CUR,
-    SEEK_END,
-    SEEK_SET,
-    fclose,
-    fgets,
-    fopen,
-    fread,
-    fscanf,
-    fseek,
-    ftell,
-    printf,
-    sscanf,
-)
+from libc.stdio cimport (FILE, SEEK_CUR, SEEK_END, SEEK_SET, fclose, fgets,
+                         fopen, fread, fscanf, fseek, ftell, printf, sscanf)
 from libc.stdlib cimport atof, atoi, free, malloc
 from libc.string cimport strcmp, strncpy
 
