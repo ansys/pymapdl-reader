@@ -4,6 +4,7 @@ import appdirs
 
 # Per contract with Sphinx-Gallery, this method must be available at top level
 from ansys.mapdl.reader.misc import _configure_pyvista
+
 try:
     import importlib.metadata as importlib_metadata
 except ModuleNotFoundError:

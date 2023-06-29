@@ -1,7 +1,7 @@
 """Methods common to binary files"""
-from collections import Counter
 import pathlib
 import struct
+from collections import Counter
 from typing import Union
 
 import numpy as np

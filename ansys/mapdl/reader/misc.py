@@ -6,8 +6,8 @@ import tempfile
 
 import numpy as np
 import pyvista
-from pyvista.utilities.errors import GPUInfo
 import scooby
+from pyvista.utilities.errors import GPUInfo
 
 
 def vtk_cell_info(grid, force_int64=True, shift_offset=True):

@@ -3,14 +3,14 @@
 Used:
 .../ansys/customize/include/fdresu.inc
 """
-from collections.abc import Iterable, Sequence
-from functools import wraps
 import os
 import pathlib
-from threading import Thread
 import time
-from typing import Union
 import warnings
+from collections.abc import Iterable, Sequence
+from functools import wraps
+from threading import Thread
+from typing import Union
 
 import numpy as np
 import pyvista as pv
@@ -19,34 +19,22 @@ from pyvista.themes import DefaultTheme
 from tqdm import tqdm
 
 from ansys.mapdl.reader import _binary_reader, _reader, elements
-from ansys.mapdl.reader._binary_reader import (
-    AnsysFile,
-    cells_with_all_nodes,
-    cells_with_any_nodes,
-    populate_surface_element_result,
-)
+from ansys.mapdl.reader._binary_reader import (AnsysFile, cells_with_all_nodes,
+                                               cells_with_any_nodes,
+                                               populate_surface_element_result)
 from ansys.mapdl.reader._mp_keys import mp_keys
-from ansys.mapdl.reader._rst_keys import (
-    DOF_REF,
-    STR_LIM_REF,
-    boundary_condition_index_table,
-    element_index_table_info,
-    geometry_header_keys,
-    result_header_keys,
-    solution_data_header_keys,
-    solution_header_keys_dp,
-)
-from ansys.mapdl.reader.common import (
-    PRINCIPAL_STRESS_TYPES,
-    STRAIN_TYPES,
-    STRESS_TYPES,
-    THERMAL_STRAIN_TYPES,
-    AnsysBinary,
-    parse_header,
-    read_standard_header,
-    read_table,
-    rotate_to_global,
-)
+from ansys.mapdl.reader._rst_keys import (DOF_REF, STR_LIM_REF,
+                                          boundary_condition_index_table,
+                                          element_index_table_info,
+                                          geometry_header_keys,
+                                          result_header_keys,
+                                          solution_data_header_keys,
+                                          solution_header_keys_dp)
+from ansys.mapdl.reader.common import (PRINCIPAL_STRESS_TYPES, STRAIN_TYPES,
+                                       STRESS_TYPES, THERMAL_STRAIN_TYPES,
+                                       AnsysBinary, parse_header,
+                                       read_standard_header, read_table,
+                                       rotate_to_global)
 from ansys.mapdl.reader.mesh import Mesh
 from ansys.mapdl.reader.misc import break_apart_surface, vtk_cell_info
 from ansys.mapdl.reader.rst_avail import AvailableResults

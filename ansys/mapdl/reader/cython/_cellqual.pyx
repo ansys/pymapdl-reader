@@ -12,8 +12,8 @@ from libc.math cimport sqrt
 ctypedef unsigned char uint8
 from libc.stdint cimport int64_t
 
-from cython.parallel import prange
 import numpy as np
+from cython.parallel import prange
 
 cimport numpy as np
 
