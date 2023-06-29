@@ -1,6 +1,7 @@
 """Installation file for ansys-mapdl-reader"""
 from io import open as io_open
 import os
+from ansys.mapdl.reader import __version__
 
 import numpy as np
 from setuptools import Extension, setup
@@ -9,16 +10,6 @@ if os.name == "nt":  # windows
     extra_compile_args = ["/openmp", "/O2", "/w", "/GS"]
 elif os.name == "posix":  # linux/mac os
     extra_compile_args = ["-O3", "-w"]
-
-
-# Get version from version info
-__version__ = None
-this_file = os.path.dirname(__file__)
-version_file = os.path.join(this_file, "ansys", "mapdl", "reader", "_version.py")
-with io_open(version_file, mode="r") as fd:
-    # execute file from raw string
-    exec(fd.read())
-
 
 setup(
     name="ansys-mapdl-reader",
