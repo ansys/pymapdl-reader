@@ -34,6 +34,14 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
+dependencies = [
+    "appdirs>=1.4.0",
+    "matplotlib>=3.0.0",
+    "numpy>=1.16.0",
+    "pyvista>=0.32.0",
+    "tqdm>=4.45.0",
+    "vtk>=9.0.0",
+]
 
 [project.optional-dependencies]
 tests= [
