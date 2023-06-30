@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 import warnings
 
-from ansys_sphinx_theme import get_version_match, pyansys_logo_black, ansys_favicon
+from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
 import pyvista
 from sphinx_gallery.sorting import FileNameSortKey
 
