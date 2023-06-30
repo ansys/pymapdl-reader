@@ -35,6 +35,7 @@ jobs:
         uses: ansys/actions/doc-build@v4
         with:
           dependencies: 'pandoc'
+          skip-dependencies-cache: true
           use-python-cache: false
           python-version: "3.10"
 
