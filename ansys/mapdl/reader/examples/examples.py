@@ -7,7 +7,7 @@ import numpy as np
 import pyvista as pv
 
 from ansys.mapdl import reader as pymapdl_reader
-from ansys.mapdl.reader import examples
+from ansys.mapdl.reader import common, examples
 
 # get location of this folder and the example files
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -50,7 +50,7 @@ def load_result():
     """
 
     # Load result file
-    result = pymapdl_reader.common.read_binary(rstfile)
+    result = common.read_binary(rstfile)
     assert result.nsets == 6
     assert len(result.mesh.nnum) == 321
     print("Loaded result file with {:d} result sets".format(result.nsets))
@@ -73,7 +73,7 @@ def show_displacement(off_screen=None):
     """Load and plot 1st bend of a hexahedral beam"""
 
     # get location of this file
-    fobj = pymapdl_reader.common.read_binary(rstfile)
+    fobj = common.read_binary(rstfile)
 
     print("Displaying ANSYS Mode 1")
     fobj.plot_nodal_solution(
@@ -85,7 +85,7 @@ def show_stress(off_screen=None):
     """Load and plot 1st bend of a hexahedral beam"""
 
     # get location of this file
-    result = pymapdl_reader.common.read_binary(rstfile)
+    result = common.read_binary(rstfile)
 
     print("Displaying node averaged stress in x direction for Mode 6")
     result.plot_nodal_stress(5, "x", off_screen=off_screen, n_colors=9)
@@ -95,7 +95,7 @@ def load_km():
     """Loads m and k matrices from a full file"""
 
     # Create file reader object
-    fobj = pymapdl_reader.common.read_binary(fullfile)
+    fobj = common.read_binary(fullfile)
     dofref, k, m = fobj.load_km()
 
     # print results
@@ -162,7 +162,7 @@ def solve_km():
         return
 
     # load the mass and stiffness matrices
-    full = pymapdl_reader.common.read_binary(examples.fullfile)
+    full = common.read_binary(examples.fullfile)
     dofref, k, m = full.load_km(sort=True)
 
     # make symmetric

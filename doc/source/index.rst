@@ -40,8 +40,8 @@ plots results directly from an ANSYS result file using
 
 .. code:: python
 
-    >>> from ansys.mapdl import reader as pymapdl_reader
-    >>> result = pymapdl_reader.common.read_binary('rotor.rst')
+    >>> from ansys.mapdl.reader import common
+    >>> result = common.read_binary('rotor.rst')
     >>> nnum, stress = result.principal_nodal_stress(0)
     >>> print(stress[:3])
     array([[-1.2874937e-06,  1.2874934e-06,  5.6843419e-14,  0.0000000e+00,

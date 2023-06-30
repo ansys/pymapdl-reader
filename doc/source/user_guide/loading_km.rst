@@ -27,11 +27,11 @@ of the values later on.
 
 .. code:: python
 
-    from ansys.mapdl import reader as pymapdl_reader
+    from ansys.mapdl.reader import common
     from ansys.mapdl.reader import examples
     
     # Create result reader object and read in full file
-    full = pymapdl_reader.common.read_binary(examples.fullfile)
+    full = common.read_binary(examples.fullfile)
     dof_ref, k, m = full.load_km(sort=True)
 
 ANSYS only stores the upper triangular matrix in the full file.  To

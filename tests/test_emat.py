@@ -4,7 +4,7 @@ import pathlib
 import numpy as np
 import pytest
 
-from ansys.mapdl import reader as pymapdl_reader
+from ansys.mapdl.reader import common
 from ansys.mapdl.reader.emat import EmatFile
 
 test_path = os.path.dirname(os.path.abspath(__file__))
@@ -14,7 +14,7 @@ emat_filename = os.path.join(testfiles_path, "file.emat")
 
 @pytest.fixture(scope="module")
 def emat():
-    emat_bin = pymapdl_reader.common.read_binary(emat_filename)
+    emat_bin = common.read_binary(emat_filename)
     assert isinstance(emat_bin, EmatFile)
     return emat_bin
 

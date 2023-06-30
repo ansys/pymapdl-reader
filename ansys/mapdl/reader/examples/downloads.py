@@ -6,6 +6,7 @@ import urllib.request
 import zipfile
 
 from ansys.mapdl import reader as pymapdl_reader
+from ansys.mapdl.reader import common
 
 
 def get_ext(filename):
@@ -67,7 +68,7 @@ def _download_and_read(filename):
     if saved_file[-3:] == "cdb":
         return pymapdl_reader.Archive(saved_file)
     else:
-        return pymapdl_reader.common.read_binary(saved_file)
+        return common.read_binary(saved_file)
 
 
 ###############################################################################

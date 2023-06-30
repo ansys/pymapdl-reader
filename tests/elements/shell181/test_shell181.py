@@ -81,7 +81,7 @@ import os
 import numpy as np
 import pytest
 
-from ansys.mapdl import reader as pymapdl_reader
+from ansys.mapdl.reader import common
 
 ANSYS_ELEM = [
     [0.17662e-07, 79.410, -11.979, -0.11843e-02, 4.8423, -0.72216e-04],
@@ -101,7 +101,7 @@ ANSYS_NODE = [
 @pytest.fixture(scope="module")
 def result():
     test_path = os.path.dirname(os.path.abspath(__file__))
-    return pymapdl_reader.common.read_binary(os.path.join(test_path, "shell181.rst"))
+    return common.read_binary(os.path.join(test_path, "shell181.rst"))
 
 
 def test_load(result):

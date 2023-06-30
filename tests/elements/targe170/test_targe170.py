@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pytest
 
-from ansys.mapdl import reader as pymapdl_reader
+from ansys.mapdl.reader import common
 
 path = os.path.dirname(os.path.abspath(__file__))
 
@@ -11,7 +11,7 @@ path = os.path.dirname(os.path.abspath(__file__))
 @pytest.fixture(scope="module")
 def rst():
     rst_file = os.path.join(path, "file.rst")
-    return pymapdl_reader.common.read_binary(rst_file)
+    return common.read_binary(rst_file)
 
 
 def test_tshape(rst):

@@ -3,15 +3,14 @@ import os
 import numpy as np
 import pytest
 
-from ansys.mapdl import reader as pymapdl_reader
-from ansys.mapdl.reader import examples
+from ansys.mapdl.reader import common, examples
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 
 
 @pytest.fixture(scope="module")
 def result():
-    return pymapdl_reader.common.read_binary(examples.rstfile)
+    return common.read_binary(examples.rstfile)
 
 
 @pytest.fixture(scope="module")

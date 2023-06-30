@@ -145,8 +145,8 @@ class FullFile(AnsysBinary):
 
     Examples
     --------
-    >>> from ansys.mapdl import reader as pymapdl_reader
-    >>> full = pymapdl_reader.common.read_binary('file.rst')
+    >>> from ansys.mapdl.reader import common
+    >>> full = common.read_binary('file.rst')
     >>> print(full)
     PyMAPDL-Reader : MAPDL Full File
     Title                    : Demo
@@ -208,8 +208,8 @@ class FullFile(AnsysBinary):
 
         Examples
         --------
-        >>> from ansys.mapdl import reader as pymapdl_reader
-        >>> full = pymapdl_reader.common.read_binary('file.rst')
+        >>> from ansys.mapdl.reader import common
+        >>> full = common.read_binary('file.rst')
         >>> print(full.k)
         <345x345 sparse matrix of type '<class 'numpy.float64'>'
                 with 7002 stored elements in Compressed Sparse Column format>

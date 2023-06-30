@@ -43,8 +43,8 @@ can initialize with:
 
 .. code:: python
 
-    from ansys.mapdl import reader as pymapdl_reader
-    result = pymapdl_reader.common.read_binary('file.rst')
+    from ansys.mapdl.reader import common
+    result = common.read_binary('file.rst')
     
 Upon initialization the ``Result`` object contains several
 properties to include the time values from the analysis, node
@@ -58,7 +58,7 @@ with
 
 .. code:: python
 
-    rth = pymapdl_reader.common.read_binary('file.rth')
+    rth = common.read_binary('file.rth')
 
 
 Result Properties
@@ -68,7 +68,7 @@ result file with:
 
 .. code:: python
 
-    >>> result = pymapdl_reader.common.read_binary('file.rst')
+    >>> result = common.read_binary('file.rst')
     >>> print(result)
     PyMAPDL Result file object
     Units       : User Defined
@@ -139,9 +139,9 @@ of a result, which returns a ``ansys.mapdl.reader.mesh.Mesh`` class.
 
 .. code:: python
 
-    >>> from ansys.mapdl import reader as pymapdl_reader
+    >>> from ansys.mapdl.reader import common
     >>> from ansys.mapdl.reader import examples
-    >>> rst = pymapdl_reader.common.read_binary(examples.rstfile)
+    >>> rst = common.read_binary(examples.rstfile)
     >>> print(rst.mesh)
 
 .. code::
@@ -291,8 +291,8 @@ for the first result from a modal analysis.
 
 .. code:: python
     
-    from ansys.mapdl import reader as pymapdl_reader
-    result = pymapdl_reader.common.read_binary('file.rst')
+    from ansys.mapdl.reader import common
+    result = common.read_binary('file.rst')
     estress, elem, enode = result.element_stress(0)
 
     
@@ -348,14 +348,14 @@ used with only ``numpy`` installed.
 .. code:: python
 
     # Load the reader from pyansys
-    from ansys.mapdl import reader as pymapdl_reader
+    from ansys.mapdl.reader import common
     from ansys.mapdl.reader import examples
     
     # Sample result file
     rstfile = examples.rstfile
     
     # Create result object by loading the result file
-    result = pymapdl_reader.common.read_binary(rstfile)
+    result = common.read_binary(rstfile)
     
     # Beam natural frequencies
     freqs = result.time_values
@@ -391,9 +391,9 @@ volume of each element:
 .. code:: python
 
     import numpy as np
-    from ansys.mapdl import reader as pymapdl_reader
+    from ansys.mapdl.reader import common
 
-    rst = pymapdl_reader.common.read_binary('./file.rst')
+    rst = common.read_binary('./file.rst')
     enum, edata = rst.element_solution_data(0, datatype='ENG')
 
     # output as a list, but can be viewed as an array since
@@ -410,9 +410,9 @@ Solutions from a modal analysis can be animated using
 .. code:: python
 
     from ansys.mapdl.reader import examples
-    from ansys.mapdl import reader as pymapdl_reader
+    from ansys.mapdl.reader import common
 
-    result = pymapdl_reader.common.read_binary(examples.rstfile)
+    result = common.read_binary(examples.rstfile)
     result.animate_nodal_solution(3)
 
 
@@ -500,10 +500,10 @@ a cyclic analysis:
 
 .. code:: python
 
-    from ansys.mapdl import reader as pymapdl_reader
+    from ansys.mapdl.reader import common
 
     # load the result file    
-    result = pymapdl_reader.common.read_binary('rotor.rst')
+    result = common.read_binary('rotor.rst')
     
 You can reference the load step table and harmonic index tables by
 printing the result header dictionary keys ``'ls_table'`` and
@@ -619,11 +619,11 @@ from the analysis:
 
 .. code:: python
 
-    from ansys.mapdl import reader as pymapdl_reader
+    from ansys.mapdl.reader import common
     from ansys.mapdl.reader import examples
 
     # load example beam result file
-    result = pymapdl_reader.common.read_binary(examples.rstfile)
+    result = common.read_binary(examples.rstfile)
     
     # save as a binary vtk xml file
     result.save_as_vtk('beam.vtu')
