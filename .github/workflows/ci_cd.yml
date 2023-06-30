@@ -36,7 +36,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
    
-  doc_build:
+  doc-build:
     name: Build Documentation
     runs-on: ubuntu-latest
   
@@ -64,7 +64,7 @@ jobs:
       
       - name: Install Python requirements
         run: pip install -r ./requirements/requirements_doc.txt
-        
+      
       - name: "Run Ansys documentation building action"
         uses: ansys/actions/doc-build@v4
         with:
