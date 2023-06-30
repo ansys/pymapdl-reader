@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 import warnings
 
-from ansys_sphinx_theme import get_version_match, pyansys_logo_black
+from ansys_sphinx_theme import get_version_match, pyansys_logo_black, ansys_favicon
 import pyvista
 from sphinx_gallery.sorting import FileNameSortKey
 
@@ -24,6 +24,8 @@ if not os.path.exists(pyvista.FIGURE_PATH):
 
 pyvista.BUILDING_GALLERY = True
 
+# Favicon
+html_favicon = ansys_favicon
 
 # suppress annoying matplotlib bug
 warnings.filterwarnings(
@@ -126,7 +128,7 @@ sphinx_gallery_conf = {
     "backreferences_dir": None,
     # Modules for which function level galleries are created.  In
     "doc_module": "ansys.mapdl.reader",
-    "image_scrapers": (pymapdl_reader._get_sg_image_scraper(), "matplotlib"),
+    "image_scrapers": ("pyvista", "matplotlib"),
     "thumbnail_size": (350, 350),
     "first_notebook_cell": (
         "%matplotlib inline\n"
