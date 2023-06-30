@@ -7,40 +7,6 @@ requires = [
     "wheel>=0.37.0",
 ]
 
-[project]
-# Check https://flit.readthedocs.io/en/latest/pyproject_toml.html for all available sections
-name = "ansys-mapdl-reader"
-version = "0.53.dev0"
-description = "Legacy binary interface to MAPDL binary files."
-readme = "README.rst"
-requires-python = ">=3.8"
-license = {file = "LICENSE"}
-authors = [
-    {name = "Ansys, Inc.", email = "pyansys.maintainers@ansys.com"},
-]
-maintainers = [
-    {name = "PyAnsys developers", email = "pyansys.maintainers@ansys.com"},
-]
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering :: Information Analysis",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX",
-    "Operating System :: MacOS",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-]
-
-[tool.flit.module]
-name = "ansys.mapdl.reader"
-
-[project.urls]
-Source = "https://github.com/ansys/pymapdl-reader"
-
 [tool.pytest.ini_options]
 junit_family= "legacy"
 filterwarnings = [
@@ -49,8 +15,6 @@ filterwarnings = [
     "ignore:.*numpy.ufunc size changed.*:RuntimeWarning",
     "ignore:.*Distutils was imported before Setuptools*",
 ]
-
-testpaths = "tests"
 
 [tool.cibuildwheel]
 archs = ["auto64"]  # 64-bit only

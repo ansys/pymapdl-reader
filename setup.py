@@ -5,12 +5,19 @@ import os
 import numpy as np
 from setuptools import Extension, setup
 
-from ansys.mapdl.reader import __version__
-
 if os.name == "nt":  # windows
     extra_compile_args = ["/openmp", "/O2", "/w", "/GS"]
 elif os.name == "posix":  # linux/mac os
     extra_compile_args = ["-O3", "-w"]
+
+
+# Get version from version info
+__version__ = None
+this_file = os.path.dirname(__file__)
+version_file = os.path.join(this_file, "ansys", "mapdl", "reader", "_version.py")
+with io_open(version_file, mode="r") as fd:
+    # execute file from raw string
+    exec(fd.read())
 
 
 setup(
@@ -21,9 +28,9 @@ setup(
     long_description=open("README.rst").read(),
     long_description_content_type="text/x-rst",
     author="Ansys, Inc.",
-    author_email="pyansys.maintainers@ansys.com",
+    author_email="pyansys.core@ansys.com",
     maintainer="PyAnsys developers",
-    maintainer_email="pyansys.maintainers@ansys.com",
+    maintainer_email="pyansys.core@ansys.com",
     license="MIT",
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -39,7 +46,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
     ],
-    url="https://github.com/pyansys/pymapdl-reader",
+    url="https://github.com/ansys/pymapdl-reader",
     # Build cython modules
     # cmdclass={"build_ext": build_ext},
     include_dirs=[np.get_include()],
@@ -104,5 +111,6 @@ setup(
         "pyvista>=0.32.0",
         "tqdm>=4.45.0",
         "vtk>=9.0.0",
+        "importlib-metadata>=4.0",
     ],
 )

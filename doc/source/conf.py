@@ -6,18 +6,8 @@ from ansys_sphinx_theme import get_version_match, pyansys_logo_black
 import pyvista
 from sphinx_gallery.sorting import FileNameSortKey
 
-from ansys.mapdl.reader import __version__
-
-cname = os.getenv("DOCUMENTATION_CNAME", "<DEFAULT_CNAME>")
-switcher_version = get_version_match(__version__)
-
 from ansys.mapdl import reader as pymapdl_reader
-
-REPOSITORY_NAME = "pymapdl-reader"
-USERNAME = "ansys"
-BRANCH = "main"
-DOC_PATH = "doc/source"
-
+from ansys.mapdl.reader._version import __version__
 
 # -- pyvista configuration ---------------------------------------------------
 # Manage errors
@@ -145,21 +135,27 @@ sphinx_gallery_conf = {
     ),
 }
 
+USERNAME = "ansys"
+REPOSITORY_NAME = "pymapdl-reader"
+CNAME = "reader.docs.pyansys.com"
+BRANCH = "main"
+DOC_PATH = "doc/source"
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyMAPDL - Legacy Reader"
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/pymapdl-reader",
+    "github_url": f"https://github.com/{USERNAME}/{REPOSITORY_NAME}",
     "show_prev_next": False,
     "show_breadcrumbs": True,
+    "collapse_navigation": True,
     "additional_breadcrumbs": [
         ("PyAnsys", "https://docs.pyansys.com/"),
     ],
     "switcher": {
-        "json_url": f"https://{cname}/versions.json",
-        "version_match": switcher_version,
+        "json_url": f"https://{CNAME}/versions.json",
+        "version_match": get_version_match(__version__),
     },
     "check_switcher": False,
 }
