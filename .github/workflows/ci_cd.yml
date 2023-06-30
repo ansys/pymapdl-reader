@@ -35,16 +35,60 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-  doc-build:
-    name: Documentation building
+   
+  doc_build:
+    name: Build Documentation
     runs-on: ubuntu-latest
-
-    steps:  
+  
+    steps:
+      - uses: actions/checkout@v3
+  
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+  
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@v2
+  
+      - name: Install ansys-mapdl-reader
+        run: |
+          pip install -e .
+          cd tests/
+          python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
+  
+      - name: Install OS packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install zip pandoc -qy
+      
+      - name: Install Python requirements
+        run: pip install -r ./requirements/requirements_doc.txt
+        
       - name: "Run Ansys documentation building action"
         uses: ansys/actions/doc-build@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: -j auto
+          checkout: false
+          skip-install: true
+      
+      - name: Upload HTML Documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-html
+          path: doc/_build/html
+          retention-days: 7
+  
+      - name: Deploy
+        if: contains(github.ref, 'refs/heads/main')
+        uses: JamesIves/github-pages-deploy-action@v4.4.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: doc/_build/html
+          clean: true
+          single-commit: true
 
 
   build-test:
