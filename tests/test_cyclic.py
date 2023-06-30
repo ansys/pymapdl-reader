@@ -53,21 +53,21 @@ def academic_rotor():
 @pytest.fixture(scope="module")
 def result_x():
     filename = os.path.join(testfiles_path, "cyc12.rst")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
 def cyclic_v182_z():
     # static result z axis
     filename = os.path.join(cyclic_testfiles_path, "cyclic_v182.rst")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
 def cyclic_v182_z_with_comp():
     # cyclic modal with component
     filename = os.path.join(cyclic_testfiles_path, "cyclic_v182_w_comp.rst")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.mark.parametrize("rtype", ["S", "EPEL", "S,PRIN"])
@@ -204,7 +204,7 @@ def test_element_stress_v182_non_cyclic():
 
     """
     ansys_result_file = os.path.join(cyclic_testfiles_path, "cyclic_v182.rst")
-    result = pymapdl_reader.read_binary(ansys_result_file)
+    result = pymapdl_reader.common.read_binary(ansys_result_file)
 
     elemnum, element_stress, enode = result.element_stress(0, False, False)
     assert np.allclose(np.sort(elemnum), elemnum), "elemnum must be sorted"

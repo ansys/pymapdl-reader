@@ -11,7 +11,7 @@ test_path = os.path.dirname(os.path.abspath(__file__))
 
 @pytest.fixture(scope="module")
 def result():
-    return pymapdl_reader.read_binary(examples.rstfile)
+    return pymapdl_reader.common.read_binary(examples.rstfile)
 
 
 @pytest.fixture(scope="module")

@@ -101,7 +101,7 @@ ANSYS_NODE = [
 @pytest.fixture(scope="module")
 def result():
     test_path = os.path.dirname(os.path.abspath(__file__))
-    return pymapdl_reader.read_binary(os.path.join(test_path, "shell181.rst"))
+    return pymapdl_reader.common.read_binary(os.path.join(test_path, "shell181.rst"))
 
 
 def test_load(result):

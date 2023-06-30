@@ -14,7 +14,7 @@ emat_filename = os.path.join(testfiles_path, "file.emat")
 
 @pytest.fixture(scope="module")
 def emat():
-    emat_bin = pymapdl_reader.read_binary(emat_filename)
+    emat_bin = pymapdl_reader.common.read_binary(emat_filename)
     assert isinstance(emat_bin, EmatFile)
     return emat_bin
 

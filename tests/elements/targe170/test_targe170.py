@@ -11,7 +11,7 @@ path = os.path.dirname(os.path.abspath(__file__))
 @pytest.fixture(scope="module")
 def rst():
     rst_file = os.path.join(path, "file.rst")
-    return pymapdl_reader.read_binary(rst_file)
+    return pymapdl_reader.common.read_binary(rst_file)
 
 
 def test_tshape(rst):

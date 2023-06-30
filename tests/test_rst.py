@@ -79,7 +79,7 @@ testfiles_path = os.path.join(test_path, "testfiles")
 is16_filename = os.path.join(testfiles_path, "is16.rst")
 is16_known_result = os.path.join(testfiles_path, "is16.npz")
 if os.path.isfile(is16_filename):
-    is16 = pymapdl_reader.read_binary(is16_filename)
+    is16 = pymapdl_reader.common.read_binary(is16_filename)
 else:
     is16 = None
 
@@ -96,31 +96,31 @@ def pathlib_result():
 @pytest.fixture(scope="module")
 def hex_pipe_corner():
     filename = os.path.join(testfiles_path, "rst", "cyc_stress.rst")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
 def hex_rst():
     filename = os.path.join(testfiles_path, "hex_201.rst")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
 def volume_rst():
     rst_file = os.path.join(testfiles_path, "vol_test.rst")
-    return pymapdl_reader.read_binary(rst_file)
+    return pymapdl_reader.common.read_binary(rst_file)
 
 
 @pytest.fixture(scope="module")
 def materials_281_rst():
     rst_file = os.path.join(testfiles_path, "materials", "file.rst")
-    return pymapdl_reader.read_binary(rst_file)
+    return pymapdl_reader.common.read_binary(rst_file)
 
 
 @pytest.fixture(scope="module")
 def materials_stress_lim_rst():
     rst_file = os.path.join(testfiles_path, "materials", "stress_lim.rst")
-    return pymapdl_reader.read_binary(rst_file)
+    return pymapdl_reader.common.read_binary(rst_file)
 
 
 def test_map_flag_section_data():
@@ -128,8 +128,8 @@ def test_map_flag_section_data():
     shell181_2020r2 = os.path.join(testfiles_path, "shell181_2020R2.rst")
     shell181_2021r1 = os.path.join(testfiles_path, "shell181_2021R1.rst")
 
-    rst_2020r2 = pymapdl_reader.read_binary(shell181_2020r2)
-    rst_2021r1 = pymapdl_reader.read_binary(shell181_2021r1)
+    rst_2020r2 = pymapdl_reader.common.read_binary(shell181_2020r2)
+    rst_2021r1 = pymapdl_reader.common.read_binary(shell181_2021r1)
 
     for key in rst_2020r2.section_data:
         assert np.allclose(rst_2020r2.section_data[key], rst_2021r1.section_data[key])
@@ -137,7 +137,7 @@ def test_map_flag_section_data():
 
 def test_overwrite(tmpdir):
     tmp_path = str(tmpdir.mkdir("tmpdir"))
-    rst = pymapdl_reader.read_binary(copy(examples.rstfile, tmp_path))
+    rst = pymapdl_reader.common.read_binary(copy(examples.rstfile, tmp_path))
 
     # get the data
     solution_type = "EEL"
@@ -158,7 +158,7 @@ def test_overwrite(tmpdir):
 
 def test_overwrite_dict(tmpdir):
     tmp_path = str(tmpdir.mkdir("tmpdir"))
-    rst = pymapdl_reader.read_binary(copy(examples.rstfile, tmp_path))
+    rst = pymapdl_reader.common.read_binary(copy(examples.rstfile, tmp_path))
 
     # get the data
     solution_type = "EEL"
@@ -332,7 +332,7 @@ def test_is16():
     not os.path.isfile(temperature_rst), reason="Requires example files"
 )
 def test_read_temperature():
-    temp_rst = pymapdl_reader.read_binary(temperature_rst)
+    temp_rst = pymapdl_reader.common.read_binary(temperature_rst)
     nnum, temp = temp_rst.nodal_temperature(0)
 
     npz_rst = np.load(temperature_known_result)
@@ -345,7 +345,7 @@ def test_read_temperature():
     not os.path.isfile(temperature_rst), reason="Requires example files"
 )
 def test_plot_nodal_temperature():
-    temp_rst = pymapdl_reader.read_binary(temperature_rst)
+    temp_rst = pymapdl_reader.common.read_binary(temperature_rst)
     temp_rst.plot_nodal_temperature(0, off_screen=True)
 
 
@@ -395,7 +395,7 @@ def test_rst_beam4_shell63():
     filename = os.path.join(testfiles_path, "shell63_beam4.rst")
 
     # check geometry can load
-    rst = pymapdl_reader.read_binary(filename)
+    rst = pymapdl_reader.common.read_binary(filename)
     assert isinstance(rst.grid.points, np.ndarray)
     assert isinstance(rst.grid.cells, np.ndarray)
     assert (rst.grid.cells >= 0).all()
@@ -448,7 +448,7 @@ def test_reaction_forces(volume_rst):
 
 @pytest.mark.parametrize("nnum_of_interest", [range(11, 50), "all"])
 def test_nnum_of_interest(nnum_of_interest):
-    rst = pymapdl_reader.read_binary(examples.rstfile)
+    rst = pymapdl_reader.common.read_binary(examples.rstfile)
     if nnum_of_interest == "all":
         nnum_of_interest = rst.mesh.nnum
 
@@ -646,7 +646,7 @@ def test_materials_str_lim(materials_stress_lim_rst):
 
 def test_materials_v150():
     """Validate on older result files"""
-    rst = pymapdl_reader.read_binary(examples.rstfile)
+    rst = pymapdl_reader.common.read_binary(examples.rstfile)
     mat = {1: {"EX": 16900000.0, "NUXY": 0.31, "DENS": 0.00041408}}
 
     for mat_type, known_material in mat.items():
@@ -657,7 +657,7 @@ def test_materials_v150():
 
 def test_temperature_dependent_properties():
     path_rth = os.path.join(testfiles_path, "temp_dependent_results.rth")
-    rst = pymapdl_reader.read_binary(path_rth)
+    rst = pymapdl_reader.common.read_binary(path_rth)
     mats = rst.materials
     kxx = mats[1]["KXX"]
     expected_value = np.array(

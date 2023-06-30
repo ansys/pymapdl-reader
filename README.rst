@@ -135,7 +135,7 @@ from ANSYS.
     rstfile = examples.rstfile
     
     # Create result object by loading the result file
-    result = pymapdl_reader.read_binary(rstfile)
+    result = pymapdl_reader.common.read_binary(rstfile)
     
     # Beam natural frequencies
     freqs = result.time_values

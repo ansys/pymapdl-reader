@@ -34,19 +34,19 @@ skip_plotting = pytest.mark.skipif(
 @pytest.fixture()
 def beam_blade():
     filename = os.path.join(testfiles_path, "dist_rst", "blade_stations", "beam3_0.rst")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
 def static_dis():
     filename = os.path.join(testfiles_path, "dist_rst", "static", "file0.rst")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
 def static_rst():
     filename = os.path.join(testfiles_path, "dist_rst", "static", "file.rst")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
@@ -92,7 +92,7 @@ def test_not_all_found(thermal_solution, mapdl, tmpdir):
     tmp_file = os.path.join(mapdl.directory, "tmp0.rth")
     shutil.copy(filename, tmp_file)
     with pytest.raises(FileNotFoundError):
-        dist_rst = pymapdl_reader.read_binary(tmp_file)
+        dist_rst = pymapdl_reader.common.read_binary(tmp_file)
 
 
 @skip_no_ansys
@@ -101,7 +101,9 @@ def test_temperature(thermal_solution, mapdl, tmpdir):
         return
 
     ans_temp = mapdl.post_processing.nodal_temperature
-    dist_rst = pymapdl_reader.read_binary(os.path.join(mapdl.directory, "file0.rth"))
+    dist_rst = pymapdl_reader.common.read_binary(
+        os.path.join(mapdl.directory, "file0.rth")
+    )
 
     # normal result should match
     rst = mapdl.result  # normally not distributed
@@ -119,7 +121,9 @@ def test_plot_temperature(thermal_solution, mapdl):
     if not mapdl._distributed:
         return
 
-    dist_rst = pymapdl_reader.read_binary(os.path.join(mapdl.directory, "file0.rth"))
+    dist_rst = pymapdl_reader.common.read_binary(
+        os.path.join(mapdl.directory, "file0.rth")
+    )
     if cpos is not None:
         cpos = dist_rst.plot_nodal_temperature(0)
     assert isinstance(cpos, CameraPosition)

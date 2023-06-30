@@ -385,7 +385,7 @@ class EmatFile(object):
     Examples
     --------
     >>> from ansys.mapdl import reader as pymapdl_reader
-    >>> emat_file = pymapdl_reader.read_binary('file.emat')
+    >>> emat_file = pymapdl_reader.common.read_binary('file.emat')
     """
 
     def __init__(self, filename):

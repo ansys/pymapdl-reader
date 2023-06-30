@@ -67,7 +67,7 @@ def _download_and_read(filename):
     if saved_file[-3:] == "cdb":
         return pymapdl_reader.Archive(saved_file)
     else:
-        return pymapdl_reader.read_binary(saved_file)
+        return pymapdl_reader.common.read_binary(saved_file)
 
 
 ###############################################################################

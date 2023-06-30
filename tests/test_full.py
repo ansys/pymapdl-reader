@@ -22,11 +22,11 @@ def sparse_full_pathlib_full_file():
 @pytest.fixture()
 def sparse_full():
     filename = os.path.join(testfiles_path, "sparse.full")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 def test_fullreader():
-    fobj = pymapdl_reader.read_binary(examples.fullfile)
+    fobj = pymapdl_reader.common.read_binary(examples.fullfile)
     dofref, k, m = fobj.load_km()
     assert dofref.size
     assert k.size

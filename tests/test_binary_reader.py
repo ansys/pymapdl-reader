@@ -43,19 +43,19 @@ RSETS = list(zip(range(1, 9), [1] * 8))
 
 @pytest.fixture(scope="module")
 def result():
-    return pymapdl_reader.read_binary(examples.rstfile)
+    return pymapdl_reader.common.read_binary(examples.rstfile)
 
 
 @pytest.fixture(scope="module")
 def static_canteliver_bc():
     filename = os.path.join(testfiles_path, "rst", "beam_static_bc.rst")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
 def thermal_rst():
     filename = os.path.join(testfiles_path, "file.rth")
-    return pymapdl_reader.read_binary(filename)
+    return pymapdl_reader.common.read_binary(filename)
 
 
 @pytest.fixture(scope="module")
@@ -375,7 +375,7 @@ def test_plot_component():
     """
 
     filename = os.path.join(testfiles_path, "comp_hex_beam.rst")
-    result = pymapdl_reader.read_binary(filename)
+    result = pymapdl_reader.common.read_binary(filename)
 
     components = ["MY_COMPONENT", "MY_OTHER_COMPONENT"]
     result.plot_nodal_solution(
@@ -390,7 +390,7 @@ def test_plot_component():
 def test_file_close(tmpdir):
     tmpfile = str(tmpdir.mkdir("tmpdir").join("tmp.rst"))
     shutil.copy(examples.rstfile, tmpfile)
-    rst = pymapdl_reader.read_binary(tmpfile)
+    rst = pymapdl_reader.common.read_binary(tmpfile)
     nnum, stress = rst.nodal_stress(0)
     del rst
     os.remove(tmpfile)  # tests file has been correctly closed
@@ -409,12 +409,12 @@ def test_animate_nodal_solution(tmpdir, result):
 
 def test_loadbeam():
     linkresult_path = os.path.join(testfiles_path, "link1.rst")
-    linkresult = pymapdl_reader.read_binary(linkresult_path)
+    linkresult = pymapdl_reader.common.read_binary(linkresult_path)
     assert np.any(linkresult.grid.cells)
 
 
 def test_reaction_forces():
-    rst = pymapdl_reader.read_binary(os.path.join(testfiles_path, "vm1.rst"))
+    rst = pymapdl_reader.common.read_binary(os.path.join(testfiles_path, "vm1.rst"))
     nnum, forces = rst.nodal_static_forces(0)
     assert np.allclose(nnum, [1, 2, 3, 4])
     assert np.allclose(forces[:, 1], [-600, 250, 500, -900])
@@ -460,12 +460,12 @@ def test_plot_temperature(thermal_rst):
 
 def test_file_not_found():
     with pytest.raises(FileNotFoundError):
-        pymapdl_reader.read_binary("not_a_file.rst")
+        pymapdl_reader.common.read_binary("not_a_file.rst")
 
 
 def test_file_not_supported():
     with pytest.raises(RuntimeError):
-        pymapdl_reader.read_binary(os.path.join(testfiles_path, "file.esav"))
+        pymapdl_reader.common.read_binary(os.path.join(testfiles_path, "file.esav"))
 
 
 @skip_no_ansys
