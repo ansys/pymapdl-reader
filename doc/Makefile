@@ -5,7 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = source
-BUILDDIR      = build
+BUILDDIR      = _build
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -21,5 +21,11 @@ help:
 
 # customized clean due to examples gallery
 clean:
-	rm -rf build
+	rm -rf $(BUILDDIR)
 	rm -rf source/examples
+
+# Create PDF
+pdf:
+	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
+	(test -f $(BUILDDIR)/latex/*.pdf && echo pdf exists) || exit 1
