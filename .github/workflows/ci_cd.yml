@@ -55,7 +55,7 @@ jobs:
         run: |
           pip install -e .
           cd tests/
-          python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.Report())"
+          python -c "from ansys.mapdl import reader as pymapdl_reader; print(pymapdl_reader.misc.Report())"
   
       - name: Install OS packages
         run: |
