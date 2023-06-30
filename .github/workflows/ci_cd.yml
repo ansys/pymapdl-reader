@@ -149,7 +149,7 @@ jobs:
 
       - name: Install test requirements
         run: |
-          pip install -r ./requirements/requirements_docs.txt
+          pip install -r ./requirements/requirements_test.txt
 
       - name: Test
         run: pytest -v tests/ --durations=0
