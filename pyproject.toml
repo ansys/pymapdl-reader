@@ -34,35 +34,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-dependencies = [
-    "appdirs>=1.4.0",
-    "matplotlib>=3.0.0",
-    "numpy>=1.16.0",
-    "pyvista>=0.32.0",
-    "tqdm>=4.45.0",
-    "vtk>=9.0.0",
-]
-
-[project.optional-dependencies]
-tests= [
-    "ansys-mapdl-core>=0.60.4",
-    "matplotlib>=3.5.3",
-    "pytest==7.4.0",
-    "pytest-cov==4.1.0",
-    "scipy>=1.7.3",
-]
-doc = [
-    "Sphinx==7.0.1",
-    "ansys-sphinx-theme==0.9.9",
-    "imageio==2.31.1",
-    "notfound==1.0.2",
-    "pypandoc==1.11",
-    "pyvista==0.39.1",
-    "sphinx-copybutton==0.5.2",
-    "sphinx-gallery==0.13.0",
-    "sphinx-notfound-page==0.8.3",
-    "vtk==9.2.6",
-]
 
 [tool.flit.module]
 name = "ansys.mapdl.reader"
