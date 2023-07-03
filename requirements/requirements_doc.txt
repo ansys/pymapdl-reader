@@ -7,4 +7,5 @@ pyvista==0.40.0
 sphinx-copybutton==0.5.2
 sphinx-gallery==0.13.0
 sphinx-notfound-page==0.8.3
+trame==2.5.0
 vtk==9.2.6
