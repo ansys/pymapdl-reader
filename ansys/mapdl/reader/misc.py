@@ -6,7 +6,13 @@ import tempfile
 
 import numpy as np
 import pyvista
-from pyvista.utilities.errors import GPUInfo
+
+try:
+    # for pyvista >= 0.40
+    from pyvista.report import GPUInfo
+except ImportError:
+    from pyvista.utilities.errors import GPUInfo
+
 import scooby
 
 
