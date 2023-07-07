@@ -6,7 +6,6 @@ import tempfile
 
 import numpy as np
 import pyvista
-from pyvista import PyVistaDeprecationWarning
 
 try:
     # for pyvista >= 0.40
