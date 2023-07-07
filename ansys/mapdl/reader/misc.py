@@ -6,7 +6,6 @@ import tempfile
 
 import numpy as np
 import pyvista
-
 from pyvista import PyVistaDeprecationWarning
 
 try:
@@ -14,7 +13,7 @@ try:
     from pyvista.report import GPUInfo
 except ImportError:
     from pyvista.utilities.errors import GPUInfo
-    
+
 import scooby
 
 

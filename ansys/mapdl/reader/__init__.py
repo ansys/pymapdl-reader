@@ -10,7 +10,6 @@ except ImportError:
     from pyvista.utilities.sphinx_gallery import _get_sg_image_scraper
 
 
-
 from ansys.mapdl.reader import examples
 from ansys.mapdl.reader._version import __version__
 from ansys.mapdl.reader.archive import (
