@@ -3,7 +3,12 @@ import os
 import appdirs
 
 # Per contract with Sphinx-Gallery, this method must be available at top level
-from pyvista.utilities.sphinx_gallery import _get_sg_image_scraper
+try:
+    # for pyvista >= 0.40
+    from pyvista.plotting.utilities import _get_sg_image_scraper
+except ImportError:
+    from pyvista.utilities.sphinx_gallery import _get_sg_image_scraper
+
 
 from ansys.mapdl.reader import examples
 from ansys.mapdl.reader._version import __version__
