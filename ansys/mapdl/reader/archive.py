@@ -660,7 +660,7 @@ def save_as_archive(
 
 
 def write_nblock(filename, node_id, pos, angles=None, mode="w"):
-    """Writes nodes and node angles to file.
+    """Write nodes and node angles to file.
 
     Parameters
     ----------
@@ -678,10 +678,18 @@ def write_nblock(filename, node_id, pos, angles=None, mode="w"):
 
     mode : str, optional
         Write mode.  Default ``'w'``.
+
     """
-    assert pos.ndim == 2 and pos.shape[1] == 3, "Invalid position array"
+    if pos.ndim != 2 or pos.shape[1] != 3:
+        raise ValueError("Invalid position array shape")
     if angles is not None:
-        assert angles.ndim == 2 and angles.shape[1] == 3, "Invalid angle array"
+        if angles.ndim != 2 and angles.shape[1] != 3:
+            raise ValueError("Invalid angle array shape")
+
+    if node_id.size == 0:
+        raise ValueError("Empty node id array.")
+    if pos.size == 0:
+        raise ValueError("Empty position array.")
 
     node_id = node_id.astype(np.int32, copy=False)
 
