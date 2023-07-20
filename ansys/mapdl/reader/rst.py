@@ -15,7 +15,12 @@ import warnings
 import numpy as np
 import pyvista as pv
 from pyvista import _vtk as vtk
-from pyvista.themes import DefaultTheme
+
+try:
+    from pyvista.themes import DefaultTheme
+except ImportError:
+    from pyvista.plotting.themes import DocumentTheme as DefaultTheme
+
 from tqdm import tqdm
 
 from ansys.mapdl.reader import _binary_reader, _reader, elements
