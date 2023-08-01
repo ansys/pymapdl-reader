@@ -32,7 +32,7 @@ jobs:
         uses: pyvista/setup-headless-display-action@v2
 
       - name: Build project documentation
-        uses: ansys/actions/doc-build@v4
+        uses: ansys/actions/doc-build@v4.0.29
         with:
           dependencies: 'pandoc'
           skip-dependencies-cache: true
