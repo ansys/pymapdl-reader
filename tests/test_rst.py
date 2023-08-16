@@ -229,7 +229,7 @@ def test_plot_nodal_thermal_strain():
 
 @skip_plotting
 @pytest.mark.skipif(vm33 is None, reason="Requires example files")
-def test_plot_nodal_thermal_strain():
+def test_animate_time_solution():
     vm33._animate_time_solution("ENS", off_screen=True)
 
 

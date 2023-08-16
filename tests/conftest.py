@@ -12,7 +12,7 @@ def mapdl(request):
     """This fixture will only be called if ``ansys.mapdl.core`` is installed."""
     from ansys.mapdl.core import launch_mapdl
     from ansys.mapdl.core.launcher import get_start_instance
-    from ansys.mapdl.core.misc import get_ansys_bin
+    from ansys.tools.path import get_mapdl_path
 
     # check if the user wants to permit pytest to start MAPDL
     # and don't allow mapdl to exit upon collection unless mapdl is local
@@ -22,8 +22,8 @@ def mapdl(request):
     valid_rver = ["211"]  # checks in this order
     EXEC_FILE = None
     for rver in valid_rver:
-        if os.path.isfile(get_ansys_bin(rver)):
-            EXEC_FILE = get_ansys_bin(rver)
+        if os.path.isfile(get_mapdl_path(rver)):
+            EXEC_FILE = get_mapdl_path(rver)
             break
 
     return launch_mapdl(
