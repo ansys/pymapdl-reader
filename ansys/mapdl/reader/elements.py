@@ -446,12 +446,12 @@ _etype_map = [
     2,  # SHELL209
     0,  # UNUSED210
     0,  # UNUSED211
-    0,  # CPT212
-    0,  # CPT213
-    0,  # COMBI214
-    0,  # CPT215
-    0,  # UNUSED216
-    5,  # CPT217
+    3,  # CPT212
+    3,  # CPT213
+    6,  # COMBI214
+    4,  # CPT215
+    6,  # CPT216
+    6,  # CPT217
     3,  # FLUID218
     3,  # FLUID219
     4,  # FLUID220
