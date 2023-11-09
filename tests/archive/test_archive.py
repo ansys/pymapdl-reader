@@ -10,6 +10,12 @@ from pyvista import examples as pyvista_examples
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import _archive, archive, examples
 
+try:
+    from pyvista import ImageData
+except ImportError:  # backwards compatibility
+    from pyvista import UniformGrid as ImageData
+
+
 LINEAR_CELL_TYPES = [
     CellType.TETRA,
     CellType.PYRAMID,
@@ -201,7 +207,7 @@ def test_writehex(tmpdir, hex_archive):
 
 def test_write_voxel(tmpdir):
     filename = str(tmpdir.join("tmp.cdb"))
-    grid = pv.UniformGrid(dimensions=(10, 10, 10))
+    grid = ImageData(dimensions=(10, 10, 10))
     pymapdl_reader.save_as_archive(filename, grid)
 
     archive = pymapdl_reader.Archive(filename)

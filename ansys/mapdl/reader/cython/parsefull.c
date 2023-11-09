@@ -99,7 +99,7 @@ int read_array(int **rows, int **cols, double **data, int *rref, int *cref,
   // Read entire matrix to memory
   int nread = neqn * 24 + nterm * 12;
   char *raw = (char *)malloc(nread * sizeof(char));
-  fseek(ptr, (fileloc)*4, SEEK_SET);
+  fseek(ptr, (fileloc) * 4, SEEK_SET);
   fread(raw, sizeof(char), nread, ptr);
 
   for (i = 0; i < neqn; ++i) {
