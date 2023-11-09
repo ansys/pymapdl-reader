@@ -61,6 +61,13 @@ Please see the `PyMAPDL-Reader Documentation
    interface using the same software used within Ansys Mechanical, but
    via a Python client.
 
+.. note::
+
+   Result file compatibility will be greatly improved by disabling result file
+   compression by setting ``/FCOMP,RST,0``.
+
+   DPF does not have this restriction.
+
 
 Installation
 ------------

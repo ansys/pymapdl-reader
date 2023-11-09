@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from pyvista.plotting import system_supports_plotting
 from pyvista.plotting.renderer import CameraPosition
+from vtkmodules.vtkCommonMath import vtkMatrix4x4
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
@@ -492,3 +493,11 @@ def test_nodal_thermal_strain_cyclic(result_x):
 @skip_plotting
 def test_plot_nodal_thermal_strain(result_x):
     result_x.plot_nodal_thermal_strain(0, "X")
+
+
+def test_cs_4x4(result_x):
+    assert isinstance(result_x._c_systems, dict)
+
+    # expect first CSYS to be cartesian
+    assert np.allclose(result_x.cs_4x4(1), np.eye(4))
+    assert isinstance(result_x.cs_4x4(1, as_vtk_matrix=True), vtkMatrix4x4)

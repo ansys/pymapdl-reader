@@ -290,16 +290,15 @@ class Result(AnsysBinary):
         return resultheader
 
     def parse_coordinate_system(self):
-        """Reads in coordinate system information from a binary result
-        file.
+        """Reads in coordinate system information from a binary result file.
 
         Returns
         -------
         c_systems : dict
-            Dictionary containing one entry for each defined
-            coordinate system.  If no non-standard coordinate systems
-            have been defined, there will be only one None.  First
-            coordinate system is assumed to be global cartesian.
+            Dictionary containing one entry for each defined coordinate system.
+            If no non-standard coordinate systems have been defined, an empty
+            dictionary will be returned.  First coordinate system is assumed to
+            be global cartesian.
 
         Notes
         -----
@@ -325,8 +324,9 @@ class Result(AnsysBinary):
             - 1: Cylindrical (circular or elliptical)
             - 2: Spherical (or spheroidal)
             - 3: Toroidal
+
         """
-        c_systems = [None]
+        c_systems = {}
 
         # load coordinate system index table
         ptr_csy = self._geometry_header["ptrCSY"]
@@ -353,7 +353,7 @@ class Result(AnsysBinary):
         # * Item 22 is the coordinate system reference number.
         for csys_record_pointer in csys_record_pointers:
             if not csys_record_pointer:
-                c_system = None
+                continue
             else:
                 data = self.read_record(ptr_csy + csys_record_pointer)
                 c_system = {
@@ -365,11 +365,9 @@ class Result(AnsysBinary):
                     "theta singularity": data[18],
                     "phi singularity": data[19],
                     "type": int(data[20]),
-                    "reference num": int(
-                        data[21],
-                    ),
+                    "reference num": int(data[21]),
                 }
-            c_systems.append(c_system)
+            c_systems[c_system["reference num"]] = c_system
 
         return c_systems
 
@@ -2882,8 +2880,48 @@ class Result(AnsysBinary):
         )
 
     def cs_4x4(self, cs_cord, as_vtk_matrix=False):
-        """return a 4x4 transformation array for a given coordinate system"""
-        # assemble 4 x 4 matrix
+        """Return a 4x4 transformation matrix for a given coordinate system.
+
+        Parameters
+        ----------
+        cs_cord : int
+            Coordinate system index.
+
+        as_vtk_matrix : bool, default: False
+            Return the transformation matrix as a ``vtkMatrix4x4``.
+
+        Returns
+        -------
+        np.ndarray | vtk.vtkMatrix4x4
+            Matrix or ``vtkMatrix4x4`` depending on the value of ``as_vtk_matrix``.
+
+        Notes
+        -----
+        Values 11 and greater correspond to local coordinate systems
+
+        Examples
+        --------
+        Return the transformation matrix for coordinate system 1.
+
+        >>> tmat = rst.cs_4x4(1)
+        >>> tmat
+        array([[1., 0., 0., 0.],
+               [0., 1., 0., 0.],
+               [0., 0., 1., 0.],
+               [0., 0., 0., 1.]])
+
+        Return the transformation matrix for coordinate system 5. This
+        corresponds to ``CSYS, 5``, the cylindrical with global Cartesian Y as
+        the axis of rotation.
+
+        >>> tmat = rst.cs_4x4(5)
+        >>> tmat
+        array([[ 1.,  0.,  0.,  0.],
+               [ 0.,  0., -1.,  0.],
+               [ 0.,  1.,  0.,  0.],
+               [ 0.,  0.,  0.,  1.]])
+
+        """
         csys = self._c_systems[cs_cord]
         trans = np.hstack(
             (csys["transformation matrix"], csys["origin"].reshape(-1, 1))
@@ -2892,7 +2930,6 @@ class Result(AnsysBinary):
 
         if as_vtk_matrix:
             return matrix
-
         return pv.array_from_vtkmatrix(matrix)
 
     def _plot_point_scalars(
