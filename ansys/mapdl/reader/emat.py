@@ -1,4 +1,4 @@
-"""PyMAPDL-reader Element matricies file reader.
+"""PyMAPDL-reader Element matrices file reader.
 
 
 This header is straight out of fdemat.inc and can be found within the

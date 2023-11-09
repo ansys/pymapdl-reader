@@ -1750,7 +1750,7 @@ def midside_mask(uint8 [::1] celltypes, index_type [::1] cells,
 
 
 def euler_cart_to_cyl(double [:, ::1] stress, double [::1] angles):
-    """Convert stress tensors from cartesian to cyclindrical.
+    """Convert stress tensors from Cartesian to cylindrical.
 
     Equations from
     https://github.com/jrwrigh/cart2cyl_notes/blob/master/main.pdf

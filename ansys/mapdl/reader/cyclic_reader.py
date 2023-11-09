@@ -93,7 +93,7 @@ class CyclicResult(Result):
     def _add_cyclic_properties(self):
         """Add cyclic properties"""
 
-        # idenfity the sector based on number of elements in master sector
+        # identity the sector based on number of elements in master sector
         cs_els = self._resultheader["csEls"]
         mask = self.quadgrid.cell_data["ansys_elem_num"] <= cs_els
 
