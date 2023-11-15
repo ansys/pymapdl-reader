@@ -40,7 +40,6 @@ setup(
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX",
         "Operating System :: MacOS",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -91,7 +90,7 @@ setup(
             language="c++",
         ),
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.7,<4",
     keywords="vtk MAPDL ANSYS cdb full rst",
     package_data={
         "ansys.mapdl.reader.examples": [
