@@ -38,6 +38,7 @@ jobs:
           skip-dependencies-cache: true
           use-python-cache: false
           python-version: "3.10"
+          sphinxopts: '-j auto'
 
   doc-deploy-dev:
     name: Upload development documentation
