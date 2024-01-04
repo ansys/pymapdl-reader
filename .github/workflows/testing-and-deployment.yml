@@ -116,7 +116,7 @@ jobs:
         name: 'Upload coverage to Codecov'
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ runner.os }}-${{ matrix.python-version }}
           path: dist/
@@ -137,7 +137,7 @@ jobs:
         run: |
           ls ./wheelhouse/*
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
 
