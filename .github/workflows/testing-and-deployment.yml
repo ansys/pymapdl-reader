@@ -160,7 +160,7 @@ jobs:
   #       run: ls -R
 
   #     - name: Downloading artifacts
-  #       uses: actions/download-artifact@v3
+  #       uses: actions/download-artifact@v4
 
   #     - name: Display structure of downloaded artifact files
   #       run: ls -R
@@ -232,7 +232,7 @@ jobs:
           python-version: '3.11'
 
       # this downloads all artifacts
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
 
       - name: Display structure of downloaded files
         run: ls -R
