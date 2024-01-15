@@ -1,12 +1,12 @@
 Sphinx<8
-ansys-sphinx-theme==0.13.0
+ansys-sphinx-theme==0.13.1
 imageio==2.33.1
-nest-asyncio==1.5.8
+nest-asyncio==1.5.9
 notfound==1.0.2
 pypandoc==1.12
-pyvista==0.43.1
+pyvista==0.43.2
 sphinx-copybutton==0.5.2
 sphinx-gallery==0.15.0
 sphinx-notfound-page==1.0.0
-trame==3.5.0
+trame==3.5.1
 vtk==9.3.0
