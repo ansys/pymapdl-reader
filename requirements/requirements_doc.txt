@@ -1,7 +1,7 @@
 Sphinx<8
 ansys-sphinx-theme==0.13.0
 imageio==2.33.1
-nest-asyncio==1.5.8
+nest-asyncio==1.5.9
 notfound==1.0.2
 pypandoc==1.12
 pyvista==0.43.1
