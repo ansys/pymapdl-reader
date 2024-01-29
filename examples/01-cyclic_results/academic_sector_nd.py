@@ -9,6 +9,7 @@ MAPDL result file from both single bladed sectors as well as
 multi-bladed sectors from a modal analysis.
 
 """
+
 # sphinx_gallery_thumbnail_number = 2
 
 import numpy as np

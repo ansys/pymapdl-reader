@@ -1,4 +1,5 @@
 """Methods common to binary files"""
+
 from collections import Counter
 import pathlib
 import struct

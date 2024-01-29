@@ -1,4 +1,5 @@
 """Installation file for ansys-mapdl-reader"""
+
 from io import open as io_open
 import os
 

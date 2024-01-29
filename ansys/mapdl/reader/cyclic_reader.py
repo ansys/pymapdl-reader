@@ -1,4 +1,5 @@
 """Supports reading cyclic structural result files from ANSYS"""
+
 from functools import wraps
 
 import numpy as np

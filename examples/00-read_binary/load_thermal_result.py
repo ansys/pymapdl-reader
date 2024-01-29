@@ -7,6 +7,7 @@ Thermal Analysis
 Visualize the result of verification manual test 33.
 
 """
+
 from ansys.mapdl.reader import examples
 
 ################################################################################

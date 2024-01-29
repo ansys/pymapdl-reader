@@ -7,6 +7,7 @@ Shaft Modal Analysis
 Visualize a shaft modal analysis
 
 """
+
 # sphinx_gallery_thumbnail_number = 6
 
 from ansys.mapdl.reader import examples

@@ -1,4 +1,5 @@
 """Handle result files from a distributed MAPDL analysis"""
+
 from functools import wraps
 import glob
 from inspect import currentframe
