@@ -8,6 +8,7 @@ equivalent to setting the result coordinate system to cylindrical in
 MAPDL (e.g. ``RSYS, 1``).
 
 """
+
 ################################################################################
 # Download a small result file containing the corner of a thick pipe
 from ansys.mapdl.reader import examples

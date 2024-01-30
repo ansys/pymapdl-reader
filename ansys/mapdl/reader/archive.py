@@ -1,4 +1,5 @@
 """Module to read ANSYS ASCII block formatted CDB files."""
+
 from functools import wraps
 import io
 import logging

@@ -76,6 +76,7 @@ Nodal Solution results from ANSYS
 
 
 """
+
 import os
 
 import numpy as np

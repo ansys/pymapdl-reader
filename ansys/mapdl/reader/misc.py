@@ -1,4 +1,5 @@
 """Module for miscellaneous functions and methods"""
+
 import os
 import random
 import string

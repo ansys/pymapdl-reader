@@ -6,6 +6,7 @@ Custom Scalar Visualization
 Display custom scalars using an existing mesh.
 
 """
+
 import numpy as np
 
 from ansys.mapdl.reader import examples

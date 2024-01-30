@@ -222,6 +222,7 @@ PLANE292
 PLANE293
 USER300
 """
+
 import numpy as np
 
 # element type to VTK conversion function call map

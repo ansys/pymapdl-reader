@@ -8,6 +8,7 @@ This example shows how to extract strain and stress from a cyclic
 modal analysis.
 
 """
+
 # sphinx_gallery_thumbnail_number = 2
 from ansys.mapdl.reader import examples
 

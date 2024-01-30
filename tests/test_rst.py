@@ -32,6 +32,7 @@ mapdl.allsel()
 mapdl.modal_analysis(nmode=1)
 
 """
+
 import os
 import pathlib
 import platform

@@ -26,6 +26,7 @@ currently provides through result.element_stress(0) command which is in the glob
 coordinate system.
 
 """
+
 import os
 
 import numpy as np

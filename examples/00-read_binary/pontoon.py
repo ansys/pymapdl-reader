@@ -6,6 +6,7 @@ Shell Static Analysis
 
 Visualize a shell static analysis
 """
+
 # download the pontoon example
 from ansys.mapdl.reader import examples
 

@@ -9,6 +9,7 @@ jetcat rotor.
 First, load the rotor.  Notice how printing the rotor class reveals
 the details of the rotor result file.
 """
+
 # sphinx_gallery_thumbnail_number = 2
 from ansys.mapdl.reader import examples
 
