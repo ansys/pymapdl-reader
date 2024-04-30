@@ -4,7 +4,7 @@ imageio==2.34.1
 nest-asyncio==1.6.0
 notfound==1.0.2
 pypandoc==1.13
-pyvista==0.43.5
+pyvista==0.43.6
 sphinx-copybutton==0.5.2
 sphinx-gallery==0.15.0
 sphinx-notfound-page==1.0.0
