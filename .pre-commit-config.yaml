@@ -33,7 +33,7 @@ repos:
 #     exclude: "tests/"
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v18.1.4
+  rev: v18.1.5
   hooks:
   - id: clang-format
     files: |
@@ -50,6 +50,6 @@ repos:
     exclude: '.*\.(cdb|rst|dat)$'
 
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.28.2
+  rev: 0.28.3
   hooks:
     - id: check-github-workflows
