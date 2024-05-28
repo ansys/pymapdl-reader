@@ -135,7 +135,7 @@ int read_array(int **rows, int **cols, double **data, int *rref, int *cref,
         ++c;
       }
 
-      // Last item is always the diagional, don't bother reading
+      // Last item is always the diagonal, don't bother reading
       (*rows)[c] = col;
       (*cols)[c] = col;
       ++c;
@@ -158,7 +158,7 @@ int read_array(int **rows, int **cols, double **data, int *rref, int *cref,
         ++d;
       }
 
-      // Last item belongs to diagional
+      // Last item belongs to diagonal
       vald = read_double_raw(&raw, e);
       e += 8;
 
