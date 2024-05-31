@@ -13,11 +13,11 @@ PyMAPDL Reader - Legacy Binary and Archive File Reader
 .. |PyPIact| image:: https://img.shields.io/pypi/dm/ansys-mapdl-reader.svg?label=PyPI%20downloads
    :target: https://pypi.org/project/ansys-mapdl-reader/
 
-.. |codecov| image:: https://codecov.io/gh/pyansys/pymapdl-reader/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/pyansys/pymapdl-reader
+.. |codecov| image:: https://codecov.io/gh/ansys/pymapdl-reader/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/ansys/pymapdl-reader
 
-.. |GH-CI| image:: https://github.com/pyansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml/badge.svg
-   :target: https://github.com/pyansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml
+.. |GH-CI| image:: https://github.com/ansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml/badge.svg
+   :target: https://github.com/ansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT
@@ -26,8 +26,8 @@ PyMAPDL Reader - Legacy Binary and Archive File Reader
   :target: https://github.com/psf/black
   :alt: black
 
-.. |pre-commit| image:: https://results.pre-commit.ci/badge/github/pyansys/pymapdl-reader/main.svg
-   :target: https://results.pre-commit.ci/latest/github/pyansys/pymapdl-reader/main
+.. |pre-commit| image:: https://results.pre-commit.ci/badge/github/ansys/pymapdl-reader/main.svg
+   :target: https://results.pre-commit.ci/latest/github/ansys/pymapdl-reader/main
    :alt: pre-commit.ci status
 
 This is the legacy module for reading in binary and ASCII files
@@ -55,8 +55,8 @@ Please see the `PyMAPDL-Reader Documentation
    This module may be depreciated in the future.
 
    You are encouraged to use the new Data Processing Framework (DPF)
-   modules at `PyDPF-Core <https://github.com/pyansys/pydpf-core>`_ and
-   `PyDPF-Post <https://github.com/pyansys/pydpf-post>`_ as they provide a
+   modules at `PyDPF-Core <https://github.com/ansys/pydpf-core>`_ and
+   `PyDPF-Post <https://github.com/ansys/pydpf-post>`_ as they provide a
    modern interface to Ansys result files using a client/server
    interface using the same software used within Ansys Mechanical, but
    via a Python client.
@@ -75,7 +75,7 @@ Installation through pip::
 
    pip install ansys-mapdl-reader
 
-You can also visit `pymapdl-reader <https://github.com/pyansys/pymapdl-reader>`_
+You can also visit `pymapdl-reader <https://github.com/ansys/pymapdl-reader>`_
 to download the source or releases from GitHub.
 
 
@@ -114,7 +114,7 @@ object.
     grid.save('hex.vtk')
 
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/blob/main/doc/source/images/hexbeam_small.png
+.. figure:: https://github.com/ansys/pymapdl-reader/blob/main/doc/source/images/hexbeam_small.png
    :alt: Hexahedral beam
 
 You can then load this vtk file using ``pyvista`` or another program that uses VTK.
@@ -181,7 +181,7 @@ plotted using ``VTK``.
     # Plot the displacement of Mode 0 in the x direction
     result.plot_nodal_solution(0, 'x', label='Displacement')
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/blob/main/doc/source/images/hexbeam_disp_small.png
+.. figure:: https://github.com/ansys/pymapdl-reader/blob/main/doc/source/images/hexbeam_disp_small.png
 
 
 Results can be plotted non-interactively and screenshots saved by
@@ -217,7 +217,7 @@ displayed.
     # Display node averaged stress in x direction for result 6
     result.plot_nodal_stress(5, 'Sx')
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/blob/main/doc/source/images/beam_stress_small.png
+.. figure:: https://github.com/ansys/pymapdl-reader/blob/main/doc/source/images/beam_stress_small.png
 
 
 Nodal stress can also be generated non-interactively with:
@@ -237,7 +237,7 @@ Mode shapes from a modal analysis can be animated using ``animate_nodal_solution
     result.animate_nodal_solution(0)
 
 
-.. figure:: https://github.com/pyansys/pymapdl-reader/blob/main/doc/source/images/beam_mode_shape_small.gif
+.. figure:: https://github.com/ansys/pymapdl-reader/blob/main/doc/source/images/beam_mode_shape_small.gif
    :alt: Modal shape animation
 
 If you wish to save the animation to a file, specify the
