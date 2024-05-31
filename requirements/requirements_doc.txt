@@ -1,5 +1,5 @@
 Sphinx<8
-ansys-sphinx-theme==0.16.4
+ansys-sphinx-theme==0.16.5
 imageio==2.34.1
 nest-asyncio==1.6.0
 notfound==1.0.2
