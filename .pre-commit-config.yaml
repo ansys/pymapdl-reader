@@ -15,7 +15,7 @@ repos:
     ]
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.0.0
+  rev: 7.1.0
   hooks:
   - id: flake8
 
@@ -50,6 +50,6 @@ repos:
     exclude: '.*\.(cdb|rst|dat)$'
 
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.28.4
+  rev: 0.28.5
   hooks:
     - id: check-github-workflows
