@@ -107,8 +107,8 @@ setup(
     install_requires=[
         "appdirs>=1.4.0",
         "matplotlib>=3.0.0",
-        "numpy>=1.16.0",
-        "pyvista>=0.32.0",
+        "numpy>=1.16.0,<2",
+        "pyvista>=0.32.0,<0.44",
         "tqdm>=4.45.0",
         "vtk>=9.0.0",
     ],
