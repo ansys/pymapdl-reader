@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 import warnings
 
-from ansys_sphinx_theme import get_version_match, pyansys_logo_black
+from ansys_sphinx_theme import get_version_match
 import pyvista
 from sphinx_gallery.sorting import FileNameSortKey
 
@@ -145,7 +145,6 @@ cname = os.getenv("DOCUMENTATION_CNAME", default="nocname.com")
 switcher_version = get_version_match(version)
 html_short_title = html_title = "PyMAPDL - Legacy Reader"
 html_theme = "ansys_sphinx_theme"
-html_logo = pyansys_logo_black
 html_context = {
     "github_user": "ansys",
     "github_repo": "pymapdl-reader",
@@ -153,6 +152,7 @@ html_context = {
     "doc_path": "doc/source",
 }
 html_theme_options = {
+    "logo" : "pyansys",
     "switcher": {
         "json_url": f"https://{cname}/versions.json",
         "version_match": switcher_version,
