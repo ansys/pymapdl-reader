@@ -364,7 +364,7 @@ cdef np.ndarray wrap_array(void* c_ptr, int size, int type_flag, int prec_flag):
     array_wrapper.set_data(size, c_ptr, my_dtype)
 
     cdef np.ndarray ndarray
-    ndarray = np.array(array_wrapper, copy=False)
+    ndarray = np.array(array_wrapper)
 
     # Assign our object to the 'base' of the ndarray object
     np.PyArray_SetBaseObject(ndarray, array_wrapper)
