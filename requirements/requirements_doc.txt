@@ -1,6 +1,6 @@
 Sphinx<9
 ansys-sphinx-theme==1.0.5
-imageio==2.35.0
+imageio==2.35.1
 nest-asyncio==1.6.0
 notfound==1.0.2
 pypandoc==1.13
