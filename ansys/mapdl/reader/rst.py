@@ -232,8 +232,15 @@ class Result(AnsysBinary):
         # consider moving this to the main class
         standard_header = read_standard_header(self.filename)
 
-        # Read .RST FILE HEADER
-        header = parse_header(self.read_record(103), result_header_keys)
+        # Read .rst file header. Header must contain 80 items
+        record = self.read_record(103)
+        if record.size > 80:
+            raise RuntimeError(
+                "Unable to read result header. Try disabling MAPDL compression with:\n\n"
+                "    /FCOMP,RST,0"
+            )
+        header = parse_header(record, result_header_keys)
+
         resultheader = merge_two_dicts(header, standard_header)
 
         # Read nodal equivalence table
