@@ -368,7 +368,7 @@ cdef np.ndarray wrap_array(void* c_ptr, int size, int type_flag, int prec_flag):
     if np.__version__.startswith("1."): # Backwards compatibility with numpy 1.X
         ndarray = np.array(array_wrapper, copy=False)
     else:
-        ndarray = np.array(array_wrapper)
+        ndarray = np.array(array_wrapper, copy=None)
 
     # Assign our object to the 'base' of the ndarray object
     np.PyArray_SetBaseObject(ndarray, array_wrapper)
