@@ -364,7 +364,11 @@ cdef np.ndarray wrap_array(void* c_ptr, int size, int type_flag, int prec_flag):
     array_wrapper.set_data(size, c_ptr, my_dtype)
 
     cdef np.ndarray ndarray
-    ndarray = np.array(array_wrapper)
+    # TODO: Remove backwards compatibility in the future
+    if np.__version__.startswith("1."): # Backwards compatibility with numpy 1.X
+        ndarray = np.array(array_wrapper, copy=False)
+    else:
+        ndarray = np.array(array_wrapper, copy=None)
 
     # Assign our object to the 'base' of the ndarray object
     np.PyArray_SetBaseObject(ndarray, array_wrapper)
