@@ -32,7 +32,7 @@ jobs:
         uses: pyvista/setup-headless-display-action@v2
 
       - name: Build project documentation
-        uses: ansys/actions/doc-build@v7
+        uses: ansys/actions/doc-build@v8
         with:
           dependencies: 'pandoc'
           skip-dependencies-cache: true
@@ -46,7 +46,7 @@ jobs:
     needs: [doc_build]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: ansys/actions/doc-deploy-dev@v7
+      - uses: ansys/actions/doc-deploy-dev@v8
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -269,7 +269,7 @@ jobs:
     needs: [Release]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@v7
+        uses: ansys/actions/doc-deploy-stable@v8
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
