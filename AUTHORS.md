@@ -1,9 +1,12 @@
-# Authors
-
-## Project Lead
-
-*   [Alex Kaszynski](https://github.com/akaszynski)
-
-## Contributors
-
-*   [German Martinez Ayuso](https://github.com/germa89)
+# This is the list of PyMAPDL Reader's significant contributors.
+#
+# This file does not necessarily list everyone who has contributed code.
+#
+# For contributions made under a Corporate CLA, the organization is
+# added to this file.
+#
+# If you have contributed to the repository and want to be added to this file,
+# submit a request.
+#
+#
+ANSYS, Inc.
