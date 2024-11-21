@@ -55,14 +55,14 @@ extensions = [
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "numpy": ("https://numpy.org/doc/stable/", None),
+    "python": ("https://docs.python.org/3.11", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
-    "pandas": ("http://pandas.pydata.org/pandas-docs/stable/", None),
-    "pyvista": ("https://docs.pyvista.org/version/stable/", None),
-    "grpc": ("https://grpc.github.io/grpc/python/", None),
-    "pypim": ("https://pypim.docs.pyansys.com/version/stable/", None),
+    "pandas": ("http://pandas.pydata.org/pandas-docs/stable", None),
+    "pyvista": ("https://docs.pyvista.org", None),
+    "grpc": ("https://grpc.github.io/grpc/python", None),
+    "pypim": ("https://pypim.docs.pyansys.com/version/stable", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
