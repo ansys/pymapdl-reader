@@ -114,10 +114,6 @@ jobs:
       - name: Test
         run: pytest -v tests/ --durations=0
 
-      - uses: codecov/codecov-action@v5
-        if: ${{ runner.os == 'Linux' && matrix.python-version == '3.9' }}
-        name: 'Upload coverage to Codecov'
-
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
