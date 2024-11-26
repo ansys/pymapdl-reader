@@ -8,7 +8,7 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    # Only run this workflow for branches starting with "dependabot/"
+    # Only run this workflow for branches starting with "dependabot/" or "pre-commit-ci-update-config"
     if: |
       startsWith(github.head_ref, 'dependabot/') ||
       startsWith(github.head_ref, 'pre-commit-ci-update-config')
