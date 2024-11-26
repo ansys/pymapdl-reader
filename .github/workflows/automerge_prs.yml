@@ -1,4 +1,4 @@
-name: Dependabot auto-merge
+name: Dependabot and pre-commit.ci auto-merge
 on: pull_request
 
 permissions:
@@ -8,14 +8,15 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    # Only run this workflow for branches starting with "dependabot/"
-    if: startsWith(github.head_ref, 'dependabot/')
+    # Only run this workflow for branches starting with "dependabot/" or "pre-commit-ci-update-config"
+    if: |
+      startsWith(github.head_ref, 'dependabot/') ||
+      startsWith(github.head_ref, 'pre-commit-ci-update-config')
     steps:
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Retrieve PR URL
+        run: |
+          echo "PR_URL=${{github.event.pull_request.html_url}}" >> $GITHUB_ENV
+          echo "Auto merging PR: $PR_URL"
 
       - name: Approve a PR
         run: gh pr review --approve "$PR_URL"
@@ -23,7 +24,7 @@ jobs:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
 
-      - name: Enable auto-merge for Dependabot PRs
+      - name: Enable auto-merge
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
