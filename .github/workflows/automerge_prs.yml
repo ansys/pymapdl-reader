@@ -13,13 +13,18 @@ jobs:
       startsWith(github.head_ref, 'dependabot/') ||
       startsWith(github.head_ref, 'pre-commit-ci-update-config')
     steps:
+      - name: Retrieve PR URL
+        run: |
+          echo "PR_URL=${{github.event.pull_request.html_url}}" >> $GITHUB_ENV
+          echo "Auto merging PR: $PR_URL"
+
       - name: Approve a PR
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
 
-      - name: Enable auto-merge for Dependabot PRs
+      - name: Enable auto-merge
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
