@@ -106,7 +106,7 @@ jobs:
           pip list
 
       - name: Setup headless display
-        uses: pyvista/setup-headless-display-action@v2
+        uses: pyvista/setup-headless-display-action@v3
 
       - name: Install test requirements
         run: pip install -r requirements/requirements_test.txt
