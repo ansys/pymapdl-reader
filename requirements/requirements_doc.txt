@@ -1,5 +1,5 @@
 Sphinx<9
-ansys-sphinx-theme==1.2.2
+ansys-sphinx-theme==1.2.4
 imageio==2.36.1
 nest-asyncio==1.6.0
 notfound==1.0.2
@@ -8,5 +8,5 @@ pyvista==0.43.9
 sphinx-copybutton==0.5.2
 sphinx-gallery==0.18.0
 sphinx-notfound-page==1.0.4
-trame==3.7.0
-vtk==9.4.0
+trame==3.7.6
+vtk==9.4.1
