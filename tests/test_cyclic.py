@@ -106,7 +106,7 @@ def test_nodal_cyclic_modal(academic_rotor, load_step, sub_step, rtype):
 
     # pdiff = (strain[:, dmask] - strain_ans[:, dmask])/strain[:, dmask]
     # np.abs(pdiff).max()
-    # this number is small (aprox 0.0002%)
+    # this number is small (approx 0.0002%)
 
     # verify we can get complex results
     nnum, stress = academic_rotor.principal_nodal_stress(
