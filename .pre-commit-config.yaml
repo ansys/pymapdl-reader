@@ -24,6 +24,13 @@ repos:
   hooks:
   - id: codespell
 
+- repo: https://github.com/ansys/pre-commit-hooks
+  rev: v0.5.1
+  hooks:
+  - id: add-license-headers
+    args:
+    - --start_year=2021
+
 # add this eventually
 # - repo: https://github.com/pycqa/pydocstyle
 #   rev: 6.1.1
