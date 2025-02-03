@@ -20,8 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Functions to download sample datasets from the pymapdl data repository
-"""
+"""Functions to download sample datasets from the pymapdl data repository"""
 
 import os
 import shutil
