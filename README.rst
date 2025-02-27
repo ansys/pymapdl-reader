@@ -13,8 +13,8 @@ PyMAPDL Reader - Legacy Binary and Archive File Reader
 .. |PyPIact| image:: https://img.shields.io/pypi/dm/ansys-mapdl-reader.svg?label=PyPI%20downloads
    :target: https://pypi.org/project/ansys-mapdl-reader/
 
-.. |GH-CI| image:: https://github.com/ansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml/badge.svg
-   :target: https://github.com/ansys/pymapdl-reader/actions/workflows/testing-and-deployment.yml
+.. |GH-CI| image:: https://github.com/ansys/pymapdl-reader/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/ansys/pymapdl-reader/actions/workflows/ci.yml
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT

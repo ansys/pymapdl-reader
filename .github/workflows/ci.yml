@@ -1,4 +1,4 @@
-name: Actions
+name: CI
 
 # repo specific gh actions
 env:
