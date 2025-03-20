@@ -24,9 +24,9 @@ np.seterr(divide="ignore", invalid="ignore")
 class CyclicResult(Result):
     """Adds cyclic functionality to the result class"""
 
-    def __init__(self, filename):
+    def __init__(self, filename, read_mesh: bool = True) -> None:
         """Initializes cyclic result"""
-        super().__init__(filename)
+        super().__init__(filename, read_mesh=read_mesh)
 
         # sanity check
         if not self._is_cyclic:
@@ -37,7 +37,8 @@ class CyclicResult(Result):
         self._is_repeated_mode = np.empty(0)
         self._repeated_index = np.empty(0)
 
-        self._add_cyclic_properties()
+        if read_mesh:
+            self._add_cyclic_properties()
 
     def plot_sectors(self, **kwargs):
         """Plot the full rotor and individually color the sectors.

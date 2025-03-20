@@ -107,9 +107,9 @@ class AnsysBinary:
 
         """
 
-        if self._cfile is not None:
-            record = self._cfile.read_record(pointer, return_bufsize)
-            return record
+        # if self._cfile is not None:
+        #     record = self._cfile.read_record(pointer, return_bufsize)
+        #     return record
 
         record = c_read_record(self.filename, pointer, return_bufsize)
         return record
@@ -185,7 +185,7 @@ def read_binary(filename, **kwargs):
         if result._is_cyclic and not ignore_cyclic:
             from ansys.mapdl.reader.cyclic_reader import CyclicResult
 
-            return CyclicResult(filename)
+            return CyclicResult(filename, read_mesh=read_mesh)
 
         if read_mesh:
             flag_vtk_parse = kwargs.pop("flag_vtk_parse", True)
