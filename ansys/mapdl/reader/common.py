@@ -107,9 +107,9 @@ class AnsysBinary:
 
         """
 
-        # if self._cfile is not None:
-        #     record = self._cfile.read_record(pointer, return_bufsize)
-        #     return record
+        if self._cfile is not None:
+            record = self._cfile.read_record(pointer, return_bufsize)
+            return record
 
         record = c_read_record(self.filename, pointer, return_bufsize)
         return record
