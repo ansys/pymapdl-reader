@@ -185,7 +185,7 @@ def read_binary(filename, **kwargs):
         if result._is_cyclic and not ignore_cyclic:
             from ansys.mapdl.reader.cyclic_reader import CyclicResult
 
-            return CyclicResult(filename)
+            return CyclicResult(filename, read_mesh=read_mesh)
 
         if read_mesh:
             flag_vtk_parse = kwargs.pop("flag_vtk_parse", True)
