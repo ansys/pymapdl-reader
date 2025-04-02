@@ -92,7 +92,7 @@ setup(
             language="c++",
         ),
     ],
-    python_requires=">=3.7,<4",
+    python_requires=">=3.9,<4",
     keywords="vtk MAPDL ANSYS cdb full rst",
     package_data={
         "ansys.mapdl.reader.examples": [
@@ -108,8 +108,41 @@ setup(
         "appdirs>=1.4.0",
         "matplotlib>=3.0.0",
         "numpy>=1.16.0,<3",
-        "pyvista>=0.32.0",
         "tqdm>=4.45.0",
         "vtk>=9.0.0,<9.4",
     ],
+    extra_requires={
+        "graphics": [
+            "pyvista[jupyter]>=0.38.1,<1",
+            "vtk>=9,<10",
+        ],
+        "all": [
+            "ansys-mapdl-core==0.69.3",
+            "matplotlib==3.10.1",
+            "pyvista[jupyter]>=0.38.1,<1",
+            "scipy==1.15.2",
+            "vtk>=9,<10",
+        ],
+        "tests": [
+            "ansys-mapdl-core==0.69.3",
+            "matplotlib==3.10.1",
+            "pytest==8.3.5",
+            "pytest-cov==6.0.0",
+            "scipy==1.15.2",
+        ],
+        "doc": [
+            "Sphinx==8.2.3",
+            "ansys-sphinx-theme==1.4.2",
+            "imageio==2.37.0",
+            "nest-asyncio==1.6.0",
+            "notfound==1.0.2",
+            "pypandoc==1.15",
+            "pyvista==0.44.2",
+            "sphinx-copybutton==0.5.2",
+            "sphinx-gallery==0.19.0",
+            "sphinx-notfound-page==1.1.0",
+            "trame==3.8.1",
+            "vtk==9.4.2",
+        ],
+    },
 )

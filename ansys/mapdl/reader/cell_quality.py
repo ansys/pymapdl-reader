@@ -2,10 +2,18 @@
 cell quality from VTK unstructured grids.
 """
 
+# First, verify graphics are available
+try:
+    from ansys.mapdl.reader.misc.checks import run_if_graphics_required
+
+    run_if_graphics_required()
+except ImportError as err:  # pragma: no cover
+    raise err
+
 import numpy as np
 import pyvista as pv
 
-from ansys.mapdl.reader.misc import vtk_cell_info
+from ansys.mapdl.reader.misc.misc import vtk_cell_info
 
 
 def quality(grid):

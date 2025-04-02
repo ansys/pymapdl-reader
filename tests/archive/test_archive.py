@@ -25,9 +25,19 @@ import pathlib
 
 import numpy as np
 import pytest
-import pyvista as pv
-from pyvista import CellType
-from pyvista import examples as pyvista_examples
+
+from ansys.mapdl.reader.misc.checks import (
+    __GRAPHICS_AVAILABLE,
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+    from pyvista import CellType
+    from pyvista import examples as pyvista_examples
+except ImportError:
+    pass
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import _archive, archive, examples
@@ -36,6 +46,11 @@ try:
     from pyvista import ImageData
 except ImportError:  # backwards compatibility
     from pyvista import UniformGrid as ImageData
+
+skip_graphics = pytest.mark.skipif(
+    not __GRAPHICS_AVAILABLE,
+    reason="Graphic dependencies are not available",
+)
 
 
 LINEAR_CELL_TYPES = [

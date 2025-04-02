@@ -1,9 +1,19 @@
 """Plotting helper for MAPDL using pyvista"""
 
 import numpy as np
-import pyvista as pv
 
-from ansys.mapdl.reader.misc import unique_rows
+from ansys.mapdl.reader.misc.checks import (
+    ERROR_GRAPHICS_REQUIRED,
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+except ImportError:
+    raise ImportError(ERROR_GRAPHICS_REQUIRED)
+
+from ansys.mapdl.reader.misc.misc import unique_rows
 
 
 def general_plotter(

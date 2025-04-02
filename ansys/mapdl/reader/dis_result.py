@@ -7,15 +7,25 @@ import os
 import pathlib
 from typing import Union
 
+from ansys.mapdl.reader.misc.checks import (
+    ERROR_GRAPHICS_REQUIRED,
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+except ImportError:
+    raise ImportError(ERROR_GRAPHICS_REQUIRED)
+
 import numpy as np
-import pyvista as pv
 from vtkmodules.vtkFiltersCore import vtkAppendFilter
 
 from ansys.mapdl.reader._binary_reader import read_nodal_values_dist
 from ansys.mapdl.reader._rst_keys import element_index_table_info
 from ansys.mapdl.reader.errors import NoDistributedFiles
 from ansys.mapdl.reader.mesh import Mesh
-from ansys.mapdl.reader.misc import is_float, vtk_cell_info
+from ansys.mapdl.reader.misc.misc import is_float, vtk_cell_info
 from ansys.mapdl.reader.rst import ELEMENT_INDEX_TABLE_KEYS, Result
 
 

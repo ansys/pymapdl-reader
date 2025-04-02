@@ -21,8 +21,15 @@
 # SOFTWARE.
 
 import numpy as np
-import pyvista as pv
-import vtk
+
+from ansys.mapdl.reader.misc.checks import run_if_graphics_required
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+    import vtk
+except ImportError:
+    pass
 
 from ansys.mapdl.reader import _binary_reader
 
@@ -47,6 +54,7 @@ stress_rot_z = np.array(
 )
 
 
+@skip_no_graphics
 def test_tensor_rotation_x():
     transform = vtk.vtkTransform()
     transform.RotateX(20)
@@ -60,6 +68,7 @@ def test_tensor_rotation_x():
     assert np.allclose(s_test, stress_rot_x)
 
 
+@skip_no_graphics
 def test_tensor_rotation_y():
     transform = vtk.vtkTransform()
     transform.RotateY(20)
@@ -73,6 +82,7 @@ def test_tensor_rotation_y():
     assert np.allclose(s_test, stress_rot_y)
 
 
+@skip_no_graphics
 def test_tensor_rotation_z():
     transform = vtk.vtkTransform()
     transform.RotateZ(20)

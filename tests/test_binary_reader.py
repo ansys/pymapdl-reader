@@ -26,9 +26,21 @@ import shutil
 
 import numpy as np
 import pytest
-import pyvista as pv
-from pyvista.plotting import system_supports_plotting
-from pyvista.plotting.renderer import CameraPosition
+
+from ansys.mapdl.reader.misc.checks import (
+    __GRAPHICS_AVAILABLE,
+    graphics_required,
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+    from pyvista.plotting import system_supports_plotting
+    from pyvista.plotting.renderer import CameraPosition
+
+except ImportError:
+    pass
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
@@ -57,7 +69,8 @@ testfiles_path = os.path.join(test_path, "testfiles")
 
 IS_MAC = platform.system() == "Darwin"
 skip_plotting = pytest.mark.skipif(
-    not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
+    not __GRAPHICS_AVAILABLE or not system_supports_plotting() or IS_MAC,
+    reason="Requires graphic dependencies and active X Server",
 )
 
 RSETS = list(zip(range(1, 9), [1] * 8))
@@ -341,6 +354,7 @@ def test_dof(result):
 result_types = ["ENS", "EPT", "ETH", "EEL", "ENG"]  # 'ENF']
 
 
+@graphics_required
 @pytest.mark.parametrize("result_type", result_types)
 def test_save_as_vtk(tmpdir, result, result_type):
     filename = str(tmpdir.mkdir("tmpdir").join("tmp.vtk"))
@@ -474,6 +488,7 @@ class TestThermalResult:
             thermal_rst.plot_nodal_solution(0, "ROTX")
 
 
+@graphics_required
 def test_plot_temperature(thermal_rst):
     cpos = thermal_rst.plot_nodal_temperature(0, return_cpos=True)
     if cpos is not None:

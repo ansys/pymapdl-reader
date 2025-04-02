@@ -2,8 +2,15 @@
 
 from functools import wraps
 
+from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_required
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+except ImportError:
+    pass
+
 import numpy as np
-import pyvista as pv
 from vtkmodules.vtkCommonMath import vtkMatrix4x4
 from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkAppendFilter
@@ -190,6 +197,7 @@ class CyclicResult(Result):
         """wraps nodal_solution"""
         return self.nodal_solution(*args, **kwargs)
 
+    @graphics_required
     def _expand_cyclic_static(self, result, tensor=False, stress=True):
         """Expand cyclic static result for a full rotor"""
         cs_cord = self._resultheader["csCord"]

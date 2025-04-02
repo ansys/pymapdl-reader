@@ -1,5 +1,13 @@
 """Module to read ANSYS ASCII block formatted CDB files."""
 
+# First, verify graphics are available
+try:
+    from ansys.mapdl.reader.misc.checks import run_if_graphics_required
+
+    run_if_graphics_required()
+except ImportError as err:  # pragma: no cover
+    raise err
+
 from functools import wraps
 import io
 import logging
@@ -7,15 +15,22 @@ import os
 import pathlib
 
 import numpy as np
-import pyvista as pv
-from pyvista import CellType
+
+from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_required
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+    from pyvista import CellType
+except ImportError:
+    pass
 
 VTK_VOXEL = 11
 
 from ansys.mapdl.reader import _archive, _reader
 from ansys.mapdl.reader.cell_quality import quality
 from ansys.mapdl.reader.mesh import Mesh
-from ansys.mapdl.reader.misc import vtk_cell_info
+from ansys.mapdl.reader.misc.misc import vtk_cell_info
 
 log = logging.getLogger(__name__)
 log.setLevel("CRITICAL")
@@ -205,6 +220,7 @@ class Archive(Mesh):
         return txt
 
     @property
+    @graphics_required
     def grid(self):
         """Return a ``pyvista.UnstructuredGrid`` of the archive file.
 
@@ -251,6 +267,7 @@ class Archive(Mesh):
             )
         return quality(self._grid)
 
+    @graphics_required
     @wraps(pv.plot)
     def plot(self, *args, **kwargs):
         """Plot the mesh"""
@@ -263,6 +280,7 @@ class Archive(Mesh):
         self.grid.plot(*args, **kwargs)
 
 
+@graphics_required
 def save_as_archive(
     filename,
     grid,
