@@ -179,7 +179,7 @@ def general_plotter(
         pl.add_mesh(
             mesh["mesh"],
             scalars=mesh.get("scalars", None),
-            scalar_bar_args= {"title": mesh.get("stitle", None)},
+            scalar_bar_args={"title": mesh.get("stitle", None)},
             color=mesh.get("color", color),
             show_edges=show_edges,
             edge_color=edge_color,

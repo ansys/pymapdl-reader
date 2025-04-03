@@ -216,7 +216,7 @@ def solve_km():
     pl.add_mesh(
         grid,
         scalars=n,
-        scalar_bar_args={'title': 'Normalized\nDisplacement'},
+        scalar_bar_args={"title": "Normalized\nDisplacement"},
         flip_scalars=True,
         cmap="jet",
     )
