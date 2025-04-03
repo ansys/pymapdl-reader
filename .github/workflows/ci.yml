@@ -10,6 +10,7 @@ env:
   PYMAPDL_START_INSTANCE: FALSE
   DOCKER_PACKAGE: ghcr.io/pyansys/pymapdl/mapdl
   DOCUMENTATION_CNAME: reader.docs.pyansys.com
+  MAIN_PYTHON_VERSION: 3.10
 
 on:
   pull_request:
@@ -116,7 +117,7 @@ jobs:
           dependencies: 'pandoc'
           skip-dependencies-cache: true
           use-python-cache: false
-          python-version: "3.10"
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: "-j auto"
 
 
