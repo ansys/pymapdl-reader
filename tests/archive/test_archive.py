@@ -526,7 +526,7 @@ def test_cython_write_eblock(hex_archive, tmpdir):
     elem_nnodes[typenum == 187] = 10
     nodenum = hex_archive.nnum
 
-    cells, offset = pymapdl_reader.misc.vtk_cell_info(
+    cells, offset = pymapdl_reader.misc.misc.vtk_cell_info(
         hex_archive.grid,
         force_int64=False,
         shift_offset=False,

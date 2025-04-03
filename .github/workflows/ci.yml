@@ -70,7 +70,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
 
       - name: Build ManyLinux wheel
         if: ${{ runner.os == 'Linux' }}
@@ -109,7 +108,7 @@ jobs:
         uses: pyvista/setup-headless-display-action@v3
 
       - name: Install test requirements
-        run: pip install -r requirements/requirements_test.txt
+        run: pip install -e .[tests]
 
       - name: Test
         run: pytest -v tests/ --durations=0

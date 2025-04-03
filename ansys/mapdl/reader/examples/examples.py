@@ -30,7 +30,7 @@ import numpy as np
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
-from ansys.mapdl.reader.misc.checks import graphics_required, scypy_required
+from ansys.mapdl.reader.misc.checks import graphics_required, scipy_required
 
 # get location of this folder and the example files
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -114,7 +114,7 @@ def show_stress(off_screen=None):
     result.plot_nodal_stress(5, "x", off_screen=off_screen, n_colors=9)
 
 
-@scypy_required
+@scipy_required
 def load_km():
     """Loads m and k matrices from a full file"""
     from scipy import sparse
@@ -172,7 +172,7 @@ def load_km():
 
 
 @graphics_required
-@scypy_required
+@scipy_required
 def solve_km():
     """Load and solves a mass and stiffness matrix from an ansys full file"""
 

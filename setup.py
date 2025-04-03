@@ -106,13 +106,12 @@ setup(
     },
     install_requires=[
         "appdirs>=1.4.0",
-        "matplotlib>=3.0.0",
         "numpy>=1.16.0,<3",
         "tqdm>=4.45.0",
-        "vtk>=9.0.0,<9.4",
     ],
     extra_requires={
         "graphics": [
+            "matplotlib==3.10.1",
             "pyvista[jupyter]>=0.38.1,<1",
             "vtk>=9,<10",
         ],
