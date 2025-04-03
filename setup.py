@@ -136,12 +136,10 @@ setup(
             "nest-asyncio==1.6.0",
             "notfound==1.0.2",
             "pypandoc==1.15",
-            "pyvista==0.44.2",
+            "pyvista[jupyter]==0.44.2",
             "sphinx-copybutton==0.5.2",
             "sphinx-gallery==0.19.0",
             "sphinx-notfound-page==1.1.0",
-            "trame==3.8.1",
-            "vtk==9.3.1",
         ],
         "tests-minimal": [
             "pytest==8.3.5",

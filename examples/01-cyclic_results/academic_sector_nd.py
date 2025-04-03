@@ -54,7 +54,7 @@ print(rotor)
 # plane.
 #
 
-_ = rotor.plot_sectors(cpos="xy", stitle="Sector", smooth_shading=True, cmap="bwr")
+_ = rotor.plot_sectors(cpos="xy", scalar_bar_args={'title': 'Sector'}, smooth_shading=True, cmap="bwr")
 
 
 ###############################################################################
@@ -111,7 +111,6 @@ _ = rotor.plot_nodal_displacement(
     comp="norm",
     cpos="xy",
     rng=[r, r + 1e-2],
-    stitle=None,
     add_text=False,
     cmap="bwr",
 )
@@ -129,7 +128,6 @@ _ = rotor.plot_nodal_displacement(
     cpos="xy",
     rng=[r, r + 1e-2],
     add_text=False,
-    stitle=None,
     cmap="bwr",
 )
 
@@ -206,7 +204,7 @@ multi_blade_rotor = examples.download_academic_rotor_4blade_result()
 
 # plot all the sectors
 _ = multi_blade_rotor.plot_sectors(
-    cpos="xy", stitle="Sector", smooth_shading=True, cmap="bwr"
+    cpos="xy", scalar_bar_args={'title': 'Sector'}, smooth_shading=True, cmap="bwr"
 )
 
 ###############################################################################
@@ -223,7 +221,7 @@ print("Cumulative indices matching harmonic index 1:", hi_1)
 rnum = 8
 text = "Expected Nodal Diameter %2d" % nodal_diameters[0]
 _ = multi_blade_rotor.plot_nodal_displacement(
-    rnum, comp="z", cpos="xy", rng=[r, r + 1e-2], add_text=text, stitle=None, cmap="bwr"
+    rnum, comp="z", cpos="xy", rng=[r, r + 1e-2], add_text=text, cmap="bwr"
 )
 
 
@@ -232,7 +230,7 @@ _ = multi_blade_rotor.plot_nodal_displacement(
 rnum = 10
 text = "Expected Nodal Diameter %2d" % nodal_diameters[1]
 _ = multi_blade_rotor.plot_nodal_displacement(
-    rnum, comp="z", cpos="xy", rng=[r, r + 1e-2], add_text=text, stitle=None, cmap="bwr"
+    rnum, comp="z", cpos="xy", rng=[r, r + 1e-2], add_text=text, cmap="bwr"
 )
 
 
@@ -241,7 +239,7 @@ _ = multi_blade_rotor.plot_nodal_displacement(
 rnum = 13
 text = "Expected Nodal Diameter %2d" % nodal_diameters[2]
 _ = multi_blade_rotor.plot_nodal_displacement(
-    rnum, comp="z", cpos="xy", rng=[r, r + 1e-2], add_text=text, stitle=None, cmap="bwr"
+    rnum, comp="z", cpos="xy", rng=[r, r + 1e-2], add_text=text, cmap="bwr"
 )
 
 
@@ -250,7 +248,7 @@ _ = multi_blade_rotor.plot_nodal_displacement(
 rnum = 15
 text = "Expected Nodal Diameter %2d" % nodal_diameters[3]
 _ = multi_blade_rotor.plot_nodal_displacement(
-    rnum, comp="z", cpos="xy", rng=[r, r + 1e-2], add_text=text, stitle=None, cmap="bwr"
+    rnum, comp="z", cpos="xy", rng=[r, r + 1e-2], add_text=text, cmap="bwr"
 )
 
 

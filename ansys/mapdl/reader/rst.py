@@ -661,6 +661,7 @@ class Result(AnsysBinary):
             self._load_section_data()
         return self._section_data
 
+    @graphics_required
     def plot(
         self, node_components=None, element_components=None, sel_type_all=True, **kwargs
     ):
@@ -721,6 +722,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     def plot_nodal_solution(
         self,
         rnum,
@@ -867,6 +869,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     @wraps(plot_nodal_solution)
     def plot_nodal_displacement(self, *args, **kwargs):
         """wraps plot_nodal_solution"""
@@ -998,6 +1001,7 @@ class Result(AnsysBinary):
     def time_values(self):
         return self._resultheader["time_values"]
 
+    @graphics_required
     def animate_nodal_solution(
         self,
         rnum,
@@ -2795,6 +2799,7 @@ class Result(AnsysBinary):
         pstress[isnan] = np.nan
         return nodenum, pstress
 
+    @graphics_required
     def plot_principal_nodal_stress(
         self,
         rnum,
@@ -3443,6 +3448,7 @@ class Result(AnsysBinary):
 
         return text
 
+    @graphics_required
     def plot_nodal_stress(
         self,
         rnum,
@@ -4007,6 +4013,7 @@ class Result(AnsysBinary):
         """Return the nodal equivalence array."""
         return self._resultheader["neqv"]
 
+    @graphics_required
     def plot_element_result(
         self, rnum, result_type, item_index, in_element_coord_sys=False, **kwargs
     ):
@@ -4375,6 +4382,7 @@ class Result(AnsysBinary):
             nnum, temp = self._nodal_result(rnum, "EPT", nnum_of_interest=nodes)
         return nnum, temp.ravel()
 
+    @graphics_required
     def plot_cylindrical_nodal_stress(
         self,
         rnum,
@@ -4467,6 +4475,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     def plot_nodal_temperature(
         self,
         rnum,
@@ -4600,6 +4609,7 @@ class Result(AnsysBinary):
         """
         return self._nodal_result(rnum, "ETH", nnum_of_interest=nodes)
 
+    @graphics_required
     def plot_nodal_thermal_strain(
         self,
         rnum,
@@ -4740,6 +4750,7 @@ class Result(AnsysBinary):
         """
         return self._nodal_result(rnum, "EEL", nnum_of_interest=nodes)
 
+    @graphics_required
     def plot_nodal_elastic_strain(
         self,
         rnum,
@@ -4875,6 +4886,7 @@ class Result(AnsysBinary):
         """
         return self._nodal_result(rnum, "EPL", nnum_of_interest=nodes)
 
+    @graphics_required
     def plot_nodal_plastic_strain(
         self,
         rnum,
@@ -4958,6 +4970,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     def _plot_nodal_result(
         self,
         rnum,
@@ -4997,6 +5010,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     def _animate_time_solution(
         self,
         result_type,

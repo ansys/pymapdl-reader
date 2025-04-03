@@ -48,6 +48,7 @@ class CyclicResult(Result):
         if read_mesh:
             self._add_cyclic_properties()
 
+    @graphics_required
     def plot_sectors(self, **kwargs):
         """Plot the full rotor and individually color the sectors.
 
@@ -73,6 +74,7 @@ class CyclicResult(Result):
         kwargs.setdefault("n_colors", self.n_sector)
         return self._plot_cyclic_point_scalars(scalars, None, add_text=False, **kwargs)
 
+    @graphics_required
     def plot(self, **kwargs):
         """Plot the full rotor geometry.
 
@@ -660,6 +662,7 @@ class CyclicResult(Result):
             rnum, func, phase, full_rotor, as_complex, tensor=True, stress=False
         )
 
+    @graphics_required
     def plot_nodal_thermal_strain(
         self,
         rnum,
@@ -814,6 +817,7 @@ class CyclicResult(Result):
             rnum, func, phase, full_rotor, as_complex, tensor=True, stress=False
         )
 
+    @graphics_required
     def plot_nodal_elastic_strain(
         self,
         rnum,
@@ -961,6 +965,7 @@ class CyclicResult(Result):
             rnum, func, phase, full_rotor, as_complex, tensor=True, stress=False
         )
 
+    @graphics_required
     def plot_nodal_plastic_strain(
         self,
         rnum,
@@ -1129,6 +1134,7 @@ class CyclicResult(Result):
         pstress[isnan] = np.nan
         return nnum, pstress
 
+    @graphics_required
     def plot_nodal_solution(
         self,
         rnum,
@@ -1244,6 +1250,7 @@ class CyclicResult(Result):
             scalars, rnum, treat_nan_as_zero=treat_nan_as_zero, **kwargs
         )
 
+    @graphics_required
     def plot_nodal_stress(
         self,
         rnum,
@@ -1354,6 +1361,7 @@ class CyclicResult(Result):
             scalars, rnum, treat_nan_as_zero=treat_nan_as_zero, **kwargs
         )
 
+    @graphics_required
     def plot_principal_nodal_stress(
         self,
         rnum,
@@ -1503,6 +1511,7 @@ class CyclicResult(Result):
         # otherwise, duplicate and repeat as temperature is constant across sectors
         return nnum, temp.T.repeat(self.n_sector, axis=0)
 
+    @graphics_required
     def plot_nodal_temperature(
         self,
         rnum,
