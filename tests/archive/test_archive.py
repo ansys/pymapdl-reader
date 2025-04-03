@@ -27,7 +27,7 @@ import numpy as np
 import pytest
 
 from ansys.mapdl.reader.misc.checks import (
-    __GRAPHICS_AVAILABLE,
+    are_graphics_available,
     run_if_graphics_required,
 )
 
@@ -48,7 +48,7 @@ except ImportError:  # backwards compatibility
     from pyvista import UniformGrid as ImageData
 
 skip_graphics = pytest.mark.skipif(
-    not __GRAPHICS_AVAILABLE,
+    not are_graphics_available,
     reason="Graphic dependencies are not available",
 )
 

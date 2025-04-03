@@ -1,19 +1,20 @@
 """Supports reading cyclic structural result files from ANSYS"""
 
 from functools import wraps
+import warnings
 
 from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_required
 
 try:
     run_if_graphics_required()
     import pyvista as pv
+    from vtkmodules.vtkCommonMath import vtkMatrix4x4
+    from vtkmodules.vtkCommonTransforms import vtkTransform
+    from vtkmodules.vtkFiltersCore import vtkAppendFilter
 except ImportError:
     pass
 
 import numpy as np
-from vtkmodules.vtkCommonMath import vtkMatrix4x4
-from vtkmodules.vtkCommonTransforms import vtkTransform
-from vtkmodules.vtkFiltersCore import vtkAppendFilter
 
 from ansys.mapdl.reader import _binary_reader
 from ansys.mapdl.reader.common import (
@@ -1767,6 +1768,7 @@ class CyclicResult(Result):
         """wraps animate_nodal_solution"""
         return self.animate_nodal_solution(*args, **kwargs)
 
+    @graphics_required
     def _gen_full_rotor(self):
         """Create full rotor vtk unstructured grid"""
         grid = self._mas_grid.copy()
@@ -1808,6 +1810,7 @@ class CyclicResult(Result):
             self._rotor_cache = self._gen_full_rotor()
         return self._rotor_cache
 
+    @graphics_required
     def _plot_cyclic_point_scalars(
         self,
         scalars,

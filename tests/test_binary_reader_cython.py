@@ -31,6 +31,8 @@ try:
 except ImportError:
     pass
 
+from conftest import skip_no_graphics
+
 from ansys.mapdl.reader import _binary_reader
 
 # test stress tensors from

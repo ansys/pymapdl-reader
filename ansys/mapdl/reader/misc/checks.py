@@ -88,3 +88,12 @@ def scipy_required(method):
         return method(*args, **kwargs)
 
     return wrapper
+
+
+def are_graphics_available():
+    """Check if graphics are available."""
+    try:
+        run_if_scipy_required()
+        return True
+    except ImportError:
+        return False

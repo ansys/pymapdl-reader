@@ -190,7 +190,6 @@ def _configure_pyvista():
     """Configure PyVista's ``rcParams`` for pyansys"""
     import pyvista as pv
 
-    # pv.global_theme.interactive = True
     pv.global_theme.cmap = "jet"
     pv.global_theme.font.family = "courier"
     pv.global_theme.title = "PyMAPDL-Reader"

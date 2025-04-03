@@ -109,9 +109,9 @@ setup(
         "numpy>=1.16.0,<3",
         "tqdm>=4.45.0",
     ],
-    extra_requires={
+    extras_require={
         "graphics": [
-            "matplotlib==3.10.1",
+            "matplotlib>=3",
             "pyvista[jupyter]>=0.38.1,<1",
             "vtk>=9,<10",
         ],
@@ -142,6 +142,10 @@ setup(
             "sphinx-notfound-page==1.1.0",
             "trame==3.8.1",
             "vtk==9.4.2",
+        ],
+        "tests-minimal": [
+            "pytest==8.3.5",
+            "pytest-cov==6.0.0",
         ],
     },
 )

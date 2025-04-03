@@ -24,11 +24,12 @@ import os
 import platform
 import sys
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
 
 from ansys.mapdl.reader.misc.checks import (
-    __GRAPHICS_AVAILABLE,
+    are_graphics_available,
     run_if_graphics_required,
 )
 
@@ -65,7 +66,7 @@ except:
     result_z = None
 
 IS_MAC = platform.system() == "Darwin"
-if __GRAPHICS_AVAILABLE:
+if are_graphics_available:
     skip_plotting = pytest.mark.skipif(
         not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
         reason="Plotting disabled for these tests",

@@ -28,7 +28,7 @@ import numpy as np
 import pytest
 
 from ansys.mapdl.reader.misc.checks import (
-    __GRAPHICS_AVAILABLE,
+    are_graphics_available,
     graphics_required,
     run_if_graphics_required,
 )
@@ -69,7 +69,7 @@ testfiles_path = os.path.join(test_path, "testfiles")
 
 IS_MAC = platform.system() == "Darwin"
 skip_plotting = pytest.mark.skipif(
-    not __GRAPHICS_AVAILABLE or not system_supports_plotting() or IS_MAC,
+    not are_graphics_available or not system_supports_plotting() or IS_MAC,
     reason="Requires graphic dependencies and active X Server",
 )
 

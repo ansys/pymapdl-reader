@@ -8,18 +8,18 @@ import pathlib
 from typing import Union
 
 from ansys.mapdl.reader.misc.checks import (
-    ERROR_GRAPHICS_REQUIRED,
+    graphics_required,
     run_if_graphics_required,
 )
 
 try:
     run_if_graphics_required()
     import pyvista as pv
+    from vtkmodules.vtkFiltersCore import vtkAppendFilter
 except ImportError:
-    raise ImportError(ERROR_GRAPHICS_REQUIRED)
+    pass
 
 import numpy as np
-from vtkmodules.vtkFiltersCore import vtkAppendFilter
 
 from ansys.mapdl.reader._binary_reader import read_nodal_values_dist
 from ansys.mapdl.reader._rst_keys import element_index_table_info
@@ -67,6 +67,7 @@ class DistributedResult(Result):
 
     """
 
+    @graphics_required
     def __init__(self, main_file):
         """Initialize from a series of distributed files"""
         # find remainder of distributed results
@@ -361,6 +362,7 @@ class DistributedResult(Result):
 
         return enum, glb_element_data, enode
 
+    @graphics_required
     def plot_element_result(
         self, rnum, result_type, item_index, in_element_coord_sys=False, **kwargs
     ):

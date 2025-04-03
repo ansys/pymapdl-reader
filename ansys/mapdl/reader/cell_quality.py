@@ -3,19 +3,20 @@ cell quality from VTK unstructured grids.
 """
 
 # First, verify graphics are available
-try:
-    from ansys.mapdl.reader.misc.checks import run_if_graphics_required
+from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_required
 
+try:
     run_if_graphics_required()
-except ImportError as err:  # pragma: no cover
-    raise err
+    import pyvista as pv
+except ImportError:
+    pass
 
 import numpy as np
-import pyvista as pv
 
 from ansys.mapdl.reader.misc.misc import vtk_cell_info
 
 
+@graphics_required
 def quality(grid):
     """Compute the minimum scaled Jacobian cell quality of an UnstructuredGrid.
 

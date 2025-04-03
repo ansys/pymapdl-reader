@@ -3,7 +3,7 @@
 import numpy as np
 
 from ansys.mapdl.reader.misc.checks import (
-    ERROR_GRAPHICS_REQUIRED,
+    graphics_required,
     run_if_graphics_required,
 )
 
@@ -11,11 +11,12 @@ try:
     run_if_graphics_required()
     import pyvista as pv
 except ImportError:
-    raise ImportError(ERROR_GRAPHICS_REQUIRED)
+    pass
 
 from ansys.mapdl.reader.misc.misc import unique_rows
 
 
+@graphics_required
 def general_plotter(
     title,
     meshes,
