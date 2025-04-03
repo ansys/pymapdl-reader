@@ -24,12 +24,12 @@ import os
 import platform
 import shutil
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
 
 from ansys.mapdl.reader.misc.checks import (
     are_graphics_available,
-    graphics_required,
     run_if_graphics_required,
 )
 
@@ -354,7 +354,7 @@ def test_dof(result):
 result_types = ["ENS", "EPT", "ETH", "EEL", "ENG"]  # 'ENF']
 
 
-@graphics_required
+@skip_no_graphics
 @pytest.mark.parametrize("result_type", result_types)
 def test_save_as_vtk(tmpdir, result, result_type):
     filename = str(tmpdir.mkdir("tmpdir").join("tmp.vtk"))
@@ -488,7 +488,7 @@ class TestThermalResult:
             thermal_rst.plot_nodal_solution(0, "ROTX")
 
 
-@graphics_required
+@skip_no_graphics
 def test_plot_temperature(thermal_rst):
     cpos = thermal_rst.plot_nodal_temperature(0, return_cpos=True)
     if cpos is not None:
