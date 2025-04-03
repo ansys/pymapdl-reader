@@ -141,7 +141,7 @@ setup(
             "sphinx-gallery==0.19.0",
             "sphinx-notfound-page==1.1.0",
             "trame==3.8.1",
-            "vtk==9.4.2",
+            "vtk==9.3.1",
         ],
         "tests-minimal": [
             "pytest==8.3.5",
