@@ -116,7 +116,7 @@ setup(
             "vtk>=9,<10",
         ],
         "all": [
-            "ansys-mapdl-core==0.69.3",
+            "ansys-mapdl-core>=0.64",
             "matplotlib==3.10.1",
             "pyvista[jupyter]>=0.38.1,<1",
             "scipy==1.15.2",

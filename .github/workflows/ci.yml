@@ -137,7 +137,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          # cache: 'pip'
 
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v3
@@ -166,7 +166,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          # cache: 'pip'
 
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v3
