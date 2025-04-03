@@ -124,7 +124,7 @@ setup(
             "vtk>=9,<10",
         ],
         "tests": [
-            "ansys-mapdl-core==0.69.3",
+            "ansys-mapdl-core==0.68.4",
             "matplotlib==3.10.1",
             "pytest==8.3.5",
             "pytest-cov==6.0.0",
