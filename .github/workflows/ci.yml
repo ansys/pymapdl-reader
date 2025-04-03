@@ -115,8 +115,6 @@ jobs:
         uses: ansys/actions/doc-build@v8
         with:
           dependencies: 'pandoc'
-          skip-dependencies-cache: true
-          use-python-cache: false
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: "-j auto"
 

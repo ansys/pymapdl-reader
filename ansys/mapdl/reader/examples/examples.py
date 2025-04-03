@@ -29,7 +29,6 @@ import sys
 import numpy as np
 
 from ansys.mapdl import reader as pymapdl_reader
-from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.misc.checks import graphics_required, scipy_required
 
 # get location of this folder and the example files
@@ -181,7 +180,7 @@ def solve_km():
     from scipy.sparse import linalg
 
     # load the mass and stiffness matrices
-    full = pymapdl_reader.read_binary(examples.fullfile)
+    full = pymapdl_reader.read_binary(fullfile)
     dofref, k, m = full.load_km(sort=True)
 
     # make symmetric
@@ -206,7 +205,7 @@ def solve_km():
     n /= n.max()  # normalize
 
     # load an archive file and create a vtk unstructured grid
-    archive = pymapdl_reader.Archive(examples.hexarchivefile)
+    archive = pymapdl_reader.Archive(hexarchivefile)
     grid = archive.grid
 
     # Fancy plot the displacement
