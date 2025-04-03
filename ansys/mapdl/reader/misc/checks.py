@@ -24,6 +24,7 @@ def run_if_graphics_required():
         try:
             # Attempt to perform the imports
             import pyvista  # noqa F401
+            import scooby  # noqa F401
             import trame  # noqa F401
             import vtk  # noqa F401
 

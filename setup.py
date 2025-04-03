@@ -114,6 +114,7 @@ setup(
             "matplotlib>=3",
             "pyvista[jupyter]>=0.38.1,<1",
             "vtk>=9,<10",
+            "scooby>=0.7.0,<1",
         ],
         "all": [
             "ansys-mapdl-core>=0.64",

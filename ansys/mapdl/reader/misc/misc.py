@@ -6,9 +6,15 @@ import string
 import tempfile
 
 import numpy as np
-import scooby
 
 from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_required
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+    import scooby
+except ImportError:
+    pass
 
 
 def vtk_cell_info(grid, force_int64=True, shift_offset=True):
@@ -116,6 +122,7 @@ class Report(scooby.Report):
 
     """
 
+    @graphics_required
     def __init__(self, additional=None, ncol=3, text_width=79, sort=False, gpu=True):
         """Generate a :class:`scooby.Report` instance."""
         # Mandatory packages.
@@ -188,8 +195,6 @@ def random_string(stringLength=10):
 @graphics_required
 def _configure_pyvista():
     """Configure PyVista's ``rcParams`` for pyansys"""
-    import pyvista as pv
-
     pv.global_theme.cmap = "jet"
     pv.global_theme.font.family = "courier"
     pv.global_theme.title = "PyMAPDL-Reader"
