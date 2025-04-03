@@ -12,9 +12,10 @@ from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_re
 try:
     run_if_graphics_required()
     import pyvista as pv
-    import scooby
 except ImportError:
     pass
+
+import scooby
 
 
 def vtk_cell_info(grid, force_int64=True, shift_offset=True):
@@ -65,7 +66,6 @@ def vtk_cell_info(grid, force_int64=True, shift_offset=True):
     return cells, offset
 
 
-@graphics_required
 class Report(scooby.Report):
     """Generate an environment and software report.
 
