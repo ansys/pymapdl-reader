@@ -118,7 +118,7 @@ jobs:
 
       - name: "Install OS packages"
         run: |
-          sudo apt update 
+          sudo apt update
           sudo apt install pandoc
 
       - name: "Install ansys-mapdl-reader and doc dependencies"
