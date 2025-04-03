@@ -54,7 +54,9 @@ print(rotor)
 # plane.
 #
 
-_ = rotor.plot_sectors(cpos="xy", scalar_bar_args={'title': 'Sector'}, smooth_shading=True, cmap="bwr")
+_ = rotor.plot_sectors(
+    cpos="xy", scalar_bar_args={"title": "Sector"}, smooth_shading=True, cmap="bwr"
+)
 
 
 ###############################################################################
@@ -204,7 +206,7 @@ multi_blade_rotor = examples.download_academic_rotor_4blade_result()
 
 # plot all the sectors
 _ = multi_blade_rotor.plot_sectors(
-    cpos="xy", scalar_bar_args={'title': 'Sector'}, smooth_shading=True, cmap="bwr"
+    cpos="xy", scalar_bar_args={"title": "Sector"}, smooth_shading=True, cmap="bwr"
 )
 
 ###############################################################################

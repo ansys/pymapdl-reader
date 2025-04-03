@@ -440,5 +440,5 @@ class DistributedResult(Result):
             bsurfs.append(bsurf)
 
         desc = self.available_results.description[result_type].capitalize()
-        kwargs.setdefault("scalar_bar_args", {'title': desc})
+        kwargs.setdefault("scalar_bar_args", {"title": desc})
         return pv.plot(bsurfs, scalars="_scalars", **kwargs)
