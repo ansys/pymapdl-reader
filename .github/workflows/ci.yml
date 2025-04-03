@@ -108,6 +108,23 @@ jobs:
     name: Build documentation
     runs-on: ubuntu-latest
     steps:
+      - name: "Install Git and checkout project"
+        uses: actions/checkout@v4.2.2
+
+      - name: "Setup Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: "Install OS packages"
+        run: |
+          sudo apt update 
+          sudo apt install pandoc
+
+      - name: "Install ansys-mapdl-reader and doc dependencies"
+        run: |
+          pip install .[doc]
+
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v3
 
@@ -116,6 +133,7 @@ jobs:
         with:
           dependencies: 'pandoc'
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          skip-install: true
           sphinxopts: "-j auto"
 
 
