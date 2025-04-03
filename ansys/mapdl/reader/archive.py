@@ -8,7 +8,12 @@ import pathlib
 
 import numpy as np
 
-from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_required
+from ansys.mapdl.reader.misc.checks import (
+    ERROR_GRAPHICS_REQUIRED,
+    are_graphics_available,
+    graphics_required,
+    run_if_graphics_required,
+)
 
 try:
     run_if_graphics_required()
@@ -258,17 +263,25 @@ class Archive(Mesh):
             )
         return quality(self._grid)
 
-    @graphics_required
-    @wraps(pv.plot)
-    def plot(self, *args, **kwargs):
-        """Plot the mesh"""
-        if self._grid is None:  # pragma: no cover
-            raise AttributeError(
-                "Archive must be parsed as a vtk grid.\n" "Set `parse_vtk=True`"
-            )
-        kwargs.setdefault("color", "w")
-        kwargs.setdefault("show_edges", True)
-        self.grid.plot(*args, **kwargs)
+    if are_graphics_available:
+
+        @graphics_required
+        @wraps(pv.plot)
+        def plot(self, *args, **kwargs):
+            """Plot the mesh"""
+            if self._grid is None:  # pragma: no cover
+                raise AttributeError(
+                    "Archive must be parsed as a vtk grid.\n" "Set `parse_vtk=True`"
+                )
+            kwargs.setdefault("color", "w")
+            kwargs.setdefault("show_edges", True)
+            self.grid.plot(*args, **kwargs)
+
+    else:
+
+        def plot(self, *args, **kwargs):
+            """Placeholder for plot when graphics dependencies are unavailable."""
+            raise ImportError(ERROR_GRAPHICS_REQUIRED)
 
 
 @graphics_required
