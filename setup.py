@@ -106,6 +106,7 @@ setup(
     install_requires=[
         "appdirs>=1.4.0",
         "numpy>=1.16.0,<3",
+        "scooby>=0.7.0,<1",
         "tqdm>=4.45.0",
     ],
     extras_require={
@@ -113,7 +114,6 @@ setup(
             "matplotlib>=3",
             "pyvista[jupyter]>=0.38.1,<1",
             "vtk>=9,<10",
-            "scooby>=0.7.0,<1",
         ],
         "all": [
             "ansys-mapdl-core>=0.64",
