@@ -93,7 +93,7 @@ def scipy_required(method):
 def are_graphics_available():
     """Check if graphics are available."""
     try:
-        run_if_scipy_required()
+        run_if_graphics_required()
         return True
     except ImportError:
         return False
