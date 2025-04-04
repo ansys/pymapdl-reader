@@ -67,8 +67,8 @@ from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.examples.downloads import _download_and_read
 from ansys.mapdl.reader.misc.checks import (
+    are_graphics_available,
     run_if_graphics_required,
-    are_graphics_available
 )
 from ansys.mapdl.reader.rst import Result
 
@@ -99,13 +99,14 @@ try:
     run_if_graphics_required()
     from pyvista.plotting import system_supports_plotting
     from pyvista.plotting.renderer import CameraPosition
-    
+
     skip_plotting = pytest.mark.skipif(
         not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
     )
- 
+
 except ImportError:
     from conftest import skip_no_graphics
+
     skip_plotting = skip_no_graphics
 
 test_path = os.path.dirname(os.path.abspath(__file__))

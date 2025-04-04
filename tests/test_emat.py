@@ -23,13 +23,12 @@
 import os
 import pathlib
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader.emat import EmatFile
-
-from conftest import skip_no_graphics
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, "testfiles")

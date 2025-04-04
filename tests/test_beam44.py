@@ -22,8 +22,9 @@
 
 import os
 
-from ansys.mapdl import reader as pymapdl_reader
 from conftest import skip_no_graphics
+
+from ansys.mapdl import reader as pymapdl_reader
 
 TEST_PATH = os.path.dirname(os.path.abspath(__file__))
 TESTFILES_PATH = os.path.join(TEST_PATH, "testfiles")
