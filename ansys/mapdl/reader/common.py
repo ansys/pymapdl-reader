@@ -4,12 +4,13 @@ from collections import Counter
 import pathlib
 import struct
 from typing import Union
+import warnings
 
 import numpy as np
 
 from ansys.mapdl.reader._binary_reader import c_read_record
 from ansys.mapdl.reader.errors import NoDistributedFiles
-from ansys.mapdl.reader.misc.checks import graphics_required
+from ansys.mapdl.reader.misc.checks import are_graphics_available, ERROR_GRAPHICS_REQUIRED
 
 STRESS_TYPES = ["X", "Y", "Z", "XY", "YZ", "XZ"]
 PRINCIPAL_STRESS_TYPES = ["S1", "S2", "S3", "SINT", "SEQV"]
@@ -116,7 +117,6 @@ class AnsysBinary:
         return record
 
 
-@graphics_required
 def read_binary(filename, **kwargs):
     """Reads ANSYS-written binary files:
     - Jobname.RST: Result file from structural analysis
@@ -178,7 +178,7 @@ def read_binary(filename, **kwargs):
         if result._is_distributed:
             try:  # can't find any files!
                 return DistributedResult(filename, **kwargs)
-            except NoDistributedFiles:
+            except (ImportError, NoDistributedFiles):
                 # simply try to treat it as a non-distributed file
                 pass
 
@@ -190,8 +190,11 @@ def read_binary(filename, **kwargs):
             return CyclicResult(filename, read_mesh=read_mesh)
 
         if read_mesh:
-            flag_vtk_parse = kwargs.pop("flag_vtk_parse", True)
-            result._store_mesh(flag_vtk_parse)
+            if are_graphics_available():
+                flag_vtk_parse = kwargs.pop("flag_vtk_parse", True)
+                result._store_mesh(flag_vtk_parse)
+            else:
+                warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
         return result
 
