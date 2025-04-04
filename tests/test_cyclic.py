@@ -29,7 +29,6 @@ import numpy as np
 import pytest
 
 from ansys.mapdl.reader.misc.checks import (
-    are_graphics_available,
     run_if_graphics_required,
 )
 
@@ -67,12 +66,12 @@ except:
 
 IS_MAC = platform.system() == "Darwin"
 
-if are_graphics_available:
+try:
     skip_plotting = pytest.mark.skipif(
         not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
         reason="Plotting disabled for these tests",
     )
-else:
+except NameError:  # system_supports_plotting is not defined
     skip_plotting = skip_no_graphics
 
 skip_windows = pytest.mark.skipif(

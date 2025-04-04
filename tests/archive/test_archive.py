@@ -23,19 +23,22 @@
 import os
 import pathlib
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
 
 from ansys.mapdl.reader.misc.checks import (
-    are_graphics_available,
     run_if_graphics_required,
 )
 
 try:
     run_if_graphics_required()
     import pyvista as pv
-    from pyvista import CellType
-    from pyvista import examples as pyvista_examples
+
+    try:
+        from pyvista import ImageData
+    except ImportError:  # backwards compatibility
+        from pyvista import UniformGrid as ImageData
 except ImportError:
     pass
 
@@ -43,28 +46,23 @@ from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import _archive, archive, examples
 
 try:
-    from pyvista import ImageData
-except ImportError:  # backwards compatibility
-    from pyvista import UniformGrid as ImageData
+    LINEAR_CELL_TYPES = [
+        pv.CellType.TETRA,
+        pv.CellType.PYRAMID,
+        pv.CellType.WEDGE,
+        pv.CellType.HEXAHEDRON,
+    ]
 
-skip_graphics = pytest.mark.skipif(
-    not are_graphics_available,
-    reason="Graphic dependencies are not available",
-)
+    QUADRATIC_CELL_TYPES = [
+        pv.CellType.QUADRATIC_TETRA,
+        pv.CellType.QUADRATIC_PYRAMID,
+        pv.CellType.QUADRATIC_WEDGE,
+        pv.CellType.QUADRATIC_HEXAHEDRON,
+    ]
 
+except NameError:  # pv is not defined
+    pass
 
-LINEAR_CELL_TYPES = [
-    CellType.TETRA,
-    CellType.PYRAMID,
-    CellType.WEDGE,
-    CellType.HEXAHEDRON,
-]
-QUADRATIC_CELL_TYPES = [
-    CellType.QUADRATIC_TETRA,
-    CellType.QUADRATIC_PYRAMID,
-    CellType.QUADRATIC_WEDGE,
-    CellType.QUADRATIC_HEXAHEDRON,
-]
 
 TEST_PATH = os.path.dirname(os.path.abspath(__file__))
 TESTFILES_PATH = os.path.join(TEST_PATH, "test_data")
@@ -158,6 +156,7 @@ def test_read_mesh200():
     assert archive.grid.n_cells == 1000
 
 
+@skip_no_graphics
 def test_archive_init(hex_archive):
     assert isinstance(hex_archive._raw, dict)
     assert isinstance(hex_archive.grid, pv.UnstructuredGrid)
@@ -195,13 +194,14 @@ def test_write_angle(tmpdir, hex_archive):
     assert np.allclose(archive.nodes, hex_archive.nodes)
 
 
+@skip_no_graphics
 def test_missing_midside():
     allowable_types = [45, 95, 185, 186, 92, 187]
     archive_file = os.path.join(TESTFILES_PATH, "mixed_missing_midside.cdb")
     archive = pymapdl_reader.Archive(archive_file, allowable_types=allowable_types)
 
     assert (archive.quality > 0.0).all()
-    assert not np.any(archive.grid.celltypes == CellType.TETRA)
+    assert not np.any(archive.grid.celltypes == pv.CellType.TETRA)
 
 
 def test_missing_midside_write(tmpdir):
@@ -242,6 +242,7 @@ def test_writehex(tmpdir, hex_archive):
         )
 
 
+@skip_no_graphics
 def test_write_voxel(tmpdir):
     filename = str(tmpdir.join("tmp.cdb"))
     grid = ImageData(dimensions=(10, 10, 10))
@@ -287,8 +288,9 @@ def test_writehex_missing_node_num(tmpdir, hex_archive):
     assert np.allclose(hex_archive.grid.cells.size, archive_new.grid.cells.size)
 
 
+@skip_no_graphics
 def test_write_non_ansys_grid(tmpdir):
-    grid = pv.UnstructuredGrid(pyvista_examples.hexbeamfile)
+    grid = pv.UnstructuredGrid(pv.examples.hexbeamfile)
     del grid.point_data["sample_point_scalars"]
     del grid.cell_data["sample_cell_scalars"]
     archive_file = str(tmpdir.mkdir("tmpdir").join("tmp.cdb"))
@@ -369,6 +371,7 @@ def test_read_complex_archive_linear(all_solid_cells_archive_linear):
     assert np.all(all_solid_cells_archive_linear.quality > 0.0)
 
 
+@skip_no_graphics
 @pytest.mark.parametrize("celltype", QUADRATIC_CELL_TYPES)
 def test_write_quad_complex_archive(tmpdir, celltype, all_solid_cells_archive):
     grid = all_solid_cells_archive.grid
@@ -388,6 +391,7 @@ def test_write_quad_complex_archive(tmpdir, celltype, all_solid_cells_archive):
     assert (new_archive.quality > 0.0).all()
 
 
+@skip_no_graphics
 @pytest.mark.parametrize("celltype", LINEAR_CELL_TYPES)
 def test_write_lin_archive(tmpdir, celltype, all_solid_cells_archive_linear):
     linear_grid = all_solid_cells_archive_linear.grid

@@ -27,7 +27,6 @@ import warnings
 import pytest
 
 from ansys.mapdl.reader.misc.checks import (
-    are_graphics_available,
     run_if_graphics_required,
 )
 
@@ -53,11 +52,11 @@ except:
 
 
 IS_MAC = platform.system() == "Darwin"
-if are_graphics_available:
+try:
     skip_plotting = pytest.mark.skipif(
         not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
     )
-else:
+except NameError:  # system_supports_plotting is not defined
     skip_plotting = skip_no_graphics
 skip_no_shaft = pytest.mark.skipif(shaft is None, reason="Requires example file")
 
