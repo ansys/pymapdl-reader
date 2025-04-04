@@ -1791,6 +1791,7 @@ class Result(AnsysBinary):
             "ekey": np.array(ekey),
         }
 
+    @graphics_required
     def _store_mesh(self, parse_vtk=True):
         """Store the mesh from the result file.
 

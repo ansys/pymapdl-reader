@@ -61,7 +61,8 @@ try:
     ]
 
 except NameError:  # pv is not defined
-    pass
+    LINEAR_CELL_TYPES = None
+    QUADRATIC_CELL_TYPES = None
 
 
 TEST_PATH = os.path.dirname(os.path.abspath(__file__))

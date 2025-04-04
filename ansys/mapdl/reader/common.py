@@ -9,6 +9,7 @@ import numpy as np
 
 from ansys.mapdl.reader._binary_reader import c_read_record
 from ansys.mapdl.reader.errors import NoDistributedFiles
+from ansys.mapdl.reader.misc.checks import graphics_required
 
 STRESS_TYPES = ["X", "Y", "Z", "XY", "YZ", "XZ"]
 PRINCIPAL_STRESS_TYPES = ["S1", "S2", "S3", "SINT", "SEQV"]
@@ -115,6 +116,7 @@ class AnsysBinary:
         return record
 
 
+@graphics_required
 def read_binary(filename, **kwargs):
     """Reads ANSYS-written binary files:
     - Jobname.RST: Result file from structural analysis
