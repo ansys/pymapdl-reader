@@ -130,7 +130,6 @@ def test_not_all_found(thermal_solution, mapdl, tmpdir):
         dist_rst = pymapdl_reader.read_binary(tmp_file)
 
 
-
 @skip_no_ansys
 def test_temperature(thermal_solution, mapdl, tmpdir):
     if not mapdl._distributed:

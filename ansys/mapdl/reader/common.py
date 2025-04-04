@@ -10,7 +10,10 @@ import numpy as np
 
 from ansys.mapdl.reader._binary_reader import c_read_record
 from ansys.mapdl.reader.errors import NoDistributedFiles
-from ansys.mapdl.reader.misc.checks import are_graphics_available, ERROR_GRAPHICS_REQUIRED
+from ansys.mapdl.reader.misc.checks import (
+    ERROR_GRAPHICS_REQUIRED,
+    are_graphics_available,
+)
 
 STRESS_TYPES = ["X", "Y", "Z", "XY", "YZ", "XZ"]
 PRINCIPAL_STRESS_TYPES = ["S1", "S2", "S3", "SINT", "SEQV"]
