@@ -19,7 +19,7 @@ try:
     run_if_graphics_required()
     import pyvista as pv
 except ImportError:
-    pass
+    pv = None
 
 VTK_VOXEL = 11
 
@@ -263,25 +263,18 @@ class Archive(Mesh):
             )
         return quality(self._grid)
 
-    if are_graphics_available:
 
-        @graphics_required
-        @wraps(pv.plot)
-        def plot(self, *args, **kwargs):
-            """Plot the mesh"""
-            if self._grid is None:  # pragma: no cover
-                raise AttributeError(
-                    "Archive must be parsed as a vtk grid.\n" "Set `parse_vtk=True`"
-                )
-            kwargs.setdefault("color", "w")
-            kwargs.setdefault("show_edges", True)
-            self.grid.plot(*args, **kwargs)
-
-    else:
-
-        def plot(self, *args, **kwargs):
-            """Placeholder for plot when graphics dependencies are unavailable."""
-            raise ImportError(ERROR_GRAPHICS_REQUIRED)
+    @graphics_required
+    @wraps(pv.plot)
+    def plot(self, *args, **kwargs):
+        """Plot the mesh"""
+        if self._grid is None:  # pragma: no cover
+            raise AttributeError(
+                "Archive must be parsed as a vtk grid.\n" "Set `parse_vtk=True`"
+            )
+        kwargs.setdefault("color", "w")
+        kwargs.setdefault("show_edges", True)
+        self.grid.plot(*args, **kwargs)
 
 
 @graphics_required
