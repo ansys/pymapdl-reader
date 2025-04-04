@@ -6,13 +6,14 @@ import string
 import tempfile
 
 import numpy as np
-import pyvista
+
+from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_required
 
 try:
-    # for pyvista >= 0.40
-    from pyvista.report import GPUInfo
+    run_if_graphics_required()
+    import pyvista as pv
 except ImportError:
-    from pyvista.utilities.errors import GPUInfo
+    pass
 
 import scooby
 
@@ -122,26 +123,36 @@ class Report(scooby.Report):
 
     """
 
+    @graphics_required
     def __init__(self, additional=None, ncol=3, text_width=79, sort=False, gpu=True):
         """Generate a :class:`scooby.Report` instance."""
         # Mandatory packages.
         core = [
-            "pyvista",
-            "vtk",
             "numpy",
             "appdirs",
             "ansys.mapdl.reader",
             "tqdm",
-            "matplotlib",
         ]
 
         # Optional packages.
-        optional = ["matplotlib", "ansys.mapdl.core", "scipy"]
+        optional = [
+            "matplotlib",
+            "ansys.mapdl.core",
+            "scipy",
+            "pyvista",
+            "vtk",
+        ]
 
         # Information about the GPU - bare except in case there is a rendering
         # bug that the user is trying to report.
         if gpu:
             try:
+                run_if_graphics_required()
+                try:
+                    # for pyvista >= 0.40
+                    from pyvista.report import GPUInfo
+                except ImportError:
+                    from pyvista.utilities.errors import GPUInfo
                 extra_meta = [(t[1], t[0]) for t in GPUInfo().get_info()]
             except:
                 extra_meta = ("GPU Details", "error")
@@ -182,16 +193,15 @@ def random_string(stringLength=10):
     return "".join(random.choice(letters) for i in range(stringLength))
 
 
+@graphics_required
 def _configure_pyvista():
     """Configure PyVista's ``rcParams`` for pyansys"""
-    import pyvista as pv
-
-    # pv.global_theme.interactive = True
     pv.global_theme.cmap = "jet"
     pv.global_theme.font.family = "courier"
     pv.global_theme.title = "PyMAPDL-Reader"
 
 
+@graphics_required
 def break_apart_surface(surf, force_linear=True):
     """Break apart the faces of a vtk PolyData such that the points
     for each face are unique and each point is used only by one face.
@@ -213,6 +223,8 @@ def break_apart_surface(surf, force_linear=True):
         original indices in point_data "orig_ind".
 
     """
+    import pyvista
+
     faces = surf.faces
     if faces.dtype != np.int64:
         faces = faces.astype(np.int64)

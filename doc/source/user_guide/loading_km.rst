@@ -109,7 +109,7 @@ displacement.
     # copy the mesh and displace it
     new_grid = grid.copy()
     new_grid.points += disp/80
-    pl.add_mesh(new_grid, scalars=n, stitle='Normalized\nDisplacement',
+    pl.add_mesh(new_grid, scalars=n, scalar_bar_args={'title': 'Normalized\nDisplacement'},
                 flipscalars=True)
     
     pl.add_text('Cantliver Beam 4th Mode Shape at {:.4f}'.format(f[3]),
