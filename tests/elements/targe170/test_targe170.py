@@ -27,9 +27,12 @@ import pytest
 
 from ansys.mapdl import reader as pymapdl_reader
 
+from conftest import skip_no_graphics
+
 path = os.path.dirname(os.path.abspath(__file__))
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def rst():
     rst_file = os.path.join(path, "file.rst")

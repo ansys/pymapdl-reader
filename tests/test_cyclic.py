@@ -87,12 +87,14 @@ def academic_rotor():
 
 
 # static result x axis
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def result_x():
     filename = os.path.join(testfiles_path, "cyc12.rst")
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def cyclic_v182_z():
     # static result z axis
@@ -100,6 +102,7 @@ def cyclic_v182_z():
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def cyclic_v182_z_with_comp():
     # cyclic modal with component
@@ -221,6 +224,7 @@ def test_plot_component_rotor(cyclic_v182_z_with_comp):
     #                                    off_screen=True)
 
 
+@skip_no_graphics
 def test_element_stress_v182_non_cyclic():
     """
     Generated ansys results with:

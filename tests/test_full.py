@@ -26,6 +26,8 @@ import pathlib
 import numpy as np
 import pytest
 
+from conftest import skip_no_graphics
+
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.full import FullFile
@@ -51,12 +53,14 @@ def sparse_full_pathlib_full_file():
     return FullFile(pathlib.Path(filename))
 
 
+@skip_no_graphics
 @pytest.fixture()
 def sparse_full():
     filename = os.path.join(testfiles_path, "sparse.full")
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 def test_fullreader():
     fobj = pymapdl_reader.read_binary(examples.fullfile)
     dofref, k, m = fobj.load_km()

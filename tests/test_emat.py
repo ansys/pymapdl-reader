@@ -29,11 +29,14 @@ import pytest
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader.emat import EmatFile
 
+from conftest import skip_no_graphics
+
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, "testfiles")
 emat_filename = os.path.join(testfiles_path, "file.emat")
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def emat():
     emat_bin = pymapdl_reader.read_binary(emat_filename)

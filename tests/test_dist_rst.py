@@ -66,18 +66,21 @@ except NameError:  # system_supports_plotting is not defined
     skip_plotting = skip_no_graphics
 
 
+@skip_no_graphics
 @pytest.fixture()
 def beam_blade():
     filename = os.path.join(testfiles_path, "dist_rst", "blade_stations", "beam3_0.rst")
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def static_dis():
     filename = os.path.join(testfiles_path, "dist_rst", "static", "file0.rst")
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def static_rst():
     filename = os.path.join(testfiles_path, "dist_rst", "static", "file.rst")
@@ -119,6 +122,7 @@ def test_not_a_dis_rst(tmpdir):
         DistributedResult(tmp_file)
 
 
+@skip_no_graphics
 @skip_no_ansys
 def test_not_all_found(thermal_solution, mapdl, tmpdir):
     if not mapdl._distributed:
@@ -130,6 +134,7 @@ def test_not_all_found(thermal_solution, mapdl, tmpdir):
         dist_rst = pymapdl_reader.read_binary(tmp_file)
 
 
+@skip_no_graphics
 @skip_no_ansys
 def test_temperature(thermal_solution, mapdl, tmpdir):
     if not mapdl._distributed:

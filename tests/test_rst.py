@@ -68,15 +68,9 @@ from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.examples.downloads import _download_and_read
 from ansys.mapdl.reader.misc.checks import (
     run_if_graphics_required,
+    are_graphics_available
 )
 from ansys.mapdl.reader.rst import Result
-
-try:
-    run_if_graphics_required()
-    from pyvista.plotting import system_supports_plotting
-    from pyvista.plotting.renderer import CameraPosition
-except ImportError:
-    from conftest import skip_no_graphics
 
 try:
     vm33 = examples.download_verification_result(33)
@@ -102,10 +96,16 @@ except:
 IS_MAC = platform.system() == "Darwin"
 
 try:
+    run_if_graphics_required()
+    from pyvista.plotting import system_supports_plotting
+    from pyvista.plotting.renderer import CameraPosition
+    
     skip_plotting = pytest.mark.skipif(
         not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
     )
-except NameError:  # system_supports_plotting is not defined
+ 
+except ImportError:
+    from conftest import skip_no_graphics
     skip_plotting = skip_no_graphics
 
 test_path = os.path.dirname(os.path.abspath(__file__))
@@ -113,9 +113,12 @@ testfiles_path = os.path.join(test_path, "testfiles")
 
 is16_filename = os.path.join(testfiles_path, "is16.rst")
 is16_known_result = os.path.join(testfiles_path, "is16.npz")
-if os.path.isfile(is16_filename):
-    is16 = pymapdl_reader.read_binary(is16_filename)
-else:
+try:
+    if os.path.isfile(is16_filename):
+        is16 = pymapdl_reader.read_binary(is16_filename)
+    else:
+        is16 = None
+except ImportError:
     is16 = None
 
 temperature_rst = os.path.join(testfiles_path, "temp_v13.rst")
@@ -128,36 +131,42 @@ def pathlib_result():
     return Result(temperature_rst_pathlib)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def hex_pipe_corner():
     filename = os.path.join(testfiles_path, "rst", "cyc_stress.rst")
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def hex_rst():
     filename = os.path.join(testfiles_path, "hex_201.rst")
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def volume_rst():
     rst_file = os.path.join(testfiles_path, "vol_test.rst")
     return pymapdl_reader.read_binary(rst_file)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def materials_281_rst():
     rst_file = os.path.join(testfiles_path, "materials", "file.rst")
     return pymapdl_reader.read_binary(rst_file)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def materials_stress_lim_rst():
     rst_file = os.path.join(testfiles_path, "materials", "stress_lim.rst")
     return pymapdl_reader.read_binary(rst_file)
 
 
+@skip_no_graphics
 def test_map_flag_section_data():
     # basic 4 element SHELL181 result files
     shell181_2020r2 = os.path.join(testfiles_path, "shell181_2020R2.rst")
@@ -170,6 +179,7 @@ def test_map_flag_section_data():
         assert np.allclose(rst_2020r2.section_data[key], rst_2021r1.section_data[key])
 
 
+@skip_no_graphics
 def test_overwrite(tmpdir):
     tmp_path = str(tmpdir.mkdir("tmpdir"))
     rst = pymapdl_reader.read_binary(copy(examples.rstfile, tmp_path))
@@ -191,6 +201,7 @@ def test_overwrite(tmpdir):
     assert np.allclose(ovr_record, new_record)
 
 
+@skip_no_graphics
 def test_overwrite_dict(tmpdir):
     tmp_path = str(tmpdir.mkdir("tmpdir"))
     rst = pymapdl_reader.read_binary(copy(examples.rstfile, tmp_path))
@@ -350,6 +361,7 @@ def test_sparse_nodal_solution():
     assert np.allclose(nnum, sparse_nnum)
 
 
+@skip_no_graphics
 @pytest.mark.skipif(is16 is None, reason="Requires example files")
 def test_is16():
     npz_rst = np.load(is16_known_result)
@@ -363,6 +375,7 @@ def test_is16():
     assert np.allclose(nnum, npz_rst["nnum"])
 
 
+@skip_no_graphics
 @pytest.mark.skipif(
     not os.path.isfile(temperature_rst), reason="Requires example files"
 )
@@ -426,6 +439,7 @@ def test_rst_node_components(hex_rst):
     np.allclose(hex_rst.element_components["ELEM_COMP"].nonzero()[0], np.arange(4, 20))
 
 
+@skip_no_graphics
 def test_rst_beam4_shell63():
     filename = os.path.join(testfiles_path, "shell63_beam4.rst")
 
@@ -481,6 +495,7 @@ def test_reaction_forces(volume_rst):
     assert np.allclose(nnum_known, nnum[dof == 1])
 
 
+@skip_no_graphics
 @pytest.mark.parametrize("nnum_of_interest", [range(11, 50), "all"])
 def test_nnum_of_interest(nnum_of_interest):
     rst = pymapdl_reader.read_binary(examples.rstfile)
@@ -679,6 +694,7 @@ def test_materials_str_lim(materials_stress_lim_rst):
             assert pytest.approx(ans_mat[key]) == known_stress_lim[key]
 
 
+@skip_no_graphics
 def test_materials_v150():
     """Validate on older result files"""
     rst = pymapdl_reader.read_binary(examples.rstfile)
@@ -690,6 +706,7 @@ def test_materials_v150():
             assert pytest.approx(ans_mat[key]) == known_material[key]
 
 
+@skip_no_graphics
 def test_temperature_dependent_properties():
     path_rth = os.path.join(testfiles_path, "temp_dependent_results.rth")
     rst = pymapdl_reader.read_binary(path_rth)
