@@ -62,13 +62,22 @@ from shutil import copy
 
 import numpy as np
 import pytest
-from pyvista.plotting import system_supports_plotting
-from pyvista.plotting.renderer import CameraPosition
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.examples.downloads import _download_and_read
+from ansys.mapdl.reader.misc.checks import (
+    are_graphics_available,
+    run_if_graphics_required,
+)
 from ansys.mapdl.reader.rst import Result
+
+try:
+    run_if_graphics_required()
+    from pyvista.plotting import system_supports_plotting
+    from pyvista.plotting.renderer import CameraPosition
+except ImportError:
+    from conftest import skip_no_graphics
 
 try:
     vm33 = examples.download_verification_result(33)
@@ -92,9 +101,13 @@ except:
     pontoon = None
 
 IS_MAC = platform.system() == "Darwin"
-skip_plotting = pytest.mark.skipif(
-    not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
-)
+
+if are_graphics_available:
+    skip_plotting = pytest.mark.skipif(
+        not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
+    )
+else:
+    skip_plotting = skip_no_graphics
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, "testfiles")

@@ -66,11 +66,14 @@ except:
     result_z = None
 
 IS_MAC = platform.system() == "Darwin"
+
 if are_graphics_available:
     skip_plotting = pytest.mark.skipif(
         not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
         reason="Plotting disabled for these tests",
     )
+else:
+    skip_plotting = skip_no_graphics
 
 skip_windows = pytest.mark.skipif(
     os.name == "nt", reason="Test fails due to OSMESA on Windows"
@@ -164,7 +167,6 @@ def test_non_cyclic():
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_plot_sectors(tmpdir):
@@ -176,7 +178,6 @@ def test_plot_sectors(tmpdir):
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 def test_plot_sectors_x(result_x):
     cpos = result_x.plot_sectors()
@@ -185,7 +186,6 @@ def test_plot_sectors_x(result_x):
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
 def test_plot_z_cyc():
@@ -195,7 +195,6 @@ def test_plot_z_cyc():
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 def test_plot_x_cyc(result_x):
     cpos = result_x.plot()
@@ -204,7 +203,6 @@ def test_plot_x_cyc(result_x):
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 def test_plot_component_rotor(cyclic_v182_z_with_comp):
     cyclic_v182_z_with_comp.plot_nodal_solution(
@@ -348,7 +346,6 @@ def test_full_z_nodal_solution_phase(cyclic_v182_z):
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 def test_full_x_nodal_solution_plot(result_x):
     result_x.plot_nodal_solution(0)
@@ -421,7 +418,6 @@ def test_full_x_principal_nodal_stress(result_x):
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 @pytest.mark.skipif(not HAS_FFMPEG, reason="requires imageio_ffmpeg")
 @pytest.mark.skipif(result_z is None, reason="Requires result file")
@@ -454,21 +450,18 @@ def test_cyclic_z_harmonic_displacement():
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 def test_plot_nodal_stress(result_x):
     result_x.plot_nodal_stress(0, "z")
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 def test_plot_nodal_stress(result_x):
     result_x.plot_nodal_stress(0, "z")
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 def test_plot_principal_nodal_stress(result_x):
     result_x.plot_principal_nodal_stress(0, "seqv")
@@ -491,7 +484,6 @@ def test_nodal_elastic_strain_cyclic(result_x):
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 def test_plot_nodal_elastic_strain(result_x):
     result_x.plot_nodal_elastic_strain(0, "X")
@@ -514,7 +506,6 @@ def test_nodal_temperature(result_x):
 
 
 @skip_windows
-@skip_no_graphics
 @skip_plotting
 def test_plot_nodal_nodal_temperature(result_x):
     result_x.plot_nodal_temperature(0)

@@ -68,10 +68,14 @@ test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, "testfiles")
 
 IS_MAC = platform.system() == "Darwin"
-skip_plotting = pytest.mark.skipif(
-    not are_graphics_available or not system_supports_plotting() or IS_MAC,
-    reason="Requires graphic dependencies and active X Server",
-)
+if are_graphics_available:
+    skip_plotting = pytest.mark.skipif(
+        not system_supports_plotting() or IS_MAC,
+        reason="Requires graphic dependencies and active X Server",
+    )
+
+else:
+    skip_plotting = skip_no_graphics
 
 RSETS = list(zip(range(1, 9), [1] * 8))
 

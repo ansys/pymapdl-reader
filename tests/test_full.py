@@ -25,14 +25,24 @@ import pathlib
 
 import numpy as np
 import pytest
-import scipy
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
 from ansys.mapdl.reader.full import FullFile
+from ansys.mapdl.reader.misc.checks import run_if_scipy_required
+
+try:
+    run_if_scipy_required()
+    import scipy
+
+    is_scipy_available = True
+except ImportError:
+    is_scipy_available = False
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, "testfiles")
+
+skip_scipy = pytest.mark.skipif(not is_scipy_available, reason="Requires SciPy")
 
 
 @pytest.fixture()
@@ -62,12 +72,14 @@ def test_full_sparse(sparse_full):
     assert "345" in str_rep
 
 
+@skip_scipy
 def test_full_sparse_k(sparse_full):
     assert isinstance(sparse_full.k, scipy.sparse.csc.csc_matrix)
     neqn = sparse_full._header["neqn"]
     assert sparse_full.k.shape == (neqn, neqn)
 
 
+@skip_scipy
 def test_full_sparse_m(sparse_full):
     assert isinstance(sparse_full.m, scipy.sparse.csc.csc_matrix)
     neqn = sparse_full._header["neqn"]

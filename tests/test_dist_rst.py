@@ -58,10 +58,13 @@ testfiles_path = os.path.join(test_path, "testfiles")
 
 IS_MAC = platform.system() == "Darwin"
 skip_no_ansys = pytest.mark.skipif(not _HAS_ANSYS, reason="Requires ANSYS installed")
+
 if are_graphics_available:
     skip_plotting = pytest.mark.skipif(
         not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
     )
+else:
+    skip_plotting = skip_no_graphics
 
 
 @pytest.fixture()
