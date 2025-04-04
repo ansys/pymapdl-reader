@@ -263,7 +263,6 @@ class Archive(Mesh):
             )
         return quality(self._grid)
 
-
     @graphics_required
     @wraps(pv.plot)
     def plot(self, *args, **kwargs):
