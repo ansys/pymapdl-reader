@@ -262,7 +262,7 @@ class Archive(Mesh):
         return quality(self._grid)
 
     @graphics_required
-    @wraps(pv.plot)
+    @wraps(None if not pv else pv.plot)
     def plot(self, *args, **kwargs):
         """Plot the mesh"""
         if self._grid is None:  # pragma: no cover

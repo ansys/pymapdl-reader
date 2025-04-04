@@ -135,6 +135,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           skip-install: true
           sphinxopts: "-j auto"
+          use-python-cache: false
 
 
   testing:
