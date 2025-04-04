@@ -9,8 +9,6 @@ import pathlib
 import numpy as np
 
 from ansys.mapdl.reader.misc.checks import (
-    ERROR_GRAPHICS_REQUIRED,
-    are_graphics_available,
     graphics_required,
     run_if_graphics_required,
 )
@@ -262,7 +260,6 @@ class Archive(Mesh):
                 "Archive must be parsed as a vtk grid.\nSet `parse_vtk=True`"
             )
         return quality(self._grid)
-
 
     @graphics_required
     @wraps(pv.plot)
