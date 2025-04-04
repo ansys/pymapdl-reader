@@ -22,12 +22,11 @@
 
 import os
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
 
 from ansys.mapdl import reader as pymapdl_reader
-
-from conftest import skip_no_graphics
 
 path = os.path.dirname(os.path.abspath(__file__))
 

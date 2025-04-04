@@ -23,10 +23,9 @@
 import os
 import pathlib
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
-
-from conftest import skip_no_graphics
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
