@@ -6,5 +6,15 @@
 
 ## Individual Contributors
 
-* [German Martinez Ayuso](https://github.com/germa89)
-* [Roberto Pastor](https://github.com/RobPasMue)
+* [1990chs](https://github.com/1990chs)
+* [Camille](https://github.com/clatapie)
+* [German](https://github.com/germa89)
+* [JackGuyver](https://github.com/JackGuyver)
+* [James Derrick](https://github.com/jgd10)
+* [Kathy Pippert](https://github.com/PipKat)
+* [Maxime Rey](https://github.com/MaxJPRey)
+* [NDfp](https://github.com/NDfp)
+* [Raphael Luciano](https://github.com/raph-luc)
+* [Roberto Pastor Muela](https://github.com/RobPasMue)
+* [beppo-dd](https://github.com/beppo-dd)
+* [purubcik](https://github.com/purubcik)
