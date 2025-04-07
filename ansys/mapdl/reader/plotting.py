@@ -1,11 +1,22 @@
 """Plotting helper for MAPDL using pyvista"""
 
 import numpy as np
-import pyvista as pv
 
-from ansys.mapdl.reader.misc import unique_rows
+from ansys.mapdl.reader.misc.checks import (
+    graphics_required,
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+except ImportError:
+    pass
+
+from ansys.mapdl.reader.misc.misc import unique_rows
 
 
+@graphics_required
 def general_plotter(
     title,
     meshes,
@@ -168,7 +179,7 @@ def general_plotter(
         pl.add_mesh(
             mesh["mesh"],
             scalars=mesh.get("scalars", None),
-            stitle=mesh.get("stitle", None),
+            scalar_bar_args={"title": mesh.get("stitle", None)},
             color=mesh.get("color", color),
             show_edges=show_edges,
             edge_color=edge_color,

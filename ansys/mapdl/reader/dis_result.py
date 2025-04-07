@@ -7,15 +7,25 @@ import os
 import pathlib
 from typing import Union
 
+from ansys.mapdl.reader.misc.checks import (
+    graphics_required,
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+    from vtkmodules.vtkFiltersCore import vtkAppendFilter
+except ImportError:
+    pass
+
 import numpy as np
-import pyvista as pv
-from vtkmodules.vtkFiltersCore import vtkAppendFilter
 
 from ansys.mapdl.reader._binary_reader import read_nodal_values_dist
 from ansys.mapdl.reader._rst_keys import element_index_table_info
 from ansys.mapdl.reader.errors import NoDistributedFiles
 from ansys.mapdl.reader.mesh import Mesh
-from ansys.mapdl.reader.misc import is_float, vtk_cell_info
+from ansys.mapdl.reader.misc.misc import is_float, vtk_cell_info
 from ansys.mapdl.reader.rst import ELEMENT_INDEX_TABLE_KEYS, Result
 
 
@@ -57,6 +67,7 @@ class DistributedResult(Result):
 
     """
 
+    @graphics_required
     def __init__(self, main_file):
         """Initialize from a series of distributed files"""
         # find remainder of distributed results
@@ -351,6 +362,7 @@ class DistributedResult(Result):
 
         return enum, glb_element_data, enode
 
+    @graphics_required
     def plot_element_result(
         self, rnum, result_type, item_index, in_element_coord_sys=False, **kwargs
     ):
@@ -428,5 +440,5 @@ class DistributedResult(Result):
             bsurfs.append(bsurf)
 
         desc = self.available_results.description[result_type].capitalize()
-        kwargs.setdefault("stitle", desc)
+        kwargs.setdefault("scalar_bar_args", {"title": desc})
         return pv.plot(bsurfs, scalars="_scalars", **kwargs)

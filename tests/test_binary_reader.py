@@ -24,11 +24,22 @@ import os
 import platform
 import shutil
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
-import pyvista as pv
-from pyvista.plotting import system_supports_plotting
-from pyvista.plotting.renderer import CameraPosition
+
+from ansys.mapdl.reader.misc.checks import (
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+    from pyvista.plotting import system_supports_plotting
+    from pyvista.plotting.renderer import CameraPosition
+
+except ImportError:
+    pass
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
@@ -56,24 +67,32 @@ test_path = os.path.dirname(os.path.abspath(__file__))
 testfiles_path = os.path.join(test_path, "testfiles")
 
 IS_MAC = platform.system() == "Darwin"
-skip_plotting = pytest.mark.skipif(
-    not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
-)
+try:
+    skip_plotting = pytest.mark.skipif(
+        not system_supports_plotting() or IS_MAC,
+        reason="Requires graphic dependencies and active X Server",
+    )
+
+except NameError:  # system_supports_plotting not defined
+    skip_plotting = skip_no_graphics
 
 RSETS = list(zip(range(1, 9), [1] * 8))
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def result():
     return pymapdl_reader.read_binary(examples.rstfile)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def static_canteliver_bc():
     filename = os.path.join(testfiles_path, "rst", "beam_static_bc.rst")
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def thermal_rst():
     filename = os.path.join(testfiles_path, "file.rth")
@@ -341,6 +360,7 @@ def test_dof(result):
 result_types = ["ENS", "EPT", "ETH", "EEL", "ENG"]  # 'ENF']
 
 
+@skip_no_graphics
 @pytest.mark.parametrize("result_type", result_types)
 def test_save_as_vtk(tmpdir, result, result_type):
     filename = str(tmpdir.mkdir("tmpdir").join("tmp.vtk"))
@@ -409,6 +429,7 @@ def test_plot_component():
     )
 
 
+@skip_no_graphics
 def test_file_close(tmpdir):
     tmpfile = str(tmpdir.mkdir("tmpdir").join("tmp.rst"))
     shutil.copy(examples.rstfile, tmpfile)
@@ -429,12 +450,14 @@ def test_animate_nodal_solution(tmpdir, result):
     assert os.path.isfile(temp_movie)
 
 
+@skip_no_graphics
 def test_loadbeam():
     linkresult_path = os.path.join(testfiles_path, "link1.rst")
     linkresult = pymapdl_reader.read_binary(linkresult_path)
     assert np.any(linkresult.grid.cells)
 
 
+@skip_no_graphics
 def test_reaction_forces():
     rst = pymapdl_reader.read_binary(os.path.join(testfiles_path, "vm1.rst"))
     nnum, forces = rst.nodal_static_forces(0)
@@ -474,17 +497,20 @@ class TestThermalResult:
             thermal_rst.plot_nodal_solution(0, "ROTX")
 
 
+@skip_no_graphics
 def test_plot_temperature(thermal_rst):
     cpos = thermal_rst.plot_nodal_temperature(0, return_cpos=True)
     if cpos is not None:
         assert isinstance(cpos, CameraPosition)
 
 
+@skip_no_graphics
 def test_file_not_found():
     with pytest.raises(FileNotFoundError):
         pymapdl_reader.read_binary("not_a_file.rst")
 
 
+@skip_no_graphics
 def test_file_not_supported():
     with pytest.raises(RuntimeError):
         pymapdl_reader.read_binary(os.path.join(testfiles_path, "file.esav"))

@@ -1,12 +1,20 @@
 """Supports reading cyclic structural result files from ANSYS"""
 
 from functools import wraps
+import warnings
+
+from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_required
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+    from vtkmodules.vtkCommonMath import vtkMatrix4x4
+    from vtkmodules.vtkCommonTransforms import vtkTransform
+    from vtkmodules.vtkFiltersCore import vtkAppendFilter
+except ImportError:
+    pass
 
 import numpy as np
-import pyvista as pv
-from vtkmodules.vtkCommonMath import vtkMatrix4x4
-from vtkmodules.vtkCommonTransforms import vtkTransform
-from vtkmodules.vtkFiltersCore import vtkAppendFilter
 
 from ansys.mapdl.reader import _binary_reader
 from ansys.mapdl.reader.common import (
@@ -40,6 +48,7 @@ class CyclicResult(Result):
         if read_mesh:
             self._add_cyclic_properties()
 
+    @graphics_required
     def plot_sectors(self, **kwargs):
         """Plot the full rotor and individually color the sectors.
 
@@ -65,6 +74,7 @@ class CyclicResult(Result):
         kwargs.setdefault("n_colors", self.n_sector)
         return self._plot_cyclic_point_scalars(scalars, None, add_text=False, **kwargs)
 
+    @graphics_required
     def plot(self, **kwargs):
         """Plot the full rotor geometry.
 
@@ -190,6 +200,7 @@ class CyclicResult(Result):
         """wraps nodal_solution"""
         return self.nodal_solution(*args, **kwargs)
 
+    @graphics_required
     def _expand_cyclic_static(self, result, tensor=False, stress=True):
         """Expand cyclic static result for a full rotor"""
         cs_cord = self._resultheader["csCord"]
@@ -651,6 +662,7 @@ class CyclicResult(Result):
             rnum, func, phase, full_rotor, as_complex, tensor=True, stress=False
         )
 
+    @graphics_required
     def plot_nodal_thermal_strain(
         self,
         rnum,
@@ -805,6 +817,7 @@ class CyclicResult(Result):
             rnum, func, phase, full_rotor, as_complex, tensor=True, stress=False
         )
 
+    @graphics_required
     def plot_nodal_elastic_strain(
         self,
         rnum,
@@ -952,6 +965,7 @@ class CyclicResult(Result):
             rnum, func, phase, full_rotor, as_complex, tensor=True, stress=False
         )
 
+    @graphics_required
     def plot_nodal_plastic_strain(
         self,
         rnum,
@@ -1120,6 +1134,7 @@ class CyclicResult(Result):
         pstress[isnan] = np.nan
         return nnum, pstress
 
+    @graphics_required
     def plot_nodal_solution(
         self,
         rnum,
@@ -1235,6 +1250,7 @@ class CyclicResult(Result):
             scalars, rnum, treat_nan_as_zero=treat_nan_as_zero, **kwargs
         )
 
+    @graphics_required
     def plot_nodal_stress(
         self,
         rnum,
@@ -1345,6 +1361,7 @@ class CyclicResult(Result):
             scalars, rnum, treat_nan_as_zero=treat_nan_as_zero, **kwargs
         )
 
+    @graphics_required
     def plot_principal_nodal_stress(
         self,
         rnum,
@@ -1494,6 +1511,7 @@ class CyclicResult(Result):
         # otherwise, duplicate and repeat as temperature is constant across sectors
         return nnum, temp.T.repeat(self.n_sector, axis=0)
 
+    @graphics_required
     def plot_nodal_temperature(
         self,
         rnum,
@@ -1759,6 +1777,7 @@ class CyclicResult(Result):
         """wraps animate_nodal_solution"""
         return self.animate_nodal_solution(*args, **kwargs)
 
+    @graphics_required
     def _gen_full_rotor(self):
         """Create full rotor vtk unstructured grid"""
         grid = self._mas_grid.copy()
@@ -1800,6 +1819,7 @@ class CyclicResult(Result):
             self._rotor_cache = self._gen_full_rotor()
         return self._rotor_cache
 
+    @graphics_required
     def _plot_cyclic_point_scalars(
         self,
         scalars,

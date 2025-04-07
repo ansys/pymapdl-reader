@@ -33,7 +33,7 @@ This is the source code for the example:
     qual = grid.quality
     
     # plot cell quality
-    grid.plot(scalars=qual, stitle='Cell Minimum Scaled\nJacobian', rng=[0, 1])
+    grid.plot(scalars=qual, scalar_bar_args={'title': 'Cell Minimum Scaled\nJacobian'}, rng=[0, 1])
 
 
 pyansys.quality

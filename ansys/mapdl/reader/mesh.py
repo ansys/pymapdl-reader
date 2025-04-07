@@ -1,11 +1,11 @@
 """Module for common class between Archive, and result mesh."""
 
 import numpy as np
-import pyvista as pv
 
 from ansys.mapdl.reader import _reader, _relaxmidside
 from ansys.mapdl.reader.elements import ETYPE_MAP
-from ansys.mapdl.reader.misc import unique_rows
+from ansys.mapdl.reader.misc.checks import graphics_required
+from ansys.mapdl.reader.misc.misc import unique_rows
 
 INVALID_ALLOWABLE_TYPES = TypeError(
     "`allowable_types` must be an array " "of ANSYS element types from 1 and 300"
@@ -143,6 +143,7 @@ class Mesh:
 
         return len(self._elem)
 
+    @graphics_required
     def _parse_vtk(
         self,
         allowable_types=None,
@@ -161,6 +162,8 @@ class Mesh:
             first node.
 
         """
+        import pyvista as pv
+
         if not self._has_nodes or not self._has_elements:
             # warnings.warn('Missing nodes or elements.  Unable to parse to vtk')
             return
