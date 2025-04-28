@@ -7,15 +7,24 @@ import os
 import pathlib
 
 import numpy as np
-import pyvista as pv
-from pyvista import CellType
+
+from ansys.mapdl.reader.misc.checks import (
+    graphics_required,
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+except ImportError:
+    pv = None
 
 VTK_VOXEL = 11
 
 from ansys.mapdl.reader import _archive, _reader
 from ansys.mapdl.reader.cell_quality import quality
 from ansys.mapdl.reader.mesh import Mesh
-from ansys.mapdl.reader.misc import vtk_cell_info
+from ansys.mapdl.reader.misc.misc import vtk_cell_info
 
 log = logging.getLogger(__name__)
 log.setLevel("CRITICAL")
@@ -205,6 +214,7 @@ class Archive(Mesh):
         return txt
 
     @property
+    @graphics_required
     def grid(self):
         """Return a ``pyvista.UnstructuredGrid`` of the archive file.
 
@@ -251,7 +261,8 @@ class Archive(Mesh):
             )
         return quality(self._grid)
 
-    @wraps(pv.plot)
+    @graphics_required
+    @wraps(None if not pv else pv.plot)
     def plot(self, *args, **kwargs):
         """Plot the mesh"""
         if self._grid is None:  # pragma: no cover
@@ -263,6 +274,7 @@ class Archive(Mesh):
         self.grid.plot(*args, **kwargs)
 
 
+@graphics_required
 def save_as_archive(
     filename,
     grid,
@@ -386,20 +398,20 @@ def save_as_archive(
     if include_solid_elements:
         allowable.extend(
             [
-                CellType.VOXEL,
-                CellType.TETRA,
-                CellType.QUADRATIC_TETRA,
-                CellType.PYRAMID,
-                CellType.QUADRATIC_PYRAMID,
-                CellType.WEDGE,
-                CellType.QUADRATIC_WEDGE,
-                CellType.HEXAHEDRON,
-                CellType.QUADRATIC_HEXAHEDRON,
+                pv.CellType.VOXEL,
+                pv.CellType.TETRA,
+                pv.CellType.QUADRATIC_TETRA,
+                pv.CellType.PYRAMID,
+                pv.CellType.QUADRATIC_PYRAMID,
+                pv.CellType.WEDGE,
+                pv.CellType.QUADRATIC_WEDGE,
+                pv.CellType.HEXAHEDRON,
+                pv.CellType.QUADRATIC_HEXAHEDRON,
             ]
         )
 
     if include_surface_elements:
-        allowable.extend([CellType.TRIANGLE, CellType.QUAD])
+        allowable.extend([pv.CellType.TRIANGLE, pv.CellType.QUAD])
         # VTK_QUADRATIC_TRIANGLE,
         # VTK_QUADRATIC_QUAD
 
@@ -411,7 +423,7 @@ def save_as_archive(
         raise RuntimeError(
             f"`grid` contains no allowable cell types. Contains types {ucelltypes} "
             f"and only {allowable} are allowed.\n\n"
-            "See https://vtk.org/doc/nightly/html/vtkCellType_8h_source.html "
+            "See https://vtk.org/doc/nightly/html/vtk.CellType_8h_source.html "
             "for more details."
         )
     grid = grid.extract_cells(mask)
@@ -552,31 +564,31 @@ def save_as_archive(
         # TETRA delegated to SOLID187
         etype_186 = etype_start
         etype_186_types = [
-            CellType.QUADRATIC_HEXAHEDRON,
-            CellType.QUADRATIC_WEDGE,
-            CellType.QUADRATIC_PYRAMID,
+            pv.CellType.QUADRATIC_HEXAHEDRON,
+            pv.CellType.QUADRATIC_WEDGE,
+            pv.CellType.QUADRATIC_PYRAMID,
         ]
         etype[np.isin(grid.celltypes, etype_186_types)] = etype_186
 
         etype_187 = etype_start + 1
-        etype[grid.celltypes == CellType.QUADRATIC_TETRA] = etype_187
+        etype[grid.celltypes == pv.CellType.QUADRATIC_TETRA] = etype_187
 
         # VTK to SOLID185 mapping
         etype_185 = etype_start + 2
         etype_185_types = [
-            CellType.VOXEL,
-            CellType.TETRA,
-            CellType.HEXAHEDRON,
-            CellType.WEDGE,
-            CellType.PYRAMID,
+            pv.CellType.VOXEL,
+            pv.CellType.TETRA,
+            pv.CellType.HEXAHEDRON,
+            pv.CellType.WEDGE,
+            pv.CellType.PYRAMID,
         ]
         etype[np.isin(grid.celltypes, etype_185_types)] = etype_185
 
         # Surface elements
         etype_181 = etype_start + 3
         etype_181_types = [
-            CellType.TRIANGLE,
-            CellType.QUAD,
+            pv.CellType.TRIANGLE,
+            pv.CellType.QUAD,
         ]
         etype[np.isin(grid.celltypes, etype_181_types)] = etype_181
 

@@ -23,10 +23,24 @@
 import os
 
 import pytest
-import pyvista
 
-# Necessary for CI plotting
-pyvista.OFF_SCREEN = True
+from ansys.mapdl.reader.misc.checks import run_if_graphics_required
+
+try:
+    run_if_graphics_required()
+    import pyvista
+
+    # Necessary for CI plotting
+    pyvista.OFF_SCREEN = True
+except ImportError:
+    pass
+
+from ansys.mapdl.reader.misc.checks import are_graphics_available
+
+skip_no_graphics = pytest.mark.skipif(
+    not are_graphics_available(),
+    reason="Graphic dependencies are required for this test.",
+)
 
 
 @pytest.fixture(scope="session")

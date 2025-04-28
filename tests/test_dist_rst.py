@@ -24,15 +24,24 @@ import os
 import platform
 import shutil
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
-import pyvista as pv
-from pyvista.plotting import system_supports_plotting
-from pyvista.plotting.renderer import CameraPosition
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader._rst_keys import element_index_table_info
 from ansys.mapdl.reader.dis_result import DistributedResult
+from ansys.mapdl.reader.misc.checks import (
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    import pyvista as pv
+    from pyvista.plotting import system_supports_plotting
+    from pyvista.plotting.renderer import CameraPosition
+except ImportError:
+    pass
 
 try:
     from ansys.mapdl.core import _HAS_ANSYS
@@ -48,12 +57,15 @@ testfiles_path = os.path.join(test_path, "testfiles")
 
 IS_MAC = platform.system() == "Darwin"
 skip_no_ansys = pytest.mark.skipif(not _HAS_ANSYS, reason="Requires ANSYS installed")
-skip_plotting = pytest.mark.skipif(
-    not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
-)
+
+try:
+    skip_plotting = pytest.mark.skipif(
+        not system_supports_plotting() or IS_MAC, reason="Requires active X Server"
+    )
+except NameError:  # system_supports_plotting is not defined
+    skip_plotting = skip_no_graphics
 
 
-@pytest.fixture()
 def beam_blade():
     filename = os.path.join(testfiles_path, "dist_rst", "blade_stations", "beam3_0.rst")
     return pymapdl_reader.read_binary(filename)
@@ -98,6 +110,7 @@ def thermal_solution(mapdl):
     mapdl.set(1, 1)
 
 
+@skip_no_graphics
 def test_not_a_dis_rst(tmpdir):
     filename = os.path.join(testfiles_path, "dist_rst", "static", "file.rst")
     tmp_file = os.path.join(str(tmpdir), "tmp0.rth")
@@ -158,6 +171,7 @@ def test_blade_result(beam_blade):
     assert np.allclose(disp[:, 0], ans_rst["x_disp"][mask])
 
 
+@skip_no_graphics
 def test_plot_blade_result(beam_blade):
     cpos = beam_blade.plot_nodal_displacement(0)
     if cpos is not None:
@@ -171,6 +185,7 @@ def test_nodal_stress(static_dis, static_rst):
     assert np.allclose(stress_dis, stress, equal_nan=True)
 
 
+@skip_no_graphics
 def test_plot_nodal_stress(static_dis, static_rst):
     cpos = static_dis.plot_nodal_stress(0, "x")
     if cpos is not None:
@@ -191,6 +206,7 @@ def test_nodal_principal_stress(static_dis, static_rst):
     assert np.allclose(data_dis, data, equal_nan=True)
 
 
+@skip_no_graphics
 def test_plot_nodal_principal_stress(static_dis):
     cpos = static_dis.plot_principal_nodal_stress(0, "SEQV")
     if cpos is not None:
@@ -238,6 +254,7 @@ def test_element_stress(static_dis, static_rst):
 rtypes = ["ENS", "EPT", "ETH", "EEL", "ENG"]
 
 
+@skip_no_graphics
 @pytest.mark.parametrize("rtype", rtypes)
 def test_save_as_vtk(tmpdir, static_dis, static_rst, rtype):
     filename = str(tmpdir.mkdir("tmpdir").join("tmp.vtk"))
@@ -265,6 +282,7 @@ def test_cylindrical_nodal_stress(static_dis):
     assert np.allclose(stress_dis, stress, equal_nan=True)
 
 
+@skip_no_graphics
 def test_plot_cylindrical_nodal_stress(static_dis):
     cpos = static_dis.plot_cylindrical_nodal_stress(0, "Z")
     if cpos is not None:
@@ -278,6 +296,7 @@ def test_nodal_thermal_strain(static_dis):
     assert np.allclose(data_dis, data, equal_nan=True)
 
 
+@skip_no_graphics
 def test_plot_nodal_thermal_strain(static_dis):
     cpos = static_dis.plot_nodal_thermal_strain(0, "Z")
     if cpos is not None:
@@ -291,6 +310,7 @@ def test_nodal_elastic_strain(static_dis):
     assert np.allclose(data_dis, data, equal_nan=True)
 
 
+@skip_no_graphics
 def test_plot_nodal_elastic_strain(static_dis):
     cpos = static_dis.plot_nodal_elastic_strain(0, "Z")
     if cpos is not None:

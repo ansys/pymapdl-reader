@@ -23,6 +23,7 @@
 import os
 import pathlib
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
 
@@ -34,6 +35,7 @@ testfiles_path = os.path.join(test_path, "testfiles")
 emat_filename = os.path.join(testfiles_path, "file.emat")
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def emat():
     emat_bin = pymapdl_reader.read_binary(emat_filename)

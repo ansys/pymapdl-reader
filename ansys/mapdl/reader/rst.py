@@ -14,13 +14,22 @@ from typing import Union
 import warnings
 
 import numpy as np
-import pyvista as pv
-from pyvista import _vtk as vtk
+
+from ansys.mapdl.reader.misc.checks import graphics_required, run_if_graphics_required
 
 try:
-    from pyvista.themes import DefaultTheme
+    run_if_graphics_required()
+    import pyvista as pv
+    from pyvista import _vtk as vtk
+
+    try:
+        # for pyvista >= 0.40
+        from pyvista.plotting.themes import DocumentTheme as DefaultTheme
+    except ImportError:
+        from pyvista.themes import DefaultTheme
 except ImportError:
-    from pyvista.plotting.themes import DocumentTheme as DefaultTheme
+    pass
+
 
 from tqdm import tqdm
 
@@ -54,7 +63,7 @@ from ansys.mapdl.reader.common import (
     rotate_to_global,
 )
 from ansys.mapdl.reader.mesh import Mesh
-from ansys.mapdl.reader.misc import break_apart_surface, vtk_cell_info
+from ansys.mapdl.reader.misc.misc import break_apart_surface, vtk_cell_info
 from ansys.mapdl.reader.rst_avail import AvailableResults
 
 
@@ -652,6 +661,7 @@ class Result(AnsysBinary):
             self._load_section_data()
         return self._section_data
 
+    @graphics_required
     def plot(
         self, node_components=None, element_components=None, sel_type_all=True, **kwargs
     ):
@@ -712,6 +722,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     def plot_nodal_solution(
         self,
         rnum,
@@ -858,6 +869,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     @wraps(plot_nodal_solution)
     def plot_nodal_displacement(self, *args, **kwargs):
         """wraps plot_nodal_solution"""
@@ -989,6 +1001,7 @@ class Result(AnsysBinary):
     def time_values(self):
         return self._resultheader["time_values"]
 
+    @graphics_required
     def animate_nodal_solution(
         self,
         rnum,
@@ -1778,6 +1791,7 @@ class Result(AnsysBinary):
             "ekey": np.array(ekey),
         }
 
+    @graphics_required
     def _store_mesh(self, parse_vtk=True):
         """Store the mesh from the result file.
 
@@ -2786,6 +2800,7 @@ class Result(AnsysBinary):
         pstress[isnan] = np.nan
         return nodenum, pstress
 
+    @graphics_required
     def plot_principal_nodal_stress(
         self,
         rnum,
@@ -2887,6 +2902,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     def cs_4x4(self, cs_cord, as_vtk_matrix=False):
         """Return a 4x4 transformation matrix for a given coordinate system.
 
@@ -2940,6 +2956,7 @@ class Result(AnsysBinary):
             return matrix
         return pv.array_from_vtkmatrix(matrix)
 
+    @graphics_required
     def _plot_point_scalars(
         self,
         scalars,
@@ -3229,6 +3246,7 @@ class Result(AnsysBinary):
 
         return cpos
 
+    @graphics_required
     def _animate_point_scalars(
         self,
         scalars,
@@ -3431,6 +3449,7 @@ class Result(AnsysBinary):
 
         return text
 
+    @graphics_required
     def plot_nodal_stress(
         self,
         rnum,
@@ -3995,6 +4014,7 @@ class Result(AnsysBinary):
         """Return the nodal equivalence array."""
         return self._resultheader["neqv"]
 
+    @graphics_required
     def plot_element_result(
         self, rnum, result_type, item_index, in_element_coord_sys=False, **kwargs
     ):
@@ -4363,6 +4383,7 @@ class Result(AnsysBinary):
             nnum, temp = self._nodal_result(rnum, "EPT", nnum_of_interest=nodes)
         return nnum, temp.ravel()
 
+    @graphics_required
     def plot_cylindrical_nodal_stress(
         self,
         rnum,
@@ -4455,6 +4476,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     def plot_nodal_temperature(
         self,
         rnum,
@@ -4588,6 +4610,7 @@ class Result(AnsysBinary):
         """
         return self._nodal_result(rnum, "ETH", nnum_of_interest=nodes)
 
+    @graphics_required
     def plot_nodal_thermal_strain(
         self,
         rnum,
@@ -4728,6 +4751,7 @@ class Result(AnsysBinary):
         """
         return self._nodal_result(rnum, "EEL", nnum_of_interest=nodes)
 
+    @graphics_required
     def plot_nodal_elastic_strain(
         self,
         rnum,
@@ -4863,6 +4887,7 @@ class Result(AnsysBinary):
         """
         return self._nodal_result(rnum, "EPL", nnum_of_interest=nodes)
 
+    @graphics_required
     def plot_nodal_plastic_strain(
         self,
         rnum,
@@ -4946,6 +4971,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     def _plot_nodal_result(
         self,
         rnum,
@@ -4985,6 +5011,7 @@ class Result(AnsysBinary):
             **kwargs,
         )
 
+    @graphics_required
     def _animate_time_solution(
         self,
         result_type,
@@ -5187,6 +5214,7 @@ def trans_to_matrix(trans):
     return matrix
 
 
+@graphics_required
 def transform(points, trans):
     """In-place 3d transformation of a points array given a 4x4
     transformation matrix.

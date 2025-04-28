@@ -32,6 +32,7 @@ dist/
 
 # MISC
 _build/
+sg_execution_times.rst
 pyansys/Interface.py
 *.bat
 doc/source/examples/*

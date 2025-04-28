@@ -90,7 +90,6 @@ shaft.plot_nodal_solution(
     show_displacement=True,
     cmap="bwr",
     displacement_factor=0.3,
-    stitle=None,
     overlay_wireframe=True,
     cpos=cpos,
 )
@@ -103,7 +102,6 @@ shaft.plot_nodal_solution(
     n_colors=10,
     show_displacement=True,
     displacement_factor=1,
-    stitle=None,
     overlay_wireframe=True,
     cpos=cpos,
 )

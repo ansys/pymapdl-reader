@@ -27,10 +27,9 @@ import os
 import sys
 
 import numpy as np
-import pyvista as pv
 
 from ansys.mapdl import reader as pymapdl_reader
-from ansys.mapdl.reader import examples
+from ansys.mapdl.reader.misc.checks import graphics_required, scipy_required
 
 # get location of this folder and the example files
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -114,8 +113,11 @@ def show_stress(off_screen=None):
     result.plot_nodal_stress(5, "x", off_screen=off_screen, n_colors=9)
 
 
+@scipy_required
 def load_km():
     """Loads m and k matrices from a full file"""
+    from scipy import sparse
+    from scipy.sparse import linalg
 
     # Create file reader object
     fobj = pymapdl_reader.read_binary(fullfile)
@@ -126,13 +128,6 @@ def load_km():
     print("Loaded {:d} x {:d} mass and stiffness matrices".format(ndim, ndim))
     print("\t k has {:d} entries".format(k.indices.size))
     print("\t m has {:d} entries".format(m.indices.size))
-
-    # compute natural frequencies if installed
-    try:
-        from scipy import sparse
-        from scipy.sparse import linalg
-    except ImportError:
-        return
 
     k += sparse.triu(k, 1).T
     m += sparse.triu(m, 1).T
@@ -175,17 +170,17 @@ def load_km():
     assert np.allclose(freq, known_result)
 
 
+@graphics_required
+@scipy_required
 def solve_km():
     """Load and solves a mass and stiffness matrix from an ansys full file"""
-    try:
-        from scipy import sparse
-        from scipy.sparse import linalg
-    except ImportError:
-        print("scipy not installed, aborting")
-        return
+
+    import pyvista as pv
+    from scipy import sparse
+    from scipy.sparse import linalg
 
     # load the mass and stiffness matrices
-    full = pymapdl_reader.read_binary(examples.fullfile)
+    full = pymapdl_reader.read_binary(fullfile)
     dofref, k, m = full.load_km(sort=True)
 
     # make symmetric
@@ -210,7 +205,7 @@ def solve_km():
     n /= n.max()  # normalize
 
     # load an archive file and create a vtk unstructured grid
-    archive = pymapdl_reader.Archive(examples.hexarchivefile)
+    archive = pymapdl_reader.Archive(hexarchivefile)
     grid = archive.grid
 
     # Fancy plot the displacement
@@ -221,7 +216,7 @@ def solve_km():
     pl.add_mesh(
         grid,
         scalars=n,
-        stitle="Normalized\nDisplacement",
+        scalar_bar_args={"title": "Normalized\nDisplacement"},
         flip_scalars=True,
         cmap="jet",
     )

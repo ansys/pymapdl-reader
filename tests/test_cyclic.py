@@ -24,11 +24,21 @@ import os
 import platform
 import sys
 
+from conftest import skip_no_graphics
 import numpy as np
 import pytest
-from pyvista.plotting import system_supports_plotting
-from pyvista.plotting.renderer import CameraPosition
-from vtkmodules.vtkCommonMath import vtkMatrix4x4
+
+from ansys.mapdl.reader.misc.checks import (
+    run_if_graphics_required,
+)
+
+try:
+    run_if_graphics_required()
+    from pyvista.plotting import system_supports_plotting
+    from pyvista.plotting.renderer import CameraPosition
+    from vtkmodules.vtkCommonMath import vtkMatrix4x4
+except ImportError:
+    pass
 
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.mapdl.reader import examples
@@ -55,10 +65,14 @@ except:
     result_z = None
 
 IS_MAC = platform.system() == "Darwin"
-skip_plotting = pytest.mark.skipif(
-    not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
-    reason="Plotting disabled for these tests",
-)
+
+try:
+    skip_plotting = pytest.mark.skipif(
+        not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
+        reason="Plotting disabled for these tests",
+    )
+except NameError:  # system_supports_plotting is not defined
+    skip_plotting = skip_no_graphics
 
 skip_windows = pytest.mark.skipif(
     os.name == "nt", reason="Test fails due to OSMESA on Windows"
@@ -73,12 +87,14 @@ def academic_rotor():
 
 
 # static result x axis
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def result_x():
     filename = os.path.join(testfiles_path, "cyc12.rst")
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def cyclic_v182_z():
     # static result z axis
@@ -86,6 +102,7 @@ def cyclic_v182_z():
     return pymapdl_reader.read_binary(filename)
 
 
+@skip_no_graphics
 @pytest.fixture(scope="module")
 def cyclic_v182_z_with_comp():
     # cyclic modal with component
@@ -207,6 +224,7 @@ def test_plot_component_rotor(cyclic_v182_z_with_comp):
     #                                    off_screen=True)
 
 
+@skip_no_graphics
 def test_element_stress_v182_non_cyclic():
     """
     Generated ansys results with:
@@ -517,6 +535,7 @@ def test_plot_nodal_thermal_strain(result_x):
     result_x.plot_nodal_thermal_strain(0, "X")
 
 
+@skip_no_graphics
 def test_cs_4x4(result_x):
     assert isinstance(result_x._c_systems, dict)
 
