@@ -8,7 +8,6 @@ from collections.abc import Iterable, Sequence
 from functools import wraps
 import os
 import pathlib
-from threading import Thread
 import time
 from typing import Union
 import warnings
@@ -4981,77 +4980,6 @@ class Result(AnsysBinary):
             sel_type_all=sel_type_all,
             **kwargs,
         )
-
-    def _animate_time_solution(
-        self,
-        result_type,
-        index=0,
-        frame_rate=10,
-        show_displacement=True,
-        displacement_factor=1,
-        off_screen=None,
-    ):
-        """Animate time solution result"""
-        # load all results
-        results = []
-        for i in range(self.nsets):
-            results.append(self._nodal_result(i, result_type)[1][:, index])
-
-        if show_displacement:
-            disp = []
-            for i in range(self.nsets):
-                disp.append(self.nodal_solution(i)[1][:, :3] * displacement_factor)
-
-        mesh = self.grid.copy()
-        results = np.array(results)
-        if np.all(np.isnan(results)):
-            raise ValueError(
-                "Result file contains no %s records"
-                % element_index_table_info[result_type.upper()]
-            )
-
-        # prepopulate mesh with data
-        mesh["data"] = results[0]
-
-        # set default range
-        rng = [results.min(), results.max()]
-        t_wait = 1 / frame_rate
-
-        def q_callback():
-            """exit when user wants to leave"""
-            self._animating = False
-
-        self._animating = True
-
-        def plot_thread():
-            plotter = pv.Plotter(off_screen=off_screen)
-            plotter.add_key_event("q", q_callback)
-            plotter.add_mesh(mesh, scalars="data", rng=rng)
-            plotter.show(auto_close=False, interactive_update=True, interactive=False)
-            text_actor = plotter.add_text("Result 1")
-            while self._animating:
-                for i in range(self.nsets):
-                    mesh["data"] = results[i]
-
-                    if show_displacement:
-                        mesh.points = self.grid.points + disp[i]
-
-                    # if interactive:
-                    plotter.update(30, force_redraw=True)
-                    if hasattr(text_actor, "SetInput"):
-                        text_actor.SetInput("Result %d" % (i + 1))
-                    else:
-                        text_actor.SetText(0, "Result %d" % (i + 1))
-
-                    time.sleep(t_wait)
-
-                if off_screen:
-                    break
-
-            plotter.close()
-
-        thread = Thread(target=plot_thread)
-        thread.start()
 
     @property
     def available_results(self):
