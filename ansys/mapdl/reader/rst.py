@@ -201,8 +201,7 @@ class Result(AnsysBinary):
         """
         if self._mesh is None:
             raise ValueError(
-                "Pass ``read_mesh=True`` to store the mesh"
-                " when initializing the result"
+                "Pass ``read_mesh=True`` to store the mesh when initializing the result"
             )
         return self._mesh
 
@@ -863,7 +862,7 @@ class Result(AnsysBinary):
         """wraps plot_nodal_solution"""
         if self._is_thermal:
             raise AttributeError(
-                "Thermal solution does not contain nodal " "displacement results"
+                "Thermal solution does not contain nodal displacement results"
             )
         return self.plot_nodal_solution(*args, **kwargs)
 
@@ -1222,7 +1221,7 @@ class Result(AnsysBinary):
         """
         if self.nsets == 1:
             raise RuntimeError(
-                "Unable to animate.  Solution contains only one " "result set"
+                "Unable to animate.  Solution contains only one result set"
             )
 
         if rnums is None:
@@ -1320,7 +1319,7 @@ class Result(AnsysBinary):
             func = self.nodal_acceleration
         else:
             raise ValueError(
-                "Argument 'solution type' must be either 'NSL', " "'VEL', or 'ACC'"
+                "Argument 'solution type' must be either 'NSL', 'VEL', or 'ACC'"
             )
 
         # size based on the first result
@@ -1512,7 +1511,7 @@ class Result(AnsysBinary):
         """
         if solution_type not in ("NSL", "VSL", "ASL"):  # pragma: no cover
             raise ValueError(
-                "Argument ``solution type`` must be either " "'NSL', 'VSL', or 'ASL'"
+                "Argument ``solution type`` must be either 'NSL', 'VSL', or 'ASL'"
             )
 
         # check if nodal solution exists
@@ -3361,9 +3360,7 @@ class Result(AnsysBinary):
         # add table
         if text is not None:
             if len(text) != len(scalars):
-                raise ValueError(
-                    "Length of ``text`` must be the same as " "``scalars``"
-                )
+                raise ValueError("Length of ``text`` must be the same as ``scalars``")
             plotter.add_text(text[0], font_size=20, color=text_color)
 
         # orig_pts = copied_mesh.points.copy()
