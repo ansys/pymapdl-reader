@@ -1696,7 +1696,10 @@ class CyclicResult(Result):
         plotter.add_mesh(plot_mesh, scalars=np.real(scalars), **kwargs)
 
         # setup text
-        plotter.add_text(" ", font_size=20, position=[0, 0], color=text_color)
+        if add_text:
+            text_actor = plotter.add_text(
+                " ", font_size=20, position=[0, 0], color=text_color
+            )
 
         if cpos:
             plotter.camera_position = cpos
@@ -1737,7 +1740,7 @@ class CyclicResult(Result):
                 plot_mesh.points[:] = orig_pt + complex_disp_adj
 
                 if add_text:
-                    plotter.textActor.SetInput(
+                    text_actor.SetInput(
                         "%s\nPhase %.1f Degrees" % (result_info, (angle * 180 / np.pi))
                     )
 

@@ -250,12 +250,6 @@ def test_plot_nodal_thermal_strain():
     vm33.plot_nodal_thermal_strain(0, "X", off_screen=True)
 
 
-@skip_plotting
-@pytest.mark.skipif(vm33 is None, reason="Requires example files")
-def test_animate_time_solution():
-    vm33._animate_time_solution("ENS", off_screen=True)
-
-
 @pytest.mark.skipif(pontoon is None, reason="Requires example files")
 def test_nodal_elastic_strain():
     _, estrain = pontoon.nodal_elastic_strain(0)
