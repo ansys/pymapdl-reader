@@ -1,6 +1,7 @@
 """Supports reading cyclic structural result files from ANSYS"""
 
 from functools import wraps
+import warnings
 
 import numpy as np
 import pyvista as pv
@@ -1731,7 +1732,8 @@ class CyclicResult(Result):
                 else:
                     scalars = (complex_disp_adj * complex_disp_adj).sum(1) ** 0.5
 
-                plotter.update_scalars(scalars, render=False)
+                # pyvista defaults to 'Data' scalars name
+                plot_mesh["Data"][:] = scalars
                 plot_mesh.points[:] = orig_pt + complex_disp_adj
 
                 if add_text:

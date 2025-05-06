@@ -56,7 +56,7 @@ except:
 
 IS_MAC = platform.system() == "Darwin"
 skip_plotting = pytest.mark.skipif(
-    not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
+    not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 13),
     reason="Plotting disabled for these tests",
 )
 
@@ -523,3 +523,18 @@ def test_cs_4x4(result_x):
     # expect first CSYS to be cartesian
     assert np.allclose(result_x.cs_4x4(1), np.eye(4))
     assert isinstance(result_x.cs_4x4(1, as_vtk_matrix=True), vtkMatrix4x4)
+
+
+@skip_plotting
+def test_animate_academic(academic_rotor):
+    _ = academic_rotor.animate_nodal_displacement(
+        (3, 2),
+        displacement_factor=0.03,
+        n_frames=30,
+        n_colors=128,
+        show_axes=False,
+        background="w",
+        loop=False,
+        add_text=False,
+        show_scalar_bar=False,
+    )
