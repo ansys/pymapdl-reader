@@ -41,7 +41,7 @@ def find_dis_files(main_file: Union[str, pathlib.Path]):
 
     if max(filenames.keys()) + 1 != len(filenames):
         raise FileNotFoundError(
-            "Unable to find all the result files of a " "distributed result"
+            "Unable to find all the result files of a distributed result"
         )
 
     return filenames
@@ -72,7 +72,7 @@ class DistributedResult(Result):
 
         if not self._main_result._is_main:  # pragma: no cover
             raise RuntimeError(
-                "DistributedResult must be created from the main " "result file"
+                "DistributedResult must be created from the main result file"
             )
 
         # load and verify
@@ -428,5 +428,5 @@ class DistributedResult(Result):
             bsurfs.append(bsurf)
 
         desc = self.available_results.description[result_type].capitalize()
-        kwargs.setdefault("stitle", desc)
+        kwargs.setdefault("scalar_bar_args", {"title": desc})
         return pv.plot(bsurfs, scalars="_scalars", **kwargs)

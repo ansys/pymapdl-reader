@@ -67,46 +67,52 @@ shaft.plot(element_components=["SHAFT_MESH"], cpos=cpos)
 
 
 ###############################################################################
-# Plot a node component as a wireframe
+# Plot a node component as a wireframe:
 shaft.plot(
-    element_components=["SHAFT_MESH"], cpos=cpos, style="wireframe", lighting=False
+    element_components=["SHAFT_MESH"],
+    cpos=cpos,
+    style="wireframe",
+    lighting=False,
+    color="k",
 )
 
 
 ###############################################################################
-# Plot the shaft with edges and with a blue color
+# Plot the shaft with edges and with a blue color:
 shaft.plot(show_edges=True, color="cyan")
 
+
 ###############################################################################
-# Plot the shaft without lighting but with edges and with a blue color
+# Plot the shaft without lighting but with edges and with a blue color:
 shaft.plot(lighting=False, show_edges=True, color="cyan")
 
 
 ###############################################################################
-# plot a mode shape without contours using the "bwr" color map
+# Plot a mode shape without contours using the "bwr" color map:
 shaft.plot_nodal_solution(
     9,
     element_components=["SHAFT_MESH"],
     show_displacement=True,
     cmap="bwr",
     displacement_factor=0.3,
-    stitle=None,
+    scalar_bar_args={"title": ""},
     overlay_wireframe=True,
     cpos=cpos,
 )
 
+
 ###############################################################################
-# plot a mode shape with contours and the default colormap
+# Plot a mode shape with contours and the default colormap:
 shaft.plot_nodal_solution(
     1,
     element_components=["SHAFT_MESH"],
     n_colors=10,
     show_displacement=True,
     displacement_factor=1,
-    stitle=None,
     overlay_wireframe=True,
     cpos=cpos,
 )
+
 
 ###############################################################################
 # Animate a mode of a component the shaft
@@ -118,9 +124,12 @@ shaft.animate_nodal_solution(
     element_components="SHAFT_MESH",
     comp="norm",
     displacement_factor=1,
+    n_colors=12,
     show_edges=True,
     cpos=cpos,
     loop=False,
     movie_filename="demo.gif",
     n_frames=30,
+    show_axes=False,
+    add_text=False,
 )
