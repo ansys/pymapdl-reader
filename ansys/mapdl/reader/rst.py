@@ -3119,9 +3119,11 @@ class Result(AnsysBinary):
             else:
                 plotter.open_movie(movie_filename)
 
-        if add_text and rnum is not None and not animate:
+        if add_text and rnum is not None:
             result_text = self.text_result_table(rnum)
-            plotter.add_text(result_text, font_size=font_size, color=text_color)
+            if not animate:
+                # avoid adding twice
+                plotter.add_text(result_text, font_size=font_size, color=text_color)
 
         # camera position added in 0.32.0
         show_kwargs = {}
