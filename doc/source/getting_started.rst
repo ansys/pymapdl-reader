@@ -12,4 +12,4 @@ If you have any installation (or other) issues, please open an issue
 at `pymapdl-reader Issues <https://github.com/pyansys/pymapdl-reader/issues>`_.
 
 The ``ansys-mapdl-reader`` supports 64-Bit Windows, Mac OS, and Linux
-for Python 3.7 through Python 3.10.
+for Python 3.10 through Python 3.13.
