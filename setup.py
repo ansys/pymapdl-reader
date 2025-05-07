@@ -41,10 +41,10 @@ setup(
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX",
         "Operating System :: MacOS",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
     ],
     url="https://github.com/pyansys/pymapdl-reader",
     # Build cython modules
@@ -92,7 +92,7 @@ setup(
             language="c++",
         ),
     ],
-    python_requires=">=3.7,<4",
+    python_requires=">=3.10,<4",
     keywords="vtk MAPDL ANSYS cdb full rst",
     package_data={
         "ansys.mapdl.reader.examples": [
