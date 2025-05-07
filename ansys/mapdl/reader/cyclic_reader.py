@@ -1792,7 +1792,7 @@ class CyclicResult(Result):
         cs_cord = self._resultheader["csCord"]
         if cs_cord > 1:
             matrix = self.cs_4x4(cs_cord, as_vtk_matrix=True)
-            grid.transform(matrix)
+            grid.transform(matrix, inplace=True)
 
         # consider forcing low and high to be exact
         # self._mas_grid.point_data['CYCLIC_M01H'] --> rotate and match
@@ -1815,7 +1815,7 @@ class CyclicResult(Result):
 
         if cs_cord > 1:
             matrix.Invert()
-            full_rotor.transform(matrix)
+            full_rotor.transform(matrix, inplace=True)
 
         return full_rotor
 
