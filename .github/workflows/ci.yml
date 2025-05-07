@@ -10,6 +10,7 @@ env:
   PYMAPDL_START_INSTANCE: FALSE
   DOCKER_PACKAGE: ghcr.io/pyansys/pymapdl/mapdl
   DOCUMENTATION_CNAME: reader.docs.pyansys.com
+  MAIN_PYTHON_VERSION: '3.12'
 
 on:
   pull_request:
@@ -37,7 +38,7 @@ jobs:
           dependencies: 'pandoc'
           skip-dependencies-cache: true
           use-python-cache: false
-          python-version: "3.10"
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: "-j auto"
 
   doc-deploy-dev:
@@ -59,7 +60,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -243,7 +244,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       # this downloads all artifacts
       - uses: actions/download-artifact@v4
