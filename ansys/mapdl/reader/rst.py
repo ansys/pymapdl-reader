@@ -2979,7 +2979,9 @@ class Result(AnsysBinary):
             Increases or decreases displacement by a factor.
 
         add_text : bool, optional
-            Adds information about the result when rnum is given.
+            Adds information about the result when rnum is given. Control the
+            font size with the ``font_size`` parameter and text color with
+            ``text_color``.
 
         overlay_wireframe : bool, optional
             Overlay a wireframe of the original undeformed mesh.
@@ -3090,7 +3092,7 @@ class Result(AnsysBinary):
         # remove extra keyword args
         kwargs.pop("node_components", None)
         kwargs.pop("sel_type_all", None)
-
+        font_size = kwargs.pop("font_size", 16)
         if overlay_wireframe:
             plotter.add_mesh(self.grid, style="wireframe", color="w", opacity=0.5)
 
@@ -3117,10 +3119,9 @@ class Result(AnsysBinary):
             else:
                 plotter.open_movie(movie_filename)
 
-        # add table
         if add_text and rnum is not None:
             result_text = self.text_result_table(rnum)
-            plotter.add_text(result_text, font_size=20, color=text_color)
+            plotter.add_text(result_text, font_size=font_size, color=text_color)
 
         # camera position added in 0.32.0
         show_kwargs = {}
@@ -3164,6 +3165,13 @@ class Result(AnsysBinary):
                     lambda render, event: exit_callback(plotter, render, event),
                 )
 
+            # setup text
+            if add_text:
+                # results in a corner annotation actor
+                text_actor = plotter.add_text(
+                    " ", font_size=font_size, color=text_color
+                )
+
             first_loop = True
             cached_normals = [None for _ in range(n_frames)]
             while self._animating:
@@ -3184,8 +3192,10 @@ class Result(AnsysBinary):
                             copied_mesh.point_data["Normals"][:] = cached_normals[j]
 
                     if add_text:
-                        phase = angle * 180 / np.pi
-                        plotter.add_text(f"{result_text} \nPhase {phase} Degrees")
+                        text_actor.set_text(
+                            2,  # place in the upper left
+                            f"{result_text}\nPhase: {np.rad2deg(angle):.1f} Degrees",
+                        )
 
                     # at max supported framerate
                     plotter.update(1, force_redraw=True)
@@ -3311,6 +3321,7 @@ class Result(AnsysBinary):
         # screenshot = kwargs.pop('screenshot', None)
         # interactive = kwargs.pop('interactive', True)
         text_color = kwargs.pop("text_color", None)
+        font_size = kwargs.pop("font_size", 16)
 
         kwargs.setdefault("smooth_shading", True)
         kwargs.setdefault("color", "w")
@@ -3360,7 +3371,9 @@ class Result(AnsysBinary):
         if text is not None:
             if len(text) != len(scalars):
                 raise ValueError("Length of ``text`` must be the same as ``scalars``")
-            plotter.add_text(text[0], font_size=20, color=text_color)
+            text_actor = plotter.add_text(
+                text[0], font_size=font_size, color=text_color
+            )
 
         # orig_pts = copied_mesh.points.copy()
         plotter.show(
@@ -3391,7 +3404,7 @@ class Result(AnsysBinary):
                 copied_mesh.active_scalars[:] = data
 
                 if text is not None:
-                    plotter.add_text(text[i])
+                    text_actor.set_text(2, text[i])  # place in the upper left
 
                 # at max supported framerate
                 plotter.update(1, force_redraw=True)
