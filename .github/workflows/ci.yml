@@ -10,7 +10,7 @@ env:
   PYMAPDL_START_INSTANCE: FALSE
   DOCKER_PACKAGE: ghcr.io/pyansys/pymapdl/mapdl
   DOCUMENTATION_CNAME: reader.docs.pyansys.com
-  MAIN_PYTHON_VERSION: '3.12'
+  MAIN_PYTHON_VERSION: '3.13'
 
 on:
   pull_request:
