@@ -3119,7 +3119,7 @@ class Result(AnsysBinary):
             else:
                 plotter.open_movie(movie_filename)
 
-        if add_text and rnum is not None:
+        if add_text and rnum is not None and not animate:
             result_text = self.text_result_table(rnum)
             plotter.add_text(result_text, font_size=font_size, color=text_color)
 
