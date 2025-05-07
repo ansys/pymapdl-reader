@@ -3506,7 +3506,11 @@ class Result(AnsysBinary):
         )
 
     def save_as_vtk(
-        self, filename, rsets=None, result_types=["ENS"], progress_bar=True
+        self,
+        filename,
+        rsets=None,
+        result_types=["ENS"],
+        progress_bar=True,
     ):
         """Writes results to a vtk readable file.
 
@@ -3561,12 +3565,6 @@ class Result(AnsysBinary):
         progress_bar : bool, optional
             Display a progress bar using ``tqdm``.
 
-        Notes
-        -----
-        Binary files write much faster than ASCII, but binary files
-        written on one system may not be readable on other systems.
-        Binary can only be selected for the legacy writer.
-
         Examples
         --------
         Write nodal results as a binary vtk file.
@@ -3586,8 +3584,6 @@ class Result(AnsysBinary):
         >>> rst.save_as_vtk('results.vtk', [0], [])
 
         """
-        # Copy grid as to not write results to original object
-        grid = self.quadgrid.copy()
 
         if rsets is None:
             rsets = range(self.nsets)
@@ -3608,6 +3604,9 @@ class Result(AnsysBinary):
         pbar = None
         if progress_bar:
             pbar = tqdm(total=len(rsets), desc="Saving to file")
+
+        # Copy grid as to not write results to original object
+        grid = self.quadgrid.copy()
 
         for i in rsets:
             # Nodal results
