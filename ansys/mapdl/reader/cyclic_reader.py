@@ -1595,9 +1595,12 @@ class CyclicResult(Result):
         movie_filename=None,
         **kwargs,
     ):
-        """Animate nodal solution.  Assumes nodal solution is a
-        displacement array from a modal solution.
+        """Animate nodal solution.
 
+        Assumes nodal solution is a displacement array from a modal solution.
+
+        Parameters
+        ----------
         rnum : int or list
             Cumulative result number with zero based indexing, or a
             list containing (step, substep) of the requested result.
@@ -1617,8 +1620,8 @@ class CyclicResult(Result):
             Shows the phase at each frame.
 
         add_text : bool, optional
-            Includes result information at the bottom left-hand corner
-            of the plot.
+            Includes result information at the top left-hand corner of the
+            plot. Set font size with the ``font_size`` parameter.
 
         interpolate_before_map : bool, optional
             Leaving this at default generally results in a better plot.
@@ -1629,9 +1632,27 @@ class CyclicResult(Result):
             A single loop of the mode will be recorded.
 
         kwargs : optional keyword arguments, optional
-            See help(pyvista.plot) for additional keyword arguments.
+            See :func:`pyvista.plot` for additional keyword arguments.
+
+        Examples
+        --------
+        Generate a movie of a mode shape while plotting off-screen.
+
+        >>> from ansys.mapdl.reader import read_binary
+        >>> rst = read_binary("academic_rotor.rst")
+        >>> rst.animate_nodal_displacement(
+        ...     (3, 2),
+        ...     displacement_factor=0.02,
+        ...     movie_filename="movie.mp4",
+        ...     off_screen=True
+        ... )
 
         """
+        # Avoid infinite while loop by ensure looping is disabled if off screen
+        # and writing a movie
+        if movie_filename and kwargs.get("off_screen", False):
+            loop = False
+
         if "nangles" in kwargs:  # pragma: no cover
             n_frames = kwargs.pop("nangles")
             warnings.warn(
@@ -1675,6 +1696,7 @@ class CyclicResult(Result):
             scalars = (complex_disp * complex_disp).sum(1) ** 0.5
 
         # initialize plotter
+        font_size = kwargs.pop("font_size", 16)
         text_color = kwargs.pop("text_color", None)
         cpos = kwargs.pop("cpos", None)
         off_screen = kwargs.pop("off_screen", None)
@@ -1697,9 +1719,8 @@ class CyclicResult(Result):
 
         # setup text
         if add_text:
-            text_actor = plotter.add_text(
-                " ", font_size=20, position=[0, 0], color=text_color
-            )
+            # results in a corner annotation actor
+            text_actor = plotter.add_text(" ", font_size=font_size, color=text_color)
 
         if cpos:
             plotter.camera_position = cpos
@@ -1740,8 +1761,9 @@ class CyclicResult(Result):
                 plot_mesh.points[:] = orig_pt + complex_disp_adj
 
                 if add_text:
-                    text_actor.SetInput(
-                        "%s\nPhase %.1f Degrees" % (result_info, (angle * 180 / np.pi))
+                    text_actor.set_text(
+                        2,  # place in the upper left
+                        f"{result_info}\nPhase {np.rad2deg(angle):.1f} Degrees",
                     )
 
                 plotter.update(1, force_redraw=True)
