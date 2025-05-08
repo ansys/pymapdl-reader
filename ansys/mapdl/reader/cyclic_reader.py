@@ -1,15 +1,18 @@
 """Supports reading cyclic structural result files from ANSYS"""
 
+from collections.abc import Iterable
 from functools import wraps
 import warnings
 
 import numpy as np
 import pyvista as pv
+from tqdm import tqdm
 from vtkmodules.vtkCommonMath import vtkMatrix4x4
 from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkAppendFilter
 
 from ansys.mapdl.reader import _binary_reader
+from ansys.mapdl.reader._rst_keys import element_index_table_info
 from ansys.mapdl.reader.common import (
     PRINCIPAL_STRESS_TYPES,
     STRAIN_TYPES,
@@ -17,9 +20,27 @@ from ansys.mapdl.reader.common import (
     THERMAL_STRAIN_TYPES,
     axis_rotation,
 )
-from ansys.mapdl.reader.rst import Result, check_comp
+from ansys.mapdl.reader.rst import ELEMENT_INDEX_TABLE_KEYS, Result, check_comp
 
 np.seterr(divide="ignore", invalid="ignore")
+
+# MAPDL results that are tensors
+RESULT_TENSORS_TYPES = [
+    "ENS",  # nodal stresses
+    "EEL",  # elastic strains
+    "EPL",  # plastic strains
+    "ECR",  # creep strains
+    "ETH",  # thermal strains
+    "EDI",  # diffusion strains
+    "EBA",  # back stresses
+]
+
+# MAPDL results that are stresses
+RESULT_STRESS_TYPES = [
+    "ENS",  # nodal stresses
+    "ESF",  # element surface stresses
+    "EBA",  # back stresses
+]
 
 
 class CyclicResult(Result):
@@ -1793,7 +1814,7 @@ class CyclicResult(Result):
         cs_cord = self._resultheader["csCord"]
         if cs_cord > 1:
             matrix = self.cs_4x4(cs_cord, as_vtk_matrix=True)
-            grid.transform(matrix)
+            grid.transform(matrix, inplace=True)
 
         # consider forcing low and high to be exact
         # self._mas_grid.point_data['CYCLIC_M01H'] --> rotate and match
@@ -1816,7 +1837,7 @@ class CyclicResult(Result):
 
         if cs_cord > 1:
             matrix.Invert()
-            full_rotor.transform(matrix)
+            full_rotor.transform(matrix, inplace=True)
 
         return full_rotor
 
@@ -2023,3 +2044,212 @@ class CyclicResult(Result):
             cpos = plotter.show(window_size=window_size, full_screen=full_screen)
 
         return cpos
+
+    def save_as_vtk(
+        self,
+        filename,
+        rsets=None,
+        result_types=["ENS"],
+        progress_bar=True,
+        expand_cyclic=True,
+        merge_sectors=True,
+    ):
+        """Writes results to a vtk readable file.
+
+        Nodal results will always be written.
+
+        The file extension will select the type of writer to use.
+        ``'.vtk'`` will use the legacy writer, while ``'.vtu'`` will
+        select the VTK XML writer.
+
+        Parameters
+        ----------
+        filename : str, pathlib.Path
+            Filename of grid to be written.  The file extension will
+            select the type of writer to use.  ``'.vtk'`` will use the
+            legacy writer, while ``'.vtu'`` will select the VTK XML
+            writer.
+
+        rsets : collections.Iterable
+            List of result sets to write.  For example ``range(3)`` or
+            [0].
+
+        result_types : list
+            Result type to write.  For example ``['ENF', 'ENS']``
+            List of some or all of the following:
+
+            - EMS: misc. data
+            - ENF: nodal forces
+            - ENS: nodal stresses
+            - ENG: volume and energies
+            - EGR: nodal gradients
+            - EEL: elastic strains
+            - EPL: plastic strains
+            - ECR: creep strains
+            - ETH: thermal strains
+            - EUL: euler angles
+            - EFX: nodal fluxes
+            - ELF: local forces
+            - EMN: misc. non-sum values
+            - ECD: element current densities
+            - ENL: nodal nonlinear data
+            - EHC: calculated heat generations
+            - EPT: element temperatures
+            - ESF: element surface stresses
+            - EDI: diffusion strains
+            - ETB: ETABLE items
+            - ECT: contact data
+            - EXY: integration point locations
+            - EBA: back stresses
+            - ESV: state variables
+            - MNL: material nonlinear record
+
+        progress_bar : bool, optional
+            Display a progress bar using ``tqdm``.
+
+        expand_cyclic : bool, default: True.
+            When ``True``, expands cyclic results by writing out the result as
+            a full cyclic result rather than as a single cyclic sector.
+
+        merge_sectors : bool, default: False
+            When ``expand_cyclic`` is True and this parameter is ``True``,
+            sectors will be merged to create one unified grid. Set this to
+            ``False`` to not merge nodes between sectors.
+
+        Notes
+        -----
+        Nodal solutions are stored within the ``point_data`` attribute of the
+        unstructured grid and can be accessed after reading in the result with
+        pyvista with:
+
+        .. code::
+
+            >>> grid.point_data
+            pyvista DataSetAttributes
+            Association     : POINT
+            Active Scalars  : Nodal stresses (0, -2)-2
+            Active Vectors  : None
+            Active Texture  : None
+            Active Normals  : None
+            Contains arrays :
+                Nodal solution (0, 0)   float64    (18864, 3)
+                Nodal stresses (0, 0)   float64    (18864, 6)
+                Nodal solution (1, 0)   float64    (18864, 3)
+                Nodal stresses (1, 0)   float64    (18864, 6)
+                Nodal solution (0, -1)  float64    (18864, 3)
+                Nodal stresses (0, -1)  float64    (18864, 6)
+                Nodal solution (0, 1)   float64    (18864, 3)
+                Nodal stresses (0, 1)   float64    (18864, 6)
+
+        See the examples section for more details.
+
+        Examples
+        --------
+        Write nodal results as a binary vtk file. Larger file size, loads quickly.
+
+        >>> rst.save_as_vtk('results.vtk')
+
+        Write using the xml writer. This file is more compressed compressed but
+        will load slower.
+
+        >>> rst.save_as_vtk('results.vtu')
+
+        Write only nodal and elastic strain for the first result:
+
+        >>> rst.save_as_vtk('results.vtk', [0], ['EEL', 'EPL'])
+
+        Write only nodal results (i.e. displacements) for the first result:
+
+        >>> rst.save_as_vtk('results.vtk', [0], [])
+
+        Read in the results using ``pyvista.read()``. Plot the 'Z' component of
+        the first mode's -2 nodal diameter nodal displacement.
+
+        >>> import pyvista as pv
+        >>> grid = pv.read('results.vtk')
+        >>> grid.plot(scalars="Nodal solution (0, -2)", component=2)
+
+        Do not merge sectors when saving the results and separate sectors into
+        multiple blocks within pyvista.
+
+        >>> rst.save_as_vtk('results.vtk', merge_sectors=False)
+        >>> grid = pv.read('results.vtk')
+        >>> mblock = grid.split_bodies()
+
+        """
+
+        if rsets is None:
+            rsets = range(self.nsets)
+        elif isinstance(rsets, int):
+            rsets = [rsets]
+        elif not isinstance(rsets, Iterable):
+            raise TypeError("rsets must be an iterable like [0, 1, 2] or range(3)")
+
+        if result_types is None:
+            result_types = ELEMENT_INDEX_TABLE_KEYS
+        elif not isinstance(result_types, list):
+            raise TypeError("result_types must be a list of solution types")
+        else:
+            for item in result_types:
+                if item not in ELEMENT_INDEX_TABLE_KEYS:
+                    raise ValueError(f'Invalid result type "{item}"')
+
+        pbar = None
+        if progress_bar:
+            pbar = tqdm(total=len(rsets), desc="Saving to file")
+
+        # Copy grid as to not write results to original object
+        if not expand_cyclic:
+            super().save_as_vtk(filename, rsets, result_types, progress_bar)
+
+        # generate the full rotor with separate sectors
+        grid = self._gen_full_rotor()
+        grid.cell_data.pop("vtkOriginalCellIds", None)
+
+        ansys_node_num = None
+        if "ansys_node_num" in grid.point_data:
+            ansys_node_num = grid.point_data.pop("ansys_node_num")
+
+        grid.point_data.clear()
+        if ansys_node_num is not None:
+            grid.point_data["ansys_node_num"] = ansys_node_num
+
+        for i in rsets:
+            # convert the result number to a harmonic index and mode number
+            mode, hindex = self.mode_table[i], self.harmonic_indices[i]
+            sol_name = f"({mode}, {hindex})"
+
+            # Nodal results
+            # NOTE: val is shaped (n_blades, n_nodes_sector, 3)
+            _, val = self.nodal_solution(i, phase=0, full_rotor=True, as_complex=False)
+            grid.point_data[f"Nodal solution {sol_name}"] = np.vstack(val)
+
+            # Nodal results
+            for rtype in self.available_results:
+                if rtype in result_types:
+
+                    def sector_func(rnum):
+                        return self._nodal_result(rnum, rtype)
+
+                    _, values = self._get_full_result(
+                        i,
+                        sector_func,
+                        0,
+                        True,
+                        False,
+                        tensor=rtype in RESULT_TENSORS_TYPES,
+                        stress=rtype in RESULT_STRESS_TYPES,
+                    )
+
+                    desc = element_index_table_info[rtype]
+                    grid.point_data[f"{desc} {sol_name}"] = np.vstack(values)
+
+            if pbar is not None:
+                pbar.update(1)
+
+        if merge_sectors:
+            grid = grid.clean(tolerance=1e-6)
+
+        grid.save(str(filename))
+        if pbar is not None:
+            pbar.close()
