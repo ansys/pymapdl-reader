@@ -26,6 +26,7 @@ import sys
 
 import numpy as np
 import pytest
+import pyvista as pv
 from pyvista.plotting import system_supports_plotting
 from pyvista.plotting.renderer import CameraPosition
 from vtkmodules.vtkCommonMath import vtkMatrix4x4
@@ -538,3 +539,35 @@ def test_animate_academic(academic_rotor):
         add_text=False,
         show_scalar_bar=False,
     )
+
+
+def test_save_as_vtk(academic_rotor, tmpdir):
+    filename = tmpdir.mkdir("tmpdir").join("tmp.vtk")
+    academic_rotor.save_as_vtk(filename, merge_sectors=False)
+    grid = pv.read(filename)
+
+    # verify for nodal diameter 0
+
+    _, disp = academic_rotor.nodal_solution((1, 1), full_rotor=True)
+    np.allclose(grid["Nodal solution (0, 0)"], np.vstack(disp))
+
+    _, stress = academic_rotor.nodal_stress((1, 1), full_rotor=True)
+    np.allclose(grid["Nodal stresses (0, 0)"], np.vstack(stress))
+
+    # verify for nodal diameter 2
+
+    _, disp = academic_rotor.nodal_solution((3, 1), full_rotor=True)
+    np.allclose(grid["Nodal solution (0, -2)"], np.vstack(disp))
+
+    _, stress = academic_rotor.nodal_stress((3, 1), full_rotor=True)
+    np.allclose(grid["Nodal stresses (0, -2)"], np.vstack(stress))
+
+    # verify sectors are isolated
+    assert len(grid.split_bodies()) == academic_rotor.n_sector
+
+    # merge, save, and read back in
+    academic_rotor.save_as_vtk(filename, merge_sectors=True, progress_bar=False)
+    grid = pv.read(filename)
+
+    # verify sectors are not isolated
+    assert len(grid.split_bodies()) == 1
