@@ -539,7 +539,7 @@ class CyclicResult(Result):
             if nnum.size < self._mas_ind.size:
                 # node numbers of the master sector
                 nnum_mas = self._neqv[self._mas_ind]
-                mask = np.in1d(nnum, nnum_mas)
+                mask = np.isin(nnum, nnum_mas)
                 nnum = nnum[mask]
                 result = full_result[mask]
             else:

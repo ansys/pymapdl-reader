@@ -114,7 +114,7 @@ def test_nodal_cyclic_modal(academic_rotor, load_step, sub_step, rtype):
         raise ValueError("rtype %s not configured in test" % rtype)
 
     # ANSYS doesn't include results for all nodes (i.e. sector nodes)
-    mask = np.in1d(nnum, nnum_ans)
+    mask = np.isin(nnum, nnum_ans)
     stress = stress[:, mask, :6]  # pymapdl_reader strain includes eqv
     nnum = nnum[mask]
     assert np.allclose(nnum, nnum_ans)
@@ -275,7 +275,7 @@ def test_full_x_nodal_solution(result_x):
 
     assert np.allclose(np.sort(nnum), nnum), "nnum must be sorted"
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_disp.reshape(disp.shape[0], n, 3)
     assert np.allclose(nnum[mask], ansys_nnum[:n])
@@ -304,7 +304,7 @@ def test_full_z_nodal_solution(cyclic_v182_z):
         rnum, phase, full_rotor=True, as_complex=False
     )
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_disp.reshape(disp.shape[0], n, 3)
     assert np.allclose(disp[:, mask], tmp)
@@ -325,7 +325,7 @@ def test_full_z_nodal_solution_phase(cyclic_v182_z):
         rnum, phase, full_rotor=True, as_complex=True
     )
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_disp.reshape(disp.shape[0], n, 3)
     assert np.allclose(disp[:, mask], tmp)
@@ -349,7 +349,7 @@ def test_full_x_nodal_stress(result_x):
     phase = 0
     nnum, stress = result_x.nodal_stress(rnum, phase, full_rotor=True)
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_stress.reshape(stress.shape[0], n, 6)
 
@@ -395,7 +395,7 @@ def test_full_x_principal_nodal_stress(result_x):
     phase = 0
     nnum, stress = result_x.principal_nodal_stress(rnum, phase, full_rotor=True)
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_stress.reshape(stress.shape[0], n, 5)
 
@@ -425,12 +425,12 @@ def test_cyclic_z_harmonic_displacement():
 
     unod, count = np.unique(ansys_nnum, return_counts=True)
     unod = np.setdiff1d(unod[count == result_z.n_sector], 32)
-    mask = np.in1d(ansys_nnum, unod)
+    mask = np.isin(ansys_nnum, unod)
     ansys_nnum = ansys_nnum[mask]
     ansys_disp = ansys_disp[mask]
 
     nnum, disp = result_z.nodal_solution((4, 2), full_rotor=True)
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     tmp = ansys_disp.reshape(disp.shape[0], mask.sum(), 3)
     assert np.allclose(disp[:, mask], tmp, atol=1e-5)
 
@@ -462,7 +462,7 @@ def test_nodal_elastic_strain_cyclic(result_x):
     nnum, stress = result_x.nodal_elastic_strain(0, full_rotor=True)
 
     # include only common values
-    mask = np.in1d(nnum, nnum_ans[0])
+    mask = np.isin(nnum, nnum_ans[0])
     stress = stress[:, mask, :6]  # stress includes eqv
     nnum = nnum[mask]
     assert np.allclose(nnum, nnum_ans)
@@ -505,7 +505,7 @@ def test_nodal_thermal_strain_cyclic(result_x):
     nnum, strain = result_x.nodal_thermal_strain(0, full_rotor=True)
 
     # include only common values
-    mask = np.in1d(nnum, nnum_ans)
+    mask = np.isin(nnum, nnum_ans)
     strain = strain[:, mask, :6]  # strain includes eqv
     nnum = nnum[mask]
     assert np.allclose(nnum, nnum_ans)
