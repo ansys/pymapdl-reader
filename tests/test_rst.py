@@ -454,7 +454,7 @@ def test_reaction_forces(volume_rst):
 
     rforces, nnum, dof = volume_rst.nodal_reaction_forces(0)
     assert (np.diff(nnum) >= 0).all()
-    assert (np.in1d(dof, [1, 2, 3])).all()
+    assert (np.isin(dof, [1, 2, 3])).all()
     assert rforces.dtype == np.float64
 
     fz = rforces[dof == 3]
@@ -472,7 +472,7 @@ def test_nnum_of_interest(nnum_of_interest):
     nnum_sel, data_sel = rst._nodal_result(0, "ENS", nnum_of_interest=nnum_of_interest)
     nnum, data = rst._nodal_result(0, "ENS")
 
-    mask = np.in1d(nnum, nnum_of_interest)
+    mask = np.isin(nnum, nnum_of_interest)
     assert np.allclose(nnum[mask], nnum_sel)
     assert np.allclose(data[mask], data_sel, equal_nan=True)
 

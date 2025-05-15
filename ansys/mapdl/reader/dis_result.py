@@ -79,10 +79,10 @@ class DistributedResult(Result):
         ptr = self._main_result._resultheader["ptrGNOD"]
         gl_nnum = self._main_result.read_record(ptr)
 
-        mask = np.in1d(gl_nnum, self._main_result.mesh.nnum, assume_unique=True)
+        mask = np.isin(gl_nnum, self._main_result.mesh.nnum, assume_unique=True)
         for index in range(1, len(filenames)):
             result = Result(filenames[index])
-            new_mask = np.in1d(gl_nnum, result.mesh.nnum, assume_unique=True)
+            new_mask = np.isin(gl_nnum, result.mesh.nnum, assume_unique=True)
             if not new_mask.any():  # pragma: no cover
                 raise RuntimeError(
                     "File %s not part of the distributed result" % filenames[index]
