@@ -33,7 +33,7 @@ setup(
     maintainer="PyAnsys developers",
     maintainer_email="pyansys.maintainers@ansys.com",
     license="MIT",
-    license_files=("LICENSE",)
+    license_files=("LICENSE",),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
