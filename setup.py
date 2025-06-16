@@ -33,11 +33,11 @@ setup(
     maintainer="PyAnsys developers",
     maintainer_email="pyansys.maintainers@ansys.com",
     license="MIT",
+    license_files=("LICENSE",),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Information Analysis",
-        "License :: OSI Approved :: MIT License",
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX",
         "Operating System :: MacOS",

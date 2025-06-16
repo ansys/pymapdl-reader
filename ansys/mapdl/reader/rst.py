@@ -453,7 +453,7 @@ class Result(AnsysBinary):
                         # of data.
                         fs = (self._geometry_header["ptrMAT"] + ptr + 202) * 4
                         self._cfile._seekg(fs)
-                        material[key] = np.fromstring(self._cfile._read(8))[0]
+                        material[key] = np.frombuffer(self._cfile._read(8))[0]
                     else:
                         material[key] = read_mat_data(ptr)
 
