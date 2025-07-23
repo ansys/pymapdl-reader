@@ -8,7 +8,7 @@ env:
   PYMAPDL_PORT: 21000  # default won't work on GitHub runners
   PYMAPDL_DB_PORT: 21001  # default won't work on GitHub runners
   PYMAPDL_START_INSTANCE: FALSE
-  DOCKER_PACKAGE: ghcr.io/pyansys/pymapdl/mapdl
+  DOCKER_PACKAGE: ghcr.io/ansys/mapdl
   DOCUMENTATION_CNAME: reader.docs.pyansys.com
   MAIN_PYTHON_VERSION: '3.13'
 
