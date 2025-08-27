@@ -150,9 +150,7 @@ html_context = {
     "github_repo": "pymapdl-reader",
     "github_version": "main",
     "doc_path": "doc/source",
-    "pyansys_tags": [
-        "Structures"
-    ]
+    "pyansys_tags": ["Structures"],
 }
 html_theme_options = {
     "logo": "pyansys",
