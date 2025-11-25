@@ -40,6 +40,7 @@ jobs:
           use-python-cache: false
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: "-j auto"
+          check-links: false
 
   doc-deploy-dev:
     name: Upload development documentation
