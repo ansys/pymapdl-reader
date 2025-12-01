@@ -40,6 +40,7 @@ jobs:
           use-python-cache: false
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: "-j auto"
+          check-links: false
 
   doc-deploy-dev:
     name: Upload development documentation
@@ -139,7 +140,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.1.2
+        uses: pypa/cibuildwheel@v3.3.0
 
       - name: List generated wheels
         run: |
