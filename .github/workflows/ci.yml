@@ -40,6 +40,7 @@ jobs:
           use-python-cache: false
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: "-j auto"
+          check-links: false
 
   doc-deploy-dev:
     name: Upload development documentation
@@ -72,10 +73,10 @@ jobs:
             python-version: '3.13.5'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -124,7 +125,7 @@ jobs:
         run: pytest -v tests/ --durations=0
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ runner.os }}-${{ matrix.python-version }}
           path: dist/
@@ -136,16 +137,16 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.1.2
+        uses: pypa/cibuildwheel@v3.3.0
 
       - name: List generated wheels
         run: |
           ls ./wheelhouse/*
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           path: ./wheelhouse/*.whl
 
@@ -175,7 +176,7 @@ jobs:
   #   steps:
 
   #     - name: Checkout PyMAPDL
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
   #       with:
   #         repository: 'pyansys/pymapdl' #checking out main. Not release
 
@@ -183,7 +184,7 @@ jobs:
   #       run: ls -R
 
   #     - name: Downloading artifacts
-  #       uses: actions/download-artifact@v4
+  #       uses: actions/download-artifact@v6
 
   #     - name: Display structure of downloaded artifact files
   #       run: ls -R
@@ -250,12 +251,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       # this downloads all artifacts
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
 
       - name: Display structure of downloaded files
         run: ls -R
