@@ -73,7 +73,7 @@ jobs:
             python-version: '3.13.5'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -125,7 +125,7 @@ jobs:
         run: pytest -v tests/ --durations=0
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ runner.os }}-${{ matrix.python-version }}
           path: dist/
@@ -137,7 +137,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.3.0
@@ -146,7 +146,7 @@ jobs:
         run: |
           ls ./wheelhouse/*
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           path: ./wheelhouse/*.whl
 
@@ -176,7 +176,7 @@ jobs:
   #   steps:
 
   #     - name: Checkout PyMAPDL
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
   #       with:
   #         repository: 'pyansys/pymapdl' #checking out main. Not release
 
