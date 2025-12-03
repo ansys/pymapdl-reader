@@ -125,7 +125,7 @@ jobs:
         run: pytest -v tests/ --durations=0
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ runner.os }}-${{ matrix.python-version }}
           path: dist/
@@ -146,7 +146,7 @@ jobs:
         run: |
           ls ./wheelhouse/*
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           path: ./wheelhouse/*.whl
 
