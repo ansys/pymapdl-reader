@@ -33,18 +33,18 @@ setup(
     maintainer="PyAnsys developers",
     maintainer_email="pyansys.maintainers@ansys.com",
     license="MIT",
+    license_files=("LICENSE",),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Information Analysis",
-        "License :: OSI Approved :: MIT License",
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX",
         "Operating System :: MacOS",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
     ],
     url="https://github.com/pyansys/pymapdl-reader",
     # Build cython modules
@@ -92,7 +92,7 @@ setup(
             language="c++",
         ),
     ],
-    python_requires=">=3.7,<4",
+    python_requires=">=3.10,<4",
     keywords="vtk MAPDL ANSYS cdb full rst",
     package_data={
         "ansys.mapdl.reader.examples": [
@@ -110,6 +110,6 @@ setup(
         "numpy>=1.16.0,<3",
         "pyvista>=0.32.0",
         "tqdm>=4.45.0",
-        "vtk>=9.0.0,<9.4",
+        "vtk>=9.0.0,<10",
     ],
 )

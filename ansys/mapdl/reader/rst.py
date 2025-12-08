@@ -8,7 +8,6 @@ from collections.abc import Iterable, Sequence
 from functools import wraps
 import os
 import pathlib
-from threading import Thread
 import time
 from typing import Union
 import warnings
@@ -201,8 +200,7 @@ class Result(AnsysBinary):
         """
         if self._mesh is None:
             raise ValueError(
-                "Pass ``read_mesh=True`` to store the mesh"
-                " when initializing the result"
+                "Pass ``read_mesh=True`` to store the mesh when initializing the result"
             )
         return self._mesh
 
@@ -455,7 +453,7 @@ class Result(AnsysBinary):
                         # of data.
                         fs = (self._geometry_header["ptrMAT"] + ptr + 202) * 4
                         self._cfile._seekg(fs)
-                        material[key] = np.fromstring(self._cfile._read(8))[0]
+                        material[key] = np.frombuffer(self._cfile._read(8))[0]
                     else:
                         material[key] = read_mat_data(ptr)
 
@@ -831,7 +829,7 @@ class Result(AnsysBinary):
         if nnum.size != npoints:
             new_scalars = np.zeros(npoints)
             nnum_grid = self.grid.point_data["ansys_node_num"]
-            new_scalars[np.in1d(nnum_grid, nnum, assume_unique=True)] = scalars
+            new_scalars[np.isin(nnum_grid, nnum, assume_unique=True)] = scalars
             scalars = new_scalars
 
         ind = None
@@ -863,7 +861,7 @@ class Result(AnsysBinary):
         """wraps plot_nodal_solution"""
         if self._is_thermal:
             raise AttributeError(
-                "Thermal solution does not contain nodal " "displacement results"
+                "Thermal solution does not contain nodal displacement results"
             )
         return self.plot_nodal_solution(*args, **kwargs)
 
@@ -1222,7 +1220,7 @@ class Result(AnsysBinary):
         """
         if self.nsets == 1:
             raise RuntimeError(
-                "Unable to animate.  Solution contains only one " "result set"
+                "Unable to animate.  Solution contains only one result set"
             )
 
         if rnums is None:
@@ -1320,7 +1318,7 @@ class Result(AnsysBinary):
             func = self.nodal_acceleration
         else:
             raise ValueError(
-                "Argument 'solution type' must be either 'NSL', " "'VEL', or 'ACC'"
+                "Argument 'solution type' must be either 'NSL', 'VEL', or 'ACC'"
             )
 
         # size based on the first result
@@ -1512,7 +1510,7 @@ class Result(AnsysBinary):
         """
         if solution_type not in ("NSL", "VSL", "ASL"):  # pragma: no cover
             raise ValueError(
-                "Argument ``solution type`` must be either " "'NSL', 'VSL', or 'ASL'"
+                "Argument ``solution type`` must be either 'NSL', 'VSL', or 'ASL'"
             )
 
         # check if nodal solution exists
@@ -1595,7 +1593,7 @@ class Result(AnsysBinary):
                 mask = self.grid.point_data[nodes].view(bool)
             elif isinstance(nodes, Sequence):
                 if isinstance(nodes[0], int):
-                    mask = np.in1d(self.mesh.nnum, nodes)
+                    mask = np.isin(self.mesh.nnum, nodes)
                 elif isinstance(nodes[0], str):
                     mask = np.zeros(self.grid.n_points, bool)
                     for node_component in nodes:
@@ -1614,14 +1612,14 @@ class Result(AnsysBinary):
                 )
 
             # mask is for global nodes, need for potentially subselectd nodes
-            submask = np.in1d(nnum, self.grid.point_data["ansys_node_num"][mask])
+            submask = np.isin(nnum, self.grid.point_data["ansys_node_num"][mask])
             nnum, result = nnum[submask], result[submask]
 
         # always return the full array
         if nnum.size < self._neqv.size:
             # repopulate full array
             nnum_full = self._neqv[self._sidx]
-            mask = np.in1d(nnum_full, nnum, assume_unique=True)
+            mask = np.isin(nnum_full, nnum, assume_unique=True)
             result_full = np.empty(
                 (nnum_full.size, result.shape[1]), dtype=result.dtype
             )
@@ -1835,7 +1833,7 @@ class Result(AnsysBinary):
             self.grid = None
 
         # identify nodes that are actually in the solution
-        self._insolution = np.in1d(
+        self._insolution = np.isin(
             self._mesh.nnum, self._resultheader["neqv"], assume_unique=True
         )
 
@@ -2981,7 +2979,9 @@ class Result(AnsysBinary):
             Increases or decreases displacement by a factor.
 
         add_text : bool, optional
-            Adds information about the result when rnum is given.
+            Adds information about the result when rnum is given. Control the
+            font size with the ``font_size`` parameter and text color with
+            ``text_color``.
 
         overlay_wireframe : bool, optional
             Overlay a wireframe of the original undeformed mesh.
@@ -3092,7 +3092,7 @@ class Result(AnsysBinary):
         # remove extra keyword args
         kwargs.pop("node_components", None)
         kwargs.pop("sel_type_all", None)
-
+        font_size = kwargs.pop("font_size", 16)
         if overlay_wireframe:
             plotter.add_mesh(self.grid, style="wireframe", color="w", opacity=0.5)
 
@@ -3119,10 +3119,11 @@ class Result(AnsysBinary):
             else:
                 plotter.open_movie(movie_filename)
 
-        # add table
         if add_text and rnum is not None:
             result_text = self.text_result_table(rnum)
-            plotter.add_text(result_text, font_size=20, color=text_color)
+            if not animate:
+                # avoid adding twice
+                plotter.add_text(result_text, font_size=font_size, color=text_color)
 
         # camera position added in 0.32.0
         show_kwargs = {}
@@ -3166,6 +3167,13 @@ class Result(AnsysBinary):
                     lambda render, event: exit_callback(plotter, render, event),
                 )
 
+            # setup text
+            if add_text:
+                # results in a corner annotation actor
+                text_actor = plotter.add_text(
+                    " ", font_size=font_size, color=text_color
+                )
+
             first_loop = True
             cached_normals = [None for _ in range(n_frames)]
             while self._animating:
@@ -3186,8 +3194,10 @@ class Result(AnsysBinary):
                             copied_mesh.point_data["Normals"][:] = cached_normals[j]
 
                     if add_text:
-                        phase = angle * 180 / np.pi
-                        plotter.add_text(f"{result_text} \nPhase {phase} Degrees")
+                        text_actor.set_text(
+                            2,  # place in the upper left
+                            f"{result_text}\nPhase: {np.rad2deg(angle):.1f} Degrees",
+                        )
 
                     # at max supported framerate
                     plotter.update(1, force_redraw=True)
@@ -3313,6 +3323,7 @@ class Result(AnsysBinary):
         # screenshot = kwargs.pop('screenshot', None)
         # interactive = kwargs.pop('interactive', True)
         text_color = kwargs.pop("text_color", None)
+        font_size = kwargs.pop("font_size", 16)
 
         kwargs.setdefault("smooth_shading", True)
         kwargs.setdefault("color", "w")
@@ -3361,10 +3372,10 @@ class Result(AnsysBinary):
         # add table
         if text is not None:
             if len(text) != len(scalars):
-                raise ValueError(
-                    "Length of ``text`` must be the same as " "``scalars``"
-                )
-            plotter.add_text(text[0], font_size=20, color=text_color)
+                raise ValueError("Length of ``text`` must be the same as ``scalars``")
+            text_actor = plotter.add_text(
+                text[0], font_size=font_size, color=text_color
+            )
 
         # orig_pts = copied_mesh.points.copy()
         plotter.show(
@@ -3395,7 +3406,7 @@ class Result(AnsysBinary):
                 copied_mesh.active_scalars[:] = data
 
                 if text is not None:
-                    plotter.add_text(text[i])
+                    text_actor.set_text(2, text[i])  # place in the upper left
 
                 # at max supported framerate
                 plotter.update(1, force_redraw=True)
@@ -3510,7 +3521,11 @@ class Result(AnsysBinary):
         )
 
     def save_as_vtk(
-        self, filename, rsets=None, result_types=["ENS"], progress_bar=True
+        self,
+        filename,
+        rsets=None,
+        result_types=["ENS"],
+        progress_bar=True,
     ):
         """Writes results to a vtk readable file.
 
@@ -3565,12 +3580,6 @@ class Result(AnsysBinary):
         progress_bar : bool, optional
             Display a progress bar using ``tqdm``.
 
-        Notes
-        -----
-        Binary files write much faster than ASCII, but binary files
-        written on one system may not be readable on other systems.
-        Binary can only be selected for the legacy writer.
-
         Examples
         --------
         Write nodal results as a binary vtk file.
@@ -3590,8 +3599,6 @@ class Result(AnsysBinary):
         >>> rst.save_as_vtk('results.vtk', [0], [])
 
         """
-        # Copy grid as to not write results to original object
-        grid = self.quadgrid.copy()
 
         if rsets is None:
             rsets = range(self.nsets)
@@ -3612,6 +3619,9 @@ class Result(AnsysBinary):
         pbar = None
         if progress_bar:
             pbar = tqdm(total=len(rsets), desc="Saving to file")
+
+        # Copy grid as to not write results to original object
+        grid = self.quadgrid.copy()
 
         for i in rsets:
             # Nodal results
@@ -3784,7 +3794,7 @@ class Result(AnsysBinary):
 
         if nnum_of_interest is not None:
             nnum_sel = np.unique(nnum_of_interest)
-            mask = np.in1d(self.mesh.nnum, nnum_sel)
+            mask = np.isin(self.mesh.nnum, nnum_sel)
 
             # extract any elements containing these values
             # note that we need this for accurate averaging of results
@@ -3793,10 +3803,10 @@ class Result(AnsysBinary):
             )
 
             # mask relative to global eeqv array
-            ele_mask = np.in1d(self._eeqv, grid["ansys_elem_num"], assume_unique=True)
+            ele_mask = np.isin(self._eeqv, grid["ansys_elem_num"], assume_unique=True)
 
             # verify that all nodes of interest actually occur within
-            node_mask = np.in1d(nnum_sel, grid["ansys_node_num"], assume_unique=True)
+            node_mask = np.isin(nnum_sel, grid["ansys_node_num"], assume_unique=True)
             if not node_mask.all():
                 warnings.warn(
                     "Not all nodes IDs in the ``nnum_of_interest`` "
@@ -3855,7 +3865,7 @@ class Result(AnsysBinary):
 
         if nnum_of_interest is not None:
             if grid.n_points != nnum_sel.size:
-                mask = np.in1d(grid["ansys_node_num"], nnum_sel)
+                mask = np.isin(grid["ansys_node_num"], nnum_sel)
                 nnum = grid["ansys_node_num"][mask]
                 ncount = ncount[mask]
                 data = data[mask]
@@ -4302,7 +4312,7 @@ class Result(AnsysBinary):
 
         # angles relative to the XZ plane
         if nnum.size != self._mesh.nodes.shape[0]:
-            mask = np.in1d(nnum, self._mesh.nnum)
+            mask = np.isin(nnum, self._mesh.nnum)
             angle = np.arctan2(self._mesh.nodes[mask, 1], self._mesh.nodes[mask, 0])
         else:
             angle = np.arctan2(self._mesh.nodes[:, 1], self._mesh.nodes[:, 0])
@@ -4984,77 +4994,6 @@ class Result(AnsysBinary):
             sel_type_all=sel_type_all,
             **kwargs,
         )
-
-    def _animate_time_solution(
-        self,
-        result_type,
-        index=0,
-        frame_rate=10,
-        show_displacement=True,
-        displacement_factor=1,
-        off_screen=None,
-    ):
-        """Animate time solution result"""
-        # load all results
-        results = []
-        for i in range(self.nsets):
-            results.append(self._nodal_result(i, result_type)[1][:, index])
-
-        if show_displacement:
-            disp = []
-            for i in range(self.nsets):
-                disp.append(self.nodal_solution(i)[1][:, :3] * displacement_factor)
-
-        mesh = self.grid.copy()
-        results = np.array(results)
-        if np.all(np.isnan(results)):
-            raise ValueError(
-                "Result file contains no %s records"
-                % element_index_table_info[result_type.upper()]
-            )
-
-        # prepopulate mesh with data
-        mesh["data"] = results[0]
-
-        # set default range
-        rng = [results.min(), results.max()]
-        t_wait = 1 / frame_rate
-
-        def q_callback():
-            """exit when user wants to leave"""
-            self._animating = False
-
-        self._animating = True
-
-        def plot_thread():
-            plotter = pv.Plotter(off_screen=off_screen)
-            plotter.add_key_event("q", q_callback)
-            plotter.add_mesh(mesh, scalars="data", rng=rng)
-            plotter.show(auto_close=False, interactive_update=True, interactive=False)
-            text_actor = plotter.add_text("Result 1")
-            while self._animating:
-                for i in range(self.nsets):
-                    mesh["data"] = results[i]
-
-                    if show_displacement:
-                        mesh.points = self.grid.points + disp[i]
-
-                    # if interactive:
-                    plotter.update(30, force_redraw=True)
-                    if hasattr(text_actor, "SetInput"):
-                        text_actor.SetInput("Result %d" % (i + 1))
-                    else:
-                        text_actor.SetText(0, "Result %d" % (i + 1))
-
-                    time.sleep(t_wait)
-
-                if off_screen:
-                    break
-
-            plotter.close()
-
-        thread = Thread(target=plot_thread)
-        thread.start()
 
     @property
     def available_results(self):

@@ -953,17 +953,17 @@ def read_nodal_values(
         offset = offsets[i] + 1
 
         if celltype == VTK_LINE:
-            read_element(cells, offset, ncount, data, bufferdata, nitems, nnode_elem)
+            read_element(cells, offset, ncount, data, bufferdata, nitems, 2)
         elif celltype == VTK_TRIANGLE:  # untested
-            read_element(cells, offset, ncount, data, bufferdata, nitems, nnode_elem)
+            read_element(cells, offset, ncount, data, bufferdata, nitems, 3)
         elif celltype == VTK_QUAD:
             read_element(cells, offset, ncount, data, bufferdata, nitems, 4)
         elif celltype == VTK_QUADRATIC_QUAD:
             read_element(cells, offset, ncount, data, bufferdata, nitems, 8)
         elif celltype == VTK_HEXAHEDRON:
-            read_element(cells, offset, ncount, data, bufferdata, nitems, nnode_elem)
+            read_element(cells, offset, ncount, data, bufferdata, nitems, 8)
         elif celltype == VTK_PYRAMID:
-            read_element(cells, offset, ncount, data, bufferdata, nitems, nnode_elem)
+            read_element(cells, offset, ncount, data, bufferdata, nitems, 5)
         elif celltype == VTK_TETRA:  # dependent on element type
             if nodstr[etype[i]] == 4:
                 read_element(cells, offset, ncount, data, bufferdata, nitems, 4)

@@ -26,6 +26,7 @@ import sys
 
 import numpy as np
 import pytest
+import pyvista as pv
 from pyvista.plotting import system_supports_plotting
 from pyvista.plotting.renderer import CameraPosition
 from vtkmodules.vtkCommonMath import vtkMatrix4x4
@@ -56,7 +57,7 @@ except:
 
 IS_MAC = platform.system() == "Darwin"
 skip_plotting = pytest.mark.skipif(
-    not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 10),
+    not system_supports_plotting() or IS_MAC or sys.version_info >= (3, 13),
     reason="Plotting disabled for these tests",
 )
 
@@ -113,7 +114,7 @@ def test_nodal_cyclic_modal(academic_rotor, load_step, sub_step, rtype):
         raise ValueError("rtype %s not configured in test" % rtype)
 
     # ANSYS doesn't include results for all nodes (i.e. sector nodes)
-    mask = np.in1d(nnum, nnum_ans)
+    mask = np.isin(nnum, nnum_ans)
     stress = stress[:, mask, :6]  # pymapdl_reader strain includes eqv
     nnum = nnum[mask]
     assert np.allclose(nnum, nnum_ans)
@@ -274,7 +275,7 @@ def test_full_x_nodal_solution(result_x):
 
     assert np.allclose(np.sort(nnum), nnum), "nnum must be sorted"
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_disp.reshape(disp.shape[0], n, 3)
     assert np.allclose(nnum[mask], ansys_nnum[:n])
@@ -303,7 +304,7 @@ def test_full_z_nodal_solution(cyclic_v182_z):
         rnum, phase, full_rotor=True, as_complex=False
     )
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_disp.reshape(disp.shape[0], n, 3)
     assert np.allclose(disp[:, mask], tmp)
@@ -324,7 +325,7 @@ def test_full_z_nodal_solution_phase(cyclic_v182_z):
         rnum, phase, full_rotor=True, as_complex=True
     )
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_disp.reshape(disp.shape[0], n, 3)
     assert np.allclose(disp[:, mask], tmp)
@@ -348,7 +349,7 @@ def test_full_x_nodal_stress(result_x):
     phase = 0
     nnum, stress = result_x.nodal_stress(rnum, phase, full_rotor=True)
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_stress.reshape(stress.shape[0], n, 6)
 
@@ -394,7 +395,7 @@ def test_full_x_principal_nodal_stress(result_x):
     phase = 0
     nnum, stress = result_x.principal_nodal_stress(rnum, phase, full_rotor=True)
 
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     n = mask.sum()
     tmp = ansys_stress.reshape(stress.shape[0], n, 5)
 
@@ -424,12 +425,12 @@ def test_cyclic_z_harmonic_displacement():
 
     unod, count = np.unique(ansys_nnum, return_counts=True)
     unod = np.setdiff1d(unod[count == result_z.n_sector], 32)
-    mask = np.in1d(ansys_nnum, unod)
+    mask = np.isin(ansys_nnum, unod)
     ansys_nnum = ansys_nnum[mask]
     ansys_disp = ansys_disp[mask]
 
     nnum, disp = result_z.nodal_solution((4, 2), full_rotor=True)
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     tmp = ansys_disp.reshape(disp.shape[0], mask.sum(), 3)
     assert np.allclose(disp[:, mask], tmp, atol=1e-5)
 
@@ -461,7 +462,7 @@ def test_nodal_elastic_strain_cyclic(result_x):
     nnum, stress = result_x.nodal_elastic_strain(0, full_rotor=True)
 
     # include only common values
-    mask = np.in1d(nnum, nnum_ans[0])
+    mask = np.isin(nnum, nnum_ans[0])
     stress = stress[:, mask, :6]  # stress includes eqv
     nnum = nnum[mask]
     assert np.allclose(nnum, nnum_ans)
@@ -504,7 +505,7 @@ def test_nodal_thermal_strain_cyclic(result_x):
     nnum, strain = result_x.nodal_thermal_strain(0, full_rotor=True)
 
     # include only common values
-    mask = np.in1d(nnum, nnum_ans)
+    mask = np.isin(nnum, nnum_ans)
     strain = strain[:, mask, :6]  # strain includes eqv
     nnum = nnum[mask]
     assert np.allclose(nnum, nnum_ans)
@@ -523,3 +524,50 @@ def test_cs_4x4(result_x):
     # expect first CSYS to be cartesian
     assert np.allclose(result_x.cs_4x4(1), np.eye(4))
     assert isinstance(result_x.cs_4x4(1, as_vtk_matrix=True), vtkMatrix4x4)
+
+
+@skip_plotting
+def test_animate_academic(academic_rotor):
+    _ = academic_rotor.animate_nodal_displacement(
+        (3, 2),
+        displacement_factor=0.03,
+        n_frames=30,
+        n_colors=128,
+        show_axes=False,
+        background="w",
+        loop=False,
+        add_text=False,
+        show_scalar_bar=False,
+    )
+
+
+def test_save_as_vtk(academic_rotor, tmpdir):
+    filename = tmpdir.mkdir("tmpdir").join("tmp.vtk")
+    academic_rotor.save_as_vtk(filename, merge_sectors=False)
+    grid = pv.read(filename)
+
+    # verify for nodal diameter 0
+
+    _, disp = academic_rotor.nodal_solution((1, 1), full_rotor=True)
+    np.allclose(grid["Nodal solution (0, 0)"], np.vstack(disp))
+
+    _, stress = academic_rotor.nodal_stress((1, 1), full_rotor=True)
+    np.allclose(grid["Nodal stresses (0, 0)"], np.vstack(stress))
+
+    # verify for nodal diameter 2
+
+    _, disp = academic_rotor.nodal_solution((3, 1), full_rotor=True)
+    np.allclose(grid["Nodal solution (0, -2)"], np.vstack(disp))
+
+    _, stress = academic_rotor.nodal_stress((3, 1), full_rotor=True)
+    np.allclose(grid["Nodal stresses (0, -2)"], np.vstack(stress))
+
+    # verify sectors are isolated
+    assert len(grid.split_bodies()) == academic_rotor.n_sector
+
+    # merge, save, and read back in
+    academic_rotor.save_as_vtk(filename, merge_sectors=True, progress_bar=False)
+    grid = pv.read(filename)
+
+    # verify sectors are not isolated
+    assert len(grid.split_bodies()) == 1

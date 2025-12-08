@@ -38,6 +38,7 @@ doc/source/examples/*
 *.out
 *.tar.gz
 *.mypy_cache/
+doc/source/sg_execution_times.rst
 
 # Testing
 factory/

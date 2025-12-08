@@ -41,7 +41,7 @@ def find_dis_files(main_file: Union[str, pathlib.Path]):
 
     if max(filenames.keys()) + 1 != len(filenames):
         raise FileNotFoundError(
-            "Unable to find all the result files of a " "distributed result"
+            "Unable to find all the result files of a distributed result"
         )
 
     return filenames
@@ -72,17 +72,17 @@ class DistributedResult(Result):
 
         if not self._main_result._is_main:  # pragma: no cover
             raise RuntimeError(
-                "DistributedResult must be created from the main " "result file"
+                "DistributedResult must be created from the main result file"
             )
 
         # load and verify
         ptr = self._main_result._resultheader["ptrGNOD"]
         gl_nnum = self._main_result.read_record(ptr)
 
-        mask = np.in1d(gl_nnum, self._main_result.mesh.nnum, assume_unique=True)
+        mask = np.isin(gl_nnum, self._main_result.mesh.nnum, assume_unique=True)
         for index in range(1, len(filenames)):
             result = Result(filenames[index])
-            new_mask = np.in1d(gl_nnum, result.mesh.nnum, assume_unique=True)
+            new_mask = np.isin(gl_nnum, result.mesh.nnum, assume_unique=True)
             if not new_mask.any():  # pragma: no cover
                 raise RuntimeError(
                     "File %s not part of the distributed result" % filenames[index]
@@ -428,5 +428,5 @@ class DistributedResult(Result):
             bsurfs.append(bsurf)
 
         desc = self.available_results.description[result_type].capitalize()
-        kwargs.setdefault("stitle", desc)
+        kwargs.setdefault("scalar_bar_args", {"title": desc})
         return pv.plot(bsurfs, scalars="_scalars", **kwargs)

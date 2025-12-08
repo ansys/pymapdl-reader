@@ -33,7 +33,7 @@ def general_plotter(
     cmap=None,
     render_points_as_spheres=False,
     render_lines_as_tubes=False,
-    stitle=None,
+    scalar_bar_args=None,
     smooth_shading=False,
     # labels kwargs
     font_size=None,
@@ -168,7 +168,7 @@ def general_plotter(
         pl.add_mesh(
             mesh["mesh"],
             scalars=mesh.get("scalars", None),
-            stitle=mesh.get("stitle", None),
+            scalar_bar_args=scalar_bar_args,
             color=mesh.get("color", color),
             show_edges=show_edges,
             edge_color=edge_color,
@@ -199,9 +199,6 @@ def general_plotter(
             font_family=font_family,
             text_color=text_color,
         )
-
-    if stitle is not None:
-        pl.add_scalar_bar(title=stitle)
 
     if cpos:
         pl.camera_position = cpos
