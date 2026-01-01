@@ -1,4 +1,4 @@
-Sphinx<9
+Sphinx<10
 ansys-sphinx-theme==1.6.3
 imageio==2.37.0
 nest-asyncio==1.6.0
