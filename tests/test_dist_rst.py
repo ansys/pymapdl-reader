@@ -1,4 +1,4 @@
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -154,7 +154,7 @@ def test_blade_result(beam_blade):
     ans_rst = np.load(filename)
 
     nnum, disp = beam_blade.nodal_displacement(0)
-    mask = np.in1d(ans_rst["nnum"], nnum)
+    mask = np.isin(ans_rst["nnum"], nnum)
     assert np.allclose(disp[:, 0], ans_rst["x_disp"][mask])
 
 

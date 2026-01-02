@@ -256,7 +256,7 @@ class Archive(Mesh):
         """Plot the mesh"""
         if self._grid is None:  # pragma: no cover
             raise AttributeError(
-                "Archive must be parsed as a vtk grid.\n" "Set `parse_vtk=True`"
+                "Archive must be parsed as a vtk grid.\nSet `parse_vtk=True`"
             )
         kwargs.setdefault("color", "w")
         kwargs.setdefault("show_edges", True)
@@ -404,7 +404,7 @@ def save_as_archive(
         # VTK_QUADRATIC_QUAD
 
     # extract allowable cell types
-    mask = np.in1d(grid.celltypes, allowable)
+    mask = np.isin(grid.celltypes, allowable)
     if not mask.any():
         ucelltypes = np.unique(grid.celltypes)
         allowable.sort()
@@ -440,8 +440,7 @@ def save_as_archive(
             nadd = np.sum(nodenum == -1)
             end_num = start_num + nadd
             log.info(
-                "FEM missing some node numbers.  Adding node numbering "
-                "from %d to %d",
+                "FEM missing some node numbers.  Adding node numbering from %d to %d",
                 start_num,
                 end_num,
             )
@@ -464,8 +463,7 @@ def save_as_archive(
     if np.any(enum == -1):
         if not allow_missing:
             raise Exception(
-                '-1 encountered in "ansys_elem_num".\n'
-                'Exiting due "allow_missing=False"'
+                '-1 encountered in "ansys_elem_num".\nExiting due "allow_missing=False"'
             )
 
         start_num = enum.max() + 1

@@ -1,4 +1,4 @@
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -250,7 +250,7 @@ def test_prnsol_s(mapdl, cyclic_modal, rset):
     nnum, stress = mapdl.result.nodal_stress(rset)
 
     # v150 includes nodes in the geometry that aren't in the result
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     nnum = nnum[mask]
     stress = stress[mask]
 
@@ -272,7 +272,7 @@ def test_prnsol_prin(mapdl, cyclic_modal, rset):
     nnum, stress = mapdl.result.principal_nodal_stress(rset)
 
     # v150 includes nodes in the geometry that aren't in the result
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     nnum = nnum[mask]
     stress = stress[mask]
 

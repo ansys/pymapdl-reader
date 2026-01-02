@@ -8,7 +8,7 @@ from ansys.mapdl.reader.elements import ETYPE_MAP
 from ansys.mapdl.reader.misc import unique_rows
 
 INVALID_ALLOWABLE_TYPES = TypeError(
-    "`allowable_types` must be an array " "of ANSYS element types from 1 and 300"
+    "`allowable_types` must be an array of ANSYS element types from 1 and 300"
 )
 
 # map MESH200 elements to a pymapdl_reader/VTK element type (see elements.py)
@@ -239,12 +239,12 @@ class Mesh:
         # add components
         # Add element components to unstructured grid
         for key, item in self.element_components.items():
-            mask = np.in1d(self.enum, item, assume_unique=True)
+            mask = np.isin(self.enum, item, assume_unique=True)
             grid.cell_data[key] = mask
 
         # Add node components to unstructured grid
         for key, item in self.node_components.items():
-            mask = np.in1d(nnum, item, assume_unique=True)
+            mask = np.isin(nnum, item, assume_unique=True)
             grid.point_data[key] = mask
 
         # store node angles

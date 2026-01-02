@@ -18,3 +18,4 @@
 * [purubcik](https://github.com/purubcik)
 * [Raphael Luciano](https://github.com/raph-luc)
 * [Roberto Pastor Muela](https://github.com/RobPasMue)
+* [Sébastien Morais](https://github.com/SMoraisAnsys)

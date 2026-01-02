@@ -1,4 +1,4 @@
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -60,5 +60,5 @@ def test_stress(result):
     ansys_nnum = np.load(os.path.join(testfiles_path, "prnsol_s_nnum.npy"))
     ansys_stress = np.load(os.path.join(testfiles_path, "prnsol_s.npy"))
     nnum, stress = result.nodal_stress(0)
-    mask = np.in1d(nnum, ansys_nnum)
+    mask = np.isin(nnum, ansys_nnum)
     assert np.allclose(stress[mask], ansys_stress, atol=1e-6)
