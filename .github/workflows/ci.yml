@@ -184,7 +184,7 @@ jobs:
   #       run: ls -R
 
   #     - name: Downloading artifacts
-  #       uses: actions/download-artifact@v6
+  #       uses: actions/download-artifact@v7
 
   #     - name: Display structure of downloaded artifact files
   #       run: ls -R
@@ -256,7 +256,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       # this downloads all artifacts
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
 
       - name: Display structure of downloaded files
         run: ls -R
