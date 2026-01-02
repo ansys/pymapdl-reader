@@ -1,0 +1,79 @@
+
+
+.. _sphx_glr_examples_01-cyclic_results:
+
+Cyclic Result Analysis
+----------------------
+The following examples demonstrate how to load results from and
+directly analyze MAPDL result files from a cyclic analysis.
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to interpret modes from a cyclic analysis from MAPDL result file from bo...">
+
+.. only:: html
+
+  .. image:: /examples/01-cyclic_results/images/thumb/sphx_glr_academic_sector_nd_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_01-cyclic_results_academic_sector_nd.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Understanding Nodal Diameters from a Cyclic Model Analysis</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to extract strain and stress from a cyclic modal analysis.">
+
+.. only:: html
+
+  .. image:: /examples/01-cyclic_results/images/thumb/sphx_glr_academic_sector_stress_strain_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_01-cyclic_results_academic_sector_stress_strain.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Stress and Strain from a Cyclic Modal Analysis</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="First, load the rotor.  Notice how printing the rotor class reveals the details of the rotor re...">
+
+.. only:: html
+
+  .. image:: /examples/01-cyclic_results/images/thumb/sphx_glr_sector_model_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_01-cyclic_results_sector_model.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Cyclic Model Visualization</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/01-cyclic_results/academic_sector_nd
+   /examples/01-cyclic_results/academic_sector_stress_strain
+   /examples/01-cyclic_results/sector_model
+
