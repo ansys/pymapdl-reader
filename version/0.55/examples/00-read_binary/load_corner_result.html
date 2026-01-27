@@ -1,0 +1,1016 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Cylindrical Nodal Stress &#8212; PyMAPDL - Legacy Reader</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/ansys-sphinx-theme.css?v=9e79609d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/ansys-sphinx-theme.css?v=9e79609d" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../_static/documentation_options.js?v=c70098d2"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=4ea706d9"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/00-read_binary/load_corner_result';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://reader.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.55';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Shaft Modal Analysis" href="load_shaft_result.html" />
+    <link rel="prev" title="Custom Scalar Visualization" href="custom_visualization.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.55.2" />
+  <meta property="og:site_name" content="PyAnsys" />
+  <meta name="physics" content="Structures" />
+  <link rel="canonical" href="https://reader.docs.pyansys.com/version/stable/examples/00-read_binary/load_corner_result.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://docs.pyansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="PyMAPDL - Legacy Reader - Home"/>
+    <img src="../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyMAPDL - Legacy Reader - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html" title="PyMAPDL - Legacy Reader home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymapdl-reader" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html" title="PyMAPDL - Legacy Reader home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymapdl-reader" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Loading and Visualizing Result Files</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="custom_visualization.html">Custom Scalar Visualization</a></li>
+
+
+
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Cylindrical Nodal Stress</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_shaft_result.html">Shaft Modal Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_thermal_result.html">Thermal Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pontoon.html">Shell Static Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../01-cyclic_results/index.html">Cyclic Result Analysis</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Loading and Visualizing Result Files</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Cylindrical Nodal Stress</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-00-read-binary-load-corner-result-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="cylindrical-nodal-stress">
+<span id="ref-load-cylindrical-result"></span><span id="sphx-glr-examples-00-read-binary-load-corner-result-py"></span><h1>Cylindrical Nodal Stress<a class="headerlink" href="#cylindrical-nodal-stress" title="Link to this heading">#</a></h1>
+<p>Visualize the nodal stress in the radial direction.  This is
+equivalent to setting the result coordinate system to cylindrical in
+MAPDL (e.g. <code class="docutils literal notranslate"><span class="pre">RSYS,</span> <span class="pre">1</span></code>).</p>
+<p>Download a small result file containing the corner of a thick pipe</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ansys.mapdl.reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">examples</span>
+
+<span class="n">rst</span> <span class="o">=</span> <span class="n">examples</span><span class="o">.</span><span class="n">download_corner_pipe</span><span class="p">()</span>
+
+<span class="c1"># obtain the cylindrical_nodal_stress</span>
+<a href="https://docs.pyvista.org/api/utilities/_autosummary/pyvista.pyvista_ndarray.html#pyvista.pyvista_ndarray" title="pyvista.pyvista_ndarray" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nnum</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stress</span></a> <span class="o">=</span> <span class="n">rst</span><span class="o">.</span><span class="n">cylindrical_nodal_stress</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stress</span></a><span class="p">)</span>
+
+<span class="c1"># contains results for each node in following directions</span>
+<span class="c1"># R, THETA, Z, RTHETA, THETAZ, and RZ</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3.11/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stress</span><span class="o">.</span><span class="n">shape</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 7.94594941e-02  5.55927717e-01  5.56718485e-03  6.97496325e-10
+  -2.56250392e-10 -6.05982346e-03]
+ [ 8.13450519e-02  5.72433063e-01  1.58490917e-02 -2.23391931e-09
+   1.28759924e-10 -6.77734173e-03]
+ [ 8.23295392e-02  5.78101967e-01  2.50045424e-02 -1.92234743e-09
+   4.66417052e-10 -3.87984037e-03]
+ [ 7.94594929e-02  5.55927715e-01  5.56718386e-03 -1.26438356e-09
+  -2.08493836e-10 -6.05982419e-03]
+ [ 8.13450560e-02  5.72433059e-01  1.58490917e-02  1.34862066e-09
+   6.03860117e-11 -6.77734037e-03]
+ [ 8.23295428e-02  5.78101971e-01  2.50045417e-02  8.38401223e-10
+   3.78141262e-11 -3.87983945e-03]
+ [ 7.94595015e-02  5.55927718e-01  5.56718669e-03 -1.65827527e-09
+   2.30367329e-10 -6.05982295e-03]
+ [ 8.13450565e-02  5.72433055e-01  1.58490935e-02 -1.52728857e-10
+   1.06830835e-10 -6.77734103e-03]
+ [ 8.23295446e-02  5.78101971e-01  2.50045416e-02 -4.07121142e-09
+  -2.04463608e-10 -3.87983998e-03]
+ [ 7.94594976e-02  5.55927720e-01  5.56718657e-03 -2.61497117e-09
+   8.83996498e-11 -6.05982280e-03]
+ [ 8.13450510e-02  5.72433062e-01  1.58490923e-02  1.96021048e-09
+   3.86914797e-11 -6.77734166e-03]
+ [ 8.23295409e-02  5.78101968e-01  2.50045424e-02  2.46976510e-09
+  -1.43618419e-10 -3.87984031e-03]
+ [ 8.87091703e-02  4.59186449e-01  1.66381133e-03 -5.02383458e-09
+  -1.60154584e-10 -8.10663546e-03]
+ [ 9.07571895e-02  4.70760860e-01  4.51115718e-03 -1.05676679e-09
+   5.74114898e-10 -8.65319758e-03]
+ [ 9.18382045e-02  4.73520921e-01  5.93209270e-03  5.07137166e-10
+   7.26839140e-10 -4.98656422e-03]
+ [ 8.87091697e-02  4.59186461e-01  1.66381063e-03  2.07484194e-09
+  -2.15857085e-11 -8.10663672e-03]
+ [ 9.07571806e-02  4.70760853e-01  4.51115755e-03 -1.81641346e-09
+  -8.37350857e-11 -8.65319645e-03]
+ [ 9.18382015e-02  4.73520922e-01  5.93209150e-03 -5.36238963e-10
+   3.88171092e-10 -4.98656246e-03]
+ [ 8.87091769e-02  4.59186459e-01  1.66381196e-03 -5.68798716e-10
+   4.78672586e-10 -8.10663501e-03]
+ [ 9.07571848e-02  4.70760853e-01  4.51115792e-03  3.01230529e-09
+  -2.10931730e-10 -8.65319774e-03]
+ [ 9.18382033e-02  4.73520920e-01  5.93209319e-03 -3.93500163e-11
+  -3.11633189e-10 -4.98656366e-03]
+ [ 8.87091672e-02  4.59186449e-01  1.66381088e-03  3.55227134e-09
+   1.68405054e-10 -8.10663473e-03]
+ [ 9.07571852e-02  4.70760858e-01  4.51115676e-03 -3.11956244e-09
+   2.65914506e-10 -8.65319731e-03]
+ [ 9.18382055e-02  4.73520918e-01  5.93209319e-03  1.51184375e-09
+   2.14204470e-10 -4.98656376e-03]
+ [ 5.85472850e-02  3.78034674e-01 -7.80566066e-03 -2.39007356e-09
+   1.72839215e-10 -5.78785978e-03]
+ [ 6.02946419e-02  3.85057437e-01 -1.50803311e-02  9.37961653e-11
+   5.39665012e-10 -6.08616244e-03]
+ [ 6.08111414e-02  3.85435925e-01 -2.07263989e-02 -3.18295973e-10
+   3.02412191e-10 -3.43262973e-03]
+ [ 5.85472895e-02  3.78034666e-01 -7.80566086e-03  1.50064641e-09
+  -2.08513323e-10 -5.78786087e-03]
+ [ 6.02946388e-02  3.85057437e-01 -1.50803316e-02  7.53562213e-10
+  -4.79118746e-11 -6.08616216e-03]
+ [ 6.08111448e-02  3.85435927e-01 -2.07263989e-02  3.91285067e-10
+   2.15709392e-10 -3.43262908e-03]
+ [ 5.85472913e-02  3.78034668e-01 -7.80565877e-03 -1.50064641e-09
+  -6.89914575e-12 -5.78786010e-03]
+ [ 6.02946387e-02  3.85057436e-01 -1.50803290e-02  5.75048398e-10
+  -1.58096145e-10 -6.08616316e-03]
+ [ 6.08111454e-02  3.85435924e-01 -2.07263979e-02 -5.24003875e-10
+   2.88734970e-10 -3.43263019e-03]
+ [ 5.85472850e-02  3.78034672e-01 -7.80566043e-03 -4.17711504e-10
+   4.68632815e-10 -5.78786002e-03]
+ [ 6.02946402e-02  3.85057437e-01 -1.50803308e-02 -6.41213846e-10
+   4.90737978e-10 -6.08616330e-03]
+ [ 6.08111403e-02  3.85435925e-01 -2.07263989e-02  4.21315011e-10
+   2.08799835e-10 -3.43263001e-03]
+ [ 5.66615585e-02  3.54433909e-01 -3.90467152e-03  2.84210851e-09
+   1.04672754e-10 -4.64996730e-03]
+ [ 5.66615608e-02  3.54433913e-01 -3.90467152e-03 -2.98461726e-09
+   3.35786148e-10 -4.64996736e-03]
+ [ 5.66615655e-02  3.54433908e-01 -3.90467118e-03  5.92833657e-10
+   8.04593107e-11 -4.64996947e-03]
+ [ 5.66615593e-02  3.54433907e-01 -3.90467187e-03 -3.08032294e-10
+  -3.29512209e-10 -4.64996660e-03]
+ [ 8.42371955e-02  4.28242493e-01 -4.09502012e-04  1.61005320e-09
+   5.31505811e-10 -6.15455753e-03]
+ [ 8.42372001e-02  4.28242496e-01 -4.09503467e-04  1.66410790e-09
+   7.95745205e-10 -6.15455883e-03]
+ [ 8.42372001e-02  4.28242496e-01 -4.09501896e-04 -1.66410788e-09
+   1.14388251e-10 -6.15456177e-03]
+ [ 8.42371988e-02  4.28242492e-01 -4.09500150e-04  1.02896483e-10
+  -5.67613489e-10 -6.15455926e-03]
+ [ 7.51031509e-02  5.17567541e-01  1.39431038e-03  1.38344521e-09
+   5.48035091e-10 -4.71270879e-03]
+ [ 7.51031475e-02  5.17567547e-01  1.39430864e-03  9.52412441e-10
+   2.07411999e-10 -4.71271025e-03]
+ [ 7.51031536e-02  5.17567548e-01  1.39430969e-03  3.74172718e-09
+   3.72010009e-10 -4.71271119e-03]
+ [ 7.51031543e-02  5.17567542e-01  1.39431120e-03 -2.47828057e-09
+   5.04978896e-10 -4.71271101e-03]
+ [ 8.26492777e-02  5.79265250e-01  2.83471416e-02 -4.51453157e-09
+   2.36542253e-10 -2.06176758e-03]
+ [ 8.26492818e-02  5.79265246e-01  2.83471430e-02 -2.58292920e-09
+   1.07162391e-12 -2.06176663e-03]
+ [ 8.26492818e-02  5.79265246e-01  2.83471416e-02  2.58292920e-09
+  -6.23733442e-10 -2.06176665e-03]
+ [ 8.26492744e-02  5.79265249e-01  2.83471420e-02  3.41969622e-09
+  -2.35222744e-10 -2.06176670e-03]
+ [ 9.21708186e-02  4.73800090e-01  6.53025229e-03  1.73645029e-09
+   4.11205880e-10 -2.56675241e-03]
+ [ 9.21708174e-02  4.73800095e-01  6.53025135e-03  1.59721999e-09
+   7.69526926e-10 -2.56675123e-03]
+ [ 9.21708148e-02  4.73800090e-01  6.53025118e-03  1.94574165e-09
+   1.76522232e-10 -2.56675181e-03]
+ [ 9.21708197e-02  4.73800091e-01  6.53025304e-03 -4.35576825e-10
+  -3.37859948e-10 -2.56675238e-03]
+ [ 6.10960596e-02  3.84948154e-01 -2.30269383e-02  1.13092352e-09
+   4.12122543e-10 -1.72400597e-03]
+ [ 6.10960557e-02  3.84948157e-01 -2.30269404e-02 -2.47138073e-09
+  -1.52840640e-10 -1.72400468e-03]
+ [ 6.10960604e-02  3.84948154e-01 -2.30269397e-02  2.20594312e-09
+   5.55512421e-10 -1.72400551e-03]
+ [ 6.10960575e-02  3.84948148e-01 -2.30269390e-02  1.53849414e-09
+   1.30364558e-10 -1.72400575e-03]
+ [ 3.73892273e-02  3.16232878e-01 -4.72982060e-02 -2.27388257e-09
+  -8.03438589e-10 -9.75680817e-04]
+ [ 3.73892238e-02  3.16232881e-01 -4.72982060e-02 -1.49474724e-10
+   4.95531454e-10 -9.75680995e-04]
+ [ 3.73892238e-02  3.16232881e-01 -4.72982042e-02  1.49474759e-10
+  -1.40328903e-10 -9.75681001e-04]
+ [ 3.73892222e-02  3.16232877e-01 -4.72982042e-02  6.31629526e-10
+   6.67137609e-10 -9.75681048e-04]
+ [ 3.73892225e-02  3.16232890e-01 -4.72982079e-02 -4.53422442e-02
+  -1.81781419e-04 -9.75681818e-04]
+ [ 6.10960610e-02  3.84948164e-01 -2.30269404e-02 -5.26451990e-02
+  -2.64831338e-04 -1.72400556e-03]
+ [ 9.21708234e-02  4.73800093e-01  6.53025461e-03 -6.20010383e-02
+  -3.97699536e-04 -2.56675319e-03]
+ [ 8.26492794e-02  5.79265267e-01  2.83471439e-02 -8.06389824e-02
+  -3.18602266e-04 -2.06176890e-03]
+ [ 6.84085669e-02  7.63235048e-01  7.52007663e-02  6.11341797e-09
+  -4.58961492e-10 -1.52254619e-03]
+ [ 6.84085805e-02  7.63235046e-01  7.52007663e-02 -7.85522221e-09
+  -9.61253738e-10 -1.52254640e-03]
+ [ 6.84085702e-02  7.63235026e-01  7.52007663e-02 -6.31662424e-09
+   4.47671424e-10 -1.52254649e-03]
+ [ 6.84085786e-02  7.63235033e-01  7.52007738e-02 -1.12803794e-01
+  -2.63912691e-04 -1.52254861e-03]
+ [ 6.84085724e-02  7.63235046e-01  7.52007663e-02 -4.19443011e-09
+   1.89955359e-09 -1.52254737e-03]
+ [ 6.84085637e-02  7.63235033e-01  7.52007663e-02  1.12803794e-01
+   2.63913797e-04 -1.52254617e-03]
+ [ 8.26492719e-02  5.79265237e-01  2.83471392e-02  8.06389898e-02
+   3.18602935e-04 -2.06176739e-03]
+ [ 9.21708234e-02  4.73800093e-01  6.53025159e-03  6.20010439e-02
+   3.97699914e-04 -2.56675202e-03]
+ [ 6.10960536e-02  3.84948149e-01 -2.30269404e-02  5.26452027e-02
+   2.64831462e-04 -1.72400568e-03]
+ [ 3.73892151e-02  3.16232890e-01 -4.72982079e-02  4.53422442e-02
+   1.81781361e-04 -9.75682109e-04]
+ [ 8.23295396e-02  5.78101978e-01  2.50045420e-02  8.04553777e-02
+   5.98753395e-04 -3.87983961e-03]
+ [ 8.13450543e-02  5.72433069e-01  1.58490950e-02  7.95562472e-02
+   1.05512895e-03 -6.77734055e-03]
+ [ 7.94594940e-02  5.55927724e-01  5.56718517e-03  7.70112220e-02
+   9.62311649e-04 -6.05982332e-03]
+ [ 9.18382034e-02  4.73520920e-01  5.93209214e-03  6.19674176e-02
+   7.77202244e-04 -4.98656405e-03]
+ [ 9.07571875e-02  4.70760852e-01  4.51115935e-03  6.15671575e-02
+   1.35596414e-03 -8.65319592e-03]
+ [ 8.87091625e-02  4.59186450e-01  1.66380988e-03  5.98395634e-02
+   1.29647508e-03 -8.10663321e-03]
+ [ 6.08111406e-02  3.85435931e-01 -2.07263993e-02  5.27270501e-02
+   5.29322064e-04 -3.43263033e-03]
+ [ 6.02946393e-02  3.85057434e-01 -1.50803316e-02  5.26392329e-02
+   9.41143793e-04 -6.08616165e-03]
+ [ 5.85472863e-02  3.78034674e-01 -7.80565845e-03  5.15598804e-02
+   9.15085409e-04 -5.78785868e-03]
+ [ 5.66615649e-02  3.54433909e-01 -3.90466698e-03  4.92980462e-02
+   7.58376400e-04 -4.64996649e-03]
+ [ 8.42371993e-02  4.28242490e-01 -4.09501372e-04  5.69994394e-02
+   1.01259156e-03 -6.15455909e-03]
+ [ 7.51031525e-02  5.17567545e-01  1.39430491e-03  7.33424798e-02
+   7.64517143e-04 -4.71270969e-03]
+ [ 3.71580627e-02  3.17325860e-01 -4.23482452e-02  4.55180202e-02
+   3.70411224e-04 -1.98128301e-03]
+ [ 3.69127244e-02  3.19393590e-01 -2.78692674e-02  4.57972474e-02
+   7.08276726e-04 -3.60154128e-03]
+ [ 3.48990522e-02  2.97847480e-01 -1.21838506e-03  4.35078442e-02
+   7.94068968e-04 -3.19488184e-03]
+ [ 3.51378862e-02  3.16051379e-01 -9.99314699e-03  4.53143995e-02
+   7.76499452e-04 -3.39433004e-03]
+ [ 6.81264587e-02  7.60612130e-01  6.83596693e-02  1.12359818e-01
+   4.67636681e-04 -2.77075742e-03]
+ [ 6.75005950e-02  7.50099003e-01  4.95098326e-02  1.10597998e-01
+   7.41252414e-04 -4.84739791e-03]
+ [ 6.07051775e-02  6.71069741e-01  1.34122651e-02  1.01120435e-01
+  -1.33504669e-04 -1.95811945e-03]
+ [ 6.59270175e-02  7.24120528e-01  2.58897897e-02  1.06426604e-01
+   4.50905500e-04 -4.52464516e-03]
+ [ 6.59270106e-02  7.24120510e-01  2.58897895e-02 -3.45274792e-09
+  -3.35672506e-10 -4.52464311e-03]
+ [ 6.59270136e-02  7.24120524e-01  2.58897922e-02 -4.76202049e-09
+   1.98013208e-10 -4.52464380e-03]
+ [ 6.59270207e-02  7.24120517e-01  2.58897922e-02  2.45966447e-09
+   8.03018411e-10 -4.52464302e-03]
+ [ 6.59270121e-02  7.24120524e-01  2.58897920e-02 -9.26593413e-10
+   8.39401797e-10 -4.52464278e-03]
+ [ 6.75005951e-02  7.50099024e-01  4.95098317e-02  1.95246899e-09
+  -8.97760893e-11 -4.84739904e-03]
+ [ 6.75005880e-02  7.50098999e-01  4.95098308e-02  1.49433345e-09
+  -7.56632812e-10 -4.84739775e-03]
+ [ 6.75005905e-02  7.50099000e-01  4.95098308e-02  2.77147347e-10
+   1.29741573e-10 -4.84739788e-03]
+ [ 6.75005956e-02  7.50099021e-01  4.95098317e-02 -5.51370977e-09
+  -1.12047745e-11 -4.84739968e-03]
+ [ 6.81264680e-02  7.60612128e-01  6.83596693e-02  4.59440311e-09
+   9.60063433e-10 -2.77075885e-03]
+ [ 6.81264654e-02  7.60612142e-01  6.83596693e-02  2.02865942e-09
+  -2.18105442e-10 -2.77075900e-03]
+ [ 6.81264654e-02  7.60612142e-01  6.83596712e-02 -2.02865942e-09
+  -6.77543859e-11 -2.77075858e-03]
+ [ 6.81264619e-02  7.60612129e-01  6.83596674e-02 -4.72974448e-09
+   3.68536059e-10 -2.77075913e-03]
+ [ 6.07051779e-02  6.71069728e-01  1.34122665e-02 -2.16470200e-09
+   2.19867150e-09 -1.95811921e-03]
+ [ 6.07051752e-02  6.71069721e-01  1.34122656e-02  1.05283362e-08
+   2.89447133e-09 -1.95811957e-03]
+ [ 6.07051704e-02  6.71069719e-01  1.34122628e-02 -6.98537456e-09
+  -1.10135177e-09 -1.95811956e-03]
+ [ 6.07051779e-02  6.71069728e-01  1.34122586e-02  2.16470206e-09
+  -2.24302965e-09 -1.95812020e-03]
+ [ 6.07051738e-02  6.71069741e-01  1.34122632e-02 -1.01120435e-01
+   1.33505964e-04 -1.95811596e-03]
+ [ 6.59270100e-02  7.24120528e-01  2.58897883e-02 -1.06426604e-01
+  -4.50904874e-04 -4.52464377e-03]
+ [ 6.75005950e-02  7.50099003e-01  4.95098289e-02 -1.10597998e-01
+  -7.41253170e-04 -4.84740024e-03]
+ [ 6.81264587e-02  7.60612130e-01  6.83596693e-02 -1.12359818e-01
+  -4.67636273e-04 -2.77076021e-03]
+ [ 5.85472900e-02  3.78034674e-01 -7.80565751e-03 -5.15598832e-02
+  -9.15084158e-04 -5.78785967e-03]
+ [ 8.87091681e-02  4.59186450e-01  1.66381014e-03 -5.98395644e-02
+  -1.29647566e-03 -8.10663437e-03]
+ [ 7.94594903e-02  5.55927724e-01  5.56718512e-03 -7.70112220e-02
+  -9.62312522e-04 -6.05982315e-03]
+ [ 6.02946430e-02  3.85057434e-01 -1.50803289e-02 -5.26392339e-02
+  -9.41142745e-04 -6.08616322e-03]
+ [ 9.07571893e-02  4.70760852e-01  4.51115688e-03 -6.15671612e-02
+  -1.35596358e-03 -8.65319837e-03]
+ [ 8.13450580e-02  5.72433069e-01  1.58490892e-02 -7.95562509e-02
+  -1.05512864e-03 -6.77734299e-03]
+ [ 6.08111415e-02  3.85435924e-01 -2.07263976e-02 -5.27270483e-02
+  -5.29322246e-04 -3.43263053e-03]
+ [ 9.18381996e-02  4.73520920e-01  5.93209313e-03 -6.19674148e-02
+  -7.77201065e-04 -4.98656434e-03]
+ [ 8.23295396e-02  5.78101978e-01  2.50045434e-02 -8.04553740e-02
+  -5.98752031e-04 -3.87984121e-03]
+ [ 7.51031470e-02  5.17567545e-01  1.39431097e-03 -7.33424760e-02
+  -7.64516561e-04 -4.71270666e-03]
+ [ 8.42371956e-02  4.28242490e-01 -4.09500790e-04 -5.69994356e-02
+  -1.01259263e-03 -6.15455653e-03]
+ [ 5.66615611e-02  3.54433909e-01 -3.90466908e-03 -4.92980406e-02
+  -7.58376625e-04 -4.64996748e-03]
+ [ 3.71580645e-02  3.17325860e-01 -4.23482452e-02 -4.55180183e-02
+  -3.70411093e-04 -1.98128412e-03]
+ [ 3.69127281e-02  3.19393590e-01 -2.78692618e-02 -4.57972493e-02
+  -7.08275853e-04 -3.60154186e-03]
+ [ 3.48990485e-02  2.97847480e-01 -1.21837365e-03 -4.35078405e-02
+  -7.94064312e-04 -3.19488533e-03]
+ [ 3.51378862e-02  3.16051379e-01 -9.99313575e-03 -4.53143995e-02
+  -7.76496658e-04 -3.39433004e-03]
+ [ 3.71580594e-02  3.17325855e-01 -4.23482480e-02 -3.24078625e-10
+  -1.03226800e-09 -1.98128159e-03]
+ [ 3.71580647e-02  3.17325856e-01 -4.23482470e-02 -9.52803350e-10
+  -1.94143346e-10 -1.98128193e-03]
+ [ 3.71580611e-02  3.17325854e-01 -4.23482452e-02 -1.70441783e-09
+   1.51943706e-10 -1.98128318e-03]
+ [ 3.71580594e-02  3.17325855e-01 -4.23482452e-02  3.24078611e-10
+   5.12703082e-10 -1.98128301e-03]
+ [ 3.69127260e-02  3.19393590e-01 -2.78692660e-02  8.01379366e-10
+   1.29953314e-10 -3.60154071e-03]
+ [ 3.69127253e-02  3.19393585e-01 -2.78692702e-02 -2.07064373e-10
+  -5.90053623e-10 -3.60154077e-03]
+ [ 3.69127265e-02  3.19393586e-01 -2.78692651e-02  1.09280481e-09
+  -4.53650441e-10 -3.60154181e-03]
+ [ 3.69127270e-02  3.19393584e-01 -2.78692660e-02  1.93570900e-09
+   2.93643563e-10 -3.60154226e-03]
+ [ 3.51378816e-02  3.16051377e-01 -9.99314705e-03 -9.06722156e-10
+   2.16988030e-09 -3.39433049e-03]
+ [ 3.51378799e-02  3.16051378e-01 -9.99314967e-03 -2.25840839e-09
+  -3.69907329e-10 -3.39433116e-03]
+ [ 3.51378837e-02  3.16051383e-01 -9.99314262e-03 -3.98812788e-10
+  -9.29513352e-10 -3.39432993e-03]
+ [ 3.51378813e-02  3.16051376e-01 -9.99314542e-03 -1.20442517e-10
+   4.31976485e-10 -3.39433066e-03]
+ [ 3.48990485e-02  2.97847485e-01 -1.21838332e-03  1.08971859e-11
+   2.76182765e-09 -3.19488393e-03]
+ [ 3.48990508e-02  2.97847485e-01 -1.21838326e-03  2.90942656e-09
+  -4.33359294e-10 -3.19488566e-03]
+ [ 3.48990473e-02  2.97847488e-01 -1.21837825e-03 -1.75824853e-09
+  -8.25598213e-10 -3.19488402e-03]
+ [ 3.48990491e-02  2.97847486e-01 -1.21838006e-03  2.04343205e-09
+   7.65919190e-10 -3.19488520e-03]]
+(150, 6)
+</pre></div>
+</div>
+<p>plot cylindrical nodal stress in the radial direction</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">rst</span><span class="o">.</span><span class="n">plot_cylindrical_nodal_stress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_axes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_load_corner_result_001.png" srcset="../../_images/sphx_glr_load_corner_result_001.png" alt="load corner result" class = "sphx-glr-single-img"/><p>plot cylindrical nodal stress in the theta direction</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">rst</span><span class="o">.</span><span class="n">plot_cylindrical_nodal_stress</span><span class="p">(</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;THETA&quot;</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_axes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">add_text</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_load_corner_result_002.png" srcset="../../_images/sphx_glr_load_corner_result_002.png" alt="load corner result" class = "sphx-glr-single-img"/><p>Plot cartesian stress in the “X” direction</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">rst</span><span class="o">.</span><span class="n">plot_nodal_stress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_axes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_load_corner_result_003.png" srcset="../../_images/sphx_glr_load_corner_result_003.png" alt="load corner result" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.348 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-00-read-binary-load-corner-result-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/714de984c7745f7b022740f5b7687f9b/load_corner_result.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">load_corner_result.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/1174537cae087213b22625d6fdc80238/load_corner_result.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">load_corner_result.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/da54cbf436e67b016472c718876de73c/load_corner_result.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">load_corner_result.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pymapdl-reader/edit/main/doc/source/examples/00-read_binary/load_corner_result.rst">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/examples/00-read_binary/load_corner_result.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text", "objectID"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.6.3. <br />Last updated on
+  <span id="ast_build_date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var ast_lastModifiedDate = new Date(document.lastModified);
+  var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("ast_build_date").innerHTML = ast_build_date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
