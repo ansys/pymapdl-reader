@@ -1,0 +1,1033 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Understanding Nodal Diameters from a Cyclic Model Analysis &#8212; PyMAPDL - Legacy Reader</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/ansys_sphinx_theme.css?v=450015ff" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+ 
+<link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../_static/documentation_options.js?v=cf209186"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=4ea706d9"></script>
+    <script src="../../_static/js/table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/01-cyclic_results/academic_sector_nd';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.14.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://reader.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.53';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Stress and Strain from a Cyclic Modal Analysis" href="academic_sector_stress_strain.html" />
+    <link rel="prev" title="Cyclic Result Analysis" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://reader.docs.pyansys.com/version/stable/examples/01-cyclic_results/academic_sector_nd.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+<!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+   
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="PyMAPDL - Legacy Reader - Home"/>
+    <script>document.write(`<img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="PyMAPDL - Legacy Reader - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../getting_started.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user_guide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../api/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymapdl-reader" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../getting_started.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user_guide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../api/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymapdl-reader" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../00-read_binary/index.html">Loading and Visualizing Result Files</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Cyclic Result Analysis</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Understanding Nodal Diameters from a Cyclic Model Analysis</a></li>
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="academic_sector_stress_strain.html">Stress and Strain from a Cyclic Modal Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sector_model.html">Cyclic Model Visualization</a></li>
+
+</ul>
+</li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+      
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+      
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i
+      ></a>
+    </li> 
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Cyclic Result Analysis</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Understanding Nodal Diameters from a Cyclic Model Analysis</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-01-cyclic-results-academic-sector-nd-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="understanding-nodal-diameters-from-a-cyclic-model-analysis">
+<span id="ref-academic-sector"></span><span id="sphx-glr-examples-01-cyclic-results-academic-sector-nd-py"></span><h1>Understanding Nodal Diameters from a Cyclic Model Analysis<a class="headerlink" href="#understanding-nodal-diameters-from-a-cyclic-model-analysis" title="Link to this heading">#</a></h1>
+<p>This example shows how to interpret modes from a cyclic analysis from
+MAPDL result file from both single bladed sectors as well as
+multi-bladed sectors from a modal analysis.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># sphinx_gallery_thumbnail_number = 2</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">ansys.mapdl.reader</span> <span class="kn">import</span> <span class="n">examples</span>
+</pre></div>
+</div>
+<p>Download the academic modal analysis file</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rotor</span> <span class="o">=</span> <span class="n">examples</span><span class="o">.</span><span class="n">download_academic_rotor_result</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rotor</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>PyMAPDL Result
+Units       : User Defined
+Version     : 20.1
+Cyclic      : True
+Result Sets : 26
+Nodes       : 786
+Elements    : 524
+
+
+Available Results:
+EMS : Miscellaneous summable items (normally includes face pressures)
+ENF : Nodal forces
+ENS : Nodal stresses
+ENG : Element energies and volume
+EEL : Nodal elastic strains
+ETH : Nodal thermal strains (includes swelling strains)
+EUL : Element euler angles
+EPT : Nodal temperatures
+NSL : Nodal displacements
+</pre></div>
+</div>
+</section>
+<section id="rotor-sector-order">
+<h1>Rotor Sector Order<a class="headerlink" href="#rotor-sector-order" title="Link to this heading">#</a></h1>
+<p>Note that the sector rotations follow the right-hand rule where the
+X-axis and Y-axis make up the horizontal plane and the Z-axis is
+vertical and positive upwards.  Rotation follows the right-hand
+rule, which looks anti-clockwise when looking downward onto the XY
+plane.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">rotor</span><span class="o">.</span><span class="n">plot_sectors</span><span class="p">(</span><span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">stitle</span><span class="o">=</span><span class="s2">&quot;Sector&quot;</span><span class="p">,</span> <span class="n">smooth_shading</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_001.png" srcset="../../_images/sphx_glr_academic_sector_nd_001.png" alt="academic sector nd" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/pyvista/plotting/_plotting.py:282: PyVistaDeprecationWarning:
+&quot;stitle&quot; is a deprecated keyword argument and will be removed in a future
+release.
+
+Use ``scalar_bar_args`` instead.  For example:
+
+scalar_bar_args={&#39;title&#39;: &#39;Scalar Bar Title&#39;}
+
+  warnings.warn(USE_SCALAR_BAR_ARGS, PyVistaDeprecationWarning)
+</pre></div>
+</div>
+<p>Plot Nodal Displacement</p>
+<p>This modal analysis contains two modes for each harmonic index.
+Since this is a 24 sector rotor, it will contain the harmonic
+indices from 0 to N/2, which in this case is 12</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print the harmonic indices with</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rotor</span><span class="o">.</span><span class="n">harmonic_indices</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[  0   0  -1   1  -2   2   3  -3   4  -4   5  -5   6  -6   7  -7   8  -8
+   9  -9  10 -10  11 -11  12  12]
+</pre></div>
+</div>
+<p>You can refer to the result set either using MAPDL’s 1-based indexing
+which is (Load-step, sub-step).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">rotor</span><span class="o">.</span><span class="n">plot_nodal_displacement</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">comp</span><span class="o">=</span><span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_002.png" srcset="../../_images/sphx_glr_academic_sector_nd_002.png" alt="academic sector nd" class = "sphx-glr-single-img"/><p>Alternatively, you can refer to the results using cumulative indexing.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">rotor</span><span class="o">.</span><span class="n">plot_nodal_displacement</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_003.png" srcset="../../_images/sphx_glr_academic_sector_nd_003.png" alt="academic sector nd" class = "sphx-glr-single-img"/></section>
+<section id="understanding-harmonic-indexing">
+<h1>Understanding Harmonic Indexing<a class="headerlink" href="#understanding-harmonic-indexing" title="Link to this heading">#</a></h1>
+<p>ANSYS has great documentation on harmonic indexing within their
+internal documentation, but for the sake of completeness it will be repeated here.</p>
+<p>The harmonic index used within MAPDL is an integer that determines
+the variation in the value of a single degree of freedom at points
+spaced at a circumferential angle equal to the sector angle.</p>
+<p>For this academic rotor, when the number of “blades” equals the
+number of MAPDL sectors, the harmonic index will always match the
+nodal diameter.  For example, the cumulative result 10 has a
+harmonic index of 5:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a> <span class="o">=</span> <span class="mi">10</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Harmonic Index:&quot;</span><span class="p">,</span> <span class="n">rotor</span><span class="o">.</span><span class="n">harmonic_indices</span><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a><span class="p">])</span>
+
+
+<span class="c1"># For the purpose of illustrating the nodal diameter content, we</span>
+<span class="c1"># restrict the displacement to a narrow range and force the lower and</span>
+<span class="c1"># upper ranges of the plot to indicate the phase of the displacement</span>
+<span class="c1">#</span>
+<span class="c1"># In this plot you can clearly see that the harmonic index is indeed 5</span>
+<span class="c1"># as five, and only 5 lines can be drawn through the node lines</span>
+<span class="c1"># spanning the circumference of the rotor.</span>
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a> <span class="o">=</span> <span class="mf">0.55</span>
+<a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">rotor</span><span class="o">.</span><span class="n">plot_nodal_displacement</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a><span class="p">,</span>
+    <span class="n">comp</span><span class="o">=</span><span class="s2">&quot;norm&quot;</span><span class="p">,</span>
+    <span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a> <span class="o">+</span> <span class="mf">1e-2</span><span class="p">],</span>
+    <span class="n">stitle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">add_text</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_004.png" srcset="../../_images/sphx_glr_academic_sector_nd_004.png" alt="academic sector nd" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Harmonic Index: 5
+/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/pyvista/plotting/_plotting.py:282: PyVistaDeprecationWarning:
+&quot;stitle&quot; is a deprecated keyword argument and will be removed in a future
+release.
+
+Use ``scalar_bar_args`` instead.  For example:
+
+scalar_bar_args={&#39;title&#39;: &#39;Scalar Bar Title&#39;}
+
+  warnings.warn(USE_SCALAR_BAR_ARGS, PyVistaDeprecationWarning)
+</pre></div>
+</div>
+<p>The same can be done for the simpler nodal diameter 1</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a> <span class="o">=</span> <span class="mi">3</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rotor</span><span class="o">.</span><span class="n">harmonic_indices</span><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a><span class="p">])</span>
+
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">rotor</span><span class="o">.</span><span class="n">plot_nodal_displacement</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a><span class="p">,</span>
+    <span class="n">comp</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span>
+    <span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a> <span class="o">+</span> <span class="mf">1e-2</span><span class="p">],</span>
+    <span class="n">add_text</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">stitle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c1"># Therefore for this rotor with the number of sectors (N) equaling the</span>
+<span class="c1"># number of blades, for each harmonic index there can only be one</span>
+<span class="c1"># corresponding nodal diameter</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_005.png" srcset="../../_images/sphx_glr_academic_sector_nd_005.png" alt="academic sector nd" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>1
+/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/pyvista/plotting/_plotting.py:282: PyVistaDeprecationWarning:
+&quot;stitle&quot; is a deprecated keyword argument and will be removed in a future
+release.
+
+Use ``scalar_bar_args`` instead.  For example:
+
+scalar_bar_args={&#39;title&#39;: &#39;Scalar Bar Title&#39;}
+
+  warnings.warn(USE_SCALAR_BAR_ARGS, PyVistaDeprecationWarning)
+</pre></div>
+</div>
+</section>
+<section id="multi-bladed-sectors">
+<h1>Multi-Bladed Sectors<a class="headerlink" href="#multi-bladed-sectors" title="Link to this heading">#</a></h1>
+<p>When there are multiple blades per sector as in the case of the
+following example, the relationship between the harmonic indices and
+nodal diameters becomes more complicated</p>
+<p>In this case, we use the following equation described in the MAPDL
+Cyclic Analysis Guide:
+d = m*N ± k</p>
+<p>where:
+- d is the nodal diameter
+- N is the number of sectors
+- k is the harmonic index
+- m is a set of integers from 0 to infinity</p>
+<p>Therefore, for a 6 sector rotor, the first 4 possible nodal diameters at
+harmonic index 1 are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">N</span></a> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># number of sectors</span>
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># harmonic index</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nodal Diameters :&quot;</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">m</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="k">if</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">m</span></a> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%4d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">m</span></a> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">N</span></a> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%4d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">m</span></a> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">N</span></a> <span class="o">+</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Nodal Diameters :
+   1
+   5
+   7
+  11
+  13
+  17
+  19
+  23
+  25
+</pre></div>
+</div>
+<p>Normally for a rotor where the number of blades per sector is 1,
+nodal diameters higher than N are simply aliased back to 1 and these
+solutions do not appear in the results.  However, when the sector
+contains multiple blades per sector, these results do appear in the
+analysis since they are not aliased back into a repeated mode.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Therefore in this example part of the above modes will be</span>
+<span class="c1"># back-aliased for a 24 blade, 6 sector rotor, and these can be</span>
+<span class="c1"># computed with:</span>
+
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_blades</span></a> <span class="o">=</span> <span class="mi">24</span>  <span class="c1"># 4 blades per sector</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nodal_diameters</span></a> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">m</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="k">if</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">m</span></a> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nodal_diameters</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">m</span></a> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">N</span></a> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nodal_diameters</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">m</span></a> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">N</span></a> <span class="o">+</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nodal Diameters :&quot;</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">d</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nodal_diameters</span></a><span class="p">:</span>
+    <span class="k">if</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">d</span></a> <span class="o">&gt;</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_blades</span></a><span class="p">:</span>  <span class="c1"># ignore</span>
+        <span class="k">continue</span>
+    <span class="k">elif</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">d</span></a> <span class="o">&gt;</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_blades</span></a> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># back alias</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%4d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="o">-</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_blades</span></a> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">d</span></a><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%4d</span><span class="s2">&quot;</span> <span class="o">%</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">d</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Nodal Diameters :
+   1
+   5
+   7
+  11
+ -11
+  -7
+  -5
+  -1
+</pre></div>
+</div>
+</section>
+<section id="plot-the-multi-bladed-sector">
+<h1>Plot the Multi-Bladed Sector<a class="headerlink" href="#plot-the-multi-bladed-sector" title="Link to this heading">#</a></h1>
+<p>We can verify these results by analyzing a multi-sector rotor</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">multi_blade_rotor</span> <span class="o">=</span> <span class="n">examples</span><span class="o">.</span><span class="n">download_academic_rotor_4blade_result</span><span class="p">()</span>
+
+<span class="c1"># plot all the sectors</span>
+<a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">multi_blade_rotor</span><span class="o">.</span><span class="n">plot_sectors</span><span class="p">(</span>
+    <span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">stitle</span><span class="o">=</span><span class="s2">&quot;Sector&quot;</span><span class="p">,</span> <span class="n">smooth_shading</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_006.png" srcset="../../_images/sphx_glr_academic_sector_nd_006.png" alt="academic sector nd" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/pyvista/plotting/_plotting.py:282: PyVistaDeprecationWarning:
+&quot;stitle&quot; is a deprecated keyword argument and will be removed in a future
+release.
+
+Use ``scalar_bar_args`` instead.  For example:
+
+scalar_bar_args={&#39;title&#39;: &#39;Scalar Bar Title&#39;}
+
+  warnings.warn(USE_SCALAR_BAR_ARGS, PyVistaDeprecationWarning)
+</pre></div>
+</div>
+<p>We can then see that the harmonic indices for harmonic index 1
+indeed alias back to the expected nodal diameters in the following
+plots.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">multi_blade_rotor</span><span class="o">.</span><span class="n">harmonic_indices</span><span class="p">)</span>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hi_1</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.nonzero.html#numpy.nonzero" title="numpy.nonzero" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span></a><span class="p">(</span><span class="n">multi_blade_rotor</span><span class="o">.</span><span class="n">harmonic_indices</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cumulative indices matching harmonic index 1:&quot;</span><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hi_1</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[ 0  0  0  0  0  0  0  0  1 -1  1 -1 -1  1 -1  1 -2  2 -2  2 -2  2 -2  2
+  3  3  3  3  3  3  3  3]
+Cumulative indices matching harmonic index 1: [ 8 10 13 15]
+</pre></div>
+</div>
+<p>Cumulative result 8 and harmonic index 1</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a> <span class="o">=</span> <span class="mi">8</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">text</span></a> <span class="o">=</span> <span class="s2">&quot;Expected Nodal Diameter </span><span class="si">%2d</span><span class="s2">&quot;</span> <span class="o">%</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nodal_diameters</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">multi_blade_rotor</span><span class="o">.</span><span class="n">plot_nodal_displacement</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a> <span class="o">+</span> <span class="mf">1e-2</span><span class="p">],</span> <span class="n">add_text</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">text</span></a><span class="p">,</span> <span class="n">stitle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_007.png" srcset="../../_images/sphx_glr_academic_sector_nd_007.png" alt="academic sector nd" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/pyvista/plotting/_plotting.py:282: PyVistaDeprecationWarning:
+&quot;stitle&quot; is a deprecated keyword argument and will be removed in a future
+release.
+
+Use ``scalar_bar_args`` instead.  For example:
+
+scalar_bar_args={&#39;title&#39;: &#39;Scalar Bar Title&#39;}
+
+  warnings.warn(USE_SCALAR_BAR_ARGS, PyVistaDeprecationWarning)
+</pre></div>
+</div>
+<p>Cumulative result 10 and harmonic index 5</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a> <span class="o">=</span> <span class="mi">10</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">text</span></a> <span class="o">=</span> <span class="s2">&quot;Expected Nodal Diameter </span><span class="si">%2d</span><span class="s2">&quot;</span> <span class="o">%</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nodal_diameters</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">multi_blade_rotor</span><span class="o">.</span><span class="n">plot_nodal_displacement</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a> <span class="o">+</span> <span class="mf">1e-2</span><span class="p">],</span> <span class="n">add_text</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">text</span></a><span class="p">,</span> <span class="n">stitle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_008.png" srcset="../../_images/sphx_glr_academic_sector_nd_008.png" alt="academic sector nd" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/pyvista/plotting/_plotting.py:282: PyVistaDeprecationWarning:
+&quot;stitle&quot; is a deprecated keyword argument and will be removed in a future
+release.
+
+Use ``scalar_bar_args`` instead.  For example:
+
+scalar_bar_args={&#39;title&#39;: &#39;Scalar Bar Title&#39;}
+
+  warnings.warn(USE_SCALAR_BAR_ARGS, PyVistaDeprecationWarning)
+</pre></div>
+</div>
+<p>Cumulative result 13 and harmonic index 7</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a> <span class="o">=</span> <span class="mi">13</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">text</span></a> <span class="o">=</span> <span class="s2">&quot;Expected Nodal Diameter </span><span class="si">%2d</span><span class="s2">&quot;</span> <span class="o">%</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nodal_diameters</span></a><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">multi_blade_rotor</span><span class="o">.</span><span class="n">plot_nodal_displacement</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a> <span class="o">+</span> <span class="mf">1e-2</span><span class="p">],</span> <span class="n">add_text</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">text</span></a><span class="p">,</span> <span class="n">stitle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_009.png" srcset="../../_images/sphx_glr_academic_sector_nd_009.png" alt="academic sector nd" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/pyvista/plotting/_plotting.py:282: PyVistaDeprecationWarning:
+&quot;stitle&quot; is a deprecated keyword argument and will be removed in a future
+release.
+
+Use ``scalar_bar_args`` instead.  For example:
+
+scalar_bar_args={&#39;title&#39;: &#39;Scalar Bar Title&#39;}
+
+  warnings.warn(USE_SCALAR_BAR_ARGS, PyVistaDeprecationWarning)
+</pre></div>
+</div>
+<p>Cumulative result 15 and harmonic index 11</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a> <span class="o">=</span> <span class="mi">15</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">text</span></a> <span class="o">=</span> <span class="s2">&quot;Expected Nodal Diameter </span><span class="si">%2d</span><span class="s2">&quot;</span> <span class="o">%</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nodal_diameters</span></a><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">multi_blade_rotor</span><span class="o">.</span><span class="n">plot_nodal_displacement</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rnum</span></a><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">cpos</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">r</span></a> <span class="o">+</span> <span class="mf">1e-2</span><span class="p">],</span> <span class="n">add_text</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">text</span></a><span class="p">,</span> <span class="n">stitle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_010.png" srcset="../../_images/sphx_glr_academic_sector_nd_010.png" alt="academic sector nd" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages/pyvista/plotting/_plotting.py:282: PyVistaDeprecationWarning:
+&quot;stitle&quot; is a deprecated keyword argument and will be removed in a future
+release.
+
+Use ``scalar_bar_args`` instead.  For example:
+
+scalar_bar_args={&#39;title&#39;: &#39;Scalar Bar Title&#39;}
+
+  warnings.warn(USE_SCALAR_BAR_ARGS, PyVistaDeprecationWarning)
+</pre></div>
+</div>
+</section>
+<section id="traveling-wave-animation">
+<h1>Traveling Wave Animation<a class="headerlink" href="#traveling-wave-animation" title="Link to this heading">#</a></h1>
+<p>You can animate the traveling wave for a cyclic result using
+<code class="docutils literal notranslate"><span class="pre">animate_nodal_displacement</span></code>.  For a modal result, be sure to
+modify <code class="docutils literal notranslate"><span class="pre">displacement_factor</span></code> to a value that properly scales the
+modal solution.  Recall that solutions to a modal analysis from
+MAPDL may or may not be scaled to unity or the mass matrix depending
+on the settings within the modal analysis.</p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">loop=True</span></code> to allow for a continuous plot, and modify
+<code class="docutils literal notranslate"><span class="pre">n_frames</span></code> to allow for a smoother or faster plot.  See
+<code class="docutils literal notranslate"><span class="pre">help(pyvista.plot)</span></code> for additional keyword arguments.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">rotor</span><span class="o">.</span><span class="n">animate_nodal_displacement</span><span class="p">(</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">displacement_factor</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
+    <span class="n">n_frames</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">show_axes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">background</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
+    <span class="n">loop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">add_text</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">movie_filename</span><span class="o">=</span><span class="s2">&quot;EO3_Mode1.gif&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_011.gif" srcset="../../_images/sphx_glr_academic_sector_nd_011.gif" alt="academic sector nd" class = "sphx-glr-single-img"/><p>Note how you can plot the backwards traveling wave by selecting the
+second mode in the mode pair <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">2)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">1)</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.pyvista.org/version/stable/api/plotting/_autosummary/pyvista.CameraPosition.html#pyvista.CameraPosition" title="pyvista.CameraPosition" class="sphx-glr-backref-module-pyvista sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <span class="n">rotor</span><span class="o">.</span><span class="n">animate_nodal_displacement</span><span class="p">(</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="n">displacement_factor</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
+    <span class="n">n_frames</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">show_axes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">background</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
+    <span class="n">loop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">add_text</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">movie_filename</span><span class="o">=</span><span class="s2">&quot;EO3_Mode1.gif&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_academic_sector_nd_012.gif" srcset="../../_images/sphx_glr_academic_sector_nd_012.gif" alt="academic sector nd" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 16.018 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-01-cyclic-results-academic-sector-nd-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/c9ed20fb704a0c01197c3e73488bb440/academic_sector_nd.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">academic_sector_nd.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/953977b398920a3517c32abe3a268ddd/academic_sector_nd.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">academic_sector_nd.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Understanding Nodal Diameters from a Cyclic Model Analysis</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#rotor-sector-order">Rotor Sector Order</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#understanding-harmonic-indexing">Understanding Harmonic Indexing</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-bladed-sectors">Multi-Bladed Sectors</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-the-multi-bladed-sector">Plot the Multi-Bladed Sector</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#traveling-wave-animation">Traveling Wave Animation</a></li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pymapdl-reader/edit/main/doc/source/examples/01-cyclic_results/academic_sector_nd.rst">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/examples/01-cyclic_results/academic_sector_nd.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  0.12.5. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

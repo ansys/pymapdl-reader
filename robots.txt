@@ -1,0 +1,8 @@
+User-agent: *
+
+Disallow: /version/0.54
+Disallow: /version/0.53
+Disallow: /version/0.52
+Disallow: /pull/
+
+Sitemap: https://reader.docs.pyansys.com/sitemap.xml
