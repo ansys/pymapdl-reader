@@ -252,7 +252,7 @@ def read_table(f, dtype="i", nread=None, skip=False, get_nread=True, cython=Fals
 
 
 def read_string_from_binary(f, n):
-    """Read n 4 character binary strings from a file opend in binary
+    """Read n 4 character binary strings from a file opened in binary
     mode
     """
     string = b""
