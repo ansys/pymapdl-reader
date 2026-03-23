@@ -25,7 +25,7 @@ repos:
   - id: codespell
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: v0.5.2
+  rev: v0.6.0
   hooks:
   - id: add-license-headers
     args:
