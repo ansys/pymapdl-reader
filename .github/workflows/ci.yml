@@ -262,7 +262,7 @@ jobs:
         run: ls -R
 
       - name: Compressing HTML documentation
-        uses: vimtor/action-zip@v1.2
+        uses: vimtor/action-zip@v1.3
         with:
           files: documentation-html
           dest: documentation-html.zip
