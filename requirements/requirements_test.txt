@@ -1,5 +1,5 @@
 ansys-mapdl-core>=0.73.0
 matplotlib>=3.10.8
-pytest==9.0.2
+pytest==9.0.3
 pytest-cov==7.1.0
 scipy>=1.7.3
