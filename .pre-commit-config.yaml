@@ -25,7 +25,7 @@ repos:
   - id: codespell
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: v0.7.1
+  rev: v0.7.2
   hooks:
   - id: add-license-headers
     args:
@@ -57,6 +57,6 @@ repos:
     exclude: '.*\.(cdb|rst|dat)$'
 
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.37.1
+  rev: 0.37.2
   hooks:
     - id: check-github-workflows
