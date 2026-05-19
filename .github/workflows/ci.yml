@@ -10,7 +10,7 @@ env:
   PYMAPDL_START_INSTANCE: FALSE
   DOCKER_PACKAGE: ghcr.io/ansys/mapdl
   DOCUMENTATION_CNAME: reader.docs.pyansys.com
-  MAIN_PYTHON_VERSION: '3.13'
+  MAIN_PYTHON_VERSION: '3.14'
 
 on:
   pull_request:
@@ -61,16 +61,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
         os: [ubuntu-latest, windows-latest]
-      # Once windows runners update their cache this has to be removed
-      # Change the 3.13 version on windows to 3.13.5
-        exclude:
-          - os: windows-latest
-            python-version: '3.13'
-        include:
-          - os: windows-latest
-            python-version: '3.13.5'
 
     steps:
       - uses: actions/checkout@v6
