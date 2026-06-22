@@ -1586,7 +1586,7 @@ def compute_principal_stress(double [:, ::1] stress):
 
     # compute principle stresses
     # w =  np.linalg.eigvalsh(stress_tensor)  # default uses lower triangle
-    # wrapped lapack libaray (slightly faster than above)$
+    # wrapped lapack library (slightly faster than above)$
     w = np.linalg._umath_linalg.eigvalsh_lo(stress_tensor)
     w[:, ::-1].sort(1)
 

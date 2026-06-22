@@ -10,7 +10,7 @@ env:
   PYMAPDL_START_INSTANCE: FALSE
   DOCKER_PACKAGE: ghcr.io/ansys/mapdl
   DOCUMENTATION_CNAME: reader.docs.pyansys.com
-  MAIN_PYTHON_VERSION: '3.13'
+  MAIN_PYTHON_VERSION: '3.14'
 
 on:
   pull_request:
@@ -33,7 +33,7 @@ jobs:
         uses: pyvista/setup-headless-display-action@v4
 
       - name: Build project documentation
-        uses: ansys/actions/doc-build@v10
+        uses: ansys/actions/doc-build@v10.3.2
         with:
           dependencies: 'pandoc'
           skip-dependencies-cache: true
@@ -48,7 +48,7 @@ jobs:
     needs: [doc_build]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: ansys/actions/doc-deploy-dev@v10
+      - uses: ansys/actions/doc-deploy-dev@v10.3.2
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
@@ -61,19 +61,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
         os: [ubuntu-latest, windows-latest]
-      # Once windows runners update their cache this has to be removed
-      # Change the 3.13 version on windows to 3.13.5
-        exclude:
-          - os: windows-latest
-            python-version: '3.13'
-        include:
-          - os: windows-latest
-            python-version: '3.13.5'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
@@ -125,7 +117,7 @@ jobs:
         run: pytest -v tests/ --durations=0
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ runner.os }}-${{ matrix.python-version }}
           path: dist/
@@ -137,16 +129,16 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.3.0
+        uses: pypa/cibuildwheel@v3.4.1
 
       - name: List generated wheels
         run: |
           ls ./wheelhouse/*
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           path: ./wheelhouse/*.whl
 
@@ -160,7 +152,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Automerge PRs
-        uses: ansys/actions/hk-automerge-prs@v10
+        uses: ansys/actions/hk-automerge-prs@v10.3.2
         with:
           approver: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           approver-token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
@@ -176,7 +168,7 @@ jobs:
   #   steps:
 
   #     - name: Checkout PyMAPDL
-  #       uses: actions/checkout@v6
+  #       uses: actions/checkout@v6.0.2
   #       with:
   #         repository: 'pyansys/pymapdl' #checking out main. Not release
 
@@ -184,7 +176,7 @@ jobs:
   #       run: ls -R
 
   #     - name: Downloading artifacts
-  #       uses: actions/download-artifact@v7
+  #       uses: actions/download-artifact@v8
 
   #     - name: Display structure of downloaded artifact files
   #       run: ls -R
@@ -256,13 +248,13 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       # this downloads all artifacts
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
 
       - name: Display structure of downloaded files
         run: ls -R
 
       - name: Compressing HTML documentation
-        uses: vimtor/action-zip@v1.2
+        uses: vimtor/action-zip@v1.3
         with:
           files: documentation-html
           dest: documentation-html.zip
@@ -277,7 +269,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
 
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
           files: |
@@ -292,7 +284,7 @@ jobs:
     needs: [Release]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@v10
+        uses: ansys/actions/doc-deploy-stable@v10.3.2
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
