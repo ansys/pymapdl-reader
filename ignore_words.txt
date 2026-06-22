@@ -5,3 +5,5 @@ filname
 ans
 ect
 ist
+Synopsys
+synopsys
