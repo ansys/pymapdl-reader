@@ -5,7 +5,7 @@ repos:
   - id: black
 
 - repo: https://github.com/pycqa/isort
-  rev: 9.0.0b1
+  rev: 9.0.0b2
   hooks:
   - id: isort
     args: [
@@ -57,6 +57,6 @@ repos:
     exclude: '.*\.(cdb|rst|dat)$'
 
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.37.4
+  rev: 0.38.0
   hooks:
     - id: check-github-workflows
