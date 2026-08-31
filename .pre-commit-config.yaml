@@ -5,7 +5,7 @@ repos:
   - id: black
 
 - repo: https://github.com/pycqa/isort
-  rev: 9.0.0b5
+  rev: 9.0.1
   hooks:
   - id: isort
     args: [
@@ -40,7 +40,7 @@ repos:
 #     exclude: "tests/"
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v22.1.8
+  rev: v23.1.0
   hooks:
   - id: clang-format
     files: |
