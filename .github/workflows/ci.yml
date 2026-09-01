@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup headless display
-        uses: pyvista/setup-headless-display-action@v4
+        uses: pyvista/setup-headless-display-action@v5
 
       - name: Build project documentation
         uses: ansys/actions/doc-build@v10.3.5
@@ -108,7 +108,7 @@ jobs:
           pip list
 
       - name: Setup headless display
-        uses: pyvista/setup-headless-display-action@v4
+        uses: pyvista/setup-headless-display-action@v5
 
       - name: Install test requirements
         run: pip install -r requirements/requirements_test.txt
