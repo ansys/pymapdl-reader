@@ -13,6 +13,7 @@
 * [JackGuyver](https://github.com/JackGuyver)
 * [James Derrick](https://github.com/jgd10)
 * [Kathy Pippert](https://github.com/PipKat)
+* [Kerry McAdams](https://github.com/klmcadams)
 * [Maxime Rey](https://github.com/MaxJPRey)
 * [NDfp](https://github.com/NDfp)
 * [purubcik](https://github.com/purubcik)
