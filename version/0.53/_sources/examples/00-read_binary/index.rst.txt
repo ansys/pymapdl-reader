@@ -1,0 +1,113 @@
+
+
+.. _sphx_glr_examples_00-read_binary:
+
+Loading and Visualizing Result Files
+------------------------------------
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Custom Scalar Visualization">
+
+.. only:: html
+
+  .. image:: /examples/00-read_binary/images/thumb/sphx_glr_custom_visualization_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_00-read_binary_custom_visualization.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Custom Scalar Visualization</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Cylindrical Nodal Stress">
+
+.. only:: html
+
+  .. image:: /examples/00-read_binary/images/thumb/sphx_glr_load_corner_result_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_00-read_binary_load_corner_result.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Cylindrical Nodal Stress</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Visualize a shaft modal analysis">
+
+.. only:: html
+
+  .. image:: /examples/00-read_binary/images/thumb/sphx_glr_load_shaft_result_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_00-read_binary_load_shaft_result.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Shaft Modal Analysis</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Visualize the result of verification manual test 33.">
+
+.. only:: html
+
+  .. image:: /examples/00-read_binary/images/thumb/sphx_glr_load_thermal_result_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_00-read_binary_load_thermal_result.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Thermal Analysis</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Visualize a shell static analysis">
+
+.. only:: html
+
+  .. image:: /examples/00-read_binary/images/thumb/sphx_glr_pontoon_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_00-read_binary_pontoon.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Shell Static Analysis</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/00-read_binary/custom_visualization
+   /examples/00-read_binary/load_corner_result
+   /examples/00-read_binary/load_shaft_result
+   /examples/00-read_binary/load_thermal_result
+   /examples/00-read_binary/pontoon
+
